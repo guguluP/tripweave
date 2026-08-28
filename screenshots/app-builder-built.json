@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "TripWeave",
+      "hasCanvas": false,
+      "bodyTextLen": 1153,
+      "bodyTextHash": "15636c82684168760981fb35adb990f672f8a9885166086a49e12ada65849e3e",
+      "bodyTextPrefix": "TripWeave Discover Plan Trips Sign in PURI STAYS WITHOUT THE TAB",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "TripWeave",
+      "hasCanvas": false,
+      "bodyTextLen": 1064,
+      "bodyTextHash": "b12cf3d669476f44fe7f9c026c4f9ea493d7670365d05d5ee6fdfc1744858a42",
+      "bodyTextPrefix": "TripWeave Sign in PURI STAYS WITHOUT THE TAB OVERLOAD Three hone",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}

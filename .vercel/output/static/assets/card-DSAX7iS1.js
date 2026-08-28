@@ -1,0 +1,1 @@
+import{m as e,o as t}from"./motion-B-UH4ONR.js";var n=e();function r({className:e,...r}){return(0,n.jsx)(`div`,{className:t(`overflow-hidden rounded-xl border border-border bg-elevated shadow-soft`,e),...r})}export{r as t};
