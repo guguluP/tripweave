@@ -3,3 +3,8 @@ node_modules/
 .github_repo
 .env
 .env.*
+.vercel/
+.grok/status
+.grok/preview.log
+scripts/e2e-auth-pay.mjs
+screenshots/e2e-*.png

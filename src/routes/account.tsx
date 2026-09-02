@@ -1,30 +1,48 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Shell } from "@/components/shell";
+import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, MotionToggle, Stagger, TextSwap } from "@/components/motion";
 import { signOut } from "@/lib/auth/client";
-import { RedirectToSignIn } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { formatMoney } from "@/lib/packages";
+import { paymentLine } from "@/lib/pay";
 import { listBookings, type BookingRow } from "@/lib/server/bookings";
 
 export const Route = createFileRoute("/account")({ component: Account });
 
+function AccountSkeleton() {
+  return (
+    <Shell>
+      <div className="mx-auto max-w-lg px-4 py-10">
+        <Skeleton className="h-24 w-full rounded-xl" />
+      </div>
+    </Shell>
+  );
+}
+
 function Account() {
-  const { user, isPending } = useCurrentUserState();
+  return (
+    <RequireAuth next="/account" fallback={<AccountSkeleton />}>
+      <AccountInner />
+    </RequireAuth>
+  );
+}
+
+function AccountInner() {
+  const { user } = useCurrentUserState();
   const [bookings, setBookings] = useState<BookingRow[] | null>(null);
   const [signingOut, setSigningOut] = useState(false);
   const [showCancelled, setShowCancelled] = useState(false);
 
   useEffect(() => {
-    if (isPending || !user) return;
     listBookings()
       .then(setBookings)
       .catch(() => setBookings([]));
-  }, [user, isPending]);
+  }, []);
 
   const paid = useMemo(
     () => (bookings ?? []).filter((b) => b.status === "paid"),
@@ -37,17 +55,7 @@ function Account() {
   const spent = paid.reduce((sum, b) => sum + b.amountInr, 0);
   const visible = showCancelled ? cancelled : paid;
 
-  if (isPending) {
-    return (
-      <Shell>
-        <div className="mx-auto max-w-lg px-4 py-10">
-          <Skeleton className="h-24 w-full rounded-xl" />
-        </div>
-      </Shell>
-    );
-  }
-
-  if (!user) return <RedirectToSignIn />;
+  if (!user) return <AccountSkeleton />;
 
   const label = user.displayName ?? user.primaryEmail ?? "Guest";
 
@@ -109,10 +117,13 @@ function Account() {
             {visible.slice(0, 4).map((b) => (
               <li
                 key={b.id}
-                className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+                className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-sm"
               >
-                <span className="truncate">{b.packageName}</span>
-                <span className="tabular-nums text-muted">{formatMoney(b.amountInr)}</span>
+                <span className="min-w-0 truncate">{b.packageName}</span>
+                <span className="shrink-0 text-right text-xs text-muted">
+                  <span className="block tabular-nums">{formatMoney(b.amountInr)}</span>
+                  <span className="block">{paymentLine(b)}</span>
+                </span>
               </li>
             ))}
           </ul>

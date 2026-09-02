@@ -206,6 +206,34 @@
 .t-input input::placeholder {
   color: var(--color-subtle);
 }
+.t-input select {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  padding: 0 36px 0 12px;
+  outline: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+  appearance: none;
+  cursor: pointer;
+}
+.t-input.t-select {
+  position: relative;
+}
+.t-input.t-select::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  pointer-events: none;
+  border-right: 1.5px solid var(--color-muted);
+  border-bottom: 1.5px solid var(--color-muted);
+  transform: translateY(-70%) rotate(45deg);
+}
 .t-input.is-error {
   border-color: var(--color-danger);
   transition: border-color var(--revert-dur, 280ms) ease-out;

@@ -4,6 +4,7 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TextSwap } from "@/components/motion";
+import { saveNext } from "@/lib/packages";
 import { useState } from "react";
 
 export function AuthSlot() {
@@ -11,13 +12,21 @@ export function AuthSlot() {
   const [signingOut, setSigningOut] = useState(false);
 
   if (isPending) {
-    return <Skeleton className="h-9 w-24 rounded-md" />
+    return <Skeleton className="h-9 w-24 rounded-md" />;
   }
 
   if (!user) {
     return (
       <Button asChild size="sm" variant="outline">
-        <Link to="/login">Sign in</Link>
+        <Link
+          to="/login"
+          onClick={() => {
+            const path = `${window.location.pathname}${window.location.search}`;
+            if (path && path !== "/login" && !path.startsWith("/login?")) saveNext(path);
+          }}
+        >
+          Sign in
+        </Link>
       </Button>
     );
   }

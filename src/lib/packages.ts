@@ -354,13 +354,13 @@ export function saveBrief(brief: Brief) {
 
 export function savePending(pending: PendingBooking) {
   if (typeof window === "undefined") return;
-  window.sessionStorage.setItem(PENDING_KEY, JSON.stringify(pending));
+  window.localStorage.setItem(PENDING_KEY, JSON.stringify(pending));
 }
 
 export function loadPending(): PendingBooking | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.sessionStorage.getItem(PENDING_KEY);
+    const raw = window.localStorage.getItem(PENDING_KEY);
     return raw ? (JSON.parse(raw) as PendingBooking) : null;
   } catch {
     return null;
@@ -369,7 +369,7 @@ export function loadPending(): PendingBooking | null {
 
 export function clearPending() {
   if (typeof window === "undefined") return;
-  window.sessionStorage.removeItem(PENDING_KEY);
+  window.localStorage.removeItem(PENDING_KEY);
 }
 
 export function saveNext(path: string) {
@@ -381,9 +381,23 @@ export function loadNext(): string {
   if (typeof window === "undefined") return "/";
   try {
     const next = window.sessionStorage.getItem(NEXT_KEY);
-    if (next && next.startsWith("/") && !next.startsWith("//")) return next;
+    if (next && next.startsWith("/") && !next.startsWith("//") && next !== "/login") {
+      return next;
+    }
     return "/";
   } catch {
     return "/";
   }
+}
+
+export function consumeNext(): string {
+  const next = loadNext();
+  if (typeof window !== "undefined") {
+    try {
+      window.sessionStorage.removeItem(NEXT_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
+  return next;
 }

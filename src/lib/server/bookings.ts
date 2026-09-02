@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
-import { cardBrand, cvcValid, expiryValid, luhnValid, digitsOnly } from "@/lib/card";
+import { charge, methodLabel, type PayMethod } from "@/lib/pay";
 import { getPackage, priceWithSwaps } from "@/lib/packages";
 
 export type BookingRow = {
@@ -19,8 +19,16 @@ export type BookingRow = {
   cardBrand: string | null;
   payerName: string;
   confirmationCode: string;
+  paymentMethod: string;
+  paymentRef: string | null;
+  upiHandle: string | null;
+  bankName: string | null;
   createdAt: string;
 };
+
+export type CreateBookingResult =
+  | { ok: true; booking: BookingRow }
+  | { ok: false; message: string; field?: string };
 
 type DbBooking = {
   id: number;
@@ -36,6 +44,10 @@ type DbBooking = {
   card_brand: string | null;
   payer_name: string;
   confirmation_code: string;
+  payment_method: string | null;
+  payment_ref: string | null;
+  upi_handle: string | null;
+  bank_name: string | null;
   created_at: string;
 };
 
@@ -63,6 +75,10 @@ function mapBooking(row: DbBooking): BookingRow {
     cardBrand: row.card_brand,
     payerName: row.payer_name,
     confirmationCode: row.confirmation_code,
+    paymentMethod: row.payment_method ?? "card",
+    paymentRef: row.payment_ref,
+    upiHandle: row.upi_handle,
+    bankName: row.bank_name,
     createdAt: row.created_at,
   };
 }
@@ -82,7 +98,8 @@ export const listBookings = createServerFn({ method: "GET" })
     const sql = await getSql();
     const rows = await sql<DbBooking>`
       select id, package_id, package_name, nights, travelers, check_in, amount_inr,
-             swaps, status, card_last4, card_brand, payer_name, confirmation_code, created_at
+             swaps, status, card_last4, card_brand, payer_name, confirmation_code,
+             payment_method, payment_ref, upi_handle, bank_name, created_at
       from bookings
       where user_id = ${context.userId}
       order by created_at desc
@@ -96,33 +113,49 @@ const createInput = z.object({
   travelers: z.number().int().min(1).max(8),
   checkIn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   payerName: z.string().trim().min(2).max(80),
-  cardNumber: z.string(),
-  expiry: z.string(),
-  cvc: z.string(),
+  method: z.enum(["card", "upi", "netbanking"]),
+  cardNumber: z.string().optional(),
+  expiry: z.string().optional(),
+  cvc: z.string().optional(),
+  upiId: z.string().optional(),
+  bankId: z.string().optional(),
+  bankPin: z.string().optional(),
 });
 
 export const createBooking = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator((input: unknown) => createInput.parse(input))
-  .handler(async ({ context, data }) => {
+  .validator((input: unknown) => {
+    const parsed = createInput.safeParse(input);
+    if (!parsed.success) {
+      const issue = parsed.error.issues[0];
+      throw new Error(issue?.message ?? "Check the payment details and try again.");
+    }
+    return parsed.data;
+  })
+  .handler(async ({ context, data }): Promise<CreateBookingResult> => {
     const pkg = getPackage(data.packageId);
-    if (!pkg) throw new Error("Stay not found");
+    if (!pkg) return { ok: false, message: "Stay not found." };
 
     const checkIn = new Date(`${data.checkIn}T12:00:00`);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (Number.isNaN(checkIn.getTime()) || checkIn < today) {
-      throw new Error("Check-in must be today or later");
+      return { ok: false, message: "Check-in must be today or later.", field: "checkIn" };
     }
 
-    const number = digitsOnly(data.cardNumber);
-    if (!luhnValid(number)) throw new Error("Card number is not valid");
-    const brand = cardBrand(number);
-    if (!expiryValid(data.expiry)) throw new Error("Card expiry is not valid");
-    if (!cvcValid(data.cvc, brand)) throw new Error("Security code is not valid");
+    const paid = charge({
+      method: data.method as PayMethod,
+      payerName: data.payerName,
+      cardNumber: data.method === "card" ? data.cardNumber : undefined,
+      expiry: data.method === "card" ? data.expiry : undefined,
+      cvc: data.method === "card" ? data.cvc : undefined,
+      upiId: data.method === "upi" ? data.upiId : undefined,
+      bankId: data.method === "netbanking" ? data.bankId : undefined,
+      bankPin: data.method === "netbanking" ? data.bankPin : undefined,
+    });
+    if (!paid.ok) return { ok: false, message: paid.message, field: paid.field };
 
     const amount = priceWithSwaps(pkg, data.swaps) * data.travelers;
-    const last4 = number.slice(-4);
     const sql = await getSql();
     const swapsJson = JSON.stringify(data.swaps ?? {});
     const code = makeCode();
@@ -130,18 +163,21 @@ export const createBooking = createServerFn({ method: "POST" })
     const rows = await sql<DbBooking>`
       insert into bookings (
         user_id, package_id, package_name, nights, travelers, check_in,
-        amount_inr, swaps, status, card_last4, card_brand, payer_name, confirmation_code
+        amount_inr, swaps, status, card_last4, card_brand, payer_name, confirmation_code,
+        payment_method, payment_ref, upi_handle, bank_name
       ) values (
         ${context.userId}, ${pkg.id}, ${pkg.name}, ${pkg.nights}, ${data.travelers},
         ${data.checkIn}::date, ${amount}, ${swapsJson}, 'paid',
-        ${last4}, ${brand}, ${data.payerName}, ${code}
+        ${paid.last4}, ${paid.brand}, ${data.payerName}, ${code},
+        ${paid.method}, ${paid.ref}, ${paid.upiHandle}, ${paid.bank}
       )
       returning id, package_id, package_name, nights, travelers, check_in, amount_inr,
-                swaps, status, card_last4, card_brand, payer_name, confirmation_code, created_at
+                swaps, status, card_last4, card_brand, payer_name, confirmation_code,
+                payment_method, payment_ref, upi_handle, bank_name, created_at
     `;
     const row = rows[0];
-    if (!row) throw new Error("Could not save booking");
-    return mapBooking(row);
+    if (!row) return { ok: false, message: "Could not save booking." };
+    return { ok: true, booking: mapBooking(row) };
   });
 
 export const cancelBooking = createServerFn({ method: "POST" })
@@ -156,3 +192,5 @@ export const cancelBooking = createServerFn({ method: "POST" })
     `;
     return { ok: true };
   });
+
+export { methodLabel };

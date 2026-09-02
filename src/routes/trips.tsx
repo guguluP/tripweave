@@ -1,16 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Shell } from "@/components/shell";
+import { RequireAuth } from "@/components/require-auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, LearnMore, Stagger, TextSwap } from "@/components/motion";
-import { RedirectToSignIn } from "@/lib/auth/gates";
-import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { pushBanner } from "@/lib/banners";
-import { brandLabel } from "@/lib/card";
 import { formatMoney, getPackage } from "@/lib/packages";
+import { paymentLine } from "@/lib/pay";
 import {
   cancelBooking,
   listBookings,
@@ -19,42 +18,38 @@ import {
 
 export const Route = createFileRoute("/trips")({ component: Trips });
 
+function TripsSkeleton() {
+  return (
+    <Shell>
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <Skeleton className="h-10 w-40" />
+        <Skeleton className="mt-6 h-32 w-full rounded-xl" />
+      </div>
+    </Shell>
+  );
+}
+
 function Trips() {
-  const { user, isPending } = useCurrentUserState();
+  return (
+    <RequireAuth next="/trips" fallback={<TripsSkeleton />}>
+      <TripsInner />
+    </RequireAuth>
+  );
+}
+
+function TripsInner() {
   const [bookings, setBookings] = useState<BookingRow[] | null>(null);
   const [cancelling, setCancelling] = useState<number | null>(null);
 
   const refresh = () => {
     listBookings()
       .then(setBookings)
-      .catch((err: unknown) => {
-        const message = err instanceof Error ? err.message : "";
-        if (message === "Unauthorized") setBookings([]);
-        else setBookings([]);
-      });
+      .catch(() => setBookings([]));
   };
 
   useEffect(() => {
-    if (isPending) return;
-    if (!user) {
-      setBookings([]);
-      return;
-    }
     refresh();
-  }, [user, isPending]);
-
-  if (isPending) {
-    return (
-      <Shell>
-        <div className="mx-auto max-w-3xl px-4 py-10">
-          <Skeleton className="h-10 w-40" />
-          <Skeleton className="mt-6 h-32 w-full rounded-xl" />
-        </div>
-      </Shell>
-    );
-  }
-
-  if (!user) return <RedirectToSignIn />;
+  }, []);
 
   return (
     <Shell>
@@ -104,12 +99,12 @@ function Trips() {
                         </span>
                         <span className="text-muted">
                           {" "}
-                          · {b.confirmationCode}
-                          {b.cardLast4
-                            ? ` · ${brandLabel(b.cardBrand ?? "card")} ${b.cardLast4}`
-                            : ""}
+                          · {b.confirmationCode} · {paymentLine(b)}
                         </span>
                       </p>
+                      {b.paymentRef ? (
+                        <p className="text-xs text-subtle">Ref {b.paymentRef}</p>
+                      ) : null}
                       {!cancelled ? (
                         <div>
                           <Button
