@@ -7,10 +7,11 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, MotionToggle, Stagger, TextSwap } from "@/components/motion";
 import { signOut } from "@/lib/auth/client";
-import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { isDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user";
 import { formatMoney } from "@/lib/packages";
 import { paymentLine } from "@/lib/pay";
 import { listBookings, type BookingRow } from "@/lib/server/bookings";
+import { listDemoBookings } from "@/lib/demo-bookings";
 
 export const Route = createFileRoute("/account")({ component: Account });
 
@@ -39,6 +40,10 @@ function AccountInner() {
   const [showCancelled, setShowCancelled] = useState(false);
 
   useEffect(() => {
+    if (isDemoMode()) {
+      setBookings(listDemoBookings());
+      return;
+    }
     listBookings()
       .then(setBookings)
       .catch(() => setBookings([]));
