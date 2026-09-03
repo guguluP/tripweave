@@ -27,6 +27,7 @@ import { methodLabel, paymentLine } from "@/lib/pay";
 import { createBooking } from "@/lib/server/bookings";
 import { saveDemoBooking } from "@/lib/demo-bookings";
 import { createRazorpayOrder } from "@/lib/server/razorpay";
+import { loadTravelers, validateTravelers } from "@/lib/travelers";
 import {
   getPublicRazorpayKeyId,
   loadRazorpayScript,
@@ -71,6 +72,7 @@ function CheckoutInner() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [shakeKey, setShakeKey] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [travelersOk, setTravelersOk] = useState(false);
   const [confirmation, setConfirmation] = useState<{
     code: string;
     amount: number;
@@ -84,6 +86,22 @@ function CheckoutInner() {
     const pending = loadPending();
     setPackageId(pending?.packageId ?? null);
     setSwaps(pending?.swaps ?? {});
+    try {
+      const n = Number(window.localStorage.getItem("tripweave-traveler-count") || "0");
+      if (n >= 1 && n <= 8) setTravelers(n);
+      else {
+        const list = loadTravelers();
+        if (list.length >= 1) setTravelers(list.length);
+      }
+    } catch {
+      /* ignore */
+    }
+    try {
+      const list = loadTravelers();
+      setTravelersOk(validateTravelers(list).ok && list.length >= 1);
+    } catch {
+      setTravelersOk(false);
+    }
     setReady(true);
   }, []);
 
@@ -105,6 +123,22 @@ function CheckoutInner() {
           <p className="mt-3 text-muted">Pick a stay first, then come back to pay.</p>
           <Button asChild className="mt-6">
             <Link to="/plan">Find a hotel</Link>
+          </Button>
+        </div>
+      </Shell>
+    );
+  }
+
+  if (!travelersOk) {
+    return (
+      <Shell>
+        <div className="mx-auto max-w-lg px-4 py-16">
+          <h1 className="font-display text-3xl">Add traveller details</h1>
+          <p className="mt-3 text-muted">
+            We need guest names and ID details before Razorpay checkout.
+          </p>
+          <Button asChild className="mt-6">
+            <Link to="/travelers">Continue to travellers</Link>
           </Button>
         </div>
       </Shell>
