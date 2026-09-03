@@ -33,6 +33,7 @@ import {
   loadRazorpayScript,
   openRazorpayCheckout,
 } from "@/lib/razorpay-client";
+import { AddToWalletButton } from "@/components/add-to-wallet";
 
 export const Route = createFileRoute("/checkout")({ component: Checkout });
 
@@ -80,6 +81,11 @@ function CheckoutInner() {
     method: string;
     line: string;
     ref: string | null;
+    packageId: string;
+    nights: number;
+    travelers: number;
+    payerName: string;
+    checkIn: string;
   } | null>(null);
 
   useEffect(() => {
@@ -165,9 +171,25 @@ function CheckoutInner() {
           {confirmation.ref ? (
             <p className="mt-1 text-xs text-subtle">Ref {confirmation.ref}</p>
           ) : null}
-          <Button asChild size="lg" className="mt-8">
-            <Link to="/trips">View trips</Link>
-          </Button>
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <AddToWalletButton
+              booking={{
+                confirmationCode: confirmation.code,
+                packageName: confirmation.name,
+                packageId: confirmation.packageId,
+                checkIn: confirmation.checkIn,
+                nights: confirmation.nights,
+                travelers: confirmation.travelers,
+                payerName: confirmation.payerName,
+                amountInr: confirmation.amount,
+                paymentRef: confirmation.ref,
+                status: "confirmed",
+              }}
+            />
+            <Button asChild size="lg" variant="outline">
+              <Link to="/trips">View trips</Link>
+            </Button>
+          </div>
         </div>
       </Shell>
     );
@@ -277,6 +299,11 @@ function CheckoutInner() {
                   method: booking.paymentMethod,
                   line: paymentLine(booking),
                   ref: booking.paymentRef,
+                  packageId: pkg.id,
+                  nights: pkg.nights,
+                  travelers,
+                  payerName: payerName.trim(),
+                  checkIn,
                 });
                 setBusy(false);
                 resolve();
