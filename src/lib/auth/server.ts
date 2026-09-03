@@ -29,8 +29,9 @@ const hasGrokCreds = Boolean(
 );
 const hasDb = Boolean(process.env.DATABASE_URL?.trim());
 
-/** True when federated sign-in or local email/password can run. */
-export const authConfigured = hasGrokCreds || hasDb || emailAndPasswordEnabled;
+/** True only when a real DB or Grok OAuth creds exist.
+ * Without DATABASE_URL, serverless cannot run PGLite — demo mode is used instead. */
+export const authConfigured = hasGrokCreds || hasDb;
 
 const explicitBaseURL = process.env.BETTER_AUTH_URL?.trim() || undefined;
 const LOCAL_DEV_ORIGINS = [
@@ -43,7 +44,6 @@ const trustedOrigins: string[] = explicitBaseURL
   ? [
       explicitBaseURL,
       ...LOCAL_DEV_ORIGINS,
-      // Common Vercel aliases for this project
       "https://tripweave-web.vercel.app",
       "https://tripweave-web-piyushpatnaik.vercel.app",
     ]
@@ -105,7 +105,6 @@ export const auth = betterAuth({
   },
   advanced: {
     useSecureCookies: Boolean(explicitBaseURL?.startsWith("https")),
-    // Prefer plain cookie names on http; __Host- only on https
     cookiePrefix: explicitBaseURL?.startsWith("https") ? "__Host-" : undefined,
   },
   plugins: [
