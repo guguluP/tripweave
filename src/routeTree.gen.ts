@@ -18,6 +18,9 @@ import { Route as PlanRouteImport } from './routes/plan'
 import { Route as TripsRouteImport } from './routes/trips'
 import { Route as TripIdRouteImport } from './routes/trip.$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as PayTestRouteImport } from './routes/pay-test'
+import { Route as ApiCreateOrderRouteImport } from './routes/api/create-order'
+import { Route as ApiVerifyPaymentRouteImport } from './routes/api/verify-payment'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -59,9 +62,24 @@ const TripIdRoute = TripIdRouteImport.update({
   path: '/trip/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PayTestRoute = PayTestRouteImport.update({
+  id: '/pay-test',
+  path: '/pay-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCreateOrderRoute = ApiCreateOrderRouteImport.update({
+  id: '/api/create-order',
+  path: '/api/create-order',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVerifyPaymentRoute = ApiVerifyPaymentRouteImport.update({
+  id: '/api/verify-payment',
+  path: '/api/verify-payment',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -74,7 +92,10 @@ export interface FileRoutesByFullPath {
   '/plan': typeof PlanRoute
   '/trips': typeof TripsRoute
   '/trip/$id': typeof TripIdRoute
+  '/pay-test': typeof PayTestRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/create-order': typeof ApiCreateOrderRoute
+  '/api/verify-payment': typeof ApiVerifyPaymentRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,7 +106,10 @@ export interface FileRoutesByTo {
   '/plan': typeof PlanRoute
   '/trips': typeof TripsRoute
   '/trip/$id': typeof TripIdRoute
+  '/pay-test': typeof PayTestRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/create-order': typeof ApiCreateOrderRoute
+  '/api/verify-payment': typeof ApiVerifyPaymentRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,7 +121,10 @@ export interface FileRoutesById {
   '/plan': typeof PlanRoute
   '/trips': typeof TripsRoute
   '/trip/$id': typeof TripIdRoute
+  '/pay-test': typeof PayTestRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/create-order': typeof ApiCreateOrderRoute
+  '/api/verify-payment': typeof ApiVerifyPaymentRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,7 +137,10 @@ export interface FileRouteTypes {
     | '/plan'
     | '/trips'
     | '/trip/$id'
+    | '/pay-test'
     | '/api/auth/$'
+    | '/api/create-order'
+    | '/api/verify-payment'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -121,7 +151,10 @@ export interface FileRouteTypes {
     | '/plan'
     | '/trips'
     | '/trip/$id'
+    | '/pay-test'
     | '/api/auth/$'
+    | '/api/create-order'
+    | '/api/verify-payment'
   id:
     | '__root__'
     | '/'
@@ -132,7 +165,10 @@ export interface FileRouteTypes {
     | '/plan'
     | '/trips'
     | '/trip/$id'
+    | '/pay-test'
     | '/api/auth/$'
+    | '/api/create-order'
+    | '/api/verify-payment'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -144,7 +180,10 @@ export interface RootRouteChildren {
   PlanRoute: typeof PlanRoute
   TripsRoute: typeof TripsRoute
   TripIdRoute: typeof TripIdRoute
+  PayTestRoute: typeof PayTestRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiCreateOrderRoute: typeof ApiCreateOrderRoute
+  ApiVerifyPaymentRoute: typeof ApiVerifyPaymentRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -205,11 +244,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TripIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pay-test': {
+      id: '/pay-test'
+      path: '/pay-test'
+      fullPath: '/pay-test'
+      preLoaderRoute: typeof PayTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/create-order': {
+      id: '/api/create-order'
+      path: '/api/create-order'
+      fullPath: '/api/create-order'
+      preLoaderRoute: typeof ApiCreateOrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/verify-payment': {
+      id: '/api/verify-payment'
+      path: '/api/verify-payment'
+      fullPath: '/api/verify-payment'
+      preLoaderRoute: typeof ApiVerifyPaymentRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -224,7 +284,10 @@ const rootRouteChildren: RootRouteChildren = {
   PlanRoute: PlanRoute,
   TripsRoute: TripsRoute,
   TripIdRoute: TripIdRoute,
+  PayTestRoute: PayTestRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiCreateOrderRoute: ApiCreateOrderRoute,
+  ApiVerifyPaymentRoute: ApiVerifyPaymentRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
