@@ -83,6 +83,17 @@ function mapBooking(row: DbBooking): BookingRow {
   };
 }
 
+const g = globalThis as typeof globalThis & {
+  __twMemoryBookings__?: BookingRow[];
+  __twMemoryId__?: number;
+};
+if (!g.__twMemoryBookings__) g.__twMemoryBookings__ = [];
+if (!g.__twMemoryId__) g.__twMemoryId__ = 1;
+
+function useMemoryStore() {
+  return !process.env.DATABASE_URL?.trim();
+}
+
 function makeCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let out = "TW-";
@@ -95,6 +106,9 @@ function makeCode() {
 export const listBookings = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
+    if (useMemoryStore()) {
+      return g.__twMemoryBookings__ ?? [];
+    }
     const sql = await getSql();
     const rows = await sql<DbBooking>`
       select id, package_id, package_name, nights, travelers, check_in, amount_inr,
@@ -107,12 +121,12 @@ export const listBookings = createServerFn({ method: "GET" })
     return rows.map(mapBooking);
   });
 
-const createInput = z.object({
-  packageId: z.string().min(1),
-  swaps: z.record(z.string(), z.string()),
-  travelers: z.number().int().min(1).max(8),
-  checkIn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  payerName: z.string().trim().min(2).max(80),
+const createSchema = z.object({
+  packageId: z.string(),
+  swaps: z.record(z.string(), z.string()).optional().default({}),
+  travelers: z.number().int().min(1).max(12),
+  checkIn: z.string(),
+  payerName: z.string().min(2),
   method: z.enum(["card", "upi", "netbanking"]),
   cardNumber: z.string().optional(),
   expiry: z.string().optional(),
@@ -124,14 +138,7 @@ const createInput = z.object({
 
 export const createBooking = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator((input: unknown) => {
-    const parsed = createInput.safeParse(input);
-    if (!parsed.success) {
-      const issue = parsed.error.issues[0];
-      throw new Error(issue?.message ?? "Check the payment details and try again.");
-    }
-    return parsed.data;
-  })
+  .validator((data: unknown) => createSchema.parse(data))
   .handler(async ({ context, data }): Promise<CreateBookingResult> => {
     const pkg = getPackage(data.packageId);
     if (!pkg) return { ok: false, message: "Stay not found." };
@@ -156,10 +163,35 @@ export const createBooking = createServerFn({ method: "POST" })
     if (!paid.ok) return { ok: false, message: paid.message, field: paid.field };
 
     const amount = priceWithSwaps(pkg, data.swaps) * data.travelers;
-    const sql = await getSql();
-    const swapsJson = JSON.stringify(data.swaps ?? {});
     const code = makeCode();
 
+    if (useMemoryStore()) {
+      const booking: BookingRow = {
+        id: (g.__twMemoryId__ = (g.__twMemoryId__ ?? 1) + 1) - 1,
+        packageId: pkg.id,
+        packageName: pkg.name,
+        nights: pkg.nights,
+        travelers: data.travelers,
+        checkIn: data.checkIn,
+        amountInr: amount,
+        swaps: data.swaps ?? {},
+        status: "paid",
+        cardLast4: paid.last4,
+        cardBrand: paid.brand,
+        payerName: data.payerName,
+        confirmationCode: code,
+        paymentMethod: paid.method,
+        paymentRef: paid.ref,
+        upiHandle: paid.upiHandle,
+        bankName: paid.bank,
+        createdAt: new Date().toISOString(),
+      };
+      g.__twMemoryBookings__ = [booking, ...(g.__twMemoryBookings__ ?? [])];
+      return { ok: true, booking };
+    }
+
+    const sql = await getSql();
+    const swapsJson = JSON.stringify(data.swaps ?? {});
     const rows = await sql<DbBooking>`
       insert into bookings (
         user_id, package_id, package_name, nights, travelers, check_in,
@@ -184,6 +216,12 @@ export const cancelBooking = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((id: number) => id)
   .handler(async ({ context, data: id }) => {
+    if (useMemoryStore()) {
+      const list = g.__twMemoryBookings__ ?? [];
+      const b = list.find((x) => x.id === id);
+      if (b) b.status = "cancelled";
+      return { ok: true };
+    }
     const sql = await getSql();
     await sql`
       update bookings
