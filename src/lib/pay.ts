@@ -1,6 +1,6 @@
 import { brandLabel, cardBrand, cvcValid, digitsOnly, expiryValid, luhnValid } from "@/lib/card";
 
-export type PayMethod = "card" | "upi" | "netbanking";
+export type PayMethod = "card" | "upi" | "netbanking" | "razorpay";
 
 export const NET_BANKS = [
   { id: "sbi", label: "State Bank of India" },
@@ -118,6 +118,10 @@ export function charge(input: ChargeInput): ChargeOk | ChargeFail {
     };
   }
 
+  if (input.method === "razorpay") {
+    return { ok: false, message: "Use the Razorpay checkout flow instead of the sandbox charger." };
+  }
+
   const bankId = (input.bankId ?? "") as BankId;
   if (!NET_BANKS.some((b) => b.id === bankId)) {
     return { ok: false, message: "Choose a bank.", field: "bankId" };
@@ -146,6 +150,7 @@ export function charge(input: ChargeInput): ChargeOk | ChargeFail {
 export function methodLabel(method: string) {
   if (method === "upi") return "UPI";
   if (method === "netbanking") return "Net banking";
+  if (method === "razorpay") return "Razorpay";
   return "Card";
 }
 
@@ -156,6 +161,9 @@ export function paymentLine(row: {
   upiHandle: string | null;
   bankName: string | null;
 }) {
+  if (row.paymentMethod === "razorpay") {
+    return row.cardLast4 ? `Razorpay · ${row.cardLast4}` : "Razorpay";
+  }
   if (row.paymentMethod === "upi") {
     return row.upiHandle ? `UPI · ${row.upiHandle}` : "UPI";
   }
