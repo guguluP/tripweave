@@ -17,6 +17,7 @@ import {
 } from "@/lib/server/bookings";
 import { cancelDemoBooking, listDemoBookings } from "@/lib/demo-bookings";
 import { isDemoMode } from "@/lib/auth/use-current-user";
+import { AddToWalletButton } from "@/components/add-to-wallet";
 
 export const Route = createFileRoute("/trips")({ component: Trips });
 
@@ -112,7 +113,8 @@ function TripsInner() {
                         <p className="text-xs text-subtle">Ref {b.paymentRef}</p>
                       ) : null}
                       {!cancelled ? (
-                        <div>
+                        <div className="flex flex-col gap-2">
+                          <AddToWalletButton booking={b} />
                           <Button
                             variant="outline"
                             size="sm"
