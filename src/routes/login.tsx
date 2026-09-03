@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { GROK_PROVIDERS, authClient, authEnabled, signIn } from "@/lib/auth/client";
 import { emailAndPasswordEnabled } from "@/lib/auth/email-password";
-import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { enableDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user";
 import { BrandWord, WeaveMark } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { ShakeField, SlidingTabs, Stagger, TextSwap } from "@/components/motion";
@@ -21,22 +21,10 @@ export const Route = createFileRoute("/login")({
 function GoogleMark() {
   return (
     <svg viewBox="0 0 24 24" className="size-4" aria-hidden>
-      <path
-        fill="#4285F4"
-        d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h6.5c-.3 1.5-1.2 2.8-2.5 3.6v3h4c2.4-2.2 3.5-5.4 3.5-8.7z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 24c3.2 0 5.9-1 7.9-2.9l-4-3c-1.1.7-2.5 1.2-3.9 1.2-3 0-5.6-2-6.5-4.8H1.4v3.1C3.4 21.4 7.4 24 12 24z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M5.5 14.5c-.2-.7-.4-1.4-.4-2.1s.1-1.5.4-2.1V7.2H1.4C.5 8.9 0 10.4 0 12.4s.5 3.5 1.4 5.2l4.1-3.1z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 4.8c1.7 0 3.3.6 4.5 1.7l3.4-3.4C17.9 1.1 15.2 0 12 0 7.4 0 3.4 2.6 1.4 6.6l4.1 3.1C6.4 6.8 9 4.8 12 4.8z"
-      />
+      <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h6.5c-.3 1.5-1.2 2.8-2.5 3.6v3h4c2.4-2.2 3.5-5.4 3.5-8.7z" />
+      <path fill="#34A853" d="M12 24c3.2 0 5.9-1 7.9-2.9l-4-3c-1.1.7-2.5 1.2-3.9 1.2-3 0-5.6-2-6.5-4.8H1.4v3.1C3.4 21.4 7.4 24 12 24z" />
+      <path fill="#FBBC05" d="M5.5 14.5c-.2-.7-.4-1.4-.4-2.1s.1-1.5.4-2.1V7.2H1.4C.5 8.9 0 10.4 0 12.4s.5 3.5 1.4 5.2l4.1-3.1z" />
+      <path fill="#EA4335" d="M12 4.8c1.7 0 3.3.6 4.5 1.7l3.4-3.4C17.9 1.1 15.2 0 12 0 7.4 0 3.4 2.6 1.4 6.6l4.1 3.1C6.4 6.8 9 4.8 12 4.8z" />
     </svg>
   );
 }
@@ -44,10 +32,7 @@ function GoogleMark() {
 function XMark() {
   return (
     <svg viewBox="0 0 24 24" className="size-4" aria-hidden>
-      <path
-        fill="currentColor"
-        d="M18.2 2H21l-6.5 7.4L22 22h-6.8l-4.5-6.1L5.3 22H2.5l7-8L2 2h7l4.1 5.6L18.2 2zm-1.2 18h1.9L7.1 3.9H5.1L17 20z"
-      />
+      <path fill="currentColor" d="M18.2 2H21l-6.5 7.4L22 22h-6.8l-4.5-6.1L5.3 22H2.5l7-8L2 2h7l4.1 5.6L18.2 2zm-1.2 18h1.9L7.1 3.9H5.1L17 20z" />
     </svg>
   );
 }
@@ -156,8 +141,6 @@ function Login() {
           name: name.trim() || cleanEmail.split("@")[0] || "Guest",
         });
         if (err) throw new Error(err.message ?? "Could not create account");
-        // Better Auth sign-up creates the user but does not always set the
-        // session cookie — always follow with sign-in so checkout can proceed.
         const { error: signInErr } = await authClient.signIn.email({
           email: cleanEmail,
           password,
@@ -192,32 +175,10 @@ function Login() {
   const onDemoGuest = async () => {
     setErrors({});
     setBusy(true);
-    const demoEmail = "demo@tripweave.app";
-    const demoPassword = "demo12345";
     try {
-      // Try sign-in first (returning demo user)
-      let { error } = await authClient.signIn.email({
-        email: demoEmail,
-        password: demoPassword,
-      });
-      if (error) {
-        // First time: create the demo account then sign in
-        const { error: upErr } = await authClient.signUp.email({
-          email: demoEmail,
-          password: demoPassword,
-          name: "Demo Guest",
-        });
-        if (upErr && !/already|exist/i.test(upErr.message ?? "")) {
-          throw new Error(upErr.message ?? "Could not create demo account");
-        }
-        const { error: inErr } = await authClient.signIn.email({
-          email: demoEmail,
-          password: demoPassword,
-        });
-        if (inErr) throw new Error(inErr.message ?? "Could not sign in as demo");
-      }
-      const hasSession = await waitForSession();
-      if (!hasSession) throw new Error("Demo session did not appear. Try again.");
+      // No database required — client + server demo mode (works on Vercel without Neon)
+      enableDemoMode();
+      await new Promise((r) => setTimeout(r, 50));
       goNext();
     } catch (err) {
       setErrors({
@@ -263,12 +224,8 @@ function Login() {
         <div className="absolute inset-0 bg-fg/50" />
         <div className="absolute inset-x-0 bottom-0 p-10">
           <Stagger>
-            <p className="font-display text-3xl text-primary-fg">
-              Hold a Puri stay without the noise.
-            </p>
-            <p className="mt-3 max-w-sm text-sm text-primary-fg/80">
-              {nextCopy(nextPath)}
-            </p>
+            <p className="font-display text-3xl text-primary-fg">Hold a Puri stay without the noise.</p>
+            <p className="mt-3 max-w-sm text-sm text-primary-fg/80">{nextCopy(nextPath)}</p>
           </Stagger>
         </div>
       </div>
@@ -296,10 +253,7 @@ function Login() {
           {authEnabled ? (
             <>
               {errors.form ? (
-                <p
-                  role="alert"
-                  className="mt-4 rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
-                >
+                <p role="alert" className="mt-4 rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">
                   {errors.form}
                 </p>
               ) : null}
@@ -315,7 +269,7 @@ function Login() {
                   Continue as demo guest
                 </Button>
                 <p className="text-center text-xs text-muted">
-                  Fixed demo account · demo@tripweave.app · then test card / UPI / net banking
+                  No account needed · then test card / UPI / net banking at checkout
                 </p>
                 <div className="relative my-1">
                   <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
@@ -339,9 +293,7 @@ function Login() {
               {emailAndPasswordEnabled ? (
                 <>
                   <div className="relative my-6">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-border" />
-                    </div>
+                    <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
                     <div className="relative flex justify-center text-xs uppercase">
                       <span className="bg-bg px-2 text-muted">or email</span>
                     </div>
@@ -356,12 +308,7 @@ function Login() {
                     value={mode}
                     onChange={(id) => {
                       setMode(id as "in" | "up");
-                      setErrors((er) => ({
-                        ...er,
-                        form: undefined,
-                        name: undefined,
-                        confirm: undefined,
-                      }));
+                      setErrors((er) => ({ ...er, form: undefined, name: undefined, confirm: undefined }));
                     }}
                   />
 
@@ -432,15 +379,11 @@ function Login() {
               ) : null}
             </>
           ) : (
-            <p className="mt-6 text-sm text-muted">
-              Auth is off in this environment. You are signed in as the demo user.
-            </p>
+            <p className="mt-6 text-sm text-muted">Auth is off in this environment. You are signed in as the demo user.</p>
           )}
 
           <p className="mt-8 text-center text-sm text-muted">
-            <Link to="/" className="underline-offset-4 hover:underline">
-              Back to Discover
-            </Link>
+            <Link to="/" className="underline-offset-4 hover:underline">Back to Discover</Link>
           </p>
         </div>
       </div>
