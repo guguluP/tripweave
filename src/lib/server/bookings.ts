@@ -127,13 +127,16 @@ const createSchema = z.object({
   travelers: z.number().int().min(1).max(12),
   checkIn: z.string(),
   payerName: z.string().min(2),
-  method: z.enum(["card", "upi", "netbanking"]),
+  method: z.enum(["card", "upi", "netbanking", "razorpay"]),
   cardNumber: z.string().optional(),
   expiry: z.string().optional(),
   cvc: z.string().optional(),
   upiId: z.string().optional(),
   bankId: z.string().optional(),
   bankPin: z.string().optional(),
+  razorpayOrderId: z.string().optional(),
+  razorpayPaymentId: z.string().optional(),
+  razorpaySignature: z.string().optional(),
 });
 
 export const createBooking = createServerFn({ method: "POST" })
@@ -150,20 +153,55 @@ export const createBooking = createServerFn({ method: "POST" })
       return { ok: false, message: "Check-in must be today or later.", field: "checkIn" };
     }
 
-    const paid = charge({
-      method: data.method as PayMethod,
-      payerName: data.payerName,
-      cardNumber: data.method === "card" ? data.cardNumber : undefined,
-      expiry: data.method === "card" ? data.expiry : undefined,
-      cvc: data.method === "card" ? data.cvc : undefined,
-      upiId: data.method === "upi" ? data.upiId : undefined,
-      bankId: data.method === "netbanking" ? data.bankId : undefined,
-      bankPin: data.method === "netbanking" ? data.bankPin : undefined,
-    });
-    if (!paid.ok) return { ok: false, message: paid.message, field: paid.field };
-
     const amount = priceWithSwaps(pkg, data.swaps) * data.travelers;
     const code = makeCode();
+
+    let paid: {
+      ok: true;
+      method: PayMethod;
+      brand: string | null;
+      last4: string | null;
+      upiHandle: string | null;
+      bank: string | null;
+      ref: string;
+    };
+
+    if (data.method === "razorpay") {
+      if (!data.razorpayPaymentId || !data.razorpayOrderId || !data.razorpaySignature) {
+        return { ok: false, message: "Missing Razorpay payment details." };
+      }
+      const { verifyRazorpaySignature } = await import("@/lib/server/razorpay");
+      const verified = verifyRazorpaySignature({
+        razorpay_order_id: data.razorpayOrderId,
+        razorpay_payment_id: data.razorpayPaymentId,
+        razorpay_signature: data.razorpaySignature,
+      });
+      if (!verified.ok) {
+        return { ok: false, message: verified.message || "Payment verification failed." };
+      }
+      paid = {
+        ok: true,
+        method: "razorpay",
+        brand: "Razorpay",
+        last4: data.razorpayPaymentId.slice(-4),
+        upiHandle: null,
+        bank: null,
+        ref: data.razorpayPaymentId,
+      };
+    } else {
+      const result = charge({
+        method: data.method as PayMethod,
+        payerName: data.payerName,
+        cardNumber: data.method === "card" ? data.cardNumber : undefined,
+        expiry: data.method === "card" ? data.expiry : undefined,
+        cvc: data.method === "card" ? data.cvc : undefined,
+        upiId: data.method === "upi" ? data.upiId : undefined,
+        bankId: data.method === "netbanking" ? data.bankId : undefined,
+        bankPin: data.method === "netbanking" ? data.bankPin : undefined,
+      });
+      if (!result.ok) return { ok: false, message: result.message, field: result.field };
+      paid = result;
+    }
 
     if (useMemoryStore()) {
       const booking: BookingRow = {
