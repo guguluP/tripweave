@@ -42,6 +42,7 @@ import {
   type PayMethod,
 } from "@/lib/pay";
 import { createBooking } from "@/lib/server/bookings";
+import { saveDemoBooking } from "@/lib/demo-bookings";
 
 export const Route = createFileRoute("/checkout")({ component: Checkout });
 
@@ -204,6 +205,7 @@ function CheckoutInner() {
         return;
       }
       const booking = result.booking;
+      saveDemoBooking(booking);
       clearPending();
       pushBanner({
         title: `Booked · ${booking.confirmationCode}`,
