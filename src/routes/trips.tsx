@@ -15,6 +15,8 @@ import {
   listBookings,
   type BookingRow,
 } from "@/lib/server/bookings";
+import { cancelDemoBooking, listDemoBookings } from "@/lib/demo-bookings";
+import { isDemoMode } from "@/lib/auth/use-current-user";
 
 export const Route = createFileRoute("/trips")({ component: Trips });
 
@@ -42,6 +44,10 @@ function TripsInner() {
   const [cancelling, setCancelling] = useState<number | null>(null);
 
   const refresh = () => {
+    if (isDemoMode()) {
+      setBookings(listDemoBookings());
+      return;
+    }
     listBookings()
       .then(setBookings)
       .catch(() => setBookings([]));
@@ -114,7 +120,11 @@ function TripsInner() {
                             onClick={async () => {
                               setCancelling(b.id);
                               try {
-                                await cancelBooking({ data: b.id });
+                                if (isDemoMode()) {
+                                  cancelDemoBooking(b.id);
+                                } else {
+                                  await cancelBooking({ data: b.id });
+                                }
                                 pushBanner({
                                   title: "Stay cancelled",
                                   body: b.packageName,
