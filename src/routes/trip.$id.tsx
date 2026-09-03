@@ -58,11 +58,11 @@ function TripDetail() {
     if (isPending) return;
     setBooking(true);
     if (!user) {
-      saveNext("/checkout");
+      saveNext("/travelers");
       void nav({ to: "/login" });
       return;
     }
-    void nav({ to: "/checkout" });
+    void nav({ to: "/travelers" });
   };
 
   return (
@@ -78,16 +78,18 @@ function TripDetail() {
         <div className="-mt-16 relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <Stagger>
             <p className="eyebrow">{pkg.destination}</p>
-            <h1 className="mt-1 font-display text-4xl">{pkg.name}</h1>
-            <p className="mt-2 flex items-center gap-1.5 text-sm text-muted">
+            <h1 className="font-display text-4xl text-fg">{pkg.name}</h1>
+            <p className="mt-1 flex items-center gap-1.5 text-sm text-muted">
               <MapPin className="size-3.5" />
-              {pkg.neighborhood} · {pkg.nights} nights · {variantLabel(pkg)}
+              {pkg.neighborhood} · {pkg.nights} nights
             </p>
           </Stagger>
           <TrustMeter score={pkg.trustScore} reviews={pkg.reviews} />
         </div>
-        <p className="mt-6 max-w-xl text-muted">{pkg.summary}</p>
-        <div className="mt-4 flex flex-wrap gap-2">
+
+        <p className="mt-6 text-muted">{pkg.summary}</p>
+
+        <div className="mt-6 flex flex-wrap gap-2">
           {pkg.includes.map((item) => (
             <Badge key={item} className="gap-1">
               <Check className="size-3" />
@@ -142,7 +144,7 @@ function TripDetail() {
             <p className="text-xs text-muted">all-in · per person</p>
           </div>
           <Button size="lg" onClick={goBook} disabled={isPending}>
-            <TextSwap text={booking ? "Taking you to pay" : "Book this stay"} shimmer={booking} />
+            <TextSwap text={booking ? "Traveller details…" : "Book this stay"} shimmer={booking} />
           </Button>
         </div>
       </div>
