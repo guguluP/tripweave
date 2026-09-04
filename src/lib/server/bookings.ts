@@ -4,6 +4,12 @@ import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { charge, methodLabel, type PayMethod } from "@/lib/pay";
 import { getPackage, priceWithSwaps } from "@/lib/packages";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
+import {
+  sbCancelBooking,
+  sbInsertBooking,
+  sbListBookings,
+} from "@/lib/supabase/bookings";
 
 export type BookingRow = {
   id: number;
@@ -83,6 +89,7 @@ function mapBooking(row: DbBooking): BookingRow {
   };
 }
 
+/** In-memory bookings when no DATABASE_URL (Vercel without Neon). Process-local. */
 const g = globalThis as typeof globalThis & {
   __twMemoryBookings__?: BookingRow[];
   __twMemoryId__?: number;
@@ -106,6 +113,10 @@ function makeCode() {
 export const listBookings = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
+    if (isSupabaseConfigured()) {
+      const rows = await sbListBookings(context.userId);
+      if (rows) return rows;
+    }
     if (useMemoryStore()) {
       return g.__twMemoryBookings__ ?? [];
     }
@@ -203,6 +214,34 @@ export const createBooking = createServerFn({ method: "POST" })
       paid = result;
     }
 
+    if (isSupabaseConfigured()) {
+      try {
+        const booking = await sbInsertBooking({
+          userId: context.userId,
+          packageId: pkg.id,
+          packageName: pkg.name,
+          nights: pkg.nights,
+          travelers: data.travelers,
+          checkIn: data.checkIn,
+          amountInr: amount,
+          swaps: data.swaps ?? {},
+          status: "paid",
+          cardLast4: paid.last4,
+          cardBrand: paid.brand,
+          payerName: data.payerName,
+          confirmationCode: code,
+          paymentMethod: paid.method,
+          paymentRef: paid.ref,
+          upiHandle: paid.upiHandle,
+          bankName: paid.bank,
+        });
+        if (booking) return { ok: true, booking };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Could not save booking.";
+        return { ok: false, message };
+      }
+    }
+
     if (useMemoryStore()) {
       const booking: BookingRow = {
         id: (g.__twMemoryId__ = (g.__twMemoryId__ ?? 1) + 1) - 1,
@@ -254,6 +293,15 @@ export const cancelBooking = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((id: number) => id)
   .handler(async ({ context, data: id }) => {
+    if (isSupabaseConfigured()) {
+      try {
+        await sbCancelBooking(context.userId, id);
+        return { ok: true };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Could not cancel.";
+        return { ok: false, message };
+      }
+    }
     if (useMemoryStore()) {
       const list = g.__twMemoryBookings__ ?? [];
       const b = list.find((x) => x.id === id);
