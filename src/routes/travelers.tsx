@@ -1,28 +1,34 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Minus, Plus, ShieldCheck } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { RequireAuth } from "@/components/require-auth";
+import { DigilockerFlow } from "@/components/digilocker-flow";
+import { DigiYatraPanel, TransportPanel } from "@/components/transport-panel";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, ShakeField, ShakeSelect, Stagger } from "@/components/motion";
+import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { pushBanner } from "@/lib/banners";
-import { DIGIYATRA_GUIDE, getTransportForPackage } from "@/lib/transport";
-import { DIGILOCKER_STATUS } from "@/lib/digilocker";
+import { getTransportForPackage } from "@/lib/transport";
 import {
-  digilockerDemoTraveler,
-  emptyTraveler,
+  DIGIYATRA_LABELS,
   GENDER_LABELS,
   ID_LABELS,
+  emptyTraveler,
   loadTravelers,
   saveTravelers,
+  travelerInitials,
   validateTravelers,
+  type DigiYatraStatus,
   type Gender,
   type IdType,
   type Traveler,
   type TravelerErrors,
 } from "@/lib/travelers";
 import { formatMoney, getPackage, loadPending, priceWithSwaps } from "@/lib/packages";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/travelers")({ component: TravelersPage });
 
@@ -34,8 +40,30 @@ function TravelersPage() {
   );
 }
 
+function Stepper() {
+  return (
+    <ol className="flex items-center gap-2 text-xs font-medium text-subtle">
+      <li className="text-muted">Stay</li>
+      <li aria-hidden className="h-px w-6 bg-border" />
+      <li className="text-primary">Travellers</li>
+      <li aria-hidden className="h-px w-6 bg-border" />
+      <li>Pay</li>
+    </ol>
+  );
+}
+
+function FieldGroup({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <fieldset className="mt-5 min-w-0">
+      <legend className="text-xs font-medium uppercase tracking-[0.14em] text-subtle">{title}</legend>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">{children}</div>
+    </fieldset>
+  );
+}
+
 function TravelersInner() {
   const navigate = useNavigate();
+  const { user } = useCurrentUserState();
   const [ready, setReady] = useState(false);
   const [packageId, setPackageId] = useState<string | null>(null);
   const [swaps, setSwaps] = useState<Record<string, string>>({});
@@ -43,7 +71,7 @@ function TravelersInner() {
   const [list, setList] = useState<Traveler[]>([emptyTraveler(), emptyTraveler()]);
   const [errors, setErrors] = useState<TravelerErrors[]>([]);
   const [shakeKey, setShakeKey] = useState(0);
-  const [digiOpen, setDigiOpen] = useState(false);
+  const [digiGuest, setDigiGuest] = useState<number | null>(null);
 
   useEffect(() => {
     const pending = loadPending();
@@ -53,9 +81,17 @@ function TravelersInner() {
     if (saved.length > 0) {
       setList(saved);
       setCount(saved.length);
+    } else if (user?.primaryEmail || user?.displayName) {
+      setList([
+        emptyTraveler({
+          fullName: user.displayName ?? "",
+          email: user.primaryEmail ?? "",
+        }),
+        emptyTraveler(),
+      ]);
     }
     setReady(true);
-  }, []);
+  }, [user?.displayName, user?.primaryEmail]);
 
   const pkg = packageId ? getPackage(packageId) : undefined;
   const transport = packageId ? getTransportForPackage(packageId) : null;
@@ -96,13 +132,25 @@ function TravelersInner() {
     void navigate({ to: "/checkout" });
   };
 
-  const applyDigiDemo = (index: number) => {
-    update(index, digilockerDemoTraveler());
-    setDigiOpen(false);
+  const applyDigi = (index: number, filled: Traveler) => {
+    setList((prev) =>
+      prev.map((t, i) =>
+        i === index
+          ? {
+              ...t,
+              ...filled,
+              specialRequests: t.specialRequests,
+              emergencyName: t.emergencyName,
+              emergencyPhone: t.emergencyPhone,
+              digiYatra: t.digiYatra,
+            }
+          : t,
+      ),
+    );
     pushBanner({
-      title: "Demo DigiLocker fill",
-      body: "Sample Aadhaar-style identity applied. Live DigiLocker needs partner credentials.",
-      tone: "info",
+      title: "DigiLocker details applied",
+      body: `${filled.fullName} filled from issued documents.`,
+      tone: "ok",
     });
   };
 
@@ -130,100 +178,97 @@ function TravelersInner() {
 
   return (
     <Shell>
-      <div className="mx-auto grid max-w-5xl gap-8 px-4 py-10 lg:grid-cols-[1.15fr_0.85fr]">
-        <div>
+      <div className="mx-auto grid max-w-5xl gap-8 px-4 py-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(16rem,0.85fr)]">
+        <div className="min-w-0">
           <Stagger>
-            <p className="eyebrow">Before payment</p>
+            <Stepper />
+            <p className="eyebrow mt-6">Before payment</p>
             <h1 className="mt-2 font-display text-4xl">Traveller details</h1>
-            <p className="mt-3 text-sm text-muted">
-              Essential details for hotel registration. Names should match government ID.
+            <p className="mt-3 max-w-xl text-sm text-muted">
+              Names must match government ID. DigiLocker can fill identity. DigiYatra is only for Bhubaneswar airport.
             </p>
           </Stagger>
 
-          <div className="mt-6 flex flex-wrap items-end gap-4">
-            <div className="w-36">
-              <ShakeField
-                label="Guests"
-                type="number"
-                min={1}
-                max={8}
-                value={count}
-                onChange={(e) => syncCount(Number(e.target.value) || 1)}
-              />
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <p className="text-sm font-medium">Guests</p>
+              <div className="inline-flex h-11 items-center rounded-md border border-border bg-elevated">
+                <button
+                  type="button"
+                  className="grid size-11 place-items-center text-muted hover:text-fg"
+                  aria-label="Fewer guests"
+                  onClick={() => syncCount(count - 1)}
+                >
+                  <Minus className="size-4" />
+                </button>
+                <span className="min-w-10 text-center text-sm tabular-nums">{count}</span>
+                <button
+                  type="button"
+                  className="grid size-11 place-items-center text-muted hover:text-fg"
+                  aria-label="More guests"
+                  onClick={() => syncCount(count + 1)}
+                >
+                  <Plus className="size-4" />
+                </button>
+              </div>
             </div>
-            <Button type="button" variant="outline" onClick={() => setDigiOpen(true)}>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11 w-full sm:w-auto"
+              onClick={() => setDigiGuest(0)}
+            >
+              <ShieldCheck className="size-4" />
               DigiLocker assist
             </Button>
           </div>
 
-          {digiOpen ? (
-            <Card className="mt-4 space-y-3 border-primary/20 bg-elevated p-4 shadow-none">
-              <p className="text-sm font-medium">DigiLocker</p>
-              <p className="text-sm text-muted">{DIGILOCKER_STATUS.reason}</p>
-              <div className="flex flex-wrap gap-2">
-                <Button type="button" size="sm" onClick={() => applyDigiDemo(0)}>
-                  Demo fill guest 1
-                </Button>
-                <Button type="button" size="sm" variant="outline" asChild>
-                  <a href={DIGILOCKER_STATUS.citizenApp} target="_blank" rel="noreferrer">
-                    Open DigiLocker
-                  </a>
-                </Button>
-                <Button type="button" size="sm" variant="outline" onClick={() => setDigiOpen(false)}>
-                  Close
-                </Button>
-              </div>
-              <p className="text-xs text-subtle">
-                Partner onboarding:{" "}
-                <a className="underline" href={DIGILOCKER_STATUS.portal} target="_blank" rel="noreferrer">
-                  API Setu DigiLocker
-                </a>
-              </p>
-            </Card>
-          ) : null}
-
-          <div className="mt-8 grid gap-6">
+          <div className="mt-8 grid gap-5">
             {list.slice(0, count).map((t, i) => {
               const err = errors[i] ?? {};
+              const filled = t.identitySource !== "manual";
               return (
-                <Card key={i} className="space-y-3 p-5 shadow-none">
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="font-display text-xl">
-                      Guest {i + 1}
-                      {i === 0 ? " · primary" : ""}
-                    </h2>
-                    {t.identitySource !== "manual" ? (
-                      <span className="text-xs text-ok">
-                        {t.identitySource === "digilocker_demo" ? "Demo DigiLocker" : "DigiLocker"}
+                <Card key={i} className="p-5 shadow-none">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-fg">
+                        {travelerInitials(t, i)}
                       </span>
-                    ) : null}
+                      <div className="min-w-0">
+                        <h2 className="font-display text-xl">
+                          Guest {i + 1}
+                          {i === 0 ? " · primary" : ""}
+                        </h2>
+                        {filled ? (
+                          <p className="text-xs text-ok">
+                            {t.identitySource === "digilocker_demo" ? "Sandbox DigiLocker" : "DigiLocker"}
+                            {t.issuedDocs[0] ? ` · ${t.issuedDocs[0].label}` : ""}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-subtle">Manual entry</p>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="shrink-0"
+                      onClick={() => setDigiGuest(i)}
+                    >
+                      Fill from DigiLocker
+                    </Button>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
+
+                  <FieldGroup title="Identity">
                     <ShakeField
+                      className="sm:col-span-2"
                       label="Full name (as on ID)"
                       value={t.fullName}
                       error={err.fullName}
                       shakeKey={shakeKey}
+                      autoComplete="name"
                       onChange={(e) => update(i, { fullName: e.target.value, identitySource: "manual" })}
-                    />
-                    <ShakeField
-                      label="Mobile"
-                      inputMode="tel"
-                      placeholder="10-digit mobile"
-                      value={t.phone}
-                      error={err.phone}
-                      shakeKey={shakeKey}
-                      onChange={(e) =>
-                        update(i, { phone: e.target.value.replace(/\D/g, "").slice(0, 10) })
-                      }
-                    />
-                    <ShakeField
-                      label="Email"
-                      type="email"
-                      value={t.email}
-                      error={err.email}
-                      shakeKey={shakeKey}
-                      onChange={(e) => update(i, { email: e.target.value })}
                     />
                     <ShakeField
                       label="Date of birth"
@@ -245,7 +290,7 @@ function TravelersInner() {
                       ))}
                     </ShakeSelect>
                     <ShakeField
-                      label="Nationality (ISO)"
+                      label="Nationality"
                       value={t.nationality}
                       error={err.nationality}
                       shakeKey={shakeKey}
@@ -265,19 +310,48 @@ function TravelersInner() {
                       ))}
                     </ShakeSelect>
                     <ShakeField
+                      className="sm:col-span-2"
                       label="ID number"
                       value={t.idNumber}
                       error={err.idNumber}
                       shakeKey={shakeKey}
                       onChange={(e) => update(i, { idNumber: e.target.value, identitySource: "manual" })}
                     />
+                  </FieldGroup>
+
+                  <FieldGroup title="Contact">
                     <ShakeField
-                      label="Emergency contact name"
+                      label="Mobile"
+                      inputMode="tel"
+                      placeholder="10-digit mobile"
+                      value={t.phone}
+                      error={err.phone}
+                      shakeKey={shakeKey}
+                      autoComplete="tel"
+                      onChange={(e) =>
+                        update(i, { phone: e.target.value.replace(/\D/g, "").slice(0, 10) })
+                      }
+                    />
+                    <ShakeField
+                      label="Email"
+                      type="email"
+                      value={t.email}
+                      error={err.email}
+                      shakeKey={shakeKey}
+                      autoComplete="email"
+                      onChange={(e) => update(i, { email: e.target.value })}
+                    />
+                  </FieldGroup>
+
+                  <FieldGroup title="Emergency">
+                    <ShakeField
+                      label="Contact name"
                       value={t.emergencyName}
+                      autoComplete="off"
                       onChange={(e) => update(i, { emergencyName: e.target.value })}
                     />
                     <ShakeField
-                      label="Emergency mobile"
+                      label="Mobile"
                       inputMode="tel"
                       value={t.emergencyPhone}
                       error={err.emergencyPhone}
@@ -288,28 +362,69 @@ function TravelersInner() {
                         })
                       }
                     />
+                    <ShakeField
+                      className="sm:col-span-2"
+                      label="Special requests (optional)"
+                      value={t.specialRequests}
+                      placeholder="Diet, accessibility, room preference"
+                      onChange={(e) => update(i, { specialRequests: e.target.value })}
+                    />
+                  </FieldGroup>
+
+                  {t.issuedDocs.length > 0 ? (
+                    <ul className="mt-4 flex flex-wrap gap-2">
+                      {t.issuedDocs.map((d) => (
+                        <li
+                          key={`${d.label}-${d.idMasked}`}
+                          className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted"
+                        >
+                          {d.label} · {d.idMasked}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+
+                  <div className="mt-5 border-t border-border pt-4">
+                    <p className="text-sm font-medium">DigiYatra for BBI</p>
+                    <p className="mt-1 text-xs text-subtle">
+                      Optional. Airport e-gates only — does not replace hotel ID.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {(Object.keys(DIGIYATRA_LABELS) as DigiYatraStatus[]).map((status) => (
+                        <button
+                          key={status}
+                          type="button"
+                          className={cn(
+                            "min-h-11 min-w-[7.5rem] flex-1 rounded-md border px-3 text-center text-xs font-medium",
+                            t.digiYatra === status
+                              ? "border-primary/40 bg-primary/5 text-fg"
+                              : "border-border bg-elevated text-muted",
+                          )}
+                          onClick={() => update(i, { digiYatra: status })}
+                        >
+                          {DIGIYATRA_LABELS[status]}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <ShakeField
-                    label="Special requests (optional)"
-                    value={t.specialRequests}
-                    onChange={(e) => update(i, { specialRequests: e.target.value })}
-                  />
                 </Card>
               );
             })}
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button type="button" size="lg" onClick={onContinue}>
-              Continue to payment
-            </Button>
-            <Button type="button" variant="outline" asChild>
-              <Link to={`/trip/${pkg.id}`}>Back to stay</Link>
-            </Button>
+          <div className="sticky bottom-0 z-10 mt-8 -mx-4 border-t border-border bg-bg/95 px-4 py-4 backdrop-blur lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:backdrop-blur-none">
+            <div className="flex flex-wrap gap-3">
+              <Button type="button" size="lg" onClick={onContinue}>
+                Continue to payment
+              </Button>
+              <Button type="button" variant="outline" asChild>
+                <Link to="/trip/$id" params={{ id: pkg.id }}>Back to stay</Link>
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div className="space-y-4">
+        <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
           <Card className="overflow-hidden shadow-none">
             <img src={pkg.image} alt="" className="h-36 w-full object-cover" />
             <div className="p-5">
@@ -327,73 +442,22 @@ function TravelersInner() {
             </div>
           </Card>
 
-          {transport ? (
-            <Card className="space-y-3 p-5 shadow-none">
-              <p className="eyebrow">Best way to the property</p>
-              <h3 className="font-display text-lg">{transport.best.mode}</h3>
-              <p className="text-sm text-muted">{transport.best.why}</p>
-              <dl className="grid gap-1 text-sm">
-                <div className="flex justify-between gap-3">
-                  <dt className="text-muted">Time</dt>
-                  <dd className="text-right">{transport.best.duration}</dd>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <dt className="text-muted">Typical cost</dt>
-                  <dd className="text-right">{transport.best.costHint}</dd>
-                </div>
-              </dl>
-              {transport.best.tips ? (
-                <p className="text-xs text-subtle">{transport.best.tips}</p>
-              ) : null}
-              <p className="text-xs text-subtle">{transport.localNote}</p>
-              <div className="border-t border-border pt-3">
-                <p className="text-xs font-medium text-muted">From BBI airport</p>
-                <ul className="mt-1 space-y-1 text-xs text-subtle">
-                  {transport.fromAirport.map((leg) => (
-                    <li key={leg.mode}>
-                      <span className="text-foreground">{leg.mode}</span> — {leg.duration} ·{" "}
-                      {leg.costHint}
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-2 text-xs font-medium text-muted">From Puri station</p>
-                <ul className="mt-1 space-y-1 text-xs text-subtle">
-                  {transport.fromStation.map((leg) => (
-                    <li key={leg.mode}>
-                      <span className="text-foreground">{leg.mode}</span> — {leg.duration} ·{" "}
-                      {leg.costHint}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </Card>
-          ) : null}
-
-          <Card className="space-y-2 p-5 shadow-none">
-            <p className="eyebrow">DigiYatra · {DIGIYATRA_GUIDE.airportCode}</p>
-            <h3 className="font-display text-lg">Airport only</h3>
-            <p className="text-sm text-muted">{DIGIYATRA_GUIDE.summary}</p>
-            <ol className="list-decimal space-y-1 pl-4 text-xs text-subtle">
-              {DIGIYATRA_GUIDE.steps.map((s) => (
-                <li key={s}>{s}</li>
-              ))}
-            </ol>
-            <p className="text-xs text-subtle">{DIGIYATRA_GUIDE.note}</p>
-            <div className="flex flex-wrap gap-2 pt-1">
-              <Button type="button" size="sm" variant="outline" asChild>
-                <a href={DIGIYATRA_GUIDE.appLinks.android} target="_blank" rel="noreferrer">
-                  Android app
-                </a>
-              </Button>
-              <Button type="button" size="sm" variant="outline" asChild>
-                <a href={DIGIYATRA_GUIDE.appLinks.ios} target="_blank" rel="noreferrer">
-                  iOS app
-                </a>
-              </Button>
-            </div>
-          </Card>
-        </div>
+          {transport ? <TransportPanel transport={transport} /> : null}
+          <DigiYatraPanel />
+        </aside>
       </div>
+
+      {digiGuest !== null ? (
+        <DigilockerFlow
+          guestIndex={digiGuest}
+          guestLabel={`guest ${digiGuest + 1}`}
+          onClose={() => setDigiGuest(null)}
+          onApply={(filled) => {
+            applyDigi(digiGuest, filled);
+            setDigiGuest(null);
+          }}
+        />
+      ) : null}
     </Shell>
   );
 }

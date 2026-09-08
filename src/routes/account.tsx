@@ -7,11 +7,14 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, MotionToggle, Stagger, TextSwap } from "@/components/motion";
 import { signOut } from "@/lib/auth/client";
-import { isDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user";
+import { clearDemoMode, isDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user";
 import { formatMoney } from "@/lib/packages";
 import { paymentLine } from "@/lib/pay";
 import { listBookings, type BookingRow } from "@/lib/server/bookings";
 import { listDemoBookings } from "@/lib/demo-bookings";
+import { AddToWallet } from "@/components/wallet-pass";
+import { bookingToWalletPayload } from "@/lib/apple-wallet";
+import { listWalletPasses } from "@/lib/wallet-store";
 
 export const Route = createFileRoute("/account")({ component: Account });
 
@@ -38,6 +41,9 @@ function AccountInner() {
   const [bookings, setBookings] = useState<BookingRow[] | null>(null);
   const [signingOut, setSigningOut] = useState(false);
   const [showCancelled, setShowCancelled] = useState(false);
+  const [wallet] = useState(() =>
+    typeof window === "undefined" ? [] : listWalletPasses(),
+  );
 
   useEffect(() => {
     if (isDemoMode()) {
@@ -138,6 +144,39 @@ function AccountInner() {
           </p>
         )}
 
+        {(wallet.length > 0 || paid.length > 0) && !showCancelled ? (
+          <div className="mt-10">
+            <p className="eyebrow">Apple Wallet</p>
+            <h2 className="mt-2 font-display text-2xl">Saved passes</h2>
+            <p className="mt-2 text-sm text-muted">
+              Keep a booking on your iPhone for offline check-in.
+            </p>
+            <div className="mt-4 grid gap-4">
+              {(wallet.length > 0
+                ? wallet
+                : paid.slice(0, 2).map((b) => bookingToWalletPayload(b))
+              ).map((payload) => (
+                <AddToWallet
+                  key={payload.confirmationCode}
+                  compact
+                  booking={{
+                    confirmationCode: payload.confirmationCode,
+                    packageName: payload.packageName,
+                    packageId: payload.packageId,
+                    checkIn: payload.checkIn,
+                    nights: payload.nights,
+                    travelers: payload.travelers,
+                    payerName: payload.payerName,
+                    amountInr: payload.amountInr,
+                    paymentRef: payload.paymentRef,
+                    status: payload.status,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild>
             <Link to="/trips">View bookings</Link>
@@ -148,6 +187,7 @@ function AccountInner() {
             disabled={signingOut}
             onClick={() => {
               setSigningOut(true);
+              clearDemoMode();
               void signOut().catch(() => setSigningOut(false));
             }}
           >

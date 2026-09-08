@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { signOut } from "@/lib/auth/client";
-import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { clearDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TextSwap } from "@/components/motion";
 import { saveNext } from "@/lib/packages";
-import { useState } from "react";
+import { isRealUser } from "@/lib/session-guard";
 
 export function AuthSlot() {
   const { user, isPending } = useCurrentUserState();
@@ -15,12 +16,13 @@ export function AuthSlot() {
     return <Skeleton className="h-9 w-24 rounded-md" />;
   }
 
-  if (!user) {
+  if (!isRealUser(user)) {
     return (
       <Button asChild size="sm" variant="outline">
         <Link
           to="/login"
           onClick={() => {
+            clearDemoMode();
             const path = `${window.location.pathname}${window.location.search}`;
             if (path && path !== "/login" && !path.startsWith("/login?")) saveNext(path);
           }}
@@ -62,6 +64,7 @@ export function AuthSlot() {
         disabled={signingOut}
         onClick={() => {
           setSigningOut(true);
+          clearDemoMode();
           void signOut().catch(() => setSigningOut(false));
         }}
       >

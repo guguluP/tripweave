@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { Lock } from "lucide-react";
 import { Shell } from "@/components/shell";
+import { AddToWallet } from "@/components/wallet-pass";
 import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,8 +25,10 @@ import {
   saveNext,
 } from "@/lib/packages";
 import { methodLabel, paymentLine } from "@/lib/pay";
-import { createBooking } from "@/lib/server/bookings";
+import { createBooking, type BookingRow } from "@/lib/server/bookings";
 import { saveDemoBooking } from "@/lib/demo-bookings";
+import { bookingToWalletPayload } from "@/lib/apple-wallet";
+import { saveWalletPass } from "@/lib/wallet-store";
 import { createRazorpayOrder } from "@/lib/server/razorpay";
 import { loadTravelers, validateTravelers } from "@/lib/travelers";
 import {
@@ -33,7 +36,6 @@ import {
   loadRazorpayScript,
   openRazorpayCheckout,
 } from "@/lib/razorpay-client";
-import { AddToWalletButton } from "@/components/add-to-wallet";
 
 export const Route = createFileRoute("/checkout")({ component: Checkout });
 
@@ -74,6 +76,7 @@ function CheckoutInner() {
   const [shakeKey, setShakeKey] = useState(0);
   const [busy, setBusy] = useState(false);
   const [travelersOk, setTravelersOk] = useState(false);
+  const [held, setHeld] = useState<BookingRow | null>(null);
   const [confirmation, setConfirmation] = useState<{
     code: string;
     amount: number;
@@ -81,11 +84,6 @@ function CheckoutInner() {
     method: string;
     line: string;
     ref: string | null;
-    packageId: string;
-    nights: number;
-    travelers: number;
-    payerName: string;
-    checkIn: string;
   } | null>(null);
 
   useEffect(() => {
@@ -151,10 +149,10 @@ function CheckoutInner() {
     );
   }
 
-  if (confirmation) {
+  if (confirmation && held) {
     return (
       <Shell>
-        <div className="mx-auto flex max-w-md flex-col items-center px-4 py-20 text-center">
+        <div className="mx-auto flex max-w-md flex-col items-center px-4 py-16 text-center">
           <SuccessCheck />
           <h1 className="mt-6 font-display text-4xl">Stay held</h1>
           <p className="mt-3 text-muted">
@@ -171,25 +169,12 @@ function CheckoutInner() {
           {confirmation.ref ? (
             <p className="mt-1 text-xs text-subtle">Ref {confirmation.ref}</p>
           ) : null}
-          <div className="mt-8 flex flex-col items-center gap-3">
-            <AddToWalletButton
-              booking={{
-                confirmationCode: confirmation.code,
-                packageName: confirmation.name,
-                packageId: confirmation.packageId,
-                checkIn: confirmation.checkIn,
-                nights: confirmation.nights,
-                travelers: confirmation.travelers,
-                payerName: confirmation.payerName,
-                amountInr: confirmation.amount,
-                paymentRef: confirmation.ref,
-                status: "confirmed",
-              }}
-            />
-            <Button asChild size="lg" variant="outline">
-              <Link to="/trips">View trips</Link>
-            </Button>
+          <div className="mt-8 w-full text-left">
+            <AddToWallet booking={held} />
           </div>
+          <Button asChild size="lg" className="mt-6">
+            <Link to="/trips">View trips</Link>
+          </Button>
         </div>
       </Shell>
     );
@@ -286,12 +271,14 @@ function CheckoutInner() {
                 }
                 const booking = result.booking;
                 saveDemoBooking(booking);
+                saveWalletPass(bookingToWalletPayload(booking));
                 clearPending();
                 pushBanner({
                   title: `Booked · ${booking.confirmationCode}`,
                   body: pkg.name,
                   tone: "ok",
                 });
+                setHeld(booking);
                 setConfirmation({
                   code: booking.confirmationCode,
                   amount: booking.amountInr,
@@ -299,11 +286,6 @@ function CheckoutInner() {
                   method: booking.paymentMethod,
                   line: paymentLine(booking),
                   ref: booking.paymentRef,
-                  packageId: pkg.id,
-                  nights: pkg.nights,
-                  travelers,
-                  payerName: payerName.trim(),
-                  checkIn,
                 });
                 setBusy(false);
                 resolve();

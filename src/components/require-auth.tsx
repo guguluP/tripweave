@@ -1,7 +1,8 @@
 import { useEffect, type ReactNode } from "react";
 import { RedirectToSignIn } from "@/lib/auth/gates";
-import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { clearDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user";
 import { saveNext } from "@/lib/packages";
+import { isRealUser } from "@/lib/session-guard";
 
 export function RequireAuth({
   next,
@@ -14,7 +15,10 @@ export function RequireAuth({
 }) {
   const { user, isPending } = useCurrentUserState();
   if (isPending) return fallback;
-  if (!user) return <SaveAndRedirect next={next} />;
+  if (!isRealUser(user)) {
+    clearDemoMode();
+    return <SaveAndRedirect next={next} />;
+  }
   return <>{children}</>;
 }
 

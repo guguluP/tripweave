@@ -34,7 +34,21 @@ export type WalletPassPayload = {
   status: string;
 };
 
-export function bookingToWalletPayload(booking: BookingRow): WalletPassPayload {
+export function bookingToWalletPayload(
+  booking: Pick<
+    BookingRow,
+    | "confirmationCode"
+    | "packageName"
+    | "packageId"
+    | "checkIn"
+    | "nights"
+    | "travelers"
+    | "payerName"
+    | "amountInr"
+    | "paymentRef"
+    | "status"
+  >,
+): WalletPassPayload {
   const pkg = getPackage(booking.packageId);
   return {
     confirmationCode: booking.confirmationCode,

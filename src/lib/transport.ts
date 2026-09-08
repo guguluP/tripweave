@@ -10,6 +10,8 @@ export type TransportLeg = {
   costHint: string;
   why: string;
   tips?: string;
+  luggage: "easy" | "ok" | "hard";
+  rank: number;
 };
 
 export type PropertyTransport = {
@@ -31,6 +33,8 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
       costHint: "Usually included or ₹1,800–2,500 one way",
       why: "Beachfront access roads and luggage — pre-booked transfer is the smoothest.",
       tips: "Share flight number with the hotel; they track delays.",
+      luggage: "easy",
+      rank: 1,
     },
     fromAirport: [
       {
@@ -38,18 +42,24 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
         duration: "75–105 min",
         costHint: "Included / ₹1,800–2,500",
         why: "Best for families and late arrivals.",
+        luggage: "easy",
+        rank: 1,
       },
       {
         mode: "App cab (Ola / Uber intercity)",
         duration: "70–100 min",
         costHint: "₹1,600–2,200",
         why: "Flexible if you already use the apps.",
+        luggage: "easy",
+        rank: 2,
       },
       {
         mode: "Train BBS → Puri + auto",
         duration: "2–3 hr door to door",
         costHint: "₹50–150 + auto",
         why: "Budget option; more transfers.",
+        luggage: "hard",
+        rank: 3,
       },
     ],
     fromStation: [
@@ -58,6 +68,16 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
         duration: "15–25 min",
         costHint: "₹250–450",
         why: "Station is central; beach road is short.",
+        luggage: "easy",
+        rank: 1,
+      },
+      {
+        mode: "Auto rickshaw",
+        duration: "20–30 min",
+        costHint: "₹180–280",
+        why: "Fine in daylight with light bags.",
+        luggage: "ok",
+        rank: 2,
       },
     ],
     localNote: "Balukhand is south of the main beach stretch — avoid walking with bags after dark.",
@@ -69,6 +89,8 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
       duration: "1 hr 10 min – 1 hr 40 min",
       costHint: "₹1,500–2,200",
       why: "Heritage property handles luggage and temple-road traffic best.",
+      luggage: "easy",
+      rank: 1,
     },
     fromAirport: [
       {
@@ -76,12 +98,16 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
         duration: "70–100 min",
         costHint: "₹1,500–2,200",
         why: "Recommended default.",
+        luggage: "easy",
+        rank: 1,
       },
       {
         mode: "App cab",
         duration: "70–95 min",
         costHint: "₹1,500–2,000",
         why: "Good daytime option.",
+        luggage: "easy",
+        rank: 2,
       },
     ],
     fromStation: [
@@ -90,6 +116,8 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
         duration: "10–20 min",
         costHint: "₹150–350",
         why: "Close to station and temple side.",
+        luggage: "ok",
+        rank: 1,
       },
     ],
     localNote: "Handy for Jagannath Temple visits — ask hotel for early-morning darshan timings.",
@@ -101,6 +129,8 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
       duration: "1 hr 15 min – 1 hr 45 min",
       costHint: "₹1,500–2,200",
       why: "Marine Drive is easy for cabs; transfer still wins with luggage.",
+      luggage: "easy",
+      rank: 1,
     },
     fromAirport: [
       {
@@ -108,6 +138,16 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
         duration: "75–105 min",
         costHint: "₹1,500–2,200",
         why: "Straightforward coastal road access.",
+        luggage: "easy",
+        rank: 1,
+      },
+      {
+        mode: "OSRTC bus + auto",
+        duration: "2–3 hr",
+        costHint: "₹150–400",
+        why: "Cheapest; more effort with bags.",
+        luggage: "hard",
+        rank: 2,
       },
     ],
     fromStation: [
@@ -116,6 +156,8 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
         duration: "10–18 min",
         costHint: "₹120–280",
         why: "Short hop to the beach road.",
+        luggage: "ok",
+        rank: 1,
       },
     ],
     localNote: "Marine Drive is walkable to the main beach in good weather.",
@@ -130,6 +172,8 @@ const DEFAULT: Omit<PropertyTransport, "packageId"> = {
     costHint: "₹1,500–2,500",
     why: "BBI is the practical air gateway; road is the only sensible last mile.",
     tips: "Avoid unmarked taxis at arrivals — use hotel desk or app cabs.",
+    luggage: "easy",
+    rank: 1,
   },
   fromAirport: [
     {
@@ -137,12 +181,16 @@ const DEFAULT: Omit<PropertyTransport, "packageId"> = {
       duration: "75–110 min",
       costHint: "₹1,500–2,500",
       why: "Fastest door-to-door.",
+      luggage: "easy",
+      rank: 1,
     },
     {
       mode: "Bus (OSRTC / private) + auto",
       duration: "2–3.5 hr",
       costHint: "₹150–400 total",
       why: "Cheapest; more effort with bags.",
+      luggage: "hard",
+      rank: 2,
     },
   ],
   fromStation: [
@@ -151,6 +199,8 @@ const DEFAULT: Omit<PropertyTransport, "packageId"> = {
       duration: "10–25 min",
       costHint: "₹100–400",
       why: "Puri station is in town.",
+      luggage: "ok",
+      rank: 1,
     },
   ],
   localNote:
@@ -176,7 +226,7 @@ export const DIGIYATRA_GUIDE = {
   ],
   note: "Name on Aadhaar, ticket, and boarding pass must match. DigiYatra has no public hotel API today.",
   appLinks: {
-    android: "https://play.google.com/store/apps/details?id=com.digiyatra",
-    ios: "https://apps.apple.com/in/app/digi-yatra/id1569688149",
+    android: "https://play.google.com/store/apps/details?id=org.digiyatra.org",
+    ios: "https://apps.apple.com/in/app/digi-yatra/id6479873321",
   },
 };

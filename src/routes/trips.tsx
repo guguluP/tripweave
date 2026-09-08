@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { AddToWallet } from "@/components/wallet-pass";
 import { Shell } from "@/components/shell";
 import { RequireAuth } from "@/components/require-auth";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +18,6 @@ import {
 } from "@/lib/server/bookings";
 import { cancelDemoBooking, listDemoBookings } from "@/lib/demo-bookings";
 import { isDemoMode } from "@/lib/auth/use-current-user";
-import { AddToWalletButton } from "@/components/add-to-wallet";
 
 export const Route = createFileRoute("/trips")({ component: Trips });
 
@@ -113,13 +113,14 @@ function TripsInner() {
                         <p className="text-xs text-subtle">Ref {b.paymentRef}</p>
                       ) : null}
                       {!cancelled ? (
-                        <div className="flex flex-col gap-2">
-                          <AddToWalletButton booking={b} />
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={cancelling === b.id}
-                            onClick={async () => {
+                        <div className="grid gap-3">
+                          <AddToWallet booking={b} compact />
+                          <div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled={cancelling === b.id}
+                              onClick={async () => {
                               setCancelling(b.id);
                               try {
                                 if (isDemoMode()) {
@@ -148,6 +149,7 @@ function TripsInner() {
                               shimmer={cancelling === b.id}
                             />
                           </Button>
+                          </div>
                         </div>
                       ) : null}
                     </div>

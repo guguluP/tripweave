@@ -22,7 +22,7 @@ import {
   PREVIEW_CLIENT_SECRET,
 } from "./preview";
 
-const SESSION_TOKEN_COOKIE = "better-auth.session_token";
+export const SESSION_TOKEN_COOKIE = "better-auth.session_token";
 
 const hasGrokCreds = Boolean(
   process.env.GROK_AUTH_CLIENT_ID && process.env.GROK_AUTH_CLIENT_SECRET,
@@ -89,7 +89,7 @@ export const auth = betterAuth({
   secret: getSecret(),
   database: hasDb
     ? new Pool({ connectionString: process.env.DATABASE_URL })
-    : pgliteDialect(getPglite()),
+    : pgliteDialect(() => getPglite()),
   trustedOrigins,
   emailAndPassword: emailAndPasswordEnabled
     ? {

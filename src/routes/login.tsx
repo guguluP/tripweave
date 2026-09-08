@@ -2,11 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { GROK_PROVIDERS, authClient, authEnabled, signIn } from "@/lib/auth/client";
 import { emailAndPasswordEnabled } from "@/lib/auth/email-password";
-import { enableDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user";
+import { clearDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user";
 import { BrandWord, WeaveMark } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { ShakeField, SlidingTabs, Stagger, TextSwap } from "@/components/motion";
 import { consumeNext, loadNext } from "@/lib/packages";
+import { isRealUser } from "@/lib/session-guard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type LoginSearch = { error?: string };
@@ -63,10 +64,10 @@ function isExistingAccountError(raw: string) {
 function nextCopy(path: string) {
   if (path.startsWith("/checkout")) return "Sign in to pay and hold this stay.";
   if (path.startsWith("/account") || path.startsWith("/trips")) return "Sign in to see your trips.";
-  return "Sign in to continue.";
+  return "Sign in with Google or your email.";
 }
 
-async function waitForSession(timeoutMs = 4000) {
+async function waitForSession(timeoutMs = 8000) {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     try {
@@ -100,6 +101,7 @@ function Login() {
   const [oauthBusy, setOauthBusy] = useState<string | null>(null);
   const [nextPath] = useState(() => loadNext());
   const redirected = useRef(false);
+  clearDemoMode();
 
   const goNext = () => {
     if (redirected.current) return;
@@ -107,10 +109,12 @@ function Login() {
     window.location.assign(consumeNext());
   };
 
+  const signedIn = isRealUser(user);
+
   useEffect(() => {
-    if (!isPending && user) goNext();
+    if (!isPending && signedIn) goNext();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isPending]);
+  }, [signedIn, isPending]);
 
   useEffect(() => {
     if (search.error) {
@@ -133,6 +137,7 @@ function Login() {
     setErrors({});
     setBusy(true);
     try {
+      clearDemoMode();
       const cleanEmail = email.trim().toLowerCase();
       if (mode === "up") {
         const { error: err } = await authClient.signUp.email({
@@ -172,24 +177,8 @@ function Login() {
     }
   };
 
-  const onDemoGuest = async () => {
-    setErrors({});
-    setBusy(true);
-    try {
-      // No database required — client + server demo mode (works on Vercel without Neon)
-      enableDemoMode();
-      await new Promise((r) => setTimeout(r, 50));
-      goNext();
-    } catch (err) {
-      setErrors({
-        form: friendlyAuthError(err instanceof Error ? err.message : "Demo sign-in failed"),
-      });
-      setShakeKey((k) => k + 1);
-      setBusy(false);
-    }
-  };
-
   const onOauth = async (providerId: string) => {
+    clearDemoMode();
     setErrors({});
     setOauthBusy(providerId);
     try {
@@ -205,13 +194,16 @@ function Login() {
     }
   };
 
-  if (isPending || user) {
+  if (isPending || signedIn) {
     return (
       <div className="grid min-h-dvh place-items-center bg-bg">
         <Skeleton className="h-10 w-48" />
       </div>
     );
   }
+
+  const google = GROK_PROVIDERS.find((p) => p.idp === "google");
+  const others = GROK_PROVIDERS.filter((p) => p.idp !== "google");
 
   return (
     <div className="grid min-h-dvh bg-bg lg:grid-cols-2">
@@ -242,10 +234,10 @@ function Login() {
             <TextSwap
               text={
                 nextPath.startsWith("/checkout")
-                  ? "Sign in to pay and hold this stay."
+                  ? "Use Google or your email to pay and hold this stay."
                   : mode === "in"
-                    ? "Sign in to pay and see your trips."
-                    : "An account keeps paid stays across devices."
+                    ? "Sign in with Google, or with the email you registered."
+                    : "Create an account with your email, or continue with Google."
               }
             />
           </p>
@@ -259,23 +251,18 @@ function Login() {
               ) : null}
 
               <div className="mt-6 grid gap-2">
-                <Button
-                  type="button"
-                  variant="default"
-                  className="w-full"
-                  disabled={busy || Boolean(oauthBusy)}
-                  onClick={() => void onDemoGuest()}
-                >
-                  Continue as demo guest
-                </Button>
-                <p className="text-center text-xs text-muted">
-                  No account needed · then test card / UPI / net banking at checkout
-                </p>
-                <div className="relative my-1">
-                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-                  <div className="relative flex justify-center text-xs uppercase"><span className="bg-bg px-2 text-muted">or</span></div>
-                </div>
-                {GROK_PROVIDERS.map((p) => (
+                {google ? (
+                  <Button
+                    type="button"
+                    className="w-full"
+                    disabled={Boolean(oauthBusy) || busy}
+                    onClick={() => void onOauth(google.providerId)}
+                  >
+                    <GoogleMark />
+                    {oauthBusy === google.providerId ? "Redirecting…" : "Continue with Google"}
+                  </Button>
+                ) : null}
+                {others.map((p) => (
                   <Button
                     key={p.providerId}
                     type="button"
@@ -284,7 +271,7 @@ function Login() {
                     disabled={Boolean(oauthBusy) || busy}
                     onClick={() => void onOauth(p.providerId)}
                   >
-                    {p.idp === "google" ? <GoogleMark /> : <XMark />}
+                    <XMark />
                     {oauthBusy === p.providerId ? "Redirecting…" : `Continue with ${p.label}`}
                   </Button>
                 ))}
@@ -371,15 +358,15 @@ function Login() {
                         autoComplete="new-password"
                       />
                     ) : null}
-                    <Button type="submit" className="w-full" disabled={busy || Boolean(oauthBusy)}>
-                      {busy ? "Working…" : mode === "in" ? "Sign in" : "Create account"}
+                    <Button type="submit" variant="outline" className="w-full" disabled={busy || Boolean(oauthBusy)}>
+                      {busy ? "Working…" : mode === "in" ? "Sign in with email" : "Create email account"}
                     </Button>
                   </form>
                 </>
               ) : null}
             </>
           ) : (
-            <p className="mt-6 text-sm text-muted">Auth is off in this environment. You are signed in as the demo user.</p>
+            <p className="mt-6 text-sm text-muted">Auth is off in this environment.</p>
           )}
 
           <p className="mt-8 text-center text-sm text-muted">

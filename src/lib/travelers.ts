@@ -2,6 +2,16 @@
 
 export type IdType = "aadhaar" | "passport" | "dl" | "voter" | "other";
 export type Gender = "female" | "male" | "other" | "prefer_not";
+export type IdentitySource = "manual" | "digilocker_demo" | "digilocker";
+export type DigiYatraStatus = "not_started" | "enrolled" | "shared";
+
+export type IssuedDoc = {
+  type: IdType;
+  label: string;
+  issuer: string;
+  idMasked: string;
+  verifiedAt: string;
+};
 
 export type Traveler = {
   fullName: string;
@@ -16,8 +26,9 @@ export type Traveler = {
   specialRequests: string;
   emergencyName: string;
   emergencyPhone: string;
-  /** How identity was filled: manual | digilocker_demo | digilocker. */
-  identitySource: "manual" | "digilocker_demo" | "digilocker";
+  identitySource: IdentitySource;
+  issuedDocs: IssuedDoc[];
+  digiYatra: DigiYatraStatus;
 };
 
 export const TRAVELERS_KEY = "tripweave-travelers";
@@ -36,8 +47,31 @@ export function emptyTraveler(overrides: Partial<Traveler> = {}): Traveler {
     emergencyName: "",
     emergencyPhone: "",
     identitySource: "manual",
+    issuedDocs: [],
+    digiYatra: "not_started",
     ...overrides,
   };
+}
+
+function normalizeTraveler(raw: unknown): Traveler | null {
+  if (!raw || typeof raw !== "object") return null;
+  const t = raw as Partial<Traveler> & Record<string, unknown>;
+  return emptyTraveler({
+    fullName: typeof t.fullName === "string" ? t.fullName : "",
+    phone: typeof t.phone === "string" ? t.phone : "",
+    email: typeof t.email === "string" ? t.email : "",
+    dateOfBirth: typeof t.dateOfBirth === "string" ? t.dateOfBirth : "",
+    gender: (t.gender as Gender) || "prefer_not",
+    nationality: typeof t.nationality === "string" ? t.nationality : "IN",
+    idType: (t.idType as IdType) || "aadhaar",
+    idNumber: typeof t.idNumber === "string" ? t.idNumber : "",
+    specialRequests: typeof t.specialRequests === "string" ? t.specialRequests : "",
+    emergencyName: typeof t.emergencyName === "string" ? t.emergencyName : "",
+    emergencyPhone: typeof t.emergencyPhone === "string" ? t.emergencyPhone : "",
+    identitySource: (t.identitySource as IdentitySource) || "manual",
+    issuedDocs: Array.isArray(t.issuedDocs) ? (t.issuedDocs as IssuedDoc[]) : [],
+    digiYatra: (t.digiYatra as DigiYatraStatus) || "not_started",
+  });
 }
 
 export function saveTravelers(list: Traveler[]) {
@@ -56,7 +90,7 @@ export function loadTravelers(): Traveler[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return [];
-    return parsed as Traveler[];
+    return parsed.map(normalizeTraveler).filter((t): t is Traveler => t !== null);
   } catch {
     return [];
   }
@@ -76,7 +110,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export type TravelerErrors = Partial<Record<keyof Traveler, string>>;
 
-export function validateTraveler(t: Traveler, index: number): TravelerErrors {
+export function validateTraveler(t: Traveler): TravelerErrors {
   const e: TravelerErrors = {};
   if (t.fullName.trim().length < 2) e.fullName = "Enter the name as on the ID.";
   const phone = t.phone.replace(/\D/g, "").slice(-10);
@@ -91,9 +125,9 @@ export function validateTraveler(t: Traveler, index: number): TravelerErrors {
     }
   }
   if (!t.nationality.trim()) e.nationality = "Nationality is required.";
-  const id = t.idNumber.replace(/\s/g, "");
+  const id = t.idNumber.replace(/\s/g, "").replace(/-/g, "");
   if (t.idType === "aadhaar") {
-    if (!/^\d{12}$/.test(id) && !/^\d{4}$/.test(id) && !/x{8}\d{4}/i.test(id)) {
+    if (!/^\d{12}$/.test(id) && !/^\d{4}$/.test(id) && !/^x{8}\d{4}$/i.test(id)) {
       e.idNumber = "Enter 12-digit Aadhaar or last 4 digits.";
     }
   } else if (t.idType === "passport") {
@@ -113,9 +147,16 @@ export function validateTravelers(list: Traveler[]): {
   errors: TravelerErrors[];
 } {
   if (list.length < 1) return { ok: false, errors: [{}] };
-  const errors = list.map((t, i) => validateTraveler(t, i));
+  const errors = list.map((t) => validateTraveler(t));
   const ok = errors.every((e) => Object.keys(e).length === 0);
   return { ok, errors };
+}
+
+export function travelerInitials(t: Traveler, fallbackIndex: number) {
+  const parts = t.fullName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return String(fallbackIndex + 1);
+  if (parts.length === 1) return parts[0]!.slice(0, 1).toUpperCase();
+  return `${parts[0]!.slice(0, 1)}${parts[parts.length - 1]!.slice(0, 1)}`.toUpperCase();
 }
 
 export const ID_LABELS: Record<IdType, string> = {
@@ -133,17 +174,8 @@ export const GENDER_LABELS: Record<Gender, string> = {
   prefer_not: "Prefer not to say",
 };
 
-/** Demo DigiLocker-style payload (no live API — needs DigiLocker partner credentials). */
-export function digilockerDemoTraveler(): Traveler {
-  return emptyTraveler({
-    fullName: "Priya Sharma",
-    phone: "9876543210",
-    email: "priya.sharma@example.com",
-    dateOfBirth: "1994-06-15",
-    gender: "female",
-    nationality: "IN",
-    idType: "aadhaar",
-    idNumber: "XXXX-XXXX-4321",
-    identitySource: "digilocker_demo",
-  });
-}
+export const DIGIYATRA_LABELS: Record<DigiYatraStatus, string> = {
+  not_started: "Not started",
+  enrolled: "Enrolled",
+  shared: "Shared with BBI",
+};
