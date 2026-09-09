@@ -65,15 +65,21 @@ function getSecret(): string {
 const grokIssuer = process.env.GROK_AUTH_ISSUER || GROK_ISSUER_DEFAULT;
 const grokClientId = process.env.GROK_AUTH_CLIENT_ID || PREVIEW_CLIENT_ID;
 const grokClientSecret = process.env.GROK_AUTH_CLIENT_SECRET || PREVIEW_CLIENT_SECRET;
+const issuerBase = grokIssuer.replace(/\/+$/, "");
 
 const grokOAuthPlugin =
   hasGrokCreds || true
     ? genericOAuth({
         config: GROK_PROVIDERS.map((p) => ({
           providerId: p.providerId,
-          discoveryUrl: `${grokIssuer}/.well-known/openid-configuration`,
           clientId: grokClientId,
           clientSecret: grokClientSecret,
+          // Broker discovery lives at /api/auth/.well-known — not issuer root.
+          // Static endpoints skip a 404 discovery fetch that surfaces as
+          // "Invalid OAuth configuration".
+          authorizationUrl: `${issuerBase}/api/auth/oauth2/authorize`,
+          tokenUrl: `${issuerBase}/api/auth/oauth2/token`,
+          userInfoUrl: `${issuerBase}/api/auth/oauth2/userinfo`,
           scopes: ["openid", "profile", "email"],
           authorizationUrlParams: { idp: p.idp, prompt: "login" },
         })),

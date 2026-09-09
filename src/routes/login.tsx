@@ -50,8 +50,8 @@ function friendlyAuthError(raw: string) {
   if (lower.includes("access denied") || lower.includes("cancelled") || lower.includes("access_denied")) {
     return "Sign-in was cancelled.";
   }
-  if (lower.includes("invalid origin") || lower.includes("forbidden")) {
-    return "Sign-in blocked by origin check. Refresh and try again.";
+  if (lower.includes("invalid oauth") || lower.includes("oauth configuration")) {
+    return "Google / X sign-in could not start. Try again, or use email.";
   }
   return msg || "Something went wrong. Try again.";
 }
