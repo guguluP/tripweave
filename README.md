@@ -48,12 +48,13 @@ On **Vercel**: Project → Settings → Environment Variables → add all three 
 | Variable | Notes |
 |----------|--------|
 | `SUPABASE_URL` | Project URL |
-| `SUPABASE_ANON_KEY` | Public anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server only |
-| `VITE_SUPABASE_URL` | Same URL for browser |
-| `VITE_SUPABASE_ANON_KEY` | Same anon key |
+| `SUPABASE_ANON_KEY` or `SUPABASE_PUBLISHABLE_KEY` | Public key (`anon` JWT or `sb_publishable_...`) |
+| `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_SECRET_KEY` | Server only — never `VITE_` |
+| `VITE_SUPABASE_URL` | Same URL for the browser |
+| `VITE_SUPABASE_ANON_KEY` or `VITE_SUPABASE_PUBLISHABLE_KEY` | Same public key |
 
 Run `supabase/schema.sql` in the Supabase SQL Editor. See `supabase/README.md`.
+Do **not** add `@supabase/server` — TripWeave keeps Better Auth and `supabase-js`.
 
 ### Apple Wallet (optional)
 
