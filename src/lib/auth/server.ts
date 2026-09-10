@@ -8,7 +8,6 @@ import { betterAuth } from "better-auth";
 import { bearer, genericOAuth } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { getCookie } from "@tanstack/react-start/server";
-import { randomBytes } from "node:crypto";
 import { Pool } from "pg";
 import { getPglite } from "../db";
 import { emailAndPasswordEnabled } from "./email-password";
@@ -27,11 +26,17 @@ export const SESSION_TOKEN_COOKIE = "better-auth.session_token";
 const hasGrokCreds = Boolean(
   process.env.GROK_AUTH_CLIENT_ID && process.env.GROK_AUTH_CLIENT_SECRET,
 );
-const hasDb = Boolean(process.env.DATABASE_URL?.trim());
+const databaseUrl =
+  process.env.DATABASE_URL?.trim() ||
+  process.env.POSTGRES_URL?.trim() ||
+  process.env.POSTGRES_PRISMA_URL?.trim() ||
+  "";
+const hasDb = Boolean(databaseUrl);
+const onServerless = Boolean(process.env.VERCEL);
 
 /** True only when a real DB or Grok OAuth creds exist.
- * Without DATABASE_URL, serverless cannot run PGLite — demo mode is used instead. */
-export const authConfigured = hasGrokCreds || hasDb;
+ * Without DATABASE_URL, serverless cannot run PGLite — use cookie sessions. */
+export const authConfigured = hasGrokCreds || hasDb || onServerless;
 
 const explicitBaseURL = process.env.BETTER_AUTH_URL?.trim() || undefined;
 const LOCAL_DEV_ORIGINS = [
@@ -39,26 +44,25 @@ const LOCAL_DEV_ORIGINS = [
   "http://127.0.0.1:8080",
   "http://[::1]:8080",
 ];
+const vercelOrigins = [
+  "https://tripweave-web.vercel.app",
+  "https://tripweave-web-piyushpatnaik.vercel.app",
+  "https://*.vercel.app",
+];
 
 const trustedOrigins: string[] = explicitBaseURL
-  ? [
-      explicitBaseURL,
-      ...LOCAL_DEV_ORIGINS,
-      "https://tripweave-web.vercel.app",
-      "https://tripweave-web-piyushpatnaik.vercel.app",
-    ]
+  ? [explicitBaseURL, ...LOCAL_DEV_ORIGINS, ...vercelOrigins]
   : [
       ...PREVIEW_ALLOWED_HOSTS.flatMap((h) => [`https://${h}`, `http://${h}`]),
       ...LOCAL_DEV_ORIGINS,
-      "https://tripweave-web.vercel.app",
-      "https://tripweave-web-piyushpatnaik.vercel.app",
+      ...vercelOrigins,
     ];
 
 function getSecret(): string {
   return (
     process.env.BETTER_AUTH_SECRET ||
     process.env.GROK_AUTH_CLIENT_SECRET ||
-    randomBytes(32).toString("hex")
+    PREVIEW_CLIENT_SECRET
   );
 }
 
@@ -88,14 +92,24 @@ const grokOAuthPlugin =
 
 export const auth = betterAuth({
   baseURL: explicitBaseURL || {
-    allowedHosts: [...PREVIEW_ALLOWED_HOSTS, "localhost", "127.0.0.1", "[::1]", "tripweave-web.vercel.app", "tripweave-web-piyushpatnaik.vercel.app"],
+    allowedHosts: [
+      ...PREVIEW_ALLOWED_HOSTS,
+      "localhost",
+      "127.0.0.1",
+      "[::1]",
+      "tripweave-web.vercel.app",
+      "tripweave-web-piyushpatnaik.vercel.app",
+      "*.vercel.app",
+    ],
     protocol: "auto" as const,
     fallback: "http://localhost:8080",
   },
   secret: getSecret(),
-  database: hasDb
-    ? new Pool({ connectionString: process.env.DATABASE_URL })
-    : pgliteDialect(() => getPglite()),
+  ...(hasDb
+    ? { database: new Pool({ connectionString: databaseUrl }) }
+    : onServerless
+      ? {}
+      : { database: pgliteDialect(() => getPglite()) }),
   trustedOrigins,
   emailAndPassword: emailAndPasswordEnabled
     ? {
@@ -106,12 +120,13 @@ export const auth = betterAuth({
   session: {
     cookieCache: {
       enabled: true,
-      maxAge: 60 * 5,
+      maxAge: onServerless && !hasDb ? 60 * 60 * 24 * 7 : 60 * 5,
     },
   },
   advanced: {
-    useSecureCookies: Boolean(explicitBaseURL?.startsWith("https")),
-    cookiePrefix: explicitBaseURL?.startsWith("https") ? "__Host-" : undefined,
+    useSecureCookies: Boolean(explicitBaseURL?.startsWith("https") || onServerless),
+    cookiePrefix:
+      explicitBaseURL?.startsWith("https") || onServerless ? "__Host-" : undefined,
   },
   plugins: [
     gateIdentitySessions(),

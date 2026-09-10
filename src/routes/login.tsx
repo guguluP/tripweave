@@ -53,6 +53,14 @@ function friendlyAuthError(raw: string) {
   if (lower.includes("invalid oauth") || lower.includes("oauth configuration")) {
     return "Google / X sign-in could not start. Try again, or use email.";
   }
+  if (
+    lower.includes("sign in failed") ||
+    lower.includes("sign-in failed") ||
+    lower.includes("internal server") ||
+    lower.includes("failed to fetch")
+  ) {
+    return "Google sign-in did not complete. Try again, or use email.";
+  }
   return msg || "Something went wrong. Try again.";
 }
 
