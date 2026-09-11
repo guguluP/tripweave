@@ -79,6 +79,13 @@ function inLivePreview(): boolean {
   );
 }
 
+/** Production Vercel cannot use the Grok preview OAuth client (redirect URI rejected). */
+function onVercelHost(): boolean {
+  return (
+    typeof window !== "undefined" && window.location.hostname.endsWith(".vercel.app")
+  );
+}
+
 /** Message the popup posts back to the opener once sign-in completes. */
 type PopupMessage = { source: "grok-auth-popup"; token: string | null; error?: string };
 
@@ -140,6 +147,18 @@ export async function signIn(
         window.location.href = callbackURL;
       }
     }
+    return;
+  }
+
+  // Vercel: Google Cloud OAuth (GROK preview client rejects *.vercel.app).
+  if (onVercelHost() && (providerId === "grok-google" || providerId === "google")) {
+    const { data, error } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL,
+      errorCallbackURL,
+    });
+    if (error) throw new Error(error.message ?? "Sign-in failed");
+    if (data?.url) window.location.href = data.url;
     return;
   }
 

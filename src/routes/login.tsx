@@ -50,8 +50,8 @@ function friendlyAuthError(raw: string) {
   if (lower.includes("access denied") || lower.includes("cancelled") || lower.includes("access_denied")) {
     return "Sign-in was cancelled.";
   }
-  if (lower.includes("invalid oauth") || lower.includes("oauth configuration")) {
-    return "Google / X sign-in could not start. Try again, or use email.";
+  if (lower.includes("invalid redirect")) {
+    return "Google is not set up for this site yet. Use email, or add Google Cloud OAuth keys (see README).";
   }
   if (
     lower.includes("sign in failed") ||
@@ -270,19 +270,22 @@ function Login() {
                     {oauthBusy === google.providerId ? "Redirecting…" : "Continue with Google"}
                   </Button>
                 ) : null}
-                {others.map((p) => (
-                  <Button
-                    key={p.providerId}
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    disabled={Boolean(oauthBusy) || busy}
-                    onClick={() => void onOauth(p.providerId)}
-                  >
-                    <XMark />
-                    {oauthBusy === p.providerId ? "Redirecting…" : `Continue with ${p.label}`}
-                  </Button>
-                ))}
+                {typeof window !== "undefined" &&
+                window.location.hostname.endsWith(".vercel.app")
+                  ? null
+                  : others.map((p) => (
+                      <Button
+                        key={p.providerId}
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        disabled={Boolean(oauthBusy) || busy}
+                        onClick={() => void onOauth(p.providerId)}
+                      >
+                        <XMark />
+                        {oauthBusy === p.providerId ? "Redirecting…" : `Continue with ${p.label}`}
+                      </Button>
+                    ))}
               </div>
 
               {emailAndPasswordEnabled ? (

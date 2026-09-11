@@ -43,18 +43,44 @@ Open the app, use **Demo** sign-in if auth DB is not configured, then plan → t
 
 On **Vercel**: Project → Settings → Environment Variables → add all three → **Redeploy**.
 
-### Supabase (optional, recommended for production data)
+### Google sign-in on Vercel (fixes `Invalid redirect URI`)
+
+The Grok preview Google client **only** allows `*.grok-sandbox.com`. On Vercel you must use **your own Google Cloud OAuth web client**.
+
+1. Open [Google Cloud Console → APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials).
+2. Create **OAuth client ID** → application type **Web application**.
+3. Authorized JavaScript origins:
+   - `https://tripweave-web.vercel.app`
+4. Authorized redirect URIs (exact):
+   - `https://tripweave-web.vercel.app/api/auth/callback/google`
+5. Copy Client ID and Client secret.
+6. Vercel → tripweave-web → Settings → Environment Variables (Production):
+
+| Variable | Notes |
+|----------|--------|
+| `GOOGLE_CLIENT_ID` | Google Cloud client id |
+| `GOOGLE_CLIENT_SECRET` | Google Cloud client secret (server only) |
+| `BETTER_AUTH_URL` | `https://tripweave-web.vercel.app` |
+| `BETTER_AUTH_SECRET` | Random 32+ character string |
+
+7. **Redeploy**. Then **Continue with Google** on the live site.
+
+OAuth consent screen: External is fine; add your Gmail as a test user while the app is in Testing.
+
+### Supabase (recommended for durable bookings + travellers)
+
+Do **not** install `@supabase/server`. Full walkthrough: [`supabase/README.md`](supabase/README.md).
 
 | Variable | Notes |
 |----------|--------|
 | `SUPABASE_URL` | Project URL |
-| `SUPABASE_ANON_KEY` or `SUPABASE_PUBLISHABLE_KEY` | Public key (`anon` JWT or `sb_publishable_...`) |
+| `SUPABASE_ANON_KEY` or `SUPABASE_PUBLISHABLE_KEY` | Public key |
 | `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_SECRET_KEY` | Server only — never `VITE_` |
 | `VITE_SUPABASE_URL` | Same URL for the browser |
 | `VITE_SUPABASE_ANON_KEY` or `VITE_SUPABASE_PUBLISHABLE_KEY` | Same public key |
+| `DATABASE_URL` | Supabase **transaction pooler** URI (port **6543**) so Better Auth users persist |
 
-Run `supabase/schema.sql` in the Supabase SQL Editor. See `supabase/README.md`.
-Do **not** add `@supabase/server` — TripWeave keeps Better Auth and `supabase-js`.
+Run `supabase/schema.sql` in the SQL Editor, then redeploy.
 
 ### Apple Wallet (optional)
 

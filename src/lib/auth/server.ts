@@ -38,7 +38,13 @@ const onServerless = Boolean(process.env.VERCEL);
  * Without DATABASE_URL, serverless cannot run PGLite — use cookie sessions. */
 export const authConfigured = hasGrokCreds || hasDb || onServerless;
 
-const explicitBaseURL = process.env.BETTER_AUTH_URL?.trim() || undefined;
+const explicitBaseURL =
+  process.env.BETTER_AUTH_URL?.trim() ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.replace(/^https?:\/\//, "")}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL.replace(/^https?:\/\//, "")}`
+      : undefined);
 const LOCAL_DEV_ORIGINS = [
   "http://localhost:8080",
   "http://127.0.0.1:8080",
@@ -66,6 +72,17 @@ function getSecret(): string {
   );
 }
 
+const googleClientId = process.env.GOOGLE_CLIENT_ID?.trim();
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
+const googleSocial =
+  googleClientId && googleClientSecret
+    ? {
+        google: {
+          clientId: googleClientId,
+          clientSecret: googleClientSecret,
+        },
+      }
+    : undefined;
 const grokIssuer = process.env.GROK_AUTH_ISSUER || GROK_ISSUER_DEFAULT;
 const grokClientId = process.env.GROK_AUTH_CLIENT_ID || PREVIEW_CLIENT_ID;
 const grokClientSecret = process.env.GROK_AUTH_CLIENT_SECRET || PREVIEW_CLIENT_SECRET;
@@ -117,6 +134,7 @@ export const auth = betterAuth({
         requireEmailVerification: false,
       }
     : undefined,
+  socialProviders: googleSocial,
   session: {
     cookieCache: {
       enabled: true,
