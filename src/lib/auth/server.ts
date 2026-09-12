@@ -122,10 +122,13 @@ export const auth = betterAuth({
     fallback: "http://localhost:8080",
   },
   secret: getSecret(),
-  ...(hasDb
-    ? { database: new Pool({ connectionString: databaseUrl }) }
-    : onServerless
-      ? {}
+  // Vercel: cookie sessions only (previous working Google path).
+  // Do not attach DATABASE_URL here — a bad pooler password was 500ing
+  // /api/auth/sign-in/social. Bookings still use Supabase JS separately.
+  ...(onServerless
+    ? {}
+    : hasDb
+      ? { database: new Pool({ connectionString: databaseUrl }) }
       : { database: pgliteDialect(() => getPglite()) }),
   trustedOrigins,
   emailAndPassword: emailAndPasswordEnabled
@@ -138,7 +141,7 @@ export const auth = betterAuth({
   session: {
     cookieCache: {
       enabled: true,
-      maxAge: onServerless && !hasDb ? 60 * 60 * 24 * 7 : 60 * 5,
+      maxAge: onServerless ? 60 * 60 * 24 * 7 : 60 * 5,
     },
   },
   advanced: {
