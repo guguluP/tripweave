@@ -29,14 +29,13 @@ export type SbTraveler = {
   full_name: string;
   phone: string;
   email: string;
-  date_of_birth: string | null;
-  gender: string | null;
   nationality: string | null;
   id_type: string | null;
+  id_last4: string | null;
   id_number: string | null;
-  special_requests: string | null;
   emergency_name: string | null;
   emergency_phone: string | null;
-  identity_source: string | null;
+  digiyatra_status: string | null;
+  expires_at: string | null;
   created_at: string;
 };

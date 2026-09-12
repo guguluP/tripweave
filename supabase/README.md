@@ -1,6 +1,6 @@
 # Supabase setup for TripWeave (step by step)
 
-TripWeave login is **Better Auth** (Google + email). Supabase stores **bookings** and **travellers**.  
+TripWeave login is **Better Auth** (Google + email). Supabase stores **bookings** (long-lived) and **stay-only travellers** (last-4 of ID, auto-expire). DigiLocker documents are never stored.  
 Do **not** run `npm install @supabase/server`. Do **not** use `SUPABASE_JWKS_URL` unless you switch to Supabase Auth (we are not).
 
 ---

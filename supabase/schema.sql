@@ -1,10 +1,10 @@
 -- TripWeave schema for Supabase (Postgres)
--- Run in Supabase SQL Editor: Project → SQL → New query → paste → Run
+-- Run in SQL Editor. If you already ran an earlier text-id draft, drop those
+-- tables first — this app uses bigint identity ids matching the code.
 --
--- Auth note: TripWeave currently uses Better Auth user ids (text).
--- user_id is text so it works with Better Auth OR Supabase Auth uuids.
--- Service role on the server filters by user_id; RLS is ready if you later
--- migrate to Supabase Auth (auth.uid()::text = user_id).
+-- Retention: bookings + payment_events are long-lived.
+-- travellers hold stay-only guest data (last-4 of ID, expires_at). Full ID
+-- numbers and DigiLocker documents are never stored.
 
 create extension if not exists "pgcrypto";
 
@@ -19,7 +19,7 @@ create table if not exists public.bookings (
   amount_inr int not null check (amount_inr >= 0),
   swaps jsonb not null default '{}'::jsonb,
   status text not null default 'paid'
-    check (status in ('paid', 'cancelled', 'pending', 'failed')),
+    check (status in ('paid', 'cancelled', 'pending', 'failed', 'held', 'completed', 'refunded')),
   card_last4 text,
   card_brand text,
   payer_name text not null,
@@ -37,24 +37,28 @@ create index if not exists bookings_created_at_idx on public.bookings (created_a
 create table if not exists public.travellers (
   id bigint generated always as identity primary key,
   user_id text not null,
-  booking_id bigint references public.bookings (id) on delete set null,
+  booking_id bigint references public.bookings (id) on delete cascade,
   full_name text not null,
   phone text not null default '',
   email text not null default '',
-  date_of_birth date,
-  gender text,
   nationality text,
   id_type text,
+  id_last4 text,
   id_number text,
-  special_requests text,
   emergency_name text,
   emergency_phone text,
-  identity_source text default 'manual',
+  digiyatra_status text,
+  expires_at timestamptz,
   created_at timestamptz not null default now()
 );
 
+alter table public.travellers add column if not exists id_last4 text;
+alter table public.travellers add column if not exists expires_at timestamptz;
+alter table public.travellers add column if not exists digiyatra_status text;
+
 create index if not exists travellers_user_id_idx on public.travellers (user_id);
 create index if not exists travellers_booking_id_idx on public.travellers (booking_id);
+create index if not exists travellers_expires_at_idx on public.travellers (expires_at);
 
 create table if not exists public.payment_events (
   id bigint generated always as identity primary key,
@@ -74,46 +78,39 @@ alter table public.bookings enable row level security;
 alter table public.travellers enable row level security;
 alter table public.payment_events enable row level security;
 
+-- Hybrid: Better Auth on the server uses the secret key (bypasses RLS).
+-- Browser publishable key must not read or write these tables.
+
 drop policy if exists "bookings_select_own" on public.bookings;
-create policy "bookings_select_own" on public.bookings
-  for select using (
-    auth.uid() is not null and auth.uid()::text = user_id
-  );
-
 drop policy if exists "bookings_insert_own" on public.bookings;
-create policy "bookings_insert_own" on public.bookings
-  for insert with check (
-    auth.uid() is not null and auth.uid()::text = user_id
-  );
-
 drop policy if exists "bookings_update_own" on public.bookings;
-create policy "bookings_update_own" on public.bookings
-  for update using (
-    auth.uid() is not null and auth.uid()::text = user_id
-  );
-
 drop policy if exists "travellers_select_own" on public.travellers;
-create policy "travellers_select_own" on public.travellers
-  for select using (
-    auth.uid() is not null and auth.uid()::text = user_id
-  );
-
 drop policy if exists "travellers_insert_own" on public.travellers;
-create policy "travellers_insert_own" on public.travellers
-  for insert with check (
-    auth.uid() is not null and auth.uid()::text = user_id
-  );
-
 drop policy if exists "travellers_update_own" on public.travellers;
-create policy "travellers_update_own" on public.travellers
-  for update using (
-    auth.uid() is not null and auth.uid()::text = user_id
-  );
-
 drop policy if exists "payment_events_no_client" on public.payment_events;
-create policy "payment_events_no_client" on public.payment_events
-  for all using (false);
+drop policy if exists "block client bookings" on public.bookings;
+drop policy if exists "block client travellers" on public.travellers;
+drop policy if exists "block client payments" on public.payment_events;
+drop policy if exists "block anon bookings" on public.bookings;
+drop policy if exists "block anon travellers" on public.travellers;
+drop policy if exists "block anon payments" on public.payments;
 
-comment on table public.bookings is 'TripWeave hotel bookings; user_id = Better Auth or Supabase Auth subject';
-comment on table public.travellers is 'Guest details captured before payment';
-comment on table public.payment_events is 'Razorpay (and future) payment audit log';
+drop policy if exists "block_client_bookings" on public.bookings;
+create policy "block_client_bookings"
+  on public.bookings for all to anon, authenticated
+  using (false) with check (false);
+
+drop policy if exists "block_client_travellers" on public.travellers;
+create policy "block_client_travellers"
+  on public.travellers for all to anon, authenticated
+  using (false) with check (false);
+
+drop policy if exists "block_client_payment_events" on public.payment_events;
+create policy "block_client_payment_events"
+  on public.payment_events for all to anon, authenticated
+  using (false) with check (false);
+
+comment on table public.bookings is 'Long-lived stays. user_id = Better Auth subject.';
+comment on table public.travellers is 'Stay-only guests. Last-4 of ID. Delete when expires_at passes. Never store DigiLocker files.';
+comment on column public.travellers.id_number is 'Deprecated. App writes null. Use id_last4.';
+comment on table public.payment_events is 'Provider ids only. No card PAN.';

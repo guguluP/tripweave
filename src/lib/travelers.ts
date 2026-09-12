@@ -159,6 +159,54 @@ export function travelerInitials(t: Traveler, fallbackIndex: number) {
   return `${parts[0]!.slice(0, 1)}${parts[parts.length - 1]!.slice(0, 1)}`.toUpperCase();
 }
 
+export const GUEST_RETENTION_DAYS = 14;
+
+/** Last 4 digits only — never persist the full ID. */
+export function idLast4(idNumber: string): string {
+  const digits = idNumber.replace(/\D/g, "");
+  if (digits.length >= 4) return digits.slice(-4);
+  const raw = idNumber.replace(/\s/g, "");
+  return raw.slice(-4);
+}
+
+export function guestExpiresAt(checkIn: string, nights: number, extraDays = GUEST_RETENTION_DAYS): string {
+  const d = new Date(`${checkIn}T12:00:00`);
+  if (Number.isNaN(d.getTime())) {
+    const fallback = new Date();
+    fallback.setDate(fallback.getDate() + extraDays);
+    return fallback.toISOString();
+  }
+  d.setDate(d.getDate() + Math.max(1, nights) + extraDays);
+  return d.toISOString();
+}
+
+/** Wipe ID numbers and DigiLocker docs from the local draft after payment. */
+export function clearSensitiveTravelers() {
+  if (typeof window === "undefined") return;
+  try {
+    const list = loadTravelers().map((t) =>
+      emptyTraveler({
+        fullName: t.fullName,
+        phone: t.phone,
+        email: t.email,
+        nationality: t.nationality,
+        idType: t.idType,
+        idNumber: idLast4(t.idNumber),
+        emergencyName: t.emergencyName,
+        emergencyPhone: t.emergencyPhone,
+        digiYatra: t.digiYatra,
+        identitySource: t.identitySource === "manual" ? "manual" : "digilocker_demo",
+        issuedDocs: [],
+        dateOfBirth: "",
+        specialRequests: "",
+      }),
+    );
+    saveTravelers(list);
+  } catch {
+    clearTravelers();
+  }
+}
+
 export const ID_LABELS: Record<IdType, string> = {
   aadhaar: "Aadhaar",
   passport: "Passport",

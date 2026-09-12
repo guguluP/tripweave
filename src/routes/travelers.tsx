@@ -185,7 +185,9 @@ function TravelersInner() {
             <p className="eyebrow mt-6">Before payment</p>
             <h1 className="mt-2 font-display text-4xl">Traveller details</h1>
             <p className="mt-3 max-w-xl text-sm text-muted">
-              Names must match government ID. DigiLocker can fill identity. DigiYatra is only for Bhubaneswar airport.
+              Names must match government ID. DigiLocker fills the form only — we do not keep
+              documents. After you pay, we store last 4 digits of ID until 14 days after checkout,
+              then delete guest details. DigiYatra is only for Bhubaneswar airport.
             </p>
           </Stagger>
 

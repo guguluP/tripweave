@@ -6,4 +6,4 @@ export {
   sbInsertBooking,
   sbCancelBooking,
 } from "./bookings";
-export { sbSaveTravellers, sbListTravellers } from "./travellers";
+export { sbSaveTravellers, sbListTravellers, sbPurgeExpiredTravellers } from "./travellers";

@@ -30,7 +30,8 @@ import { saveDemoBooking } from "@/lib/demo-bookings";
 import { bookingToWalletPayload } from "@/lib/apple-wallet";
 import { saveWalletPass } from "@/lib/wallet-store";
 import { createRazorpayOrder } from "@/lib/server/razorpay";
-import { loadTravelers, validateTravelers } from "@/lib/travelers";
+import { loadTravelers, validateTravelers, clearSensitiveTravelers } from "@/lib/travelers";
+import { saveTravellers } from "@/lib/server/travellers";
 import {
   getPublicRazorpayKeyId,
   loadRazorpayScript,
@@ -272,6 +273,32 @@ function CheckoutInner() {
                 const booking = result.booking;
                 saveDemoBooking(booking);
                 saveWalletPass(bookingToWalletPayload(booking));
+                try {
+                  const guests = loadTravelers();
+                  if (guests.length) {
+                    await saveTravellers({
+                      data: {
+                        travelers: guests.map((g) => ({
+                          fullName: g.fullName,
+                          phone: g.phone,
+                          email: g.email,
+                          nationality: g.nationality,
+                          idType: g.idType,
+                          idNumber: g.idNumber,
+                          emergencyName: g.emergencyName,
+                          emergencyPhone: g.emergencyPhone,
+                          digiYatra: g.digiYatra,
+                        })),
+                        bookingId: booking.id,
+                        checkIn: booking.checkIn,
+                        nights: pkg.nights,
+                      },
+                    });
+                  }
+                } catch {
+                  /* booking already saved */
+                }
+                clearSensitiveTravelers();
                 clearPending();
                 pushBanner({
                   title: `Booked · ${booking.confirmationCode}`,
