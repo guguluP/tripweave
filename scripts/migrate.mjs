@@ -86,5 +86,11 @@ main().catch((err) => {
   for (const key of ["code", "detail", "hint", "position", "where"]) {
     if (err?.[key] != null) console.error(`[migrate]   ${key}: ${err[key]}`);
   }
+  if (process.env.VERCEL) {
+    console.warn(
+      "[migrate] continuing the Vercel build. Fix DATABASE_URL (pooler password) or apply supabase/schema.sql in the SQL editor.",
+    );
+    process.exit(0);
+  }
   process.exit(1);
 });
