@@ -55,7 +55,7 @@ function Home() {
           {
             icon: ShieldCheck,
             title: "Trust Score",
-            body: "Cancellation, operator history, and verified reviews in one number.",
+            body: "Operator history plus what YouTube stay-reviewers actually said — not a star average.",
           },
           {
             icon: Wallet,
@@ -101,7 +101,11 @@ function Home() {
         <ol className="mt-8 grid gap-5 md:grid-cols-3">
           {[
             { n: "01", t: "Share a brief", d: "Vibe, budget, who you travel with, nights." },
-            { n: "02", t: "Pick from three", d: "Ranked by fit. Swap extras; the rupee total updates live." },
+            {
+              n: "02",
+              t: "Pick from three",
+              d: "Ranked by fit. Read the YouTube reviewer consensus, then swap extras — the rupee total updates live.",
+            },
             { n: "03", t: "Pay and hold", d: "Sign in, pay with a card, get a confirmation code." },
           ].map((step) => (
             <li key={step.n} className="rounded-xl border border-border bg-surface p-5">

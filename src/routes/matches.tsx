@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Shell } from "@/components/shell";
 import { PackageCard } from "@/components/package-card";
+import { ReviewerCompare } from "@/components/reviewer-consensus";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ClearInput, LearnMore, Shimmer, SlidingTabs, Stagger } from "@/components/motion";
 import {
@@ -109,6 +110,11 @@ function Matches() {
             <Shimmer>Matching your brief</Shimmer>
           </p>
         ) : null}
+
+        {ready && tab === "matches" && !query && matches.length >= 2 ? (
+          <ReviewerCompare items={matches.map((p) => ({ id: p.id, name: p.name }))} />
+        ) : null}
+
         <LearnMore to="/plan" className="mt-8 text-sm font-medium text-primary">
           Edit brief
         </LearnMore>

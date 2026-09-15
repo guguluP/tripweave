@@ -114,3 +114,44 @@ comment on table public.bookings is 'Long-lived stays. user_id = Better Auth sub
 comment on table public.travellers is 'Stay-only guests. Last-4 of ID. Delete when expires_at passes. Never store DigiLocker files.';
 comment on column public.travellers.id_number is 'Deprecated. App writes null. Use id_last4.';
 comment on table public.payment_events is 'Provider ids only. No card PAN.';
+
+-- Reviewer consensus: world-readable cache of YouTube stay-review summaries.
+-- Writes go through the service role from the server. No user_id — unowned public data.
+create table if not exists public.reviewer_consensus (
+  package_id text primary key,
+  overall_sentiment text not null
+    check (overall_sentiment in ('positive', 'mixed', 'negative')),
+  key_positives jsonb not null default '[]'::jsonb,
+  key_negatives jsonb not null default '[]'::jsonb,
+  caveats jsonb not null default '[]'::jsonb,
+  consensus_summary text not null default '',
+  sources jsonb not null default '[]'::jsonb,
+  origin text not null default 'seed'
+    check (origin in ('seed', 'live', 'empty')),
+  video_hash text,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.reviewer_consensus enable row level security;
+
+drop policy if exists "reviewer_consensus_public_read" on public.reviewer_consensus;
+create policy "reviewer_consensus_public_read"
+  on public.reviewer_consensus for select
+  using (true);
+
+drop policy if exists "reviewer_consensus_no_client_write" on public.reviewer_consensus;
+create policy "reviewer_consensus_no_client_write"
+  on public.reviewer_consensus for insert to anon, authenticated
+  with check (false);
+
+drop policy if exists "reviewer_consensus_no_client_update" on public.reviewer_consensus;
+create policy "reviewer_consensus_no_client_update"
+  on public.reviewer_consensus for update to anon, authenticated
+  using (false) with check (false);
+
+drop policy if exists "reviewer_consensus_no_client_delete" on public.reviewer_consensus;
+create policy "reviewer_consensus_no_client_delete"
+  on public.reviewer_consensus for delete to anon, authenticated
+  using (false);
+
+comment on table public.reviewer_consensus is 'Cached YouTube reviewer consensus per stay. Public read. Server writes via service role.';

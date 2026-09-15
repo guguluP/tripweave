@@ -4,6 +4,7 @@ import { TrustMeter } from "@/components/trust-meter";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { DigitPop, LearnMore, LikeButton } from "@/components/motion";
+import { ReviewerChip } from "@/components/reviewer-consensus";
 
 export function PackageCard({
   pkg,
@@ -34,6 +35,9 @@ export function PackageCard({
             <p className="mt-1 text-sm text-muted">
               {pkg.destination} · {pkg.nights} nights
             </p>
+            <div className="mt-2">
+              <ReviewerChip packageId={pkg.id} />
+            </div>
           </div>
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm">

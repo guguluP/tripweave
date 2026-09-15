@@ -11,6 +11,7 @@ Book honest Puri hotel stays with all-in INR prices, traveller details, Razorpay
 - **Offline pass** — HTML pass card + calendar (`.ics`); Apple Wallet `.pkpass` when certs are configured
 - **Supabase (optional)** — durable `bookings` / `travellers` when env vars are set
 - **Demo mode** — sign in without a database to test the full payment flow
+- **Reviewer consensus** — structured notes from curated YouTube stay-review videos on every package page
 
 ## Stack
 
@@ -133,6 +134,25 @@ If the UI says **“Razorpay is not configured”**, the server is missing `RAZO
 
 Bookings in demo mode are stored in the browser (`localStorage`) unless Supabase is configured.
 
+## Reviewer consensus (YouTube)
+
+TripWeave does not scrape the open web for ratings. Each stay has a **manual list of 2–4 stay-review videos**. On the package page we show:
+
+- overall sentiment (positive / mixed / negative)
+- what reviewers praised and flagged
+- caveats (beach is public, book the cottage, skip festival rates)
+- source links back to the videos
+
+**How it runs (v1)**
+
+1. Captions are fetched with `youtube-transcript-api-js` (no API key). Language order: Odia → Hindi → English → Bengali → Tamil → Telugu. Manual captions beat auto-generated.
+2. Each transcript is summarised to JSON with the xAI chat API when `XAI_API_KEY` is present.
+3. Per-video notes are merged into one consensus and cached (memory, then Supabase table `reviewer_consensus` if configured).
+4. **Demo / offline:** a curated seed cache ships with the app, so every stay still has a consensus when YouTube rate-limits or the LLM is off. Page load never calls the LLM.
+5. **Rebuild from videos** on the package page is the admin/user force-refresh. Sequential, rate-limited.
+
+Adding a stay: map video IDs in `src/lib/youtube/videos.ts` and (optionally) a seed entry in `src/lib/youtube/seed.ts`. Automatic YouTube search is a later step.
+
 ## Project layout (selected)
 
 ```
@@ -142,6 +162,8 @@ src/routes/trips.tsx         # Bookings list
 src/routes/api/create-order.ts
 src/routes/api/verify-payment.ts
 src/routes/api/wallet-pass.ts
+src/lib/youtube/            # transcripts, summarizer, seed cache, server fns
+src/components/reviewer-consensus.tsx
 src/lib/server/bookings.ts   # Memory → SQL → Supabase priority
 src/lib/supabase/           # Clients + adapters
 supabase/schema.sql          # Tables + RLS

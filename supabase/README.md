@@ -25,7 +25,9 @@ Do **not** run `npm install @supabase/server`. Do **not** use `SUPABASE_JWKS_URL
 
 1. Dashboard → **SQL Editor** → New query.
 2. Paste the full contents of [`schema.sql`](schema.sql) from this folder.
-3. **Run**. You should see tables `bookings`, `travellers`, `payment_events`.
+3. **Run**. You should see tables `bookings`, `travellers`, `payment_events`, and `reviewer_consensus`.
+
+`reviewer_consensus` is unowned public cache (YouTube stay-review summaries). The app still works from a built-in seed if this table is missing.
 
 ## D. Database URL for sign-in users (important)
 
@@ -75,3 +77,4 @@ GOOGLE_CLIENT_SECRET=....
 - Never put `SUPABASE_SECRET_KEY` / `service_role` / `GOOGLE_CLIENT_SECRET` in `VITE_*`.
 - Rotate any secret that was pasted in chat.
 - RLS is on; the server still filters by Better Auth `user_id`.
+- `reviewer_consensus` is world-readable. Writes go through the service role only.

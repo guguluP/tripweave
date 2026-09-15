@@ -39,3 +39,16 @@ export type SbTraveler = {
   expires_at: string | null;
   created_at: string;
 };
+
+export type SbReviewerConsensus = {
+  package_id: string;
+  overall_sentiment: "positive" | "mixed" | "negative";
+  key_positives: string[];
+  key_negatives: string[];
+  caveats: string[];
+  consensus_summary: string;
+  sources: unknown;
+  origin: "seed" | "live" | "empty";
+  video_hash: string | null;
+  updated_at: string;
+};

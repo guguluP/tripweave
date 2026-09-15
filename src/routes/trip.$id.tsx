@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DigitPop, LikeButton, Stagger, TextSwap } from "@/components/motion";
+import { ReviewerConsensus } from "@/components/reviewer-consensus";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import {
   formatMoney,
@@ -14,7 +15,6 @@ import {
   priceWithSwaps,
   saveNext,
   savePending,
-  variantLabel,
 } from "@/lib/packages";
 import { cn } from "@/lib/utils";
 
@@ -97,6 +97,8 @@ function TripDetail() {
             </Badge>
           ))}
         </div>
+
+        <ReviewerConsensus packageId={pkg.id} />
 
         <h2 className="mt-10 font-display text-2xl">Stay plan</h2>
         <p className="mt-1 text-sm text-muted">
