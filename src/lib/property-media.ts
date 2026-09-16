@@ -2,7 +2,7 @@ import type { RoomType } from "./packages.ts";
 import catalog from "./stay-media.json" with { type: "json" };
 
 /**
- * Catalog media is property-owned (official hotel/brand CDNs or local /stays files).
+ * Catalog media is property-owned and vendored under public/stays (CDN hotlinks 403 with TripWeave Referer).
  * YouTube remains only for reviewer-consensus videos — never gallery/card photos.
  * See `public/stays/MEDIA.md` for sources.
  */

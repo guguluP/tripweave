@@ -47,17 +47,15 @@ describe("catalog", () => {
     }
   });
 
-  it("uses official CDN or local /stays paths for catalog media", () => {
+  it("uses vendored local /stays paths for catalog media", () => {
     for (const pkg of PACKAGES) {
-      if (stayNeedsUserFiles(pkg.id)) {
-        assert.match(pkg.image, new RegExp(`^/stays/${pkg.id}/`), pkg.id);
-        continue;
+      assert.match(pkg.image, new RegExp(`^/stays/${pkg.id}/`), pkg.id);
+      for (const src of pkg.images) {
+        assert.match(src, new RegExp(`^/stays/${pkg.id}/`), `${pkg.id} gallery`);
       }
-      assert.match(
-        pkg.image,
-        /^https:\/\/(cdn\.sanity\.io|assets\.simplotel\.com|www\.royalorchidhotels\.com|www\.empireshotel\.com|login\.retrod\.app|chanakyahotels\.com|puriholidayresort\.com|thechariotpuri\.com|www\.orchidhotel\.com|www\.toshaliresort\.com)\//,
-        pkg.id,
-      );
+      for (const room of pkg.rooms) {
+        assert.match(room.image!, new RegExp(`^/stays/${pkg.id}/`), `${pkg.id}:${room.id}`);
+      }
     }
   });
 
