@@ -1,1 +1,233 @@
-REPLACE_ME
+{
+  "STAYS_NEEDING_USER_FILES": [],
+  "STAY_MEDIA": {
+    "taj-puri-resort-spa": {
+      "images": [
+        "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/4c5a8411b1332c95988f2499c3945b7f4ecc3841-3840x1860.jpg?w=1600&auto=format",
+        "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/bd96bd900ce414ebefe839adfe1400109a408d2e-3840x1860.jpg?w=1600&auto=format",
+        "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/dae1ffe1bfdabaa35ee8147ff13012c914aaf95e-1400x1120.webp?w=1280&auto=format&dpr=2",
+        "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/359fa5d34001de3ea910ebbe1df4bfb7337165c5-1400x1120.jpg?w=1280&auto=format&dpr=2",
+        "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/4acf2128a5c6157b94b29dc7f7483ae0a95d07b3-1400x1120.jpg?w=1280&auto=format&dpr=2",
+        "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/4b62c86d59676a33d9ba11a9a6fbe1ba61f2dd25-1400x1120.jpg?w=1280&auto=format&dpr=2",
+        "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/062816fd6267a92bb77f64bea165d171f672d989-1400x1120.jpg?w=1280&auto=format&dpr=2",
+        "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/d2f2c536a27706c8f41ada94ab3c2c7ce55f554b-1400x1120.jpg?w=1280&auto=format&dpr=2"
+      ],
+      "rooms": {
+        "executive-sea-suite": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/4b62c86d59676a33d9ba11a9a6fbe1ba61f2dd25-1400x1120.jpg?w=1280&auto=format&dpr=2",
+        "luxury-sea-suite": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/062816fd6267a92bb77f64bea165d171f672d989-1400x1120.jpg?w=1280&auto=format&dpr=2",
+        "presidential-sea-pool": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/d2f2c536a27706c8f41ada94ab3c2c7ce55f554b-1400x1120.jpg?w=1280&auto=format&dpr=2",
+        "superior-king-balcony": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/dae1ffe1bfdabaa35ee8147ff13012c914aaf95e-1400x1120.webp?w=1280&auto=format&dpr=2",
+        "superior-twin-balcony": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/f21c8a87ddf4fc795f606959144fb9d327e2f7ca-1400x1120.webp?w=1280&auto=format&dpr=2",
+        "superior-sea-king": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/a989e4500a0c8c42483665b1675728db19f77e54-1400x1120.jpg?w=1280&auto=format&dpr=2",
+        "superior-sea-twin": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/82dc1f271efd8fcf8b58393d90e45fd208baf745-1400x1120.jpg?w=1280&auto=format&dpr=2",
+        "deluxe-sea-king": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/359fa5d34001de3ea910ebbe1df4bfb7337165c5-1400x1120.jpg?w=1280&auto=format&dpr=2",
+        "deluxe-sea-twin": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/74a8d58a4e6449723298e5769bae493e1b407848-1400x1120.jpg?w=1280&auto=format&dpr=2",
+        "luxury-sea-king": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/a30355e618fa9938e83adcf8d0abb2c5c0cb03c7-1400x1120.jpg?w=1280&auto=format&dpr=2",
+        "grand-plunge-king": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/4acf2128a5c6157b94b29dc7f7483ae0a95d07b3-1400x1120.jpg?w=1280&auto=format&dpr=2",
+        "grand-plunge-twin": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/a095645082215b22a7eef130d8f0933e749041a2-1400x1120.jpg?w=1280&auto=format&dpr=2"
+      }
+    },
+    "mayfair-heritage-puri": {
+      "images": [
+        "https://assets.simplotel.com/simplotel/image/upload/x_281,y_0,w_2016,h_1719,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Room_-_MAYFAIR_Heritage_Puri_f3d155ea",
+        "https://assets.simplotel.com/simplotel/image/upload/x_0,y_1057,w_3265,h_2784,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_2752-HDR_zabhud",
+        "https://assets.simplotel.com/simplotel/image/upload/x_259,y_0,w_1854,h_1581,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Cottage_2-_MAYFAIR_Heritage_Puri_458da5ff",
+        "https://assets.simplotel.com/simplotel/image/upload/x_534,y_0,w_3830,h_3265,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_2848_h0u45d",
+        "https://assets.simplotel.com/simplotel/image/upload/x_281,y_0,w_2016,h_1719,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Suite_-_MAYFAIR_Heritage_Puri_8f910986",
+        "https://assets.simplotel.com/simplotel/image/upload/x_301,y_0,w_2426,h_2068,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Family_Suite_Mayfair_Heritage_Puri_653a2e7e",
+        "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/grand-entrance.jpg",
+        "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/exterior-overview.jpg"
+      ],
+      "rooms": {
+        "deluxe": "https://assets.simplotel.com/simplotel/image/upload/x_281,y_0,w_2016,h_1719,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Room_-_MAYFAIR_Heritage_Puri_f3d155ea",
+        "heritage-premium": "https://assets.simplotel.com/simplotel/image/upload/x_0,y_1057,w_3265,h_2784,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_2752-HDR_zabhud",
+        "deluxe-cottage": "https://assets.simplotel.com/simplotel/image/upload/x_259,y_0,w_1854,h_1581,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Cottage_2-_MAYFAIR_Heritage_Puri_458da5ff",
+        "sea-view-cottage": "https://assets.simplotel.com/simplotel/image/upload/x_534,y_0,w_3830,h_3265,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_2848_h0u45d",
+        "deluxe-suite": "https://assets.simplotel.com/simplotel/image/upload/x_281,y_0,w_2016,h_1719,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Suite_-_MAYFAIR_Heritage_Puri_8f910986",
+        "family-suite": "https://assets.simplotel.com/simplotel/image/upload/x_301,y_0,w_2426,h_2068,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Family_Suite_Mayfair_Heritage_Puri_653a2e7e"
+      }
+    },
+    "swosti-premium-beach-resort": {
+      "images": [
+        "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3750/x_0,y_469,w_5000,h_2812,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/premium-room-1",
+        "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3750/x_0,y_932,w_5000,h_2817,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/1022_22c2ae8c",
+        "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3749/x_0,y_468,w_5000,h_2813,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/sea-view-room-front-view-3",
+        "https://assets.simplotel.com/simplotel/image/upload/x_0,y_433,w_4624,h_2602,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/1023_city_view_c6d5829d",
+        "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3818/x_0,y_846,w_5000,h_2815,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/oasis-suite-3",
+        "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3744/x_0,y_466,w_5000,h_2812,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/Intimate-escape-suite-3",
+        "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3780/x_0,y_484,w_5000,h_2812,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/Imperial_suite__bedroom_b1656072",
+        "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3497/x_0,y_342,w_5000,h_2813,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/royal-ambassador-suite"
+      ],
+      "rooms": {
+        "premium": "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3750/x_0,y_469,w_5000,h_2812,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/premium-room-1",
+        "sea-view-side": "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3750/x_0,y_932,w_5000,h_2817,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/1022_22c2ae8c",
+        "sea-view-front": "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3749/x_0,y_468,w_5000,h_2813,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/sea-view-room-front-view-3",
+        "interconnecting": "https://assets.simplotel.com/simplotel/image/upload/x_0,y_433,w_4624,h_2602,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/1023_city_view_c6d5829d",
+        "oasis-suite": "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3818/x_0,y_846,w_5000,h_2815,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/oasis-suite-3",
+        "intimate-escape-suite": "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3744/x_0,y_466,w_5000,h_2812,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/Intimate-escape-suite-3",
+        "imperial-suite": "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3780/x_0,y_484,w_5000,h_2812,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/Imperial_suite__bedroom_b1656072",
+        "royal-ambassador-suite": "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3497/x_0,y_342,w_5000,h_2813,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/royal-ambassador-suite"
+      }
+    },
+    "regenta-central-puri": {
+      "images": [
+        "https://www.royalorchidhotels.com/images/Rooms/19_48_2024_01_48_5554.jpg",
+        "https://www.royalorchidhotels.com/images/Rooms/19_48_2024_01_48_5555.jpg",
+        "https://www.royalorchidhotels.com/images/Rooms/19_53_2024_01_53_1656.jpg",
+        "https://www.royalorchidhotels.com/images/Rooms/19_25_2024_02_25_0560.jpg",
+        "https://www.royalorchidhotels.com/images/Rooms/19_25_2024_02_25_1461.jpg",
+        "https://www.royalorchidhotels.com/images/Rooms/19_17_2024_02_17_3858.jpg",
+        "https://www.royalorchidhotels.com/images/Rooms/19_17_2024_02_17_4859.jpg",
+        "https://www.royalorchidhotels.com/images/Rooms/19_07_2024_02_07_16imyuyy8.jpg"
+      ],
+      "rooms": {
+        "deluxe-double-sea": "https://www.royalorchidhotels.com/images/Rooms/19_48_2024_01_48_5554.jpg",
+        "deluxe-twin-sea": "https://www.royalorchidhotels.com/images/Rooms/19_53_2024_01_53_1656.jpg",
+        "executive-double-sea": "https://www.royalorchidhotels.com/images/Rooms/19_25_2024_02_25_0560.jpg",
+        "executive-twin-sea": "https://www.royalorchidhotels.com/images/Rooms/19_17_2024_02_17_3858.jpg",
+        "premium-sea": "https://www.royalorchidhotels.com/images/Rooms/19_07_2024_02_07_16imyuyy8.jpg"
+      }
+    },
+    "empires-hotel-puri": {
+      "images": [
+        "https://www.empireshotel.com/wp-content/uploads/2022/06/ExecRoom.jpg",
+        "https://www.empireshotel.com/wp-content/uploads/2022/06/ExecutiveRoomPuri.jpg",
+        "https://www.empireshotel.com/wp-content/uploads/2022/06/dlx-pri2.jpg",
+        "https://www.empireshotel.com/wp-content/uploads/2022/06/dlx-pri3.jpg",
+        "https://www.empireshotel.com/wp-content/uploads/2022/06/EMPIRES-PURI-DLX-ROOM-1.jpg",
+        "https://www.empireshotel.com/wp-content/uploads/2022/06/Corporate-Room.jpg",
+        "https://www.empireshotel.com/wp-content/uploads/2022/06/EMPIRES-PURI-CORPORATE-ROOM-BALCONY-VIEW.jpg",
+        "https://www.empireshotel.com/wp-content/uploads/2022/06/EMPIRES-PURI-PREMIUM-BED-ROOM-3.jpg"
+      ],
+      "rooms": {
+        "executive": "https://www.empireshotel.com/wp-content/uploads/2022/06/ExecRoom.jpg",
+        "deluxe": "https://www.empireshotel.com/wp-content/uploads/2022/06/dlx-pri2.jpg",
+        "corporate": "https://www.empireshotel.com/wp-content/uploads/2022/06/Corporate-Room.jpg",
+        "premium": "https://www.empireshotel.com/wp-content/uploads/2022/06/EMPIRES-PURI-PREMIUM-BED-ROOM-3.jpg"
+      }
+    },
+    "mayfair-waves-puri": {
+      "images": [
+        "https://assets.simplotel.com/simplotel/image/upload/x_0,y_254,w_4898,h_2757,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_3070_ju8mld",
+        "https://assets.simplotel.com/simplotel/image/upload/x_0,y_1530,w_3265,h_1838,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_3074_tw171o",
+        "https://assets.simplotel.com/simplotel/image/upload/x_0,y_218,w_2281,h_1283,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-waves-puri/Premium_Suite_-_MAYFAIR_Waves_37020a10",
+        "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mayfair-waves-puri/luxury-resort-pool-view",
+        "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mayfair-waves-puri/walkway-resort-interiors",
+        "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mayfair-waves-puri/outdoor-dining",
+        "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mayfair-waves-puri/private-balcony-seating-area"
+      ],
+      "rooms": {
+        "premium": "https://assets.simplotel.com/simplotel/image/upload/x_0,y_254,w_4898,h_2757,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_3070_ju8mld",
+        "premium-sea-view": "https://assets.simplotel.com/simplotel/image/upload/x_0,y_1530,w_3265,h_1838,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_3074_tw171o",
+        "premium-suite": "https://assets.simplotel.com/simplotel/image/upload/x_0,y_218,w_2281,h_1283,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-waves-puri/Premium_Suite_-_MAYFAIR_Waves_37020a10"
+      }
+    },
+    "chariot-resort-puri": {
+      "images": [
+        "https://thechariotpuri.com/wp-content/uploads/2025/03/deluxe_bed.jpg",
+        "https://thechariotpuri.com/wp-content/uploads/2025/03/exe_twin_bed.jpg",
+        "https://thechariotpuri.com/wp-content/uploads/2025/03/premium_bed.jpg",
+        "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite.jpg",
+        "https://login.retrod.app/proimg/chariot-puri/public/-171488.jpg",
+        "https://login.retrod.app/proimg/chariot-puri/public/-545350.jpg",
+        "https://login.retrod.app/proimg/chariot-puri/public/-783455.jpg",
+        "https://login.retrod.app/proimg/chariot-puri/public/-910899.jpg"
+      ],
+      "rooms": {
+        "deluxe": "https://thechariotpuri.com/wp-content/uploads/2025/03/deluxe_bed.jpg",
+        "executive": "https://thechariotpuri.com/wp-content/uploads/2025/03/exe_twin_bed.jpg",
+        "premium": "https://thechariotpuri.com/wp-content/uploads/2025/03/premium_bed.jpg",
+        "platinum-suite": "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite.jpg"
+      }
+    },
+    "chanakya-bnr-puri": {
+      "images": [
+        "https://chanakyahotels.com/wp-content/uploads/2025/12/Deluxe-Room_Puri-Accommodation-Listing-page.jpg",
+        "https://chanakyahotels.com/wp-content/uploads/2025/12/Deluxe-Room_Puri.jpg",
+        "https://chanakyahotels.com/wp-content/uploads/2025/12/Superior-Room_Puri-Accommodation-Listing-page.jpg",
+        "https://chanakyahotels.com/wp-content/uploads/2025/12/2-2.jpg",
+        "https://chanakyahotels.com/wp-content/uploads/2025/12/1-2.jpg",
+        "https://chanakyahotels.com/wp-content/uploads/2025/12/Heritage-Suite_Puri-Accommodation-Listing-page.jpg",
+        "https://chanakyahotels.com/wp-content/uploads/2025/11/Puri_Heritage-Premium-Rooms.jpg",
+        "https://chanakyahotels.com/wp-content/uploads/2025/12/1-1.jpg"
+      ],
+      "rooms": {
+        "deluxe": "https://chanakyahotels.com/wp-content/uploads/2025/12/Deluxe-Room_Puri-Accommodation-Listing-page.jpg",
+        "superior": "https://chanakyahotels.com/wp-content/uploads/2025/12/Superior-Room_Puri-Accommodation-Listing-page.jpg",
+        "heritage-suite": "https://chanakyahotels.com/wp-content/uploads/2025/12/Heritage-Suite_Puri-Accommodation-Listing-page.jpg"
+      }
+    },
+    "mahodadhi-palace-puri": {
+      "images": [
+        "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Details/Heritage-Deluxe-Rooms/1.webp",
+        "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Listing/Heritage-Deluxe-Rooms.webp",
+        "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Details/Day-Use-Room-Non-AC/1.webp",
+        "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Listing/Day-Use-Room-Non-AC.webp",
+        "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mahodadhi-palace---a-beach-view-heritage-hotel-in-puri/Facade_of_Mahodadhi_Palace_-_A_Beach_View_Heritage_Hotel_in_Puri_343sdafag",
+        "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mahodadhi-palace---a-beach-view-heritage-hotel-in-puri/Lobby_of_Mahodadhi_Palace_-_A_Beach_View_Heritage_Hotel_in_Puri__asdfasdtr6t46",
+        "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mahodadhi-palace---a-beach-view-heritage-hotel-in-puri/Swimming_Pool_at_Mahodadhi_Palace_-_A_Beach_View_Heritage_Hotel_in_Puri_afdskasdf",
+        "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mahodadhi-palace---a-beach-view-heritage-hotel-in-puri/View_from_of_Mahodadhi_Palace_-_A_Beach_View_Heritage_Hotel_in_Puri_mmjeyu"
+      ],
+      "rooms": {
+        "heritage-deluxe-sea": "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Details/Heritage-Deluxe-Rooms/1.webp",
+        "day-use": "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Details/Day-Use-Room-Non-AC/1.webp"
+      }
+    },
+    "holiday-resort-puri": {
+      "images": [
+        "https://puriholidayresort.com/uploads/gallery/standarddoublebedroom/1.jpg",
+        "https://puriholidayresort.com/uploads/gallery/standarddoublebedroom/2.jpg",
+        "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/1%20150%20cc.jpg",
+        "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/2%20150%20cc.jpg",
+        "https://puriholidayresort.com/uploads/gallery/deluxefamilyroom/1.jpg",
+        "https://puriholidayresort.com/uploads/gallery/deluxefamilyroom/2.jpg",
+        "https://puriholidayresort.com/uploads/gallery/standardfamilyroom/1%20150%20cc.jpg",
+        "https://puriholidayresort.com/uploads/gallery/standardfamilyroom/2%20150%20cc.jpg"
+      ],
+      "rooms": {
+        "standard-double": "https://puriholidayresort.com/uploads/gallery/standarddoublebedroom/1.jpg",
+        "deluxe-double": "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/1%20150%20cc.jpg",
+        "deluxe-pool-view": "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/2%20150%20cc.jpg",
+        "family": "https://puriholidayresort.com/uploads/gallery/deluxefamilyroom/1.jpg",
+        "standard-family": "https://puriholidayresort.com/uploads/gallery/standardfamilyroom/1%20150%20cc.jpg",
+        "cottage": "https://puriholidayresort.com/uploads/gallery/deluxecottage/1.jpg",
+        "standard-cottage": "https://puriholidayresort.com/uploads/gallery/standardcottage/1%20150%20cc.jpg",
+        "royal-suite": "https://puriholidayresort.com/uploads/gallery/royalsuite/1.jpg",
+        "presidential-suite": "https://puriholidayresort.com/uploads/gallery/presidentialsuite/1.jpg"
+      }
+    },
+    "hans-coco-palms": {
+      "images": [
+        "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_room_with_Pool_and_Garden_view_33176469.jpeg",
+        "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_Double_Room_with_Side_Sea_View_7be5f3de.jpeg",
+        "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_Suite_room__Bed_room_9523620f.jpeg",
+        "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_Suite_room__Living_Area__(1)_499d76fe.jpeg"
+      ],
+      "rooms": {
+        "pool-garden": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_room_with_Pool_and_Garden_view_33176469.jpeg",
+        "partial-ocean": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_Double_Room_with_Side_Sea_View_7be5f3de.jpeg",
+        "ocean-suite": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_Suite_room__Bed_room_9523620f.jpeg"
+      }
+    },
+    "toshali-sands-puri": {
+      "images": [
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/standard1.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room1.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room4.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/exe-deluxe1.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/cottage1.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/villa1.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/standard2.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/cottage2.jpg"
+      ],
+      "rooms": {
+        "standard-deluxe": "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/standard1.jpg",
+        "deluxe-balcony": "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room1.jpg",
+        "premium-balcony": "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room4.jpg",
+        "executive-suite": "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/exe-deluxe1.jpg",
+        "cottage": "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/cottage1.jpg",
+        "villa": "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/villa1.jpg"
+      }
+    }
+  }
+}
