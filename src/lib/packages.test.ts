@@ -11,6 +11,7 @@ import {
   stayTotal,
 } from "./packages.ts";
 import { getSeededConsensus } from "./youtube/seed.ts";
+import { STAYS_NEEDING_USER_FILES, stayNeedsUserFiles, STAY_MEDIA } from "./property-media.ts";
 
 describe("catalog", () => {
   it("lists twelve Puri stays with rooms, photos, videos, and 1-night stays", () => {
@@ -27,30 +28,46 @@ describe("catalog", () => {
       for (const video of pkg.videos) {
         assert.match(video.videoId, /^[a-zA-Z0-9_-]{11}$/, video.videoId);
       }
-      // Named hotels use YouTube/property media — never random Unsplash stock.
-      assert.match(pkg.image, /i\.ytimg\.com\/vi\//, pkg.id);
+      // Named hotels: property-owned media — never Unsplash or YouTube thumbs.
       assert.ok(!pkg.image.includes("unsplash"), pkg.id);
-      const videoIds = new Set(pkg.videos.map((v) => v.videoId));
+      assert.ok(!pkg.image.includes("i.ytimg.com"), pkg.id);
       for (const src of pkg.images) {
-        assert.match(src, /i\.ytimg\.com\/vi\//, `${pkg.id} gallery`);
-        const id = src.split("/vi/")[1]?.split("/")[0];
-        assert.ok(id && videoIds.has(id), `${pkg.id} gallery id ${id}`);
+        assert.ok(!src.includes("unsplash"), `${pkg.id} gallery unsplash`);
+        assert.ok(!src.includes("i.ytimg.com"), `${pkg.id} gallery ytimg`);
       }
       const roomImages = new Set<string>();
       for (const room of pkg.rooms) {
-        assert.match(room.image, /i\.ytimg\.com\/vi\//, `${pkg.id}:${room.id}`);
+        assert.ok(room.image, `${pkg.id}:${room.id}`);
         assert.ok(!room.image.includes("unsplash"), `${pkg.id}:${room.id}`);
-        const id = room.image.split("/vi/")[1]?.split("/")[0];
-        assert.ok(id && videoIds.has(id), `${pkg.id}:${room.id} cross-hotel?`);
+        assert.ok(!room.image.includes("i.ytimg.com"), `${pkg.id}:${room.id}`);
         roomImages.add(room.image);
       }
-      // Distinct per room when enough property videos; otherwise reuse this stay's media only.
-      assert.equal(
-        roomImages.size,
-        Math.min(pkg.rooms.length, pkg.videos.length),
-        `${pkg.id} unique room images`,
+      assert.equal(roomImages.size, pkg.rooms.length, `${pkg.id} unique room images`);
+      assert.ok(STAY_MEDIA[pkg.id], `media map ${pkg.id}`);
+    }
+  });
+
+  it("uses official CDN or local /stays paths for catalog media", () => {
+    for (const pkg of PACKAGES) {
+      if (stayNeedsUserFiles(pkg.id)) {
+        assert.match(pkg.image, new RegExp(`^/stays/${pkg.id}/`), pkg.id);
+        continue;
+      }
+      assert.match(
+        pkg.image,
+        /^https:\/\/(cdn\.sanity\.io|assets\.simplotel\.com|www\.royalorchidhotels\.com|www\.empireshotel\.com|login\.retrod\.app|chanakyahotels\.com|puriholidayresort\.com)\//,
+        pkg.id,
       );
     }
+  });
+
+  it("flags stays that still need user-supplied photo files", () => {
+    assert.deepEqual([...STAYS_NEEDING_USER_FILES].sort(), [
+      "hans-coco-palms",
+      "toshali-sands-puri",
+    ]);
+    assert.equal(stayNeedsUserFiles("hans-coco-palms"), true);
+    assert.equal(stayNeedsUserFiles("taj-puri-resort-spa"), false);
   });
 
   it("includes the six new properties", () => {
