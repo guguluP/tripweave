@@ -16,7 +16,7 @@ import {
   listBookings,
   type BookingRow,
 } from "@/lib/server/bookings";
-import { cancelDemoBooking, listDemoBookings } from "@/lib/demo-bookings";
+import { cancelDemoBooking, listDemoBookings, mergeBookings } from "@/lib/demo-bookings";
 import { isDemoMode } from "@/lib/auth/use-current-user";
 
 export const Route = createFileRoute("/trips")({ component: Trips });
@@ -50,8 +50,8 @@ function TripsInner() {
       return;
     }
     listBookings()
-      .then(setBookings)
-      .catch(() => setBookings([]));
+      .then((rows) => setBookings(mergeBookings(rows)))
+      .catch(() => setBookings(listDemoBookings()));
   };
 
   useEffect(() => {
@@ -123,9 +123,8 @@ function TripsInner() {
                               onClick={async () => {
                               setCancelling(b.id);
                               try {
-                                if (isDemoMode()) {
-                                  cancelDemoBooking(b.id);
-                                } else {
+                                cancelDemoBooking(b.id);
+                                if (!isDemoMode()) {
                                   await cancelBooking({ data: b.id });
                                 }
                                 pushBanner({

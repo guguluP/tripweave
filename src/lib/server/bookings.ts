@@ -10,6 +10,11 @@ import {
   sbInsertBooking,
   sbListBookings,
 } from "@/lib/supabase/bookings";
+import {
+  isDurableDbError,
+  markDurableDbFailed,
+  shouldSkipNeon,
+} from "./db-fallback";
 
 export type BookingRow = {
   id: number;
@@ -89,7 +94,7 @@ function mapBooking(row: DbBooking): BookingRow {
   };
 }
 
-/** In-memory bookings when no DATABASE_URL (Vercel without Neon). Process-local. */
+/** In-memory bookings when Neon/Postgres is unavailable. Process-local. */
 const g = globalThis as typeof globalThis & {
   __twMemoryBookings__?: BookingRow[];
   __twMemoryId__?: number;
@@ -98,7 +103,11 @@ if (!g.__twMemoryBookings__) g.__twMemoryBookings__ = [];
 if (!g.__twMemoryId__) g.__twMemoryId__ = 1;
 
 function useMemoryStore() {
-  return !process.env.DATABASE_URL?.trim();
+  // Auth already skips DATABASE_URL on Vercel (bad pooler password).
+  // There is no bookings table in migrations/*.sql — Neon would 500 even with
+  // a working password. Persist via Supabase REST, else memory + localStorage.
+  if (isSupabaseConfigured()) return false;
+  return shouldSkipNeon() || Boolean(process.env.VERCEL);
 }
 
 function makeCode() {
@@ -110,26 +119,50 @@ function makeCode() {
   return out;
 }
 
+function rememberBooking(booking: BookingRow): BookingRow {
+  g.__twMemoryBookings__ = [booking, ...(g.__twMemoryBookings__ ?? [])];
+  return booking;
+}
+
+function memoryBooking(input: Omit<BookingRow, "id" | "createdAt"> & { createdAt?: string }): BookingRow {
+  const booking: BookingRow = {
+    ...input,
+    id: (g.__twMemoryId__ = (g.__twMemoryId__ ?? 1) + 1) - 1,
+    createdAt: input.createdAt ?? new Date().toISOString(),
+  };
+  return rememberBooking(booking);
+}
+
 export const listBookings = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
     if (isSupabaseConfigured()) {
-      const rows = await sbListBookings(context.userId);
-      if (rows) return rows;
+      try {
+        const rows = await sbListBookings(context.userId);
+        if (rows) return rows;
+      } catch (err) {
+        if (isDurableDbError(err)) markDurableDbFailed(err);
+        console.error("[bookings] supabase list failed", err);
+      }
     }
     if (useMemoryStore()) {
       return g.__twMemoryBookings__ ?? [];
     }
-    const sql = await getSql();
-    const rows = await sql<DbBooking>`
-      select id, package_id, package_name, nights, travelers, check_in, amount_inr,
-             swaps, status, card_last4, card_brand, payer_name, confirmation_code,
-             payment_method, payment_ref, upi_handle, bank_name, created_at
-      from bookings
-      where user_id = ${context.userId}
-      order by created_at desc
-    `;
-    return rows.map(mapBooking);
+    try {
+      const sql = await getSql();
+      const rows = await sql<DbBooking>`
+        select id, package_id, package_name, nights, travelers, check_in, amount_inr,
+               swaps, status, card_last4, card_brand, payer_name, confirmation_code,
+               payment_method, payment_ref, upi_handle, bank_name, created_at
+        from bookings
+        where user_id = ${context.userId}
+        order by created_at desc
+      `;
+      return rows.map(mapBooking);
+    } catch (err) {
+      markDurableDbFailed(err);
+      return g.__twMemoryBookings__ ?? [];
+    }
   });
 
 const createSchema = z.object({
@@ -219,79 +252,68 @@ export const createBooking = createServerFn({ method: "POST" })
       paid = result;
     }
 
+    const local = {
+      packageId: pkg.id,
+      packageName,
+      nights,
+      travelers: data.travelers,
+      checkIn: data.checkIn,
+      amountInr: amount,
+      swaps: data.swaps ?? {},
+      status: "paid",
+      cardLast4: paid.last4,
+      cardBrand: paid.brand,
+      payerName: data.payerName,
+      confirmationCode: code,
+      paymentMethod: paid.method,
+      paymentRef: paid.ref,
+      upiHandle: paid.upiHandle,
+      bankName: paid.bank,
+    };
+
+    // Payment is already captured. Never fail the guest on a dead DATABASE_URL.
     if (isSupabaseConfigured()) {
       try {
         const booking = await sbInsertBooking({
           userId: context.userId,
-          packageId: pkg.id,
-          packageName,
-          nights,
-          travelers: data.travelers,
-          checkIn: data.checkIn,
-          amountInr: amount,
-          swaps: data.swaps ?? {},
-          status: "paid",
-          cardLast4: paid.last4,
-          cardBrand: paid.brand,
-          payerName: data.payerName,
-          confirmationCode: code,
-          paymentMethod: paid.method,
-          paymentRef: paid.ref,
-          upiHandle: paid.upiHandle,
-          bankName: paid.bank,
+          ...local,
         });
         if (booking) return { ok: true, booking };
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Could not save booking.";
-        return { ok: false, message };
+        if (isDurableDbError(err)) markDurableDbFailed(err);
+        console.error("[bookings] supabase insert failed, keeping confirmation", err);
       }
     }
 
     if (useMemoryStore()) {
-      const booking: BookingRow = {
-        id: (g.__twMemoryId__ = (g.__twMemoryId__ ?? 1) + 1) - 1,
-        packageId: pkg.id,
-        packageName,
-        nights,
-        travelers: data.travelers,
-        checkIn: data.checkIn,
-        amountInr: amount,
-        swaps: data.swaps ?? {},
-        status: "paid",
-        cardLast4: paid.last4,
-        cardBrand: paid.brand,
-        payerName: data.payerName,
-        confirmationCode: code,
-        paymentMethod: paid.method,
-        paymentRef: paid.ref,
-        upiHandle: paid.upiHandle,
-        bankName: paid.bank,
-        createdAt: new Date().toISOString(),
-      };
-      g.__twMemoryBookings__ = [booking, ...(g.__twMemoryBookings__ ?? [])];
-      return { ok: true, booking };
+      return { ok: true, booking: memoryBooking(local) };
     }
 
-    const sql = await getSql();
-    const swapsJson = JSON.stringify(data.swaps ?? {});
-    const rows = await sql<DbBooking>`
-      insert into bookings (
-        user_id, package_id, package_name, nights, travelers, check_in,
-        amount_inr, swaps, status, card_last4, card_brand, payer_name, confirmation_code,
-        payment_method, payment_ref, upi_handle, bank_name
-      ) values (
-        ${context.userId}, ${pkg.id}, ${packageName}, ${nights}, ${data.travelers},
-        ${data.checkIn}::date, ${amount}, ${swapsJson}, 'paid',
-        ${paid.last4}, ${paid.brand}, ${data.payerName}, ${code},
-        ${paid.method}, ${paid.ref}, ${paid.upiHandle}, ${paid.bank}
-      )
-      returning id, package_id, package_name, nights, travelers, check_in, amount_inr,
-                swaps, status, card_last4, card_brand, payer_name, confirmation_code,
-                payment_method, payment_ref, upi_handle, bank_name, created_at
-    `;
-    const row = rows[0];
-    if (!row) return { ok: false, message: "Could not save booking." };
-    return { ok: true, booking: mapBooking(row) };
+    try {
+      const sql = await getSql();
+      const swapsJson = JSON.stringify(data.swaps ?? {});
+      const rows = await sql<DbBooking>`
+        insert into bookings (
+          user_id, package_id, package_name, nights, travelers, check_in,
+          amount_inr, swaps, status, card_last4, card_brand, payer_name, confirmation_code,
+          payment_method, payment_ref, upi_handle, bank_name
+        ) values (
+          ${context.userId}, ${pkg.id}, ${packageName}, ${nights}, ${data.travelers},
+          ${data.checkIn}::date, ${amount}, ${swapsJson}, 'paid',
+          ${paid.last4}, ${paid.brand}, ${data.payerName}, ${code},
+          ${paid.method}, ${paid.ref}, ${paid.upiHandle}, ${paid.bank}
+        )
+        returning id, package_id, package_name, nights, travelers, check_in, amount_inr,
+                  swaps, status, card_last4, card_brand, payer_name, confirmation_code,
+                  payment_method, payment_ref, upi_handle, bank_name, created_at
+      `;
+      const row = rows[0];
+      if (!row) return { ok: true, booking: memoryBooking(local) };
+      return { ok: true, booking: mapBooking(row) };
+    } catch (err) {
+      markDurableDbFailed(err);
+      return { ok: true, booking: memoryBooking(local) };
+    }
   });
 
 export const cancelBooking = createServerFn({ method: "POST" })
@@ -301,10 +323,12 @@ export const cancelBooking = createServerFn({ method: "POST" })
     if (isSupabaseConfigured()) {
       try {
         await sbCancelBooking(context.userId, id);
+        const mem = g.__twMemoryBookings__?.find((x) => x.id === id);
+        if (mem) mem.status = "cancelled";
         return { ok: true };
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Could not cancel.";
-        return { ok: false, message };
+        if (isDurableDbError(err)) markDurableDbFailed(err);
+        console.error("[bookings] supabase cancel failed", err);
       }
     }
     if (useMemoryStore()) {
@@ -313,13 +337,21 @@ export const cancelBooking = createServerFn({ method: "POST" })
       if (b) b.status = "cancelled";
       return { ok: true };
     }
-    const sql = await getSql();
-    await sql`
-      update bookings
-      set status = 'cancelled'
-      where id = ${id} and user_id = ${context.userId} and status = 'paid'
-    `;
-    return { ok: true };
+    try {
+      const sql = await getSql();
+      await sql`
+        update bookings
+        set status = 'cancelled'
+        where id = ${id} and user_id = ${context.userId} and status = 'paid'
+      `;
+      return { ok: true };
+    } catch (err) {
+      markDurableDbFailed(err);
+      const list = g.__twMemoryBookings__ ?? [];
+      const b = list.find((x) => x.id === id);
+      if (b) b.status = "cancelled";
+      return { ok: true };
+    }
   });
 
 export { methodLabel };
