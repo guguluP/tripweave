@@ -1,5 +1,33 @@
+import { useEffect, useState } from "react";
 import { formatMoney, type RoomType } from "@/lib/packages";
 import { cn } from "@/lib/utils";
+
+function RoomThumb({ src, alt }: { src: string; alt: string }) {
+  const [current, setCurrent] = useState(src);
+  useEffect(() => {
+    setCurrent(src);
+  }, [src]);
+  return (
+    <img
+      src={current}
+      alt={alt}
+      className="h-28 w-full object-cover"
+      loading="lazy"
+      decoding="async"
+      onError={() => {
+        const m = current.match(/i\.ytimg\.com\/vi\/([^/]+)\/([^/?]+)/);
+        if (!m) return;
+        const [, videoId, name] = m;
+        if (name === "hqdefault.jpg") {
+          setCurrent(`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
+        } else if (name === "mqdefault.jpg") {
+          setCurrent(`https://i.ytimg.com/vi/${videoId}/0.jpg`);
+        }
+      }}
+    />
+  );
+}
+
 
 export function RoomPicker({
   rooms,
@@ -35,7 +63,7 @@ export function RoomPicker({
                 on ? "border-primary bg-surface" : "border-border bg-elevated hover:bg-surface",
               )}
             >
-              <img src={room.image} alt="" className="h-28 w-full object-cover" />
+              <RoomThumb src={room.image} alt={room.name} />
               <span className="block p-4">
                 <span className="block font-display text-lg leading-snug">{room.name}</span>
                 <span className="mt-1 block text-xs text-muted">Sleeps {room.occupancy}</span>
