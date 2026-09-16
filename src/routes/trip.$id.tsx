@@ -93,7 +93,6 @@ function TripDetail() {
         name={pkg.name}
         images={pkg.images}
         videos={pkg.videos}
-        featured={room.image}
       />
       <div className="mx-auto max-w-3xl px-4 pb-28">
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

@@ -37,15 +37,31 @@ export function PackageCard({
         <LikeButton id={pkg.id} />
       </div>
       <Link to="/trip/$id" params={{ id: pkg.id }} className="group block">
-        <div className="relative overflow-hidden rounded-t-xl">
-          <img src={pkg.image} alt={pkg.name} className="h-48 w-full object-cover" />
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-fg/70 to-transparent" />
-          <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between pr-12">
-            <Badge className="border-0 bg-elevated/95 text-fg">{variantLabel(pkg)}</Badge>
-            {rank ? (
-              <span className="font-display text-sm text-primary-fg">{rank}</span>
-            ) : null}
+        <div className="overflow-hidden rounded-t-xl">
+          <div className="relative">
+            <img src={pkg.image} alt={pkg.name} className="h-44 w-full object-cover" />
+            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-fg/70 to-transparent" />
+            <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between pr-12">
+              <Badge className="border-0 bg-elevated/95 text-fg">{variantLabel(pkg)}</Badge>
+              {rank ? (
+                <span className="font-display text-sm text-primary-fg">{rank}</span>
+              ) : null}
+            </div>
           </div>
+          {pkg.images.length > 1 ? (
+            <div className="grid grid-cols-3 gap-px bg-border">
+              {pkg.images.slice(1, 4).map((src, i) => (
+                <img
+                  key={`${src}-${i}`}
+                  src={src}
+                  alt=""
+                  className="h-16 w-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
         <div className="flex flex-col gap-3 p-4">
           <div>

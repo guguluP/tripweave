@@ -132,6 +132,9 @@ export function PropertyMedia({
         >
           <PropertyImg src={current} alt={name} className="h-full w-full object-cover" />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg via-bg/20 to-transparent" />
+          <span className="pointer-events-none absolute left-4 top-4 rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg">
+            Property · {index + 1}/{gallery.length}
+          </span>
         </button>
         <div className="absolute right-4 top-4 z-10">
           <LikeButton id={id} />
