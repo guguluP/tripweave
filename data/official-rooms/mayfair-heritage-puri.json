@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Deluxe Suite",
+    "sqm": 53,
+    "guests": "up to 3",
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/x_281,y_0,w_2016,h_1719,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Suite_-_MAYFAIR_Heritage_Puri_8f910986"
+    ]
+  },
+  {
+    "name": "Deluxe Rooms",
+    "sqm": 42,
+    "guests": "up to 3",
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/x_281,y_0,w_2016,h_1719,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Room_-_MAYFAIR_Heritage_Puri_f3d155ea"
+    ]
+  },
+  {
+    "name": "Deluxe Cottages",
+    "sqm": 42,
+    "guests": "up to 3",
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/x_259,y_0,w_1854,h_1581,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Cottage_2-_MAYFAIR_Heritage_Puri_458da5ff"
+    ]
+  },
+  {
+    "name": "Sea View Cottages",
+    "sqm": 49,
+    "guests": "up to 3",
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/x_534,y_0,w_3830,h_3265,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_2848_h0u45d"
+    ]
+  },
+  {
+    "name": "Family Suite",
+    "sqm": 76,
+    "guests": "up to 4",
+    "bed": "two king-size beds",
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/x_301,y_0,w_2426,h_2068,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Family_Suite_Mayfair_Heritage_Puri_653a2e7e"
+    ]
+  },
+  {
+    "name": "Heritage Premium Room",
+    "sqm": 49,
+    "guests": "up to 3",
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/x_0,y_1057,w_3265,h_2784,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_2752-HDR_zabhud"
+    ]
+  }
+]
