@@ -1,10 +1,41 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Play, X } from "lucide-react";
 import { LikeButton } from "@/components/motion";
 import { youtubeThumb, youtubeUrl } from "@/lib/youtube/types";
 import { cn } from "@/lib/utils";
 
 type Video = { videoId: string; title: string };
+
+function thumbSrc(src: string, w = 240) {
+  // Prefer a small Unsplash derivative so mobile carousel thumbs load reliably.
+  if (src.includes("images.unsplash.com")) {
+    const base = src.split("?")[0] ?? src;
+    return `${base}?auto=format&fit=crop&w=${w}&q=60`;
+  }
+  return src;
+}
+
+function YoutubeThumb({ videoId, title }: { videoId: string; title: string }) {
+  const [src, setSrc] = useState(youtubeThumb(videoId));
+  return (
+    <img
+      src={src}
+      alt=""
+      className="h-24 w-full object-cover"
+      loading="lazy"
+      decoding="async"
+      onError={() => {
+        // hqdefault can 404 for some IDs; fall back to mqdefault then 0.jpg
+        if (src.includes("hqdefault")) {
+          setSrc(`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
+        } else if (src.includes("mqdefault")) {
+          setSrc(`https://i.ytimg.com/vi/${videoId}/0.jpg`);
+        }
+      }}
+      data-title={title}
+    />
+  );
+}
 
 export function PropertyMedia({
   id,
@@ -27,6 +58,8 @@ export function PropertyMedia({
 
   const [index, setIndex] = useState(0);
   const [open, setOpen] = useState(false);
+  const thumbRail = useRef<HTMLDivElement>(null);
+  const videoRail = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!featured) {
@@ -52,6 +85,13 @@ export function PropertyMedia({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, gallery.length]);
 
+  useEffect(() => {
+    const rail = thumbRail.current;
+    if (!rail) return;
+    const active = rail.querySelector<HTMLElement>("[data-active='true']");
+    active?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+  }, [index]);
+
   const current = gallery[index] ?? gallery[0];
   if (!current) return null;
 
@@ -75,22 +115,40 @@ export function PropertyMedia({
           <LikeButton id={id} />
         </div>
         {gallery.length > 1 ? (
-          <div className="absolute bottom-3 left-3 right-16 flex gap-2 overflow-x-auto pb-1">
-            {gallery.map((src, i) => (
-              <button
-                key={`${src}-${i}`}
-                type="button"
-                onClick={() => setIndex(i)}
-                className={cn(
-                  "size-12 shrink-0 overflow-hidden rounded-md border-2 sm:size-14",
-                  i === index ? "border-primary-fg" : "border-transparent opacity-80",
-                )}
-                aria-label={`Photo ${i + 1} of ${gallery.length}`}
-                aria-current={i === index}
-              >
-                <img src={src} alt="" className="h-full w-full object-cover" />
-              </button>
-            ))}
+          <div className="absolute inset-x-0 bottom-0 z-[1] bg-gradient-to-t from-fg/50 to-transparent px-3 pb-3 pt-8">
+            <div
+              ref={thumbRail}
+              className="scrollbar-hide flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain"
+              role="listbox"
+              aria-label={`${name} photo thumbnails`}
+            >
+              {gallery.map((src, i) => (
+                <button
+                  key={`${src}-${i}`}
+                  type="button"
+                  data-active={i === index ? "true" : "false"}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIndex(i);
+                  }}
+                  className={cn(
+                    "size-12 shrink-0 snap-start overflow-hidden rounded-md border-2 sm:size-14",
+                    i === index ? "border-primary-fg" : "border-transparent opacity-85",
+                  )}
+                  aria-label={`Photo ${i + 1} of ${gallery.length}`}
+                  aria-selected={i === index}
+                  role="option"
+                >
+                  <img
+                    src={thumbSrc(src)}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
+              ))}
+            </div>
           </div>
         ) : null}
       </div>
@@ -98,21 +156,20 @@ export function PropertyMedia({
       {videos.length > 0 ? (
         <div className="mx-auto mt-5 max-w-3xl px-4">
           <p className="eyebrow">Property tours</p>
-          <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
+          <div
+            ref={videoRail}
+            className="scrollbar-hide mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain pb-1"
+          >
             {videos.map((v) => (
               <a
                 key={v.videoId}
                 href={youtubeUrl(v.videoId)}
                 target="_blank"
                 rel="noreferrer"
-                className="group w-40 shrink-0"
+                className="group w-40 shrink-0 snap-start"
               >
-                <span className="relative block overflow-hidden rounded-lg">
-                  <img
-                    src={youtubeThumb(v.videoId)}
-                    alt=""
-                    className="h-24 w-full object-cover"
-                  />
+                <span className="relative block overflow-hidden rounded-lg bg-border">
+                  <YoutubeThumb videoId={v.videoId} title={v.title} />
                   <span className="absolute inset-0 flex items-center justify-center bg-fg/35">
                     <Play className="ml-0.5 size-7 text-primary-fg" fill="currentColor" />
                   </span>

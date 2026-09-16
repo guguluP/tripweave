@@ -11,6 +11,7 @@ import { PropertyMedia } from "@/components/property-media";
 import { ReviewerConsensus } from "@/components/reviewer-consensus";
 import { RoomPicker } from "@/components/room-picker";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { youtubeSourceCount } from "@/lib/trust-score";
 import {
   clampNights,
   daysForStay,
@@ -104,7 +105,7 @@ function TripDetail() {
               {pkg.neighborhood} · {pkg.nightsMin}–{pkg.nightsMax} nights
             </p>
           </Stagger>
-          <TrustMeter score={pkg.trustScore} reviews={pkg.reviews} />
+          <TrustMeter score={pkg.trustScore} youtubeSources={youtubeSourceCount(pkg)} />
         </div>
 
         <p className="mt-6 text-muted">{pkg.summary}</p>
@@ -196,7 +197,7 @@ function TripDetail() {
           ))}
         </div>
       </div>
-      <div className="fixed inset-x-0 bottom-14 z-20 border-t border-border bg-elevated/95 px-4 py-3 backdrop-blur-md md:bottom-0">
+      <div className="fixed inset-x-0 bottom-14 z-20 border-t border-border bg-elevated/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-md md:bottom-0 md:pb-3">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
           <div>
             <p className="font-display text-xl tabular-nums">
