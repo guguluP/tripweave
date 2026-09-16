@@ -1,5 +1,5 @@
 import type { RoomType } from "./packages.ts";
-import catalog from "./stay-media.json";
+import catalog from "./stay-media.json" with { type: "json" };
 
 /**
  * Catalog media is property-owned (official hotel/brand CDNs or local /stays files).
