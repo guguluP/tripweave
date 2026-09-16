@@ -10,7 +10,8 @@ Catalog galleries and room cards use **local** paths under `public/stays/{stayId
 
 1. Keeps existing JPEGs if the catalog is already complete
 2. Else decodes optional `data/vendored-stays-chunks/*.tar.b64` when present
-3. Else downloads from official hotel URLs in `data/stay-photo-sources.json`
+3. Else downloads from official hotel URLs in `data/stay-photo-sources/`
+   (or monolithic `data/stay-photo-sources.json` if present)
    (hotel-domain Referer; `wsrv.nl` proxy for hosts that reset TLS, e.g. Toshali)
 
 Prefer committing the materialized JPEGs when `git push` of binaries is available.
