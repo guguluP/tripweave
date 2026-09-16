@@ -1,3 +1,4 @@
+import { TAJ_PURI_ROOMS } from "./taj-puri-rooms.ts";
 import type { RoomType, StayPackage } from "./packages.ts";
 
 type RawRoom = Omit<RoomType, "image">;
@@ -33,29 +34,7 @@ export const RAW_A: RawStay[] = [
       { videoId: "02dHekawNDk", title: "Honest hotel tour and food" },
       { videoId: "809rJTgHVgI", title: "Room and property tour" },
     ],
-    rooms: [
-      {
-        id: "garden",
-        name: "Deluxe Garden View",
-        summary: "Quiet garden rooms — the honest base rate.",
-        deltaPerNight: 0,
-        occupancy: 2,
-      },
-      {
-        id: "sea",
-        name: "Deluxe Sea View",
-        summary: "Full water outlook; reviewers say this is the point of Taj.",
-        deltaPerNight: 1800,
-        occupancy: 2,
-      },
-      {
-        id: "plunge",
-        name: "Plunge Pool Suite",
-        summary: "Private plunge pool. The couple-stay pick in every vlog.",
-        deltaPerNight: 4500,
-        occupancy: 2,
-      },
-    ],
+    rooms: TAJ_PURI_ROOMS,
     days: [
       {
         title: "Arrive & settle",

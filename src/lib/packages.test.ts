@@ -10,7 +10,7 @@ import {
   priceWithSwaps,
   stayTotal,
 } from "./packages.ts";
-import { getSeededConsensus } from "./youtube/seed.ts";
+import { getSeededConsensus } from "./youtube/get-seeded.ts";
 import { STAYS_NEEDING_USER_FILES, stayNeedsUserFiles, STAY_MEDIA } from "./property-media.ts";
 
 describe("catalog", () => {
@@ -98,16 +98,16 @@ describe("stay pricing", () => {
   const pkg = getPackage("taj-puri-resort-spa")!;
 
   it("charges one night at the base room rate", () => {
-    assert.equal(stayTotal(pkg, 1, "garden"), pkg.pricePerNight);
+    assert.equal(stayTotal(pkg, 1, "superior-king-balcony"), pkg.pricePerNight);
   });
 
   it("adds the room delta per night", () => {
-    const sea = getRoom(pkg, "sea");
-    assert.equal(stayTotal(pkg, 2, "sea"), (pkg.pricePerNight + sea.deltaPerNight) * 2);
+    const sea = getRoom(pkg, "deluxe-sea-king");
+    assert.equal(stayTotal(pkg, 2, "deluxe-sea-king"), (pkg.pricePerNight + sea.deltaPerNight) * 2);
   });
 
   it("only applies extras on the nights you actually stay", () => {
-    const one = stayTotal(pkg, 1, "garden", { "0": "spa" });
+    const one = stayTotal(pkg, 1, "superior-king-balcony", { "0": "spa" });
     assert.equal(one, pkg.pricePerNight + 2500);
     const rec = priceWithSwaps(pkg, { "1": "konark" });
     assert.equal(rec, pkg.pricePerNight * pkg.nights + 1800);

@@ -1,7 +1,7 @@
 import { getPackage } from "@/lib/packages";
 import { aggregateSummaries, emptyConsensus } from "./aggregate.ts";
 import { readDurableCache, writeDurableCache, writeMemoryCache, logConsensusEvent } from "./cache.ts";
-import { getSeededConsensus } from "./seed.ts";
+import { getSeededConsensus } from "./get-seeded.ts";
 import {
   isXaiConfigured,
   summarizeConsensusNarrative,

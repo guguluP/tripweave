@@ -17,7 +17,7 @@ import {
   refreshReviewerConsensus,
 } from "@/lib/youtube/server";
 import type { PackageReviewConsensus, Sentiment } from "@/lib/youtube/types";
-import { getSeededConsensus } from "@/lib/youtube/seed";
+import { getSeededConsensus } from "@/lib/youtube/get-seeded";
 import { cn } from "@/lib/utils";
 
 const SENTIMENT_LABEL: Record<Sentiment, string> = {

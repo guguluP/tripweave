@@ -1,0 +1,89 @@
+[
+  {
+    "name": "EXECUTIVE SEA VIEW SUITE WITH BALCONY",
+    "sqm": 96.89,
+    "guests": 3,
+    "bed": "King",
+    "images": ["https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/4b62c86d59676a33d9ba11a9a6fbe1ba61f2dd25-1400x1120.jpg?w=1280&auto=format&dpr=2"]
+  },
+  {
+    "name": "LUXURY SEA VIEW SUITE WITH BALCONY",
+    "sqm": 111.65,
+    "guests": 3,
+    "bed": "King",
+    "images": ["https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/062816fd6267a92bb77f64bea165d171f672d989-1400x1120.jpg?w=1280&auto=format&dpr=2"]
+  },
+  {
+    "name": "PRESIDENTIAL SEA VIEW SUITE WITH PRIVATE POOL",
+    "sqm": 235.10,
+    "guests": 6,
+    "bed": "King",
+    "images": ["https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/d2f2c536a27706c8f41ada94ab3c2c7ce55f554b-1400x1120.jpg?w=1280&auto=format&dpr=2"]
+  },
+  {
+    "name": "SUPERIOR ROOM KING BED WITH BALCONY",
+    "sqm": 48.62,
+    "guests": 4,
+    "bed": "King",
+    "images": ["https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/dae1ffe1bfdabaa35ee8147ff13012c914aaf95e-1400x1120.webp?w=1280&auto=format&dpr=2"]
+  },
+  {
+    "name": "SUPERIOR ROOM TWIN BED WITH BALCONY",
+    "sqm": 48.62,
+    "guests": 4,
+    "bed": "Twin",
+    "images": ["https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/f21c8a87ddf4fc795f606959144fb9d327e2f7ca-1400x1120.webp?w=1280&auto=format&dpr=2"]
+  },
+  {
+    "name": "SUPERIOR SEA VIEW ROOM KING BED WITH BALCONY",
+    "sqm": 48,
+    "guests": 3,
+    "bed": "King",
+    "images": [
+      "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/a989e4500a0c8c42483665b1675728db19f77e54-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/5a39abfddb147591aa791d8932ca142ad834a691-1400x1120.jpg?w=1280&auto=format&dpr=2"
+    ]
+  },
+  {
+    "name": "SUPERIOR SEA VIEW ROOM TWIN BED WITH BALCONY",
+    "sqm": 48.6,
+    "guests": 4,
+    "bed": "Twin",
+    "images": ["https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/82dc1f271efd8fcf8b58393d90e45fd208baf745-1400x1120.jpg?w=1280&auto=format&dpr=2"]
+  },
+  {
+    "name": "DELUXE SEA VIEW ROOM KING BED WITH BALCONY",
+    "sqm": 51.62,
+    "guests": 3,
+    "bed": "King",
+    "images": ["https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/359fa5d34001de3ea910ebbe1df4bfb7337165c5-1400x1120.jpg?w=1280&auto=format&dpr=2"]
+  },
+  {
+    "name": "DELUXE SEA VIEW ROOM TWIN BED WITH BALCONY",
+    "sqm": 51.62,
+    "guests": 4,
+    "bed": "Twin",
+    "images": ["https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/74a8d58a4e6449723298e5769bae493e1b407848-1400x1120.jpg?w=1280&auto=format&dpr=2"]
+  },
+  {
+    "name": "LUXURY SEA VIEW ROOM KING BED WITH BALCONY",
+    "sqm": 57.62,
+    "guests": 3,
+    "bed": "King",
+    "images": ["https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/a30355e618fa9938e83adcf8d0abb2c5c0cb03c7-1400x1120.jpg?w=1280&auto=format&dpr=2"]
+  },
+  {
+    "name": "GRAND LUXURY ROOM KING BED WITH PLUNGE POOL",
+    "sqm": 65.12,
+    "guests": 3,
+    "bed": "King",
+    "images": ["https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/4acf2128a5c6157b94b29dc7f7483ae0a95d07b3-1400x1120.jpg?w=1280&auto=format&dpr=2"]
+  },
+  {
+    "name": "GRAND LUXURY ROOM TWIN BED WITH PLUNGE POOL",
+    "sqm": 65.12,
+    "guests": 4,
+    "bed": "Twin",
+    "images": ["https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/a095645082215b22a7eef130d8f0933e749041a2-1400x1120.jpg?w=1280&auto=format&dpr=2"]
+  }
+]
