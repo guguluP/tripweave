@@ -51,6 +51,7 @@ export const RAW_B: RawStay[] = [{
         name: "Suite",
         summary: "Space and a sitting room. Events on the lawn can run late.",
         deltaPerNight: 2800,
+        occupancy: 3,
       },
     ],
     days: [
