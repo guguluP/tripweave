@@ -10,7 +10,7 @@ import {
   priceWithSwaps,
   stayTotal,
 } from "./packages.ts";
-import { getSeededConsensus } from "./youtube/seed.ts";
+import { getSeededConsensus } from "./youtube/get-seeded.ts";
 import { STAYS_NEEDING_USER_FILES, stayNeedsUserFiles, STAY_MEDIA } from "./property-media.ts";
 
 describe("catalog", () => {

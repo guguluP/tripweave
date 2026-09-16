@@ -13,7 +13,7 @@
  */
 import type { StayPackage } from "./packages.ts";
 import type { PackageReviewConsensus, Sentiment } from "./youtube/types.ts";
-import { getSeededConsensus } from "./youtube/seed.ts";
+import { getSeededConsensus } from "./youtube/get-seeded.ts";
 
 export const TRUST_SCORE_MAX = 100;
 export const TRUST_CONSENSUS_MAX = 55;
