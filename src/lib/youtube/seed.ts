@@ -1,6 +1,7 @@
-import type { PackageReviewConsensus, RoomReviewNotes } from "./types.ts";
+import type { PackageReviewConsensus } from "./types.ts";
 import { youtubeUrl } from "./types.ts";
 import { PACKAGE_VIDEOS } from "./videos.ts";
+import { SEED_ROOM_NOTES } from "./seed-room-notes.ts";
 
 /**
  * Curated consensus for demo / offline mode.
@@ -23,9 +24,6 @@ function sources(
   }));
 }
 
-function rooms(notes: Record<string, RoomReviewNotes>) {
-  return notes;
-}
 
 export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
   "taj-puri-resort-spa": {
@@ -51,23 +49,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     sources: sources("taj-puri-resort-spa", ["hi", "bn", "hi"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
-    roomNotes: rooms({
-      garden: {
-        summary: "Quiet and new, but you are paying Taj money to look at trees.",
-        positives: ["Genuinely new rooms and bathrooms", "Quieter than the sea-facing wing"],
-        watchouts: ["Skip this if a water outlook is why you picked Taj"],
-      },
-      sea: {
-        summary: "The deluxe sea view is the room reviewers mean when they say Taj Puri.",
-        positives: ["Full water outlook", "Same new-build finish as the garden rooms"],
-        watchouts: ["The private beach is more scenic than swimmable"],
-      },
-      plunge: {
-        summary: "The couple-stay pick. Vlogs linger on the private plunge pool.",
-        positives: ["Private plunge pool", "The spa-and-suite combo everyone films"],
-        watchouts: ["Premium tariff — book it only if the pool is the point"],
-      },
-    }),
+    roomNotes: SEED_ROOM_NOTES["taj-puri-resort-spa"],
   },
   "mayfair-heritage-puri": {
     packageId: "mayfair-heritage-puri",
@@ -93,23 +75,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     sources: sources("mayfair-heritage-puri", ["hi", "en", "hi"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
-    roomNotes: rooms({
-      deluxe: {
-        summary: "The watch-out room. Confirm a balcony before you pay a sea-view rate.",
-        positives: ["Main-building convenience", "Same Mayfair staff as the cottages"],
-        watchouts: ["Deluxe can skip the balcony even when labelled sea-view"],
-      },
-      cottage: {
-        summary: "Cottage with a balcony — the room reviewers actually want.",
-        positives: ["Balcony and garden", "Quieter than the main block"],
-        watchouts: ["Weddings on the lawns can still reach the cottages"],
-      },
-      "sea-cottage": {
-        summary: "Sea-facing cottage is the Heritage stay the vlogs open on.",
-        positives: ["Water outlook plus cottage space", "Beach chairs are a short walk"],
-        watchouts: ["Peak-weekend rates; check the events diary"],
-      },
-    }),
+    roomNotes: SEED_ROOM_NOTES["mayfair-heritage-puri"],
   },
   "swosti-premium-beach-resort": {
     packageId: "swosti-premium-beach-resort",
@@ -133,23 +99,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     sources: sources("swosti-premium-beach-resort", ["hi", "hi", "bn"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
-    roomNotes: rooms({
-      deluxe: {
-        summary: "Modern interiors; some deluxe rooms look at the pool, not the sea.",
-        positives: ["New-feeling rooms", "Easy for the infinity pool"],
-        watchouts: ["You came for a sea hotel — confirm the outlook"],
-      },
-      sea: {
-        summary: "Sea view is the room that makes the pool photos make sense.",
-        positives: ["Water outlook", "Family vlogs like the space"],
-        watchouts: ["Peak-date pricing still does not always match service"],
-      },
-      suite: {
-        summary: "Extra space for families. Ask what dinner includes.",
-        positives: ["Room to spread out", "Same beach access as the rest of the house"],
-        watchouts: ["Breakfast-only vs buffet dinner changes the value a lot"],
-      },
-    }),
+    roomNotes: SEED_ROOM_NOTES["swosti-premium-beach-resort"],
   },
   "regenta-central-puri": {
     packageId: "regenta-central-puri",
@@ -174,23 +124,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     sources: sources("regenta-central-puri", ["bn", "hi", "en"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
-    roomNotes: rooms({
-      superior: {
-        summary: "Clean and compact. Fine if you are here for the temple, not the window.",
-        positives: ["Breakfast buffet that people finish", "Walkable to town"],
-        watchouts: ["Small for a 4-star rate"],
-      },
-      sea: {
-        summary: "Pay for a full sea-facing room — partial views disappoint at this price.",
-        positives: ["Beach-facing on New Marine Drive", "Same Odia kitchen as the rest"],
-        watchouts: ["Still a compact hotel, not a resort"],
-      },
-      family: {
-        summary: "Extra bed space, same small footprint. Fine for a short stay.",
-        positives: ["Sleeps more without a second room", "Clean bathrooms"],
-        watchouts: ["Extra beds make an already small room feel tighter"],
-      },
-    }),
+    roomNotes: SEED_ROOM_NOTES["regenta-central-puri"],
   },
   "hans-coco-palms": {
     packageId: "hans-coco-palms",
@@ -215,23 +149,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     sources: sources("hans-coco-palms", ["hi", "en", "hi"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
-    roomNotes: rooms({
-      garden: {
-        summary: "Ground-floor rooms face the lawn, not the sea. Come for the palms.",
-        positives: ["Garden at the door", "Easy with bags and kids"],
-        watchouts: ["No water outlook — that is the upper floors"],
-      },
-      pool: {
-        summary: "Looks at the swimming pool — the reason families pick Hans.",
-        positives: ["Pool view", "Same back-gate beach access"],
-        watchouts: ["Bathrooms still need a refresh"],
-      },
-      sea: {
-        summary: "Upper floors catch more of the water. Building is older.",
-        positives: ["Best Hans outlook", "Palm garden still at your feet"],
-        watchouts: ["Dated rooms; Wi-Fi and public AC are the usual complaints"],
-      },
-    }),
+    roomNotes: SEED_ROOM_NOTES["hans-coco-palms"],
   },
   "empires-hotel-puri": {
     packageId: "empires-hotel-puri",
@@ -255,23 +173,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     sources: sources("empires-hotel-puri", ["hi", "hi"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
-    roomNotes: rooms({
-      standard: {
-        summary: "A short-stay base for darshan. Eat out if the kitchen misses.",
-        positives: ["Walk to the temple", "24-hour desk"],
-        watchouts: ["Hygiene reports are mixed — keep it to one night"],
-      },
-      balcony: {
-        summary: "The room walkthroughs actually like. Ask for a high floor.",
-        positives: ["Balcony", "More air than the standard rooms"],
-        watchouts: ["Food quality is still hit or miss"],
-      },
-      family: {
-        summary: "More beds, same building. Hygiene reports are mixed.",
-        positives: ["Sleeps a small family without two rooms"],
-        watchouts: ["Not a holiday resort — one-night temple math only"],
-      },
-    }),
+    roomNotes: SEED_ROOM_NOTES["empires-hotel-puri"],
   },
   "mayfair-waves-puri": {
     packageId: "mayfair-waves-puri",
@@ -295,23 +197,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     sources: sources("mayfair-waves-puri", ["hi", "en"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
-    roomNotes: rooms({
-      deluxe: {
-        summary: "Fine if you live at the pool. The window is not the stay.",
-        positives: ["Same Waves buffet access", "Close to the club pool"],
-        watchouts: ["Without a sea view it feels like a different hotel"],
-      },
-      sea: {
-        summary: "Water outlook plus the Waves buffet — the usual booking.",
-        positives: ["Sea view", "The food reviewers already know from Heritage"],
-        watchouts: ["Club pool and events can run loud"],
-      },
-      suite: {
-        summary: "Space and a sitting room. Check the lawn diary for functions.",
-        positives: ["Room to sit", "Best Waves layout for a longer stay"],
-        watchouts: ["Events on the lawn can run late"],
-      },
-    }),
+    roomNotes: SEED_ROOM_NOTES["mayfair-waves-puri"],
   },
   "toshali-sands-puri": {
     packageId: "toshali-sands-puri",
@@ -336,23 +222,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     sources: sources("toshali-sands-puri", ["hi", "hi", "en"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
-    roomNotes: rooms({
-      cottage: {
-        summary: "Garden cottage. The stay is the campus, not a sea window.",
-        positives: ["Lawn at the door", "Quiet at night compared with town hotels"],
-        watchouts: ["You will cab into Puri for the temple"],
-      },
-      "sea-cottage": {
-        summary: "Closer to the dunes. Confirm the actual outlook before paying.",
-        positives: ["More breeze than the inner cottages", "Same campus pool"],
-        watchouts: ["Some sea-view labels look at sand, not water"],
-      },
-      family: {
-        summary: "Two rooms, lawn, parking at the door. Best for kids.",
-        positives: ["Space to spread out", "Pool and lawn without a corridor"],
-        watchouts: ["Service stretches when the campus is full"],
-      },
-    }),
+    roomNotes: SEED_ROOM_NOTES["toshali-sands-puri"],
   },
   "chariot-resort-puri": {
     packageId: "chariot-resort-puri",
@@ -376,23 +246,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     sources: sources("chariot-resort-puri", ["hi", "en"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
-    roomNotes: rooms({
-      deluxe: {
-        summary: "Garden or pool outlook. Solid if you came for the spa.",
-        positives: ["Quiet wing", "Easy for the pool and treatment rooms"],
-        watchouts: ["You came south for the beach — the window may not show it"],
-      },
-      sea: {
-        summary: "Direct water. This is the Chariot room people film.",
-        positives: ["Sea outlook", "Quieter sand than Marine Drive"],
-        watchouts: ["Temple is a ride, not a walk"],
-      },
-      villa: {
-        summary: "Separate sitting room and a lawn. Family and group pick.",
-        positives: ["Space", "Lawn at the door"],
-        watchouts: ["Food is still mid — eat for convenience, not for the kitchen"],
-      },
-    }),
+    roomNotes: SEED_ROOM_NOTES["chariot-resort-puri"],
   },
   "chanakya-bnr-puri": {
     packageId: "chanakya-bnr-puri",
@@ -417,23 +271,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     sources: sources("chanakya-bnr-puri", ["hi", "en"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
-    roomNotes: rooms({
-      heritage: {
-        summary: "Old-wing charm. The building is the story, not the bathroom.",
-        positives: ["Character", "Photogenic lobby and corridors"],
-        watchouts: ["AC and bathrooms are the usual complaints"],
-      },
-      deluxe: {
-        summary: "Newer block. Quieter AC, less character, better sleep.",
-        positives: ["Sleeps better than the old wing", "Same station-side location"],
-        watchouts: ["You lose some of the heritage feeling"],
-      },
-      suite: {
-        summary: "Sitting room in a railway hotel. Oddly grand for a 1-night stop.",
-        positives: ["Space to sit after darshan", "The most comfortable BNR layout"],
-        watchouts: ["Still not a beach stay — sand is a trip"],
-      },
-    }),
+    roomNotes: SEED_ROOM_NOTES["chanakya-bnr-puri"],
   },
   "mahodadhi-palace-puri": {
     packageId: "mahodadhi-palace-puri",
@@ -458,23 +296,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     sources: sources("mahodadhi-palace-puri", ["hi", "en", "hi"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
-    roomNotes: rooms({
-      palace: {
-        summary: "Heritage interiors. Some rooms look at the courtyard, not the sea.",
-        positives: ["Period rooms", "Palace lawns at breakfast"],
-        watchouts: ["Confirm the outlook — courtyard is not the water"],
-      },
-      sea: {
-        summary: "The room the vlogs open on — lawn, then water.",
-        positives: ["Sea outlook", "The statement Mahodadhi stay"],
-        watchouts: ["Heritage plumbing is not Taj-new"],
-      },
-      suite: {
-        summary: "Sitting room and period furniture. A one-night splurge.",
-        positives: ["Space and furniture with a story", "Best palace layout"],
-        watchouts: ["Premium tariff for a short stay"],
-      },
-    }),
+    roomNotes: SEED_ROOM_NOTES["mahodadhi-palace-puri"],
   },
   "holiday-resort-puri": {
     packageId: "holiday-resort-puri",
@@ -499,32 +321,6 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     sources: sources("holiday-resort-puri", ["hi", "hi", "en"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
-    roomNotes: rooms({
-      standard: {
-        summary: "Older wing. Come for the lawn and the pool, not a new bathroom.",
-        positives: ["Lowest rate on the sand", "Same pool and lawn as the rest"],
-        watchouts: ["Bathrooms show their age — skip if you can pay for sea view"],
-      },
-      sea: {
-        summary: "Upper floors look at the water. Ask for a renovated bath.",
-        positives: ["Sea outlook", "The room that makes the rate feel fair"],
-        watchouts: ["Confirm a renovated bathroom before you arrive"],
-      },
-      family: {
-        summary: "Extra beds and a lawn at the door. The value family pick.",
-        positives: ["Space for kids", "Lawn access without a corridor"],
-        watchouts: ["Holiday crowds fill the lawn — book mid-week if you can"],
-      },
-    }),
+    roomNotes: SEED_ROOM_NOTES["holiday-resort-puri"],
   },
 };
-
-export function getSeededConsensus(
-  packageId: string,
-): PackageReviewConsensus | null {
-  return SEED_CONSENSUS[packageId] ?? null;
-}
-
-export function listSeededPackageIds() {
-  return Object.keys(SEED_CONSENSUS);
-}
