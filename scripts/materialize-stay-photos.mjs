@@ -2,7 +2,7 @@
 /**
  * Ensure public/stays JPEGs exist for catalog media.
  * Order: keep existing files; else decode data/vendored-stays-chunks when present;
- * else download from data/stay-photo-sources.json (official hotel URLs / wsrv proxy).
+ * else download from data/stay-photo-sources/ (or .json) (official hotel URLs / wsrv proxy).
  */
 import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, writeFile, access } from "node:fs/promises";
@@ -16,7 +16,20 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const destRoot = path.join(root, "public/stays");
 const chunkRoot = path.join(root, "data/vendored-stays-chunks");
 const sourcesPath = path.join(root, "data/stay-photo-sources.json");
+const sourcesDir = path.join(root, "data/stay-photo-sources");
 const MIN = 1024;
+
+async function loadSources() {
+  if (existsSync(sourcesPath)) {
+    return JSON.parse(await readFile(sourcesPath, "utf8"));
+  }
+  const index = JSON.parse(await readFile(path.join(sourcesDir, "index.json"), "utf8"));
+  const stays = {};
+  for (const sid of index.stays) {
+    stays[sid] = JSON.parse(await readFile(path.join(sourcesDir, `${sid}.json`), "utf8"));
+  }
+  return { referers: index.referers, proxy_hosts: index.proxy_hosts, stays };
+}
 
 async function fileExists(p) {
   try {
@@ -103,7 +116,7 @@ function download(url, referer, proxyHosts) {
   return buf;
 }
 
-const sources = JSON.parse(await readFile(sourcesPath, "utf8"));
+const sources = await loadSources();
 if (await catalogComplete(sources)) {
   console.log("stay photos: public/stays already complete");
   process.exit(0);
