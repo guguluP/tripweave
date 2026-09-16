@@ -7,19 +7,16 @@ import { cn } from "@/lib/utils";
 type Video = { videoId: string; title: string };
 
 function thumbSrc(src: string, w = 240) {
-  // YouTube thumbs are already small; keep as-is. Shrink Unsplash only if present (e.g. login hero reuse).
+  // Shrink Unsplash only if present (e.g. login / discover heroes — not named hotels).
   if (src.includes("images.unsplash.com")) {
     const base = src.split("?")[0] ?? src;
     return `${base}?auto=format&fit=crop&w=${w}&q=60`;
   }
-  // Prefer mqdefault for carousel chips when the gallery uses hqdefault.
-  if (src.includes("i.ytimg.com") && src.includes("/hqdefault.jpg")) {
-    return src.replace("/hqdefault.jpg", "/mqdefault.jpg");
-  }
+  // Local /stays assets and official CDNs need no YouTube mqdefault rewrite.
   return src;
 }
 
-/** Gallery/room img with YouTube thumb fallbacks when hqdefault 404s. */
+/** Gallery img — local /stays assets (or stable official URLs). */
 function PropertyImg({
   src,
   alt,
@@ -29,27 +26,13 @@ function PropertyImg({
   alt: string;
   className?: string;
 }) {
-  const [current, setCurrent] = useState(src);
-  useEffect(() => {
-    setCurrent(src);
-  }, [src]);
   return (
     <img
-      src={current}
+      src={src}
       alt={alt}
       className={className}
       loading="lazy"
       decoding="async"
-      onError={() => {
-        const m = current.match(/i\.ytimg\.com\/vi\/([^/]+)\/([^/?]+)/);
-        if (!m) return;
-        const [, videoId, name] = m;
-        if (name === "hqdefault.jpg") {
-          setCurrent(`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
-        } else if (name === "mqdefault.jpg") {
-          setCurrent(`https://i.ytimg.com/vi/${videoId}/0.jpg`);
-        }
-      }}
     />
   );
 }

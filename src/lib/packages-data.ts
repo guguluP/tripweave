@@ -4,5 +4,5 @@ import { RAW_B } from "./packages-data-b.ts";
 
 export type { RawStay } from "./packages-data-a.ts";
 
-/** Catalog rows omit images — media is derived from each stay's curated YouTube videos. */
+/** Catalog rows omit images — media is attached from property-owned /stays/{id}/ files. */
 export const RAW: RawStay[] = [...RAW_A, ...RAW_B];
