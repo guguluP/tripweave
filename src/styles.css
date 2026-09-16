@@ -1,5 +1,6 @@
 @import "tailwindcss";
-@import "./styles.motion.css";
+@import "./styles.motion-a.css";
+@import "./styles.motion-b.css";
 
 @theme {
   --color-bg: #f3efe6;
