@@ -1,0 +1,94 @@
+[
+  {
+    "name": "Presidential Suite",
+    "sqm": 37.16,
+    "guests": "single/double; triple with additional charge",
+    "bed": null,
+    "images": [
+      "https://puriholidayresort.com/uploads/gallery/presidentialsuite/1.jpg",
+      "https://puriholidayresort.com/uploads/gallery/presidentialsuite/2.jpg",
+      "https://puriholidayresort.com/uploads/gallery/presidentialsuite/3.jpg"
+    ]
+  },
+  {
+    "name": "Royal Suite",
+    "sqm": 27.87,
+    "guests": "single/double; triple with additional charge",
+    "bed": "one king-size bed plus additional sofa",
+    "images": [
+      "https://puriholidayresort.com/uploads/gallery/royalsuite/1.jpg",
+      "https://puriholidayresort.com/uploads/gallery/royalsuite/2.jpg",
+      "https://puriholidayresort.com/uploads/gallery/royalsuite/3.jpg"
+    ]
+  },
+  {
+    "name": "Cottage",
+    "sqm": 23.23,
+    "guests": "single/double; triple with additional charge",
+    "bed": "one king-size bed plus additional sofa",
+    "images": [
+      "https://puriholidayresort.com/uploads/gallery/deluxecottage/1.jpg",
+      "https://puriholidayresort.com/uploads/gallery/deluxecottage/2.jpg"
+    ]
+  },
+  {
+    "name": "Standard Cottage",
+    "sqm": 23.23,
+    "guests": "single/double; triple with additional charge",
+    "bed": "one king-size bed plus additional sofa",
+    "images": [
+      "https://puriholidayresort.com/uploads/gallery/standardcottage/1%20150%20cc.jpg",
+      "https://puriholidayresort.com/uploads/gallery/standardcottage/2%20150%20cc.jpg"
+    ]
+  },
+  {
+    "name": "Family Room",
+    "sqm": 19.51,
+    "guests": "single/double/triple/quadruple",
+    "bed": "two queen-size beds plus additional sofa",
+    "images": [
+      "https://puriholidayresort.com/uploads/gallery/deluxefamilyroom/1.jpg",
+      "https://puriholidayresort.com/uploads/gallery/deluxefamilyroom/2.jpg"
+    ]
+  },
+  {
+    "name": "Standard Family Room",
+    "sqm": 19.51,
+    "guests": "single/double/triple/quadruple",
+    "bed": "two queen-size beds plus additional sofa",
+    "images": [
+      "https://puriholidayresort.com/uploads/gallery/standardfamilyroom/1%20150%20cc.jpg",
+      "https://puriholidayresort.com/uploads/gallery/standardfamilyroom/2%20150%20cc.jpg"
+    ]
+  },
+  {
+    "name": "Deluxe Double Bed Pool View",
+    "sqm": 14.86,
+    "guests": "single/double; triple with additional charge",
+    "bed": "one king-size bed plus additional sofa",
+    "images": [
+      "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/1%20150%20cc.jpg",
+      "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/2%20150%20cc.jpg"
+    ]
+  },
+  {
+    "name": "Deluxe Double Bed Room",
+    "sqm": 14.86,
+    "guests": "single/double; triple with additional charge",
+    "bed": "one king-size bed plus additional sofa",
+    "images": [
+      "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/1%20150%20cc.jpg",
+      "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/2%20150%20cc.jpg"
+    ]
+  },
+  {
+    "name": "Standard Double Bed Room",
+    "sqm": 14.86,
+    "guests": "single/double; triple with additional charge",
+    "bed": "one king-size bed plus additional sofa",
+    "images": [
+      "https://puriholidayresort.com/uploads/gallery/standarddoublebedroom/1.jpg",
+      "https://puriholidayresort.com/uploads/gallery/standarddoublebedroom/2.jpg"
+    ]
+  }
+]

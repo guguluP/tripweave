@@ -1,0 +1,29 @@
+[
+  {
+    "name": "Premium Suite",
+    "sqm": 114,
+    "guests": "up to 2 adults and 2 children",
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/x_0,y_218,w_2281,h_1283,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-waves-puri/Premium_Suite_-_MAYFAIR_Waves_37020a10"
+    ]
+  },
+  {
+    "name": "Premium Rooms",
+    "sqm": 49,
+    "guests": "up to 2 adults and 1 child",
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/x_0,y_254,w_4898,h_2757,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_3070_ju8mld"
+    ]
+  },
+  {
+    "name": "Premium Sea View Rooms",
+    "sqm": 49,
+    "guests": "up to 2 adults and 1 child",
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/x_0,y_1530,w_3265,h_1838,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_3074_tw171o"
+    ]
+  }
+]

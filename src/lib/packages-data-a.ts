@@ -1,5 +1,11 @@
 import { TAJ_PURI_ROOMS } from "./taj-puri-rooms.ts";
 import type { RoomType, StayPackage } from "./packages.ts";
+import { MAYFAIR_HERITAGE_PURI_ROOMS } from "./official-rooms/mayfair-heritage-puri.ts";
+import { SWOSTI_PREMIUM_BEACH_RESORT_ROOMS } from "./official-rooms/swosti-premium-beach-resort.ts";
+import { REGENTA_CENTRAL_PURI_ROOMS } from "./official-rooms/regenta-central-puri.ts";
+import { HANS_COCO_PALMS_ROOMS } from "./official-rooms/hans-coco-palms.ts";
+import { EMPIRES_HOTEL_PURI_ROOMS } from "./official-rooms/empires-hotel-puri.ts";
+
 
 type RawRoom = Omit<RoomType, "image">;
 
@@ -75,29 +81,7 @@ export const RAW_A: RawStay[] = [
       { videoId: "vqgxX0CC_Us", title: "Heritage stay and Waves food" },
       { videoId: "uquuV9tAlo0", title: "Real staying experience, 2024" },
     ],
-    rooms: [
-      {
-        id: "deluxe",
-        name: "Deluxe Room",
-        summary: "Main building. Confirm a balcony if the sea is the point.",
-        deltaPerNight: 0,
-        occupancy: 2,
-      },
-      {
-        id: "cottage",
-        name: "Garden Cottage",
-        summary: "Cottage with a balcony — the room reviewers actually want.",
-        deltaPerNight: 1200,
-        occupancy: 3,
-      },
-      {
-        id: "sea-cottage",
-        name: "Sea-facing Cottage",
-        summary: "Cottage on the water side. Best Mayfair Heritage view.",
-        deltaPerNight: 2200,
-        occupancy: 3,
-      },
-    ],
+    rooms: MAYFAIR_HERITAGE_PURI_ROOMS,
     days: [
       {
         title: "Arrival",
@@ -143,29 +127,7 @@ export const RAW_A: RawStay[] = [
       { videoId: "5Gmwnc6B71E", title: "Family vacation walkthrough" },
       { videoId: "G6R5FNirOcY", title: "Sea-facing stay" },
     ],
-    rooms: [
-      {
-        id: "deluxe",
-        name: "Deluxe Room",
-        summary: "Modern interiors; some look at the pool, not the sea.",
-        deltaPerNight: 0,
-        occupancy: 2,
-      },
-      {
-        id: "sea",
-        name: "Sea View Room",
-        summary: "The room that makes the infinity-pool photos make sense.",
-        deltaPerNight: 900,
-        occupancy: 2,
-      },
-      {
-        id: "suite",
-        name: "Suite",
-        summary: "Extra space for families. Ask what dinner includes.",
-        deltaPerNight: 1800,
-        occupancy: 4,
-      },
-    ],
+    rooms: SWOSTI_PREMIUM_BEACH_RESORT_ROOMS,
     days: [
       {
         title: "Check-in & beach",
@@ -206,29 +168,7 @@ export const RAW_A: RawStay[] = [
       { videoId: "nMCyrW5PFWM", title: "Stay review" },
       { videoId: "I5yaD4NyfTo", title: "Rooms and amenities" },
     ],
-    rooms: [
-      {
-        id: "superior",
-        name: "Superior Room",
-        summary: "Clean and compact. Fine if you are here for the temple.",
-        deltaPerNight: 0,
-        occupancy: 2,
-      },
-      {
-        id: "sea",
-        name: "Sea Facing Room",
-        summary: "Pay for a full sea-facing room — partial views disappoint.",
-        deltaPerNight: 700,
-        occupancy: 2,
-      },
-      {
-        id: "family",
-        name: "Family Room",
-        summary: "Extra bed space. Rooms still run small for a 4-star rate.",
-        deltaPerNight: 1100,
-        occupancy: 4,
-      },
-    ],
+    rooms: REGENTA_CENTRAL_PURI_ROOMS,
     days: [
       {
         title: "Arrive central",
@@ -269,29 +209,7 @@ export const RAW_A: RawStay[] = [
       { videoId: "lRelrKmJ2ME", title: "Sea-facing stay" },
       { videoId: "C_hvR4UIcDQ", title: "Resort and beach, last day" },
     ],
-    rooms: [
-      {
-        id: "garden",
-        name: "Garden View",
-        summary: "Ground-floor rooms face the lawn, not the sea.",
-        deltaPerNight: 0,
-        occupancy: 2,
-      },
-      {
-        id: "pool",
-        name: "Pool View",
-        summary: "Looks at the swimming pool — the reason families pick Hans.",
-        deltaPerNight: 400,
-        occupancy: 3,
-      },
-      {
-        id: "sea",
-        name: "Sea Facing",
-        summary: "Upper floors catch more of the water. Building is older.",
-        deltaPerNight: 800,
-        occupancy: 2,
-      },
-    ],
+    rooms: HANS_COCO_PALMS_ROOMS,
     days: [
       {
         title: "Beach check-in",
@@ -331,29 +249,7 @@ export const RAW_A: RawStay[] = [
       { videoId: "mTgPxwJLB_c", title: "First day in Puri — Empires" },
       { videoId: "CcgItlhsIPc", title: "Stay footage" },
     ],
-    rooms: [
-      {
-        id: "standard",
-        name: "Standard Room",
-        summary: "A short-stay base for darshan. Eat out if the kitchen misses.",
-        deltaPerNight: 0,
-        occupancy: 2,
-      },
-      {
-        id: "balcony",
-        name: "Deluxe with Balcony",
-        summary: "The room walkthroughs actually like. Ask for a high floor.",
-        deltaPerNight: 400,
-        occupancy: 2,
-      },
-      {
-        id: "family",
-        name: "Family Room",
-        summary: "More beds, same building. Hygiene reports are mixed.",
-        deltaPerNight: 700,
-        occupancy: 4,
-      },
-    ],
+    rooms: EMPIRES_HOTEL_PURI_ROOMS,
     days: [
       {
         title: "Arrive & temple",

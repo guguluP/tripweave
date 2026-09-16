@@ -1,0 +1,74 @@
+[
+  {
+    "name": "Sea View Rooms (Front View)",
+    "sqm": 31.96,
+    "guests": "3 adults + 2 children",
+    "bed": "king-size bed",
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3749/x_0,y_468,w_5000,h_2813,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/sea-view-room-front-view-3"
+    ]
+  },
+  {
+    "name": "Sea View Rooms (Side View)",
+    "sqm": 31.96,
+    "guests": "up to 4",
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3750/x_0,y_932,w_5000,h_2817,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/1022_22c2ae8c"
+    ]
+  },
+  {
+    "name": "Premium Rooms",
+    "sqm": 31.96,
+    "guests": "up to 3",
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3750/x_0,y_469,w_5000,h_2812,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/premium-room-1"
+    ]
+  },
+  {
+    "name": "Inter-connecting Rooms",
+    "sqm": null,
+    "guests": null,
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/x_0,y_433,w_4624,h_2602,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/1023_city_view_c6d5829d"
+    ]
+  },
+  {
+    "name": "Oasis Suite",
+    "sqm": 86.4,
+    "guests": "up to 3",
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3818/x_0,y_846,w_5000,h_2815,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/oasis-suite-3"
+    ]
+  },
+  {
+    "name": "Intimate Escape Suite",
+    "sqm": 86.4,
+    "guests": "up to 4",
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3744/x_0,y_466,w_5000,h_2812,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/Intimate-escape-suite-3"
+    ]
+  },
+  {
+    "name": "Imperial Suite",
+    "sqm": 110.55,
+    "guests": "up to 4",
+    "bed": null,
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3780/x_0,y_484,w_5000,h_2812,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/Imperial_suite__bedroom_b1656072"
+    ]
+  },
+  {
+    "name": "The Royal Ambassador Suite",
+    "sqm": 179.4,
+    "guests": "up to 4",
+    "bed": "king-size bed",
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3497/x_0,y_342,w_5000,h_2813,r_0,c_crop/q_80,w_455,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/royal-ambassador-suite"
+    ]
+  }
+]

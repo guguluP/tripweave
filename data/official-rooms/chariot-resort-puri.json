@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Executive",
+    "sqm": null,
+    "guests": null,
+    "bed": "two queen-size beds",
+    "images": [
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/exe_twin_bed.jpg"
+    ]
+  },
+  {
+    "name": "Premium",
+    "sqm": null,
+    "guests": null,
+    "bed": "king-size bed",
+    "images": [
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/premium_bed.jpg"
+    ]
+  },
+  {
+    "name": "Platinum Suite",
+    "sqm": null,
+    "guests": null,
+    "bed": null,
+    "images": [
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite.jpg"
+    ]
+  },
+  {
+    "name": "Deluxe",
+    "sqm": null,
+    "guests": null,
+    "bed": null,
+    "images": [
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/deluxe_bed.jpg"
+    ]
+  }
+]

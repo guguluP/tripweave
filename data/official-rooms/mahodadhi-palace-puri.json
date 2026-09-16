@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Heritage Deluxe Rooms – Sea Room",
+    "sqm": null,
+    "guests": null,
+    "bed": null,
+    "images": [
+      "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Details/Heritage-Deluxe-Rooms/1.webp",
+      "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Listing/Heritage-Deluxe-Rooms.webp"
+    ]
+  },
+  {
+    "name": "Day Use Room – Short Airport",
+    "sqm": null,
+    "guests": null,
+    "bed": null,
+    "images": [
+      "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Details/Day-Use-Room-Non-AC/1.webp",
+      "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Listing/Day-Use-Room-Non-AC.webp"
+    ]
+  }
+]

@@ -1,4 +1,10 @@
 import type { RoomType, StayPackage } from "./packages.ts";
+import { MAYFAIR_WAVES_PURI_ROOMS } from "./official-rooms/mayfair-waves-puri.ts";
+import { CHARIOT_RESORT_PURI_ROOMS } from "./official-rooms/chariot-resort-puri.ts";
+import { CHANAKYA_BNR_PURI_ROOMS } from "./official-rooms/chanakya-bnr-puri.ts";
+import { MAHODADHI_PALACE_PURI_ROOMS } from "./official-rooms/mahodadhi-palace-puri.ts";
+import { HOLIDAY_RESORT_PURI_ROOMS } from "./official-rooms/holiday-resort-puri.ts";
+
 
 type RawRoom = Omit<RoomType, "image">;
 
@@ -31,29 +37,7 @@ export const RAW_B: RawStay[] = [{
       { videoId: "ix-8HWQ8heg", title: "Mayfair Waves Puri walkthrough" },
       { videoId: "ov0TpiWVKGg", title: "Waves rooms, pool and buffet" },
     ],
-    rooms: [
-      {
-        id: "deluxe",
-        name: "Deluxe Room",
-        summary: "Main block. Fine if you live at the pool, not the window.",
-        deltaPerNight: 0,
-        occupancy: 2,
-      },
-      {
-        id: "sea",
-        name: "Sea View Room",
-        summary: "Water outlook plus the Waves buffet — the usual booking.",
-        deltaPerNight: 1400,
-        occupancy: 2,
-      },
-      {
-        id: "suite",
-        name: "Suite",
-        summary: "Space and a sitting room. Events on the lawn can run late.",
-        deltaPerNight: 2800,
-        occupancy: 3,
-      },
-    ],
+    rooms: MAYFAIR_WAVES_PURI_ROOMS,
     days: [
       {
         title: "Arrive & pool",
@@ -156,29 +140,7 @@ export const RAW_B: RawStay[] = [{
       { videoId: "pjy6OOe03wk", title: "Chariot Resort Puri tour" },
       { videoId: "6pPT0cJmWuM", title: "Rooms, spa and beach" },
     ],
-    rooms: [
-      {
-        id: "deluxe",
-        name: "Deluxe Room",
-        summary: "Garden or pool outlook. Solid if you came for the spa.",
-        deltaPerNight: 0,
-        occupancy: 2,
-      },
-      {
-        id: "sea",
-        name: "Sea View Room",
-        summary: "Direct water. This is the Chariot room people film.",
-        deltaPerNight: 1000,
-        occupancy: 2,
-      },
-      {
-        id: "villa",
-        name: "Villa",
-        summary: "Separate sitting room and a lawn. Family and group pick.",
-        deltaPerNight: 2200,
-        occupancy: 4,
-      },
-    ],
+    rooms: CHARIOT_RESORT_PURI_ROOMS,
     days: [
       {
         title: "Arrive & spa",
@@ -218,29 +180,7 @@ export const RAW_B: RawStay[] = [{
       { videoId: "puMmF_hN0Ic", title: "Chanakya BNR heritage stay" },
       { videoId: "hNV9aKYwNto", title: "Rooms and station-side location" },
     ],
-    rooms: [
-      {
-        id: "heritage",
-        name: "Heritage Standard",
-        summary: "Old-wing charm. The building is the story, not the bathroom.",
-        deltaPerNight: 0,
-        occupancy: 2,
-      },
-      {
-        id: "deluxe",
-        name: "Deluxe Room",
-        summary: "Newer block. Quieter AC, less character, better sleep.",
-        deltaPerNight: 500,
-        occupancy: 2,
-      },
-      {
-        id: "suite",
-        name: "Suite",
-        summary: "Sitting room in a railway hotel. Oddly grand for a 1-night stop.",
-        deltaPerNight: 1200,
-        occupancy: 3,
-      },
-    ],
+    rooms: CHANAKYA_BNR_PURI_ROOMS,
     days: [
       {
         title: "Arrive & temple",
@@ -276,29 +216,7 @@ export const RAW_B: RawStay[] = [{
       { videoId: "80-nIH3wnUI", title: "Heritage rooms on the beach" },
       { videoId: "lLhJ_hp3EVQ", title: "Palace stay and sea lawns" },
     ],
-    rooms: [
-      {
-        id: "palace",
-        name: "Palace Room",
-        summary: "Heritage interiors. Some rooms look at the courtyard, not the sea.",
-        deltaPerNight: 0,
-        occupancy: 2,
-      },
-      {
-        id: "sea",
-        name: "Sea View Palace Room",
-        summary: "The room the vlogs open on — lawn, then water.",
-        deltaPerNight: 1800,
-        occupancy: 2,
-      },
-      {
-        id: "suite",
-        name: "Palace Suite",
-        summary: "Sitting room and period furniture. A one-night splurge.",
-        deltaPerNight: 3200,
-        occupancy: 3,
-      },
-    ],
+    rooms: MAHODADHI_PALACE_PURI_ROOMS,
     days: [
       {
         title: "Palace evening",
@@ -334,29 +252,7 @@ export const RAW_B: RawStay[] = [{
       { videoId: "9mjuLwKBDT0", title: "Rooms, lawn and pool" },
       { videoId: "_GCIo7ETCp8", title: "Beach-side stay" },
     ],
-    rooms: [
-      {
-        id: "standard",
-        name: "Standard Room",
-        summary: "Older wing. Come for the lawn and the pool, not a new bathroom.",
-        deltaPerNight: 0,
-        occupancy: 2,
-      },
-      {
-        id: "sea",
-        name: "Sea View Room",
-        summary: "Upper floors look at the water. Ask for a renovated bath.",
-        deltaPerNight: 500,
-        occupancy: 2,
-      },
-      {
-        id: "family",
-        name: "Family Room",
-        summary: "Extra beds and a lawn at the door. The value family pick.",
-        deltaPerNight: 800,
-        occupancy: 4,
-      },
-    ],
+    rooms: HOLIDAY_RESORT_PURI_ROOMS,
     days: [
       {
         title: "Beach check-in",

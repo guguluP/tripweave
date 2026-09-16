@@ -1,0 +1,43 @@
+[
+  {
+    "name": "Executive Room",
+    "sqm": 21.83,
+    "guests": "single/double",
+    "bed": "twin / king-size bed",
+    "images": [
+      "https://www.empireshotel.com/wp-content/uploads/2022/06/ExecRoom.jpg",
+      "https://www.empireshotel.com/wp-content/uploads/2022/06/ExecutiveRoomPuri.jpg"
+    ]
+  },
+  {
+    "name": "Deluxe",
+    "sqm": 51.1,
+    "guests": "single/double",
+    "bed": "king-size bed",
+    "images": [
+      "https://www.empireshotel.com/wp-content/uploads/2022/06/dlx-pri2.jpg",
+      "https://www.empireshotel.com/wp-content/uploads/2022/06/dlx-pri3.jpg",
+      "https://www.empireshotel.com/wp-content/uploads/2022/06/EMPIRES-PURI-DLX-ROOM-1.jpg"
+    ]
+  },
+  {
+    "name": "Corporate Room",
+    "sqm": 144.33,
+    "guests": "single/double",
+    "bed": "king-size bed",
+    "images": [
+      "https://www.empireshotel.com/wp-content/uploads/2022/06/Corporate-Room.jpg",
+      "https://www.empireshotel.com/wp-content/uploads/2022/06/EMPIRES-PURI-CORPORATE-ROOM-BALCONY-VIEW.jpg"
+    ]
+  },
+  {
+    "name": "Premium Room",
+    "sqm": 146.2,
+    "guests": "single/double",
+    "bed": "king-size bed",
+    "images": [
+      "https://www.empireshotel.com/wp-content/uploads/2022/06/EMPIRES-PURI-PREMIUM-BED-ROOM-3.jpg",
+      "https://www.empireshotel.com/wp-content/uploads/2022/06/EMPIRES-PURI-PREMIUM-BED-ROOM-4.jpg"
+    ]
+  }
+]

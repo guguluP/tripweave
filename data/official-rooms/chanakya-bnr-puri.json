@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Deluxe Rooms",
+    "sqm": null,
+    "guests": null,
+    "bed": null,
+    "images": [
+      "https://chanakyahotels.com/wp-content/uploads/2025/12/Deluxe-Room_Puri-Accommodation-Listing-page.jpg",
+      "https://chanakyahotels.com/wp-content/uploads/2025/12/Deluxe-Room_Puri.jpg"
+    ]
+  },
+  {
+    "name": "Superior Rooms",
+    "sqm": null,
+    "guests": null,
+    "bed": "king-size / twin beds",
+    "images": [
+      "https://chanakyahotels.com/wp-content/uploads/2025/12/Superior-Room_Puri-Accommodation-Listing-page.jpg",
+      "https://chanakyahotels.com/wp-content/uploads/2025/12/2-2.jpg",
+      "https://chanakyahotels.com/wp-content/uploads/2025/12/1-2.jpg"
+    ]
+  },
+  {
+    "name": "Heritage Suites",
+    "sqm": null,
+    "guests": null,
+    "bed": null,
+    "images": [
+      "https://chanakyahotels.com/wp-content/uploads/2025/12/Heritage-Suite_Puri-Accommodation-Listing-page.jpg",
+      "https://chanakyahotels.com/wp-content/uploads/2025/11/Puri_Heritage-Premium-Rooms.jpg",
+      "https://chanakyahotels.com/wp-content/uploads/2025/12/1-1.jpg"
+    ]
+  }
+]

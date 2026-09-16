@@ -55,7 +55,7 @@ describe("catalog", () => {
       }
       assert.match(
         pkg.image,
-        /^https:\/\/(cdn\.sanity\.io|assets\.simplotel\.com|www\.royalorchidhotels\.com|www\.empireshotel\.com|login\.retrod\.app|chanakyahotels\.com|puriholidayresort\.com)\//,
+        /^https:\/\/(cdn\.sanity\.io|assets\.simplotel\.com|www\.royalorchidhotels\.com|www\.empireshotel\.com|login\.retrod\.app|chanakyahotels\.com|puriholidayresort\.com|thechariotpuri\.com|www\.orchidhotel\.com)\//,
         pkg.id,
       );
     }
@@ -63,10 +63,10 @@ describe("catalog", () => {
 
   it("flags stays that still need user-supplied photo files", () => {
     assert.deepEqual([...STAYS_NEEDING_USER_FILES].sort(), [
-      "hans-coco-palms",
       "toshali-sands-puri",
     ]);
-    assert.equal(stayNeedsUserFiles("hans-coco-palms"), true);
+    assert.equal(stayNeedsUserFiles("hans-coco-palms"), false);
+    assert.equal(stayNeedsUserFiles("toshali-sands-puri"), true);
     assert.equal(stayNeedsUserFiles("taj-puri-resort-spa"), false);
   });
 
