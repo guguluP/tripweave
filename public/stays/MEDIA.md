@@ -11,11 +11,10 @@ Catalog galleries and room cards use **local** paths under `public/stays/{stayId
 1. Keeps existing JPEGs if the catalog is already complete
 2. Else decodes optional `data/vendored-stays-chunks/*.tar.b64` when present
 3. Else downloads from official hotel URLs in `data/stay-photo-sources/`
-   (or monolithic `data/stay-photo-sources.json` if present)
-   (hotel-domain Referer; `wsrv.nl` proxy for hosts that reset TLS, e.g. Toshali)
+   (hotel-domain Referer; `wsrv.nl` proxy as a fallback if a host 403s/TLS-resets)
 
-Prefer committing the materialized JPEGs when `git push` of binaries is available.
-This PR ships the source map + materialize script so CI/Vercel can vendor at build time.
+JPEGs are committed so Vercel does not depend on hotel CDNs at build time.
+`prebuild` still runs materialize as a safety net (no-op when the catalog is complete).
 
 Do **not** use YouTube thumbs or Unsplash for named hotels.
 
@@ -33,9 +32,9 @@ Do **not** use YouTube thumbs or Unsplash for named hotels.
 | `swosti-premium-beach-resort` | Swosti Simplotel |
 | `regenta-central-puri` | Royal Orchid |
 | `empires-hotel-puri` | Empires WP |
-| `mayfair-waves-puri` | Mayfair Waves Simplotel |
+| `mayfair-waves-puri` | Mayfair Waves Simplotel (suite is `mayfair-waves-puri/`, not Heritage) |
 | `chariot-resort-puri` | thechariotpuri.com + retrod |
-| `chanakya-bnr-puri` | chanakyahotels.com (404 thumbs replaced) |
+| `chanakya-bnr-puri` | chanakyahotels.com |
 | `mahodadhi-palace-puri` | Orchid / Mahodadhi |
 | `holiday-resort-puri` | puriholidayresort.com |
 | `hans-coco-palms` | Hans Simplotel |

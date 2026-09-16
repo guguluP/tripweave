@@ -11,6 +11,7 @@ import {
   stayTotal,
 } from "./packages.ts";
 import { getSeededConsensus } from "./youtube/get-seeded.ts";
+import { SEED_ROOM_NOTES } from "./youtube/seed-room-notes.ts";
 import { STAYS_NEEDING_USER_FILES, stayNeedsUserFiles, STAY_MEDIA } from "./property-media.ts";
 
 describe("catalog", () => {
@@ -79,10 +80,14 @@ describe("catalog", () => {
     }
   });
 
-  it("has reviewer notes for every room", () => {
+  it("has reviewer notes for every official room id", () => {
     for (const pkg of PACKAGES) {
       const seed = getSeededConsensus(pkg.id);
       assert.ok(seed, pkg.id);
+      const notes = SEED_ROOM_NOTES[pkg.id];
+      assert.ok(notes, `seed notes ${pkg.id}`);
+      const roomIds = pkg.rooms.map((r) => r.id).sort();
+      assert.deepEqual(Object.keys(notes).sort(), roomIds, `seed note keys ${pkg.id}`);
       for (const room of pkg.rooms) {
         assert.ok(seed!.roomNotes?.[room.id], `${pkg.id}:${room.id}`);
       }

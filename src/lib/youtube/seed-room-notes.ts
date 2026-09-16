@@ -1,24 +1,9 @@
 import type { RoomReviewNotes } from "./types.ts";
+import { TAJ_PURI_ROOM_NOTES } from "./taj-puri-room-notes.ts";
 
 /** Room-level reviewer notes keyed by official catalog room ids. */
 export const SEED_ROOM_NOTES: Record<string, Record<string, RoomReviewNotes>> = {
-  "taj-puri-resort-spa": {
-      garden: {
-        summary: "Quiet and new, but you are paying Taj money to look at trees.",
-        positives: ["Genuinely new rooms and bathrooms", "Quieter than the sea-facing wing"],
-        watchouts: ["Skip this if a water outlook is why you picked Taj"],
-      },
-      sea: {
-        summary: "The deluxe sea view is the room reviewers mean when they say Taj Puri.",
-        positives: ["Full water outlook", "Same new-build finish as the garden rooms"],
-        watchouts: ["The private beach is more scenic than swimmable"],
-      },
-      plunge: {
-        summary: "The couple-stay pick. Vlogs linger on the private plunge pool.",
-        positives: ["Private plunge pool", "The spa-and-suite combo everyone films"],
-        watchouts: ["Premium tariff — book it only if the pool is the point"],
-      },
-    },
+  "taj-puri-resort-spa": TAJ_PURI_ROOM_NOTES,
   "mayfair-heritage-puri": {
       deluxe: {
         summary: "42 sqm heritage deluxe — solid base room.",

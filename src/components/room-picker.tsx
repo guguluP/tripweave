@@ -12,15 +12,22 @@ export function RoomPicker({
   onSelect: (id: string) => void;
   pricePerNight: number;
 }) {
+  const compact = rooms.length > 6;
   return (
     <section className="mt-10" aria-labelledby="room-picker-title">
       <h2 id="room-picker-title" className="font-display text-2xl">
         Choose a room
       </h2>
       <p className="mt-1 text-sm text-muted">
-        Reviewer notes below follow the room you pick. Price is per person, per night.
+        {rooms.length} official types. Reviewer notes follow the room you pick.
+        Price is per person, per night.
       </p>
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+      <div
+        className={cn(
+          "mt-5 grid gap-3",
+          compact ? "grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-3",
+        )}
+      >
         {rooms.map((room) => {
           const on = room.id === selectedId;
           const night = pricePerNight + room.deltaPerNight;
@@ -31,29 +38,48 @@ export function RoomPicker({
               onClick={() => onSelect(room.id)}
               aria-pressed={on}
               className={cn(
-                "overflow-hidden rounded-xl border text-left transition-colors duration-150",
+                "min-w-0 overflow-hidden rounded-xl border text-left transition-colors duration-150",
                 on ? "border-primary bg-surface" : "border-border bg-elevated hover:bg-surface",
               )}
             >
               <img
                 src={room.image}
                 alt={room.name}
-                className="h-28 w-full object-cover"
+                className={cn("w-full object-cover", compact ? "h-20 sm:h-24" : "h-28")}
                 loading="lazy"
                 decoding="async"
               />
-              <span className="block p-4">
-                <span className="block font-display text-lg leading-snug">{room.name}</span>
+              <span className={cn("block", compact ? "p-2.5 sm:p-3" : "p-4")}>
+                <span
+                  className={cn(
+                    "block font-display leading-snug",
+                    compact ? "text-sm sm:text-base line-clamp-2" : "text-lg",
+                  )}
+                >
+                  {room.name}
+                </span>
                 <span className="mt-1 block text-xs text-muted">Sleeps {room.occupancy}</span>
-                <span className="mt-2 block text-sm text-muted">{room.summary}</span>
-                <span className="mt-3 block text-sm font-medium tabular-nums">
+                <span
+                  className={cn(
+                    "mt-1 block text-muted",
+                    compact ? "text-[11px] leading-snug line-clamp-2 sm:text-xs" : "mt-2 text-sm",
+                  )}
+                >
+                  {room.summary}
+                </span>
+                <span
+                  className={cn(
+                    "block font-medium tabular-nums",
+                    compact ? "mt-2 text-xs sm:text-sm" : "mt-3 text-sm",
+                  )}
+                >
                   {formatMoney(night)} / night
                   {room.deltaPerNight > 0 ? (
-                    <span className="ml-1 text-xs font-normal text-muted">
+                    <span className="ml-1 text-[11px] font-normal text-muted sm:text-xs">
                       +{formatMoney(room.deltaPerNight)}
                     </span>
                   ) : (
-                    <span className="ml-1 text-xs font-normal text-muted">base</span>
+                    <span className="ml-1 text-[11px] font-normal text-muted sm:text-xs">base</span>
                   )}
                 </span>
               </span>
