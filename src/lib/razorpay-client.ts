@@ -86,3 +86,9 @@ export function openRazorpayCheckout(
 export function getPublicRazorpayKeyId(): string {
   return import.meta.env.VITE_RAZORPAY_KEY_ID?.trim() || "";
 }
+
+/** True when the public key is a Razorpay test key (rzp_test_…). */
+export function isRazorpayTestMode(keyId?: string | null): boolean {
+  const key = (keyId ?? getPublicRazorpayKeyId()).trim();
+  return key.startsWith("rzp_test_");
+}

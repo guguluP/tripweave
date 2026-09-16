@@ -50,7 +50,7 @@ export function Shell({
           <AuthSlot />
         </div>
       </header>
-      <main className="pb-24 md:pb-0">{children}</main>
+      <main className="pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
       <footer className="mt-16 hidden border-t border-border py-10 md:block">
         <div className="mx-auto flex max-w-6xl items-start justify-between px-4">
           <div>

@@ -8,6 +8,7 @@ import {
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { BannerStack } from "@/components/motion";
+import "@/lib/apply-catalog-trust-scores";
 import appCss from "../styles.css?url";
 
 const APP_NAME = "TripWeave";

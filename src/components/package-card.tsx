@@ -1,18 +1,36 @@
 import { Link } from "@tanstack/react-router";
-import { formatMoney, nightsPhrase, variantLabel, type StayPackage } from "@/lib/packages";
+import {
+  formatMoney,
+  nightsPhrase,
+  stayTotal,
+  variantLabel,
+  type StayPackage,
+} from "@/lib/packages";
 import { TrustMeter } from "@/components/trust-meter";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { DigitPop, LearnMore, LikeButton } from "@/components/motion";
 import { ReviewerChip } from "@/components/reviewer-consensus";
+import { youtubeSourceCount } from "@/lib/trust-score";
 
 export function PackageCard({
   pkg,
   rank,
+  nights,
 }: {
   pkg: StayPackage;
   rank?: string;
+  /** When known from the brief, show an N-night total alongside the nightly rate. */
+  nights?: number;
 }) {
+  const sources = youtubeSourceCount(pkg);
+  const stayNights =
+    typeof nights === "number" && Number.isFinite(nights) && nights >= 1
+      ? Math.min(pkg.nightsMax, Math.max(pkg.nightsMin, Math.round(nights)))
+      : null;
+  const multiTotal =
+    stayNights && stayNights > 1 ? stayTotal(pkg, stayNights) : null;
+
   return (
     <Card className="relative h-full overflow-visible transition-transform duration-150 hover:-translate-y-0.5">
       <div className="absolute right-3 top-3 z-10">
@@ -40,14 +58,25 @@ export function PackageCard({
             </div>
           </div>
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm">
-              <span className="text-muted">from </span>
-              <span className="font-semibold tabular-nums">
-                <DigitPop value={formatMoney(pkg.priceFrom)} />
-              </span>
-              <span className="text-muted"> / night</span>
-            </p>
-            <TrustMeter score={pkg.trustScore} reviews={pkg.reviews} compact />
+            <div className="min-w-0 text-sm">
+              <p>
+                <span className="text-muted">from </span>
+                <span className="font-semibold tabular-nums">
+                  <DigitPop value={formatMoney(pkg.priceFrom)} />
+                </span>
+                <span className="text-muted"> / night / person</span>
+              </p>
+              {multiTotal != null && stayNights != null ? (
+                <p className="mt-0.5 text-xs text-subtle">
+                  <span className="tabular-nums">
+                    <DigitPop value={formatMoney(multiTotal)} />
+                  </span>
+                  {" "}
+                  for {nightsPhrase(stayNights)}
+                </p>
+              ) : null}
+            </div>
+            <TrustMeter score={pkg.trustScore} youtubeSources={sources} compact />
           </div>
           <p className="text-xs text-subtle">
             Typical stay {nightsPhrase(pkg.nights)} · {pkg.rooms.length} room types
