@@ -20,7 +20,8 @@ Do **not** use YouTube thumbs or Unsplash for named hotels.
 
 ## Layout
 
-- `gallery-1.jpg` … — property gallery
+- `property-N.jpg` — hotel exterior, grounds, pool, lobby (card + hero)
+- `gallery-N.jpg` — extra property/room interiors
 - `rooms/{roomId}.jpg` — one image per packages-data room id
 
 ## Sources (Sep 2026)

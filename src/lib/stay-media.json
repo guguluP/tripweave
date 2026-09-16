@@ -3,6 +3,11 @@
   "STAY_MEDIA": {
     "taj-puri-resort-spa": {
       "images": [
+        "/stays/taj-puri-resort-spa/property-1.jpg",
+        "/stays/taj-puri-resort-spa/property-2.jpg",
+        "/stays/taj-puri-resort-spa/property-3.jpg",
+        "/stays/taj-puri-resort-spa/property-4.jpg",
+        "/stays/taj-puri-resort-spa/property-5.jpg",
         "/stays/taj-puri-resort-spa/gallery-1.jpg",
         "/stays/taj-puri-resort-spa/gallery-2.jpg",
         "/stays/taj-puri-resort-spa/gallery-3.jpg",
@@ -29,6 +34,11 @@
     },
     "mayfair-heritage-puri": {
       "images": [
+        "/stays/mayfair-heritage-puri/property-1.jpg",
+        "/stays/mayfair-heritage-puri/property-2.jpg",
+        "/stays/mayfair-heritage-puri/property-3.jpg",
+        "/stays/mayfair-heritage-puri/property-4.jpg",
+        "/stays/mayfair-heritage-puri/property-5.jpg",
         "/stays/mayfair-heritage-puri/gallery-1.jpg",
         "/stays/mayfair-heritage-puri/gallery-2.jpg",
         "/stays/mayfair-heritage-puri/gallery-3.jpg",
@@ -49,6 +59,12 @@
     },
     "swosti-premium-beach-resort": {
       "images": [
+        "/stays/swosti-premium-beach-resort/property-1.jpg",
+        "/stays/swosti-premium-beach-resort/property-2.jpg",
+        "/stays/swosti-premium-beach-resort/property-3.jpg",
+        "/stays/swosti-premium-beach-resort/property-4.jpg",
+        "/stays/swosti-premium-beach-resort/property-5.jpg",
+        "/stays/swosti-premium-beach-resort/property-6.jpg",
         "/stays/swosti-premium-beach-resort/gallery-1.jpg",
         "/stays/swosti-premium-beach-resort/gallery-2.jpg",
         "/stays/swosti-premium-beach-resort/gallery-3.jpg",
@@ -71,6 +87,11 @@
     },
     "regenta-central-puri": {
       "images": [
+        "/stays/regenta-central-puri/property-1.jpg",
+        "/stays/regenta-central-puri/property-2.jpg",
+        "/stays/regenta-central-puri/property-3.jpg",
+        "/stays/regenta-central-puri/property-4.jpg",
+        "/stays/regenta-central-puri/property-5.jpg",
         "/stays/regenta-central-puri/gallery-1.jpg",
         "/stays/regenta-central-puri/gallery-2.jpg",
         "/stays/regenta-central-puri/gallery-3.jpg",
@@ -90,6 +111,11 @@
     },
     "empires-hotel-puri": {
       "images": [
+        "/stays/empires-hotel-puri/property-1.jpg",
+        "/stays/empires-hotel-puri/property-2.jpg",
+        "/stays/empires-hotel-puri/property-3.jpg",
+        "/stays/empires-hotel-puri/property-4.jpg",
+        "/stays/empires-hotel-puri/property-5.jpg",
         "/stays/empires-hotel-puri/gallery-1.jpg",
         "/stays/empires-hotel-puri/gallery-2.jpg",
         "/stays/empires-hotel-puri/gallery-3.jpg",
@@ -108,6 +134,13 @@
     },
     "mayfair-waves-puri": {
       "images": [
+        "/stays/mayfair-waves-puri/property-1.jpg",
+        "/stays/mayfair-waves-puri/property-2.jpg",
+        "/stays/mayfair-waves-puri/property-3.jpg",
+        "/stays/mayfair-waves-puri/property-4.jpg",
+        "/stays/mayfair-waves-puri/property-5.jpg",
+        "/stays/mayfair-waves-puri/property-6.jpg",
+        "/stays/mayfair-waves-puri/property-7.jpg",
         "/stays/mayfair-waves-puri/gallery-1.jpg",
         "/stays/mayfair-waves-puri/gallery-2.jpg",
         "/stays/mayfair-waves-puri/gallery-3.jpg",
@@ -124,6 +157,11 @@
     },
     "chariot-resort-puri": {
       "images": [
+        "/stays/chariot-resort-puri/property-1.jpg",
+        "/stays/chariot-resort-puri/property-2.jpg",
+        "/stays/chariot-resort-puri/property-3.jpg",
+        "/stays/chariot-resort-puri/property-4.jpg",
+        "/stays/chariot-resort-puri/property-5.jpg",
         "/stays/chariot-resort-puri/gallery-1.jpg",
         "/stays/chariot-resort-puri/gallery-2.jpg",
         "/stays/chariot-resort-puri/gallery-3.jpg",
@@ -142,6 +180,11 @@
     },
     "chanakya-bnr-puri": {
       "images": [
+        "/stays/chanakya-bnr-puri/property-1.jpg",
+        "/stays/chanakya-bnr-puri/property-2.jpg",
+        "/stays/chanakya-bnr-puri/property-3.jpg",
+        "/stays/chanakya-bnr-puri/property-4.jpg",
+        "/stays/chanakya-bnr-puri/property-5.jpg",
         "/stays/chanakya-bnr-puri/gallery-1.jpg",
         "/stays/chanakya-bnr-puri/gallery-2.jpg",
         "/stays/chanakya-bnr-puri/gallery-3.jpg",
@@ -159,6 +202,12 @@
     },
     "mahodadhi-palace-puri": {
       "images": [
+        "/stays/mahodadhi-palace-puri/property-1.jpg",
+        "/stays/mahodadhi-palace-puri/property-2.jpg",
+        "/stays/mahodadhi-palace-puri/property-3.jpg",
+        "/stays/mahodadhi-palace-puri/property-4.jpg",
+        "/stays/mahodadhi-palace-puri/property-5.jpg",
+        "/stays/mahodadhi-palace-puri/property-6.jpg",
         "/stays/mahodadhi-palace-puri/gallery-1.jpg",
         "/stays/mahodadhi-palace-puri/gallery-2.jpg",
         "/stays/mahodadhi-palace-puri/gallery-3.jpg",
@@ -175,6 +224,12 @@
     },
     "holiday-resort-puri": {
       "images": [
+        "/stays/holiday-resort-puri/property-1.jpg",
+        "/stays/holiday-resort-puri/property-2.jpg",
+        "/stays/holiday-resort-puri/property-3.jpg",
+        "/stays/holiday-resort-puri/property-4.jpg",
+        "/stays/holiday-resort-puri/property-5.jpg",
+        "/stays/holiday-resort-puri/property-6.jpg",
         "/stays/holiday-resort-puri/gallery-1.jpg",
         "/stays/holiday-resort-puri/gallery-2.jpg",
         "/stays/holiday-resort-puri/gallery-3.jpg",
@@ -198,6 +253,10 @@
     },
     "hans-coco-palms": {
       "images": [
+        "/stays/hans-coco-palms/property-1.jpg",
+        "/stays/hans-coco-palms/property-2.jpg",
+        "/stays/hans-coco-palms/property-3.jpg",
+        "/stays/hans-coco-palms/property-4.jpg",
         "/stays/hans-coco-palms/gallery-1.jpg",
         "/stays/hans-coco-palms/gallery-2.jpg",
         "/stays/hans-coco-palms/gallery-3.jpg",
@@ -211,6 +270,12 @@
     },
     "toshali-sands-puri": {
       "images": [
+        "/stays/toshali-sands-puri/property-1.jpg",
+        "/stays/toshali-sands-puri/property-2.jpg",
+        "/stays/toshali-sands-puri/property-3.jpg",
+        "/stays/toshali-sands-puri/property-4.jpg",
+        "/stays/toshali-sands-puri/property-5.jpg",
+        "/stays/toshali-sands-puri/property-6.jpg",
         "/stays/toshali-sands-puri/gallery-1.jpg",
         "/stays/toshali-sands-puri/gallery-2.jpg",
         "/stays/toshali-sands-puri/gallery-3.jpg",

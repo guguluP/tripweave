@@ -24,6 +24,7 @@ describe("catalog", () => {
       assert.ok(pkg.images.length >= 4, pkg.id);
       assert.ok(pkg.videos.length >= 2, pkg.id);
       assert.equal(pkg.image, pkg.images[0]);
+      assert.ok(pkg.images[0]!.includes("/property-1.jpg"), `${pkg.id} leads with property photo`);
       assert.equal(pkg.priceFrom, pkg.pricePerNight);
       assert.ok(pkg.rooms[0]!.deltaPerNight === 0, pkg.id);
       for (const video of pkg.videos) {
@@ -50,7 +51,7 @@ describe("catalog", () => {
 
   it("uses vendored local /stays paths for catalog media", () => {
     for (const pkg of PACKAGES) {
-      assert.match(pkg.image, new RegExp(`^/stays/${pkg.id}/`), pkg.id);
+      assert.match(pkg.image, new RegExp(`^/stays/${pkg.id}/property-1\\.jpg$`), pkg.id);
       for (const src of pkg.images) {
         assert.match(src, new RegExp(`^/stays/${pkg.id}/`), `${pkg.id} gallery`);
       }

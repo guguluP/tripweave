@@ -22,7 +22,8 @@ export function stayNeedsUserFiles(stayId: string) {
   return (STAYS_NEEDING_USER_FILES as readonly string[]).includes(stayId);
 }
 
-/** Attach property-owned gallery + room images (never YouTube thumbs / Unsplash). */
+/** Attach property-owned gallery + room images (never YouTube thumbs / Unsplash).
+ *  `images[0]` is always a property/grounds shot (`property-1.jpg`), not a room. */
 export function attachPropertyMedia(p: { id: string; rooms: RoomInput[] }) {
   const spec = STAY_MEDIA[p.id];
   if (!spec) {
