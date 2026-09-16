@@ -1,0 +1,46 @@
+{
+  "images": [
+    {
+      "url": "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Details/Heritage-Deluxe-Rooms/1.webp",
+      "path": "stays/mahodadhi-palace-puri/gallery-1.jpg"
+    },
+    {
+      "url": "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Listing/Heritage-Deluxe-Rooms.webp",
+      "path": "stays/mahodadhi-palace-puri/gallery-2.jpg"
+    },
+    {
+      "url": "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Details/Day-Use-Room-Non-AC/1.webp",
+      "path": "stays/mahodadhi-palace-puri/gallery-3.jpg"
+    },
+    {
+      "url": "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Listing/Day-Use-Room-Non-AC.webp",
+      "path": "stays/mahodadhi-palace-puri/gallery-4.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mahodadhi-palace---a-beach-view-heritage-hotel-in-puri/Facade_of_Mahodadhi_Palace_-_A_Beach_View_Heritage_Hotel_in_Puri_343sdafag",
+      "path": "stays/mahodadhi-palace-puri/gallery-5.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mahodadhi-palace---a-beach-view-heritage-hotel-in-puri/Lobby_of_Mahodadhi_Palace_-_A_Beach_View_Heritage_Hotel_in_Puri__asdfasdtr6t46",
+      "path": "stays/mahodadhi-palace-puri/gallery-6.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mahodadhi-palace---a-beach-view-heritage-hotel-in-puri/Swimming_Pool_at_Mahodadhi_Palace_-_A_Beach_View_Heritage_Hotel_in_Puri_afdskasdf",
+      "path": "stays/mahodadhi-palace-puri/gallery-7.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mahodadhi-palace---a-beach-view-heritage-hotel-in-puri/View_from_of_Mahodadhi_Palace_-_A_Beach_View_Heritage_Hotel_in_Puri_mmjeyu",
+      "path": "stays/mahodadhi-palace-puri/gallery-8.jpg"
+    }
+  ],
+  "rooms": {
+    "heritage-deluxe-sea": {
+      "url": "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Details/Heritage-Deluxe-Rooms/1.webp",
+      "path": "stays/mahodadhi-palace-puri/rooms/heritage-deluxe-sea.jpg"
+    },
+    "day-use": {
+      "url": "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Details/Day-Use-Room-Non-AC/1.webp",
+      "path": "stays/mahodadhi-palace-puri/rooms/day-use.jpg"
+    }
+  }
+}
