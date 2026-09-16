@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Deluxe Double with Balcony Sea View",
+    "sqm": 22,
+    "guests": null,
+    "bed": "double bed",
+    "images": [
+      "https://www.royalorchidhotels.com/images/Rooms/19_48_2024_01_48_5554.jpg",
+      "https://www.royalorchidhotels.com/images/Rooms/19_48_2024_01_48_5555.jpg"
+    ]
+  },
+  {
+    "name": "Deluxe Twin with Balcony Sea View",
+    "sqm": 22,
+    "guests": null,
+    "bed": "twin beds",
+    "images": [
+      "https://www.royalorchidhotels.com/images/Rooms/19_53_2024_01_53_1656.jpg"
+    ]
+  },
+  {
+    "name": "Executive Double with Balcony Sea View",
+    "sqm": 26,
+    "guests": null,
+    "bed": "double bed",
+    "images": [
+      "https://www.royalorchidhotels.com/images/Rooms/19_25_2024_02_25_0560.jpg",
+      "https://www.royalorchidhotels.com/images/Rooms/19_25_2024_02_25_1461.jpg"
+    ]
+  },
+  {
+    "name": "Executive Twin with Balcony Sea View",
+    "sqm": 26,
+    "guests": null,
+    "bed": "twin beds",
+    "images": [
+      "https://www.royalorchidhotels.com/images/Rooms/19_17_2024_02_17_3858.jpg",
+      "https://www.royalorchidhotels.com/images/Rooms/19_17_2024_02_17_4859.jpg"
+    ]
+  },
+  {
+    "name": "Premium Room with Balcony Sea View",
+    "sqm": 38,
+    "guests": null,
+    "bed": null,
+    "images": [
+      "https://www.royalorchidhotels.com/images/Rooms/19_07_2024_02_07_16imyuyy8.jpg"
+    ]
+  }
+]
