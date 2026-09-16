@@ -1,5 +1,5 @@
 import { trustScoreForPackage } from "./trust-score.ts";
-import { attachPropertyMedia } from "./property-media-from-videos.ts";
+import { attachPropertyMedia } from "./property-media.ts";
 import { RAW } from "./packages-data.ts";
 
 export type Vibe = "culture" | "beach" | "relax" | "adventure";
@@ -114,7 +114,7 @@ const LEISURE_DAY: DayPlan = {
 };
 
 export const PACKAGES: StayPackage[] = RAW.map((p) => {
-  // Media is YouTube/property-sourced from this stay's curated videos only.
+  // Media is property-owned (official CDNs or /stays placeholders) — not YouTube thumbs.
   const media = attachPropertyMedia(p);
   const base = {
     ...p,
