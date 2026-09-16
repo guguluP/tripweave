@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { aggregateSummaries, majoritySentiment } from "./aggregate.ts";
-import { getSeededConsensus, listSeededPackageIds, SEED_CONSENSUS } from "./seed.ts";
+import { getSeededConsensus, listSeededPackageIds, SEED_CONSENSUS } from "./get-seeded.ts";
 import { parseVideoSummary } from "./summarize.ts";
 import { cleanTranscriptText, pickPreferredTrack } from "./transcript.ts";
 import { LANGUAGE_PRIORITY } from "./types.ts";
