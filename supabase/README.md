@@ -1,5 +1,20 @@
 # Supabase setup for TripWeave (step by step)
 
+Live project: **TripWeave** (`csegihiepvxezuypsvop`, `ap-south-1`).  
+API URL: `https://csegihiepvxezuypsvop.supabase.co`
+
+Schema is already applied (`bookings`, `travellers`, `payment_events`, `reviewer_consensus`, Better Auth tables). RLS is on.
+
+## MCP (Grok / Cursor)
+
+This repo’s `.mcp.json` points at the project. For Grok CLI:
+
+```bash
+grok mcp add supabase "https://mcp.supabase.com/mcp?project_ref=csegihiepvxezuypsvop&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching" --transport http
+```
+
+Optional coding skills: `npx skills add supabase/agent-skills`
+
 TripWeave login is **Better Auth** (Google + email). Supabase stores **bookings** (long-lived) and **stay-only travellers** (last-4 of ID, auto-expire). DigiLocker documents are never stored.  
 Do **not** run `npm install @supabase/server`. Do **not** use `SUPABASE_JWKS_URL` unless you switch to Supabase Auth (we are not).
 
