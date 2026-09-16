@@ -177,20 +177,35 @@ export const SEED_ROOM_NOTES: Record<string, Record<string, RoomReviewNotes>> = 
       },
     },
   "toshali-sands-puri": {
+      "standard-deluxe": {
+        summary: "12.17 sqm standard deluxe with garden view.",
+        positives: ["12.17 sqm", "Garden view", "Listed on the official hotel site"],
+        watchouts: ["Confirm view and rate inclusions when you book"],
+      },
+      "deluxe-balcony": {
+        summary: "Deluxe with balcony and garden view.",
+        positives: ["Balcony", "Garden view", "Listed on the official hotel site"],
+        watchouts: ["Confirm view and rate inclusions when you book"],
+      },
+      "premium-balcony": {
+        summary: "Premium with balcony and garden view.",
+        positives: ["Balcony", "Garden view", "Listed on the official hotel site"],
+        watchouts: ["Confirm view and rate inclusions when you book"],
+      },
+      "executive-suite": {
+        summary: "Two-bedroom executive suite with garden view.",
+        positives: ["Two bedrooms", "Garden view", "Listed on the official hotel site"],
+        watchouts: ["Confirm view and rate inclusions when you book"],
+      },
       cottage: {
-        summary: "Garden cottage. The stay is the campus, not a sea window.",
-        positives: ["Lawn at the door", "Quiet at night compared with town hotels"],
-        watchouts: ["You will cab into Puri for the temple"],
+        summary: "17.09 sqm cottage — king/twin with sofa cum bed.",
+        positives: ["17.09 sqm", "Sofa cum bed", "Listed on the official hotel site"],
+        watchouts: ["Confirm view and rate inclusions when you book"],
       },
-      "sea-cottage": {
-        summary: "Closer to the dunes. Confirm the actual outlook before paying.",
-        positives: ["More breeze than the inner cottages", "Same campus pool"],
-        watchouts: ["Some sea-view labels look at sand, not water"],
-      },
-      family: {
-        summary: "Two rooms, lawn, parking at the door. Best for kids.",
-        positives: ["Space to spread out", "Pool and lawn without a corridor"],
-        watchouts: ["Service stretches when the campus is full"],
+      villa: {
+        summary: "29.17 sqm villa — king/twin with sofa cum bed.",
+        positives: ["29.17 sqm", "Sofa cum bed", "Listed on the official hotel site"],
+        watchouts: ["Confirm view and rate inclusions when you book"],
       },
     },
   "chariot-resort-puri": {
