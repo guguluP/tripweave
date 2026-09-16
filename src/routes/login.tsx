@@ -9,6 +9,7 @@ import { ShakeField, SlidingTabs, Stagger, TextSwap } from "@/components/motion"
 import { consumeNext, loadNext } from "@/lib/packages";
 import { isRealUser } from "@/lib/session-guard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LOGIN_HERO, loginCheckoutBody, loginCheckoutPrompt } from "@/lib/login-copy";
 
 type LoginSearch = { error?: string };
 
@@ -70,7 +71,7 @@ function isExistingAccountError(raw: string) {
 }
 
 function nextCopy(path: string) {
-  if (path.startsWith("/checkout")) return "Sign in to pay and hold this stay.";
+  if (path.startsWith("/checkout")) return loginCheckoutPrompt();
   if (path.startsWith("/account") || path.startsWith("/trips")) return "Sign in to see your trips.";
   return "Sign in with Google or your email.";
 }
@@ -217,8 +218,8 @@ function Login() {
     <div className="grid min-h-dvh bg-bg lg:grid-cols-2">
       <div className="relative hidden overflow-hidden lg:block">
         <img
-          src="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1600&q=80"
-          alt="Konark stone carving"
+          src={LOGIN_HERO.src}
+          alt={LOGIN_HERO.alt}
           className="h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-fg/50" />
@@ -242,7 +243,7 @@ function Login() {
             <TextSwap
               text={
                 nextPath.startsWith("/checkout")
-                  ? "Use Google or your email to pay and hold this stay."
+                  ? loginCheckoutBody()
                   : mode === "in"
                     ? "Sign in with Google, or with the email you registered."
                     : "Create an account with your email, or continue with Google."
@@ -369,6 +370,10 @@ function Login() {
                         autoComplete="new-password"
                       />
                     ) : null}
+                    {/* TODO(auth): Forgot password — Better Auth supports
+                        /request-password-reset only when emailAndPassword.sendResetPassword
+                        is configured with a real mailer. We do not have transactional email
+                        wired yet, so no forgot-password UI until that lands cleanly. */}
                     <Button type="submit" variant="outline" className="w-full" disabled={busy || Boolean(oauthBusy)}>
                       {busy ? "Working…" : mode === "in" ? "Sign in with email" : "Create email account"}
                     </Button>
