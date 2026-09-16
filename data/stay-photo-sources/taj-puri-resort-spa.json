@@ -1,0 +1,86 @@
+{
+  "images": [
+    {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/4c5a8411b1332c95988f2499c3945b7f4ecc3841-3840x1860.jpg?w=1600&auto=format",
+      "path": "stays/taj-puri-resort-spa/gallery-1.jpg"
+    },
+    {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/bd96bd900ce414ebefe839adfe1400109a408d2e-3840x1860.jpg?w=1600&auto=format",
+      "path": "stays/taj-puri-resort-spa/gallery-2.jpg"
+    },
+    {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/dae1ffe1bfdabaa35ee8147ff13012c914aaf95e-1400x1120.webp?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/gallery-3.jpg"
+    },
+    {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/359fa5d34001de3ea910ebbe1df4bfb7337165c5-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/gallery-4.jpg"
+    },
+    {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/4acf2128a5c6157b94b29dc7f7483ae0a95d07b3-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/gallery-5.jpg"
+    },
+    {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/4b62c86d59676a33d9ba11a9a6fbe1ba61f2dd25-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/gallery-6.jpg"
+    },
+    {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/062816fd6267a92bb77f64bea165d171f672d989-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/gallery-7.jpg"
+    },
+    {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/d2f2c536a27706c8f41ada94ab3c2c7ce55f554b-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/gallery-8.jpg"
+    }
+  ],
+  "rooms": {
+    "executive-sea-suite": {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/4b62c86d59676a33d9ba11a9a6fbe1ba61f2dd25-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/rooms/executive-sea-suite.jpg"
+    },
+    "luxury-sea-suite": {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/062816fd6267a92bb77f64bea165d171f672d989-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/rooms/luxury-sea-suite.jpg"
+    },
+    "presidential-sea-pool": {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/d2f2c536a27706c8f41ada94ab3c2c7ce55f554b-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/rooms/presidential-sea-pool.jpg"
+    },
+    "superior-king-balcony": {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/dae1ffe1bfdabaa35ee8147ff13012c914aaf95e-1400x1120.webp?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/rooms/superior-king-balcony.jpg"
+    },
+    "superior-twin-balcony": {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/f21c8a87ddf4fc795f606959144fb9d327e2f7ca-1400x1120.webp?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/rooms/superior-twin-balcony.jpg"
+    },
+    "superior-sea-king": {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/a989e4500a0c8c42483665b1675728db19f77e54-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/rooms/superior-sea-king.jpg"
+    },
+    "superior-sea-twin": {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/82dc1f271efd8fcf8b58393d90e45fd208baf745-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/rooms/superior-sea-twin.jpg"
+    },
+    "deluxe-sea-king": {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/359fa5d34001de3ea910ebbe1df4bfb7337165c5-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/rooms/deluxe-sea-king.jpg"
+    },
+    "deluxe-sea-twin": {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/74a8d58a4e6449723298e5769bae493e1b407848-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/rooms/deluxe-sea-twin.jpg"
+    },
+    "luxury-sea-king": {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/a30355e618fa9938e83adcf8d0abb2c5c0cb03c7-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/rooms/luxury-sea-king.jpg"
+    },
+    "grand-plunge-king": {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/4acf2128a5c6157b94b29dc7f7483ae0a95d07b3-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/rooms/grand-plunge-king.jpg"
+    },
+    "grand-plunge-twin": {
+      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/a095645082215b22a7eef130d8f0933e749041a2-1400x1120.jpg?w=1280&auto=format&dpr=2",
+      "path": "stays/taj-puri-resort-spa/rooms/grand-plunge-twin.jpg"
+    }
+  }
+}

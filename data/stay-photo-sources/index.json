@@ -1,0 +1,32 @@
+{
+  "referers": {
+    "cdn.sanity.io": "https://www.tajhotels.com/",
+    "assets.simplotel.com": "https://www.mayfairhotels.com/",
+    "www.royalorchidhotels.com": "https://www.royalorchidhotels.com/",
+    "www.empireshotel.com": "https://www.empireshotel.com/",
+    "thechariotpuri.com": "https://thechariotpuri.com/",
+    "login.retrod.app": "https://thechariotpuri.com/",
+    "chanakyahotels.com": "https://chanakyahotels.com/",
+    "www.orchidhotel.com": "https://www.orchidhotel.com/",
+    "puriholidayresort.com": "https://puriholidayresort.com/",
+    "www.toshaliresort.com": "https://www.toshaliresort.com/"
+  },
+  "proxy_hosts": [
+    "www.toshaliresort.com",
+    "toshaliresort.com"
+  ],
+  "stays": [
+    "taj-puri-resort-spa",
+    "mayfair-heritage-puri",
+    "swosti-premium-beach-resort",
+    "regenta-central-puri",
+    "empires-hotel-puri",
+    "mayfair-waves-puri",
+    "chariot-resort-puri",
+    "chanakya-bnr-puri",
+    "mahodadhi-palace-puri",
+    "holiday-resort-puri",
+    "hans-coco-palms",
+    "toshali-sands-puri"
+  ]
+}

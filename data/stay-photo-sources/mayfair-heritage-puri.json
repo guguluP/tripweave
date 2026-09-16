@@ -1,0 +1,62 @@
+{
+  "images": [
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/x_281,y_0,w_2016,h_1719,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Room_-_MAYFAIR_Heritage_Puri_f3d155ea",
+      "path": "stays/mayfair-heritage-puri/gallery-1.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/x_0,y_1057,w_3265,h_2784,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_2752-HDR_zabhud",
+      "path": "stays/mayfair-heritage-puri/gallery-2.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/x_259,y_0,w_1854,h_1581,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Cottage_2-_MAYFAIR_Heritage_Puri_458da5ff",
+      "path": "stays/mayfair-heritage-puri/gallery-3.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/x_534,y_0,w_3830,h_3265,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_2848_h0u45d",
+      "path": "stays/mayfair-heritage-puri/gallery-4.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/x_281,y_0,w_2016,h_1719,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Suite_-_MAYFAIR_Heritage_Puri_8f910986",
+      "path": "stays/mayfair-heritage-puri/gallery-5.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/x_301,y_0,w_2426,h_2068,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Family_Suite_Mayfair_Heritage_Puri_653a2e7e",
+      "path": "stays/mayfair-heritage-puri/gallery-6.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/grand-entrance.jpg",
+      "path": "stays/mayfair-heritage-puri/gallery-7.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/exterior-overview.jpg",
+      "path": "stays/mayfair-heritage-puri/gallery-8.jpg"
+    }
+  ],
+  "rooms": {
+    "deluxe": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/x_281,y_0,w_2016,h_1719,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Room_-_MAYFAIR_Heritage_Puri_f3d155ea",
+      "path": "stays/mayfair-heritage-puri/rooms/deluxe.jpg"
+    },
+    "heritage-premium": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/x_0,y_1057,w_3265,h_2784,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_2752-HDR_zabhud",
+      "path": "stays/mayfair-heritage-puri/rooms/heritage-premium.jpg"
+    },
+    "deluxe-cottage": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/x_259,y_0,w_1854,h_1581,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Cottage_2-_MAYFAIR_Heritage_Puri_458da5ff",
+      "path": "stays/mayfair-heritage-puri/rooms/deluxe-cottage.jpg"
+    },
+    "sea-view-cottage": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/x_534,y_0,w_3830,h_3265,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/IMG_2848_h0u45d",
+      "path": "stays/mayfair-heritage-puri/rooms/sea-view-cottage.jpg"
+    },
+    "deluxe-suite": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/x_281,y_0,w_2016,h_1719,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Suite_-_MAYFAIR_Heritage_Puri_8f910986",
+      "path": "stays/mayfair-heritage-puri/rooms/deluxe-suite.jpg"
+    },
+    "family-suite": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/x_301,y_0,w_2426,h_2068,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Family_Suite_Mayfair_Heritage_Puri_653a2e7e",
+      "path": "stays/mayfair-heritage-puri/rooms/family-suite.jpg"
+    }
+  }
+}
