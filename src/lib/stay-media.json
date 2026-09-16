@@ -1,7 +1,5 @@
 {
-  "STAYS_NEEDING_USER_FILES": [
-    "toshali-sands-puri"
-  ],
+  "STAYS_NEEDING_USER_FILES": [],
   "STAY_MEDIA": {
     "taj-puri-resort-spa": {
       "images": [
@@ -213,15 +211,22 @@
     },
     "toshali-sands-puri": {
       "images": [
-        "/stays/toshali-sands-puri/hero.jpg",
-        "/stays/toshali-sands-puri/gallery-1.jpg",
-        "/stays/toshali-sands-puri/gallery-2.jpg",
-        "/stays/toshali-sands-puri/gallery-3.jpg"
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/standard1.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room1.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room4.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/exe-deluxe1.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/cottage1.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/villa1.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/standard2.jpg",
+        "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/cottage2.jpg"
       ],
       "rooms": {
-        "cottage": "/stays/toshali-sands-puri/rooms/cottage.jpg",
-        "sea-cottage": "/stays/toshali-sands-puri/rooms/sea-cottage.jpg",
-        "family": "/stays/toshali-sands-puri/rooms/family.jpg"
+        "standard-deluxe": "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/standard1.jpg",
+        "deluxe-balcony": "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room1.jpg",
+        "premium-balcony": "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room4.jpg",
+        "executive-suite": "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/exe-deluxe1.jpg",
+        "cottage": "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/cottage1.jpg",
+        "villa": "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/villa1.jpg"
       }
     }
   }
