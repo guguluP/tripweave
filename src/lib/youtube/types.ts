@@ -53,6 +53,12 @@ export type ConsensusSource = {
   isGenerated?: boolean;
 };
 
+export type RoomReviewNotes = {
+  summary: string;
+  positives: string[];
+  watchouts: string[];
+};
+
 export type PackageReviewConsensus = {
   packageId: string;
   overallSentiment: Sentiment;
@@ -66,6 +72,8 @@ export type PackageReviewConsensus = {
   origin: "seed" | "live" | "empty";
   /** Videos we tried but could not transcribe (live runs only). */
   failedSources?: TranscriptFetchError[];
+  /** Reviewer notes keyed by room id on the stay. */
+  roomNotes?: Record<string, RoomReviewNotes>;
 };
 
 export type ConsensusResponse =
@@ -76,4 +84,8 @@ export const LANGUAGE_PRIORITY = ["or", "hi", "en", "bn", "ta", "te"] as const;
 
 export function youtubeUrl(videoId: string) {
   return `https://www.youtube.com/watch?v=${videoId}`;
+}
+
+export function youtubeThumb(videoId: string) {
+  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 }

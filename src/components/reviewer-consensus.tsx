@@ -67,7 +67,15 @@ function ConsensusSkeleton() {
   );
 }
 
-export function ReviewerConsensus({ packageId }: { packageId: string }) {
+export function ReviewerConsensus({
+  packageId,
+  roomId,
+  roomName,
+}: {
+  packageId: string;
+  roomId?: string;
+  roomName?: string;
+}) {
   const [data, setData] = useState<PackageReviewConsensus | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "empty" | "error">("loading");
   const [message, setMessage] = useState<string | null>(null);
@@ -160,6 +168,7 @@ export function ReviewerConsensus({ packageId }: { packageId: string }) {
       ? "No source videos yet"
       : `Based on ${count} YouTube ${count === 1 ? "review" : "reviews"}`;
   const failedCount = data.failedSources?.length ?? 0;
+  const roomNotes = roomId ? data.roomNotes?.[roomId] : undefined;
 
   return (
     <section className="mt-10" aria-labelledby="reviewer-consensus-title">
@@ -177,6 +186,36 @@ export function ReviewerConsensus({ packageId }: { packageId: string }) {
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
           {data.consensusSummary}
         </p>
+
+        {roomNotes ? (
+          <div className="mt-6 rounded-lg border border-primary/20 bg-bg p-4">
+            <p className="eyebrow">This room</p>
+            <h3 className="mt-1 font-display text-lg">
+              {roomName ?? "Selected room"}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{roomNotes.summary}</p>
+            {roomNotes.positives.length > 0 ? (
+              <ul className="mt-3 space-y-1.5">
+                {roomNotes.positives.map((item) => (
+                  <li key={item} className="flex gap-2 text-sm">
+                    <Check className="mt-0.5 size-3.5 shrink-0 text-ok" aria-hidden />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {roomNotes.watchouts.length > 0 ? (
+              <ul className="mt-2 space-y-1.5">
+                {roomNotes.watchouts.map((item) => (
+                  <li key={item} className="flex gap-2 text-sm">
+                    <Minus className="mt-0.5 size-3.5 shrink-0 text-danger" aria-hidden />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <div className="rounded-lg border border-border bg-surface p-4">

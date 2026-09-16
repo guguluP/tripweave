@@ -27,7 +27,7 @@ import {
   type Traveler,
   type TravelerErrors,
 } from "@/lib/travelers";
-import { formatMoney, getPackage, loadPending, priceWithSwaps } from "@/lib/packages";
+import { formatMoney, getPackage, getRoom, loadPending, nightsPhrase, stayTotal } from "@/lib/packages";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/travelers")({ component: TravelersPage });
@@ -67,6 +67,8 @@ function TravelersInner() {
   const [ready, setReady] = useState(false);
   const [packageId, setPackageId] = useState<string | null>(null);
   const [swaps, setSwaps] = useState<Record<string, string>>({});
+  const [nights, setNights] = useState(1);
+  const [roomId, setRoomId] = useState("");
   const [count, setCount] = useState(2);
   const [list, setList] = useState<Traveler[]>([emptyTraveler(), emptyTraveler()]);
   const [errors, setErrors] = useState<TravelerErrors[]>([]);
@@ -77,6 +79,8 @@ function TravelersInner() {
     const pending = loadPending();
     setPackageId(pending?.packageId ?? null);
     setSwaps(pending?.swaps ?? {});
+    setNights(pending?.nights ?? 1);
+    setRoomId(pending?.roomId ?? "");
     const saved = loadTravelers();
     if (saved.length > 0) {
       setList(saved);
@@ -95,7 +99,8 @@ function TravelersInner() {
 
   const pkg = packageId ? getPackage(packageId) : undefined;
   const transport = packageId ? getTransportForPackage(packageId) : null;
-  const perPerson = pkg ? priceWithSwaps(pkg, swaps) : 0;
+  const room = pkg ? getRoom(pkg, roomId) : undefined;
+  const perPerson = pkg ? stayTotal(pkg, nights, room?.id, swaps) : 0;
   const total = perPerson * count;
 
   const syncCount = (n: number) => {
@@ -432,7 +437,7 @@ function TravelersInner() {
             <div className="p-5">
               <h2 className="font-display text-xl">{pkg.name}</h2>
               <p className="mt-1 text-sm text-muted">
-                {pkg.nights} nights · {pkg.neighborhood}
+                {nightsPhrase(nights)} · {room?.name ?? "Room"} · {pkg.neighborhood}
               </p>
               <p className="mt-3 text-sm">
                 Est. total{" "}

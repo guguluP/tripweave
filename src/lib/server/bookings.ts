@@ -3,7 +3,7 @@ import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { charge, methodLabel, type PayMethod } from "@/lib/pay";
-import { getPackage, priceWithSwaps } from "@/lib/packages";
+import { clampNights, getPackage, getRoom, stayTotal } from "@/lib/packages";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import {
   sbCancelBooking,
@@ -137,6 +137,8 @@ const createSchema = z.object({
   swaps: z.record(z.string(), z.string()).optional().default({}),
   travelers: z.number().int().min(1).max(12),
   checkIn: z.string(),
+  nights: z.number().int().min(1).max(14).optional(),
+  roomId: z.string().max(40).optional(),
   payerName: z.string().min(2),
   method: z.enum(["card", "upi", "netbanking", "razorpay"]),
   cardNumber: z.string().optional(),
@@ -164,7 +166,10 @@ export const createBooking = createServerFn({ method: "POST" })
       return { ok: false, message: "Check-in must be today or later.", field: "checkIn" };
     }
 
-    const amount = priceWithSwaps(pkg, data.swaps) * data.travelers;
+    const nights = clampNights(pkg, data.nights ?? pkg.nights);
+    const room = getRoom(pkg, data.roomId);
+    const amount = stayTotal(pkg, nights, room.id, data.swaps) * data.travelers;
+    const packageName = `${pkg.name} · ${room.name}`;
     const code = makeCode();
 
     let paid: {
@@ -219,8 +224,8 @@ export const createBooking = createServerFn({ method: "POST" })
         const booking = await sbInsertBooking({
           userId: context.userId,
           packageId: pkg.id,
-          packageName: pkg.name,
-          nights: pkg.nights,
+          packageName,
+          nights,
           travelers: data.travelers,
           checkIn: data.checkIn,
           amountInr: amount,
@@ -246,8 +251,8 @@ export const createBooking = createServerFn({ method: "POST" })
       const booking: BookingRow = {
         id: (g.__twMemoryId__ = (g.__twMemoryId__ ?? 1) + 1) - 1,
         packageId: pkg.id,
-        packageName: pkg.name,
-        nights: pkg.nights,
+        packageName,
+        nights,
         travelers: data.travelers,
         checkIn: data.checkIn,
         amountInr: amount,
@@ -275,7 +280,7 @@ export const createBooking = createServerFn({ method: "POST" })
         amount_inr, swaps, status, card_last4, card_brand, payer_name, confirmation_code,
         payment_method, payment_ref, upi_handle, bank_name
       ) values (
-        ${context.userId}, ${pkg.id}, ${pkg.name}, ${pkg.nights}, ${data.travelers},
+        ${context.userId}, ${pkg.id}, ${packageName}, ${nights}, ${data.travelers},
         ${data.checkIn}::date, ${amount}, ${swapsJson}, 'paid',
         ${paid.last4}, ${paid.brand}, ${data.payerName}, ${code},
         ${paid.method}, ${paid.ref}, ${paid.upiHandle}, ${paid.bank}

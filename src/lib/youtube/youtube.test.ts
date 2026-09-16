@@ -142,17 +142,28 @@ describe("curated mapping", () => {
     }
   });
 
-  it("maps all six current stays", () => {
-    for (const id of [
+  it("maps all twelve stays with room notes", () => {
+    const ids = [
       "taj-puri-resort-spa",
       "mayfair-heritage-puri",
       "swosti-premium-beach-resort",
       "regenta-central-puri",
       "hans-coco-palms",
       "empires-hotel-puri",
-    ]) {
+      "mayfair-waves-puri",
+      "toshali-sands-puri",
+      "chariot-resort-puri",
+      "chanakya-bnr-puri",
+      "mahodadhi-palace-puri",
+      "holiday-resort-puri",
+    ];
+    assert.equal(listSeededPackageIds().length, 12);
+    for (const id of ids) {
       assert.ok(PACKAGE_VIDEOS[id], id);
-      assert.ok(SEED_CONSENSUS[id], id);
+      const seed = SEED_CONSENSUS[id];
+      assert.ok(seed, id);
+      assert.ok(seed.roomNotes);
+      assert.ok(Object.keys(seed.roomNotes).length >= 2, id);
     }
   });
 });

@@ -109,7 +109,7 @@ function Plan() {
               type="button"
               variant="outline"
               size="icon"
-              onClick={() => update("nights", Math.max(2, brief.nights - 1))}
+              onClick={() => update("nights", Math.max(1, brief.nights - 1))}
               aria-label="Fewer nights"
             >
               −
@@ -127,6 +127,9 @@ function Plan() {
               +
             </Button>
           </div>
+          <p className="mt-2 text-xs text-muted">
+            Temple overnight? Start at 1. Every stay on the list can do a single night.
+          </p>
         </div>
 
         <div className="mt-8 flex items-center justify-between gap-4 rounded-lg border border-border bg-elevated px-4 py-3">

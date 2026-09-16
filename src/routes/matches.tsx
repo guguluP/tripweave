@@ -61,8 +61,9 @@ function Matches() {
           <p className="eyebrow">Matches</p>
           <h1 className="mt-2 font-display text-4xl">Your three in Puri</h1>
           <p className="mt-3 max-w-xl text-muted">
-            Ranked to a {brief.nights}-night {brief.style} trip, {brief.budget} budget, {brief.vibe}{" "}
-            vibe{brief.flexible ? ", with flexible dates" : ""}. All-in prices in rupees.
+            Ranked for a {brief.nights}-night {brief.style} trip, {brief.budget} budget, {brief.vibe}{" "}
+            vibe{brief.flexible ? ", with flexible dates" : ""}. Twelve stays in the catalog; three
+            on this list.
           </p>
         </Stagger>
 

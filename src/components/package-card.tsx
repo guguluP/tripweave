@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { formatMoney, variantLabel, type StayPackage } from "@/lib/packages";
+import { formatMoney, nightsPhrase, variantLabel, type StayPackage } from "@/lib/packages";
 import { TrustMeter } from "@/components/trust-meter";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -33,7 +33,7 @@ export function PackageCard({
           <div>
             <h3 className="font-display text-lg leading-snug">{pkg.name}</h3>
             <p className="mt-1 text-sm text-muted">
-              {pkg.destination} · {pkg.nights} nights
+              {pkg.destination} · {pkg.nightsMin}–{pkg.nightsMax} nights
             </p>
             <div className="mt-2">
               <ReviewerChip packageId={pkg.id} />
@@ -41,13 +41,17 @@ export function PackageCard({
           </div>
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm">
+              <span className="text-muted">from </span>
               <span className="font-semibold tabular-nums">
                 <DigitPop value={formatMoney(pkg.priceFrom)} />
               </span>
-              <span className="text-muted"> all-in</span>
+              <span className="text-muted"> / night</span>
             </p>
             <TrustMeter score={pkg.trustScore} reviews={pkg.reviews} compact />
           </div>
+          <p className="text-xs text-subtle">
+            Typical stay {nightsPhrase(pkg.nights)} · {pkg.rooms.length} room types
+          </p>
           <LearnMore as="span" className="text-sm text-primary">
             View stay
           </LearnMore>

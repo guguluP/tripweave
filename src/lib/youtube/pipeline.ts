@@ -12,6 +12,19 @@ import type { ConsensusSource, PackageReviewConsensus } from "./types.ts";
 import { youtubeUrl } from "./types.ts";
 import { videoHash, videosForPackage } from "./videos.ts";
 
+/** Live rebuilds rarely mention rooms — keep curated room notes on the payload. */
+function attachRoomNotes(
+  packageId: string,
+  consensus: PackageReviewConsensus,
+): PackageReviewConsensus {
+  if (consensus.roomNotes && Object.keys(consensus.roomNotes).length > 0) {
+    return consensus;
+  }
+  const seed = getSeededConsensus(packageId);
+  if (!seed?.roomNotes) return consensus;
+  return { ...consensus, roomNotes: seed.roomNotes };
+}
+
 /**
  * Read path — never calls YouTube or the LLM.
  * Memory → Supabase → curated seed. Works fully offline/demo.
@@ -21,8 +34,9 @@ export async function loadConsensus(packageId: string): Promise<PackageReviewCon
   const hash = videoHash(packageId);
   const cached = await readDurableCache(packageId, hash);
   if (cached) {
-    logConsensusEvent("hit", packageId, { origin: cached.origin });
-    return cached;
+    const consensus = attachRoomNotes(packageId, cached);
+    logConsensusEvent("hit", packageId, { origin: consensus.origin });
+    return consensus;
   }
   const seed = getSeededConsensus(packageId);
   if (seed) {
@@ -46,7 +60,7 @@ export async function rebuildConsensus(packageId: string): Promise<PackageReview
   const fallback = await loadConsensus(packageId);
 
   if (videos.length === 0) {
-    const empty = emptyConsensus(packageId);
+    const empty = attachRoomNotes(packageId, emptyConsensus(packageId));
     await writeDurableCache(empty, hash);
     return empty;
   }
@@ -60,7 +74,7 @@ export async function rebuildConsensus(packageId: string): Promise<PackageReview
 
   if (ok.length === 0) {
     logConsensusEvent("fail", packageId, { reason: "no_transcripts" });
-    return { ...fallback, failedSources: failed };
+    return attachRoomNotes(packageId, { ...fallback, failedSources: failed });
   }
 
   const hotelName = pkg?.name ?? packageId;
@@ -87,7 +101,7 @@ export async function rebuildConsensus(packageId: string): Promise<PackageReview
 
   if (summaries.length === 0) {
     logConsensusEvent("fail", packageId, { reason: "no_summaries" });
-    return { ...fallback, failedSources: failed, sources };
+    return attachRoomNotes(packageId, { ...fallback, failedSources: failed, sources });
   }
 
   let consensus = aggregateSummaries(packageId, summaries, sources, failed, "live");
@@ -104,6 +118,7 @@ export async function rebuildConsensus(packageId: string): Promise<PackageReview
     if (narrative) consensus = { ...consensus, consensusSummary: narrative };
   }
 
+  consensus = attachRoomNotes(packageId, consensus);
   await writeDurableCache(consensus, hash);
   logConsensusEvent("live", packageId, { origin: "written", sentiment: consensus.overallSentiment });
   return consensus;

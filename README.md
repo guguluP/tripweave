@@ -4,7 +4,9 @@ Book honest Puri hotel stays with all-in INR prices, traveller details, Razorpay
 
 ## Features
 
-- **Plan & match** — short preference brief → three package options
+- **Plan & match** — short preference brief → three package options from a 12-stay Puri catalog
+- **Rooms & nights** — 2–3 room types per hotel, room-specific reviewer notes, 1-night stays welcome
+- **Property media** — photo galleries and YouTube property tours on every stay
 - **Travellers** — guest name, phone, email, ID, emergency contact (DigiLocker demo autofill available)
 - **Razorpay Standard Checkout** — test cards / UPI; order create + signature verify on the server
 - **My trips** — list, cancel, confirmation codes

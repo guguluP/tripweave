@@ -17,11 +17,14 @@ import {
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { pushBanner } from "@/lib/banners";
 import {
+  clampNights,
   clearPending,
   formatMoney,
   getPackage,
+  getRoom,
   loadPending,
-  priceWithSwaps,
+  nightsPhrase,
+  stayTotal,
   saveNext,
 } from "@/lib/packages";
 import { methodLabel, paymentLine } from "@/lib/pay";
@@ -70,6 +73,8 @@ function CheckoutInner() {
   const [ready, setReady] = useState(false);
   const [packageId, setPackageId] = useState<string | null>(null);
   const [swaps, setSwaps] = useState<Record<string, string>>({});
+  const [nights, setNights] = useState(1);
+  const [roomId, setRoomId] = useState("");
   const [travelers, setTravelers] = useState(2);
   const [checkIn, setCheckIn] = useState(tomorrowIso);
   const [payerName, setPayerName] = useState("");
@@ -91,6 +96,8 @@ function CheckoutInner() {
     const pending = loadPending();
     setPackageId(pending?.packageId ?? null);
     setSwaps(pending?.swaps ?? {});
+    setNights(pending?.nights ?? 1);
+    setRoomId(pending?.roomId ?? "");
     try {
       const n = Number(window.localStorage.getItem("tripweave-traveler-count") || "0");
       if (n >= 1 && n <= 8) setTravelers(n);
@@ -115,7 +122,9 @@ function CheckoutInner() {
   }, [user, payerName]);
 
   const pkg = packageId ? getPackage(packageId) : undefined;
-  const perPerson = pkg ? priceWithSwaps(pkg, swaps) : 0;
+  const room = pkg ? getRoom(pkg, roomId) : undefined;
+  const stayNights = pkg ? clampNights(pkg, nights) : nights;
+  const perPerson = pkg ? stayTotal(pkg, stayNights, room?.id, swaps) : 0;
   const total = perPerson * travelers;
 
   if (!ready) return <CheckoutSkeleton />;
@@ -251,6 +260,8 @@ function CheckoutInner() {
                     swaps,
                     travelers,
                     checkIn,
+                    nights: stayNights,
+                    roomId: room?.id,
                     payerName: payerName.trim(),
                     method: "razorpay",
                     razorpayOrderId: response.razorpay_order_id,
@@ -291,7 +302,7 @@ function CheckoutInner() {
                         })),
                         bookingId: booking.id,
                         checkIn: booking.checkIn,
-                        nights: pkg.nights,
+                        nights: stayNights,
                       },
                     });
                   }
@@ -436,7 +447,7 @@ function CheckoutInner() {
           <div className="p-5">
             <h2 className="font-display text-xl">{pkg.name}</h2>
             <p className="mt-1 text-sm text-muted">
-              {pkg.nights} nights · {pkg.neighborhood}
+              {nightsPhrase(stayNights)} · {room?.name ?? "Room"} · {pkg.neighborhood}
             </p>
             <dl className="mt-5 grid gap-2 text-sm">
               <div className="flex justify-between">

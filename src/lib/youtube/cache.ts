@@ -1,6 +1,6 @@
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import type { PackageReviewConsensus, Sentiment } from "./types.ts";
+import type { PackageReviewConsensus, RoomReviewNotes, Sentiment } from "./types.ts";
 
 const TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -22,6 +22,26 @@ function mem() {
 function isFresh(entry: CacheEntry, hash: string) {
   if (entry.videoHash !== hash) return false;
   return Date.now() - entry.storedAt < TTL_MS;
+}
+
+function parseRoomNotes(raw: unknown): Record<string, RoomReviewNotes> | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const out: Record<string, RoomReviewNotes> = {};
+  for (const [key, val] of Object.entries(raw as Record<string, unknown>)) {
+    if (!val || typeof val !== "object") continue;
+    const v = val as Record<string, unknown>;
+    const summary = typeof v.summary === "string" ? v.summary : "";
+    const positives = Array.isArray(v.positives)
+      ? v.positives.filter((x): x is string => typeof x === "string")
+      : [];
+    const watchouts = Array.isArray(v.watchouts)
+      ? v.watchouts.filter((x): x is string => typeof x === "string")
+      : [];
+    if (summary || positives.length || watchouts.length) {
+      out[key] = { summary, positives, watchouts };
+    }
+  }
+  return Object.keys(out).length ? out : undefined;
 }
 
 function asConsensus(row: unknown): PackageReviewConsensus | null {
@@ -62,6 +82,7 @@ function asConsensus(row: unknown): PackageReviewConsensus | null {
           ? r.updatedAt
           : new Date().toISOString(),
     origin: r.origin === "live" || r.origin === "empty" || r.origin === "seed" ? r.origin : "live",
+    roomNotes: parseRoomNotes(r.room_notes ?? r.roomNotes),
   };
 }
 
@@ -109,6 +130,7 @@ export async function readDurableCache(
       sources: PackageReviewConsensus["sources"];
       origin?: string;
       package_id: string;
+      room_notes?: unknown;
     };
     if (row.video_hash && row.video_hash !== hash) return null;
     if (row.updated_at) {

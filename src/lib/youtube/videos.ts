@@ -109,6 +109,93 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       channel: "Guest vlog",
     },
   ],
+  "mayfair-waves-puri": [
+    {
+      videoId: "ix-8HWQ8heg",
+      title: "Mayfair Waves Puri — resort walkthrough",
+      channel: "Stay vlog",
+    },
+    {
+      videoId: "ov0TpiWVKGg",
+      title: "Mayfair Waves — rooms, pool and buffet",
+      channel: "Puri stay review",
+    },
+  ],
+  "toshali-sands-puri": [
+    {
+      videoId: "6Hl1vtib7GE",
+      title: "Toshali Sands Puri — cottage tour",
+      channel: "Stay vlog",
+    },
+    {
+      videoId: "RahjVg0t6nk",
+      title: "Toshali Sands — campus, pool and beach",
+      channel: "Family travel",
+    },
+    {
+      videoId: "ZOCBaU2Ignk",
+      title: "Family stay at Toshali Sands Puri",
+      channel: "Guest vlog",
+    },
+  ],
+  "chariot-resort-puri": [
+    {
+      videoId: "pjy6OOe03wk",
+      title: "The Chariot Resort & Spa Puri — property tour",
+      channel: "Stay vlog",
+    },
+    {
+      videoId: "6pPT0cJmWuM",
+      title: "Chariot Resort — rooms, spa and beach",
+      channel: "Puri hotels",
+    },
+  ],
+  "chanakya-bnr-puri": [
+    {
+      videoId: "puMmF_hN0Ic",
+      title: "Chanakya BNR Hotel Puri — heritage stay",
+      channel: "Stay vlog",
+    },
+    {
+      videoId: "hNV9aKYwNto",
+      title: "Chanakya BNR — rooms and station-side location",
+      channel: "Puri hotels",
+    },
+  ],
+  "mahodadhi-palace-puri": [
+    {
+      videoId: "PZW2ibNBPv8",
+      title: "Mahodadhi Palace Puri — palace tour",
+      channel: "Heritage stays",
+    },
+    {
+      videoId: "80-nIH3wnUI",
+      title: "Mahodadhi Palace — heritage rooms on the beach",
+      channel: "Stay vlog",
+    },
+    {
+      videoId: "lLhJ_hp3EVQ",
+      title: "Palace stay and sea lawns",
+      channel: "Puri travel",
+    },
+  ],
+  "holiday-resort-puri": [
+    {
+      videoId: "Wfvplc69Yio",
+      title: "Holiday Resort Puri — walkthrough",
+      channel: "Stay vlog",
+    },
+    {
+      videoId: "9mjuLwKBDT0",
+      title: "Holiday Resort — rooms, lawn and pool",
+      channel: "Family travel",
+    },
+    {
+      videoId: "_GCIo7ETCp8",
+      title: "Beach-side stay at Holiday Resort Puri",
+      channel: "Puri hotels",
+    },
+  ],
 };
 
 export function videosForPackage(packageId: string): CuratedVideo[] {

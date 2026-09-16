@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, LearnMore, Stagger, TextSwap } from "@/components/motion";
 import { pushBanner } from "@/lib/banners";
-import { formatMoney, getPackage } from "@/lib/packages";
+import { formatMoney, getPackage, nightsPhrase } from "@/lib/packages";
 import { paymentLine } from "@/lib/pay";
 import {
   cancelBooking,
@@ -92,7 +92,7 @@ function TripsInner() {
                         <div>
                           <h2 className="font-display text-xl">{b.packageName}</h2>
                           <p className="mt-1 text-sm text-muted">
-                            Check-in {b.checkIn} · {b.travelers} traveler
+                            Check-in {b.checkIn} · {nightsPhrase(b.nights)} · {b.travelers} traveler
                             {b.travelers === 1 ? "" : "s"}
                           </p>
                         </div>
