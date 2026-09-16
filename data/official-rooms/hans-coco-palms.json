@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Deluxe Balcony Room — Partial Ocean View",
+    "sqm": 25,
+    "guests": null,
+    "bed": "king bed",
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_Double_Room_with_Side_Sea_View_7be5f3de.jpeg"
+    ]
+  },
+  {
+    "name": "Deluxe Room — Pool or Garden View",
+    "sqm": 28,
+    "guests": null,
+    "bed": "twin beds",
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_room_with_Pool_and_Garden_view_33176469.jpeg"
+    ]
+  },
+  {
+    "name": "Deluxe Suite — Ocean View",
+    "sqm": 66,
+    "guests": null,
+    "bed": "king bed",
+    "images": [
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_Suite_room__Bed_room_9523620f.jpeg",
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_Suite_room__Living_Area__(1)_499d76fe.jpeg"
+    ]
+  }
+]
