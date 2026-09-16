@@ -7,12 +7,51 @@ import { cn } from "@/lib/utils";
 type Video = { videoId: string; title: string };
 
 function thumbSrc(src: string, w = 240) {
-  // Prefer a small Unsplash derivative so mobile carousel thumbs load reliably.
+  // YouTube thumbs are already small; keep as-is. Shrink Unsplash only if present (e.g. login hero reuse).
   if (src.includes("images.unsplash.com")) {
     const base = src.split("?")[0] ?? src;
     return `${base}?auto=format&fit=crop&w=${w}&q=60`;
   }
+  // Prefer mqdefault for carousel chips when the gallery uses hqdefault.
+  if (src.includes("i.ytimg.com") && src.includes("/hqdefault.jpg")) {
+    return src.replace("/hqdefault.jpg", "/mqdefault.jpg");
+  }
   return src;
+}
+
+/** Gallery/room img with YouTube thumb fallbacks when hqdefault 404s. */
+function PropertyImg({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+}) {
+  const [current, setCurrent] = useState(src);
+  useEffect(() => {
+    setCurrent(src);
+  }, [src]);
+  return (
+    <img
+      src={current}
+      alt={alt}
+      className={className}
+      loading="lazy"
+      decoding="async"
+      onError={() => {
+        const m = current.match(/i\.ytimg\.com\/vi\/([^/]+)\/([^/?]+)/);
+        if (!m) return;
+        const [, videoId, name] = m;
+        if (name === "hqdefault.jpg") {
+          setCurrent(`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`);
+        } else if (name === "mqdefault.jpg") {
+          setCurrent(`https://i.ytimg.com/vi/${videoId}/0.jpg`);
+        }
+      }}
+    />
+  );
 }
 
 function YoutubeThumb({ videoId, title }: { videoId: string; title: string }) {
@@ -108,7 +147,7 @@ export function PropertyMedia({
           className="relative block h-64 w-full md:h-80"
           aria-label={`View photos of ${name}`}
         >
-          <img src={current} alt={name} className="h-full w-full object-cover" />
+          <PropertyImg src={current} alt={name} className="h-full w-full object-cover" />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg via-bg/20 to-transparent" />
         </button>
         <div className="absolute right-4 top-4 z-10">
@@ -225,12 +264,13 @@ export function PropertyMedia({
               </button>
             </>
           ) : null}
-          <img
-            src={current}
-            alt={`${name} photo ${index + 1}`}
-            className="max-h-[85vh] max-w-full rounded-lg object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
+          <span onClick={(e) => e.stopPropagation()}>
+            <PropertyImg
+              src={current}
+              alt={`${name} photo ${index + 1}`}
+              className="max-h-[85vh] max-w-full rounded-lg object-contain"
+            />
+          </span>
         </div>
       ) : null}
     </>
