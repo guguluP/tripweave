@@ -27,6 +27,29 @@ describe("catalog", () => {
       for (const video of pkg.videos) {
         assert.match(video.videoId, /^[a-zA-Z0-9_-]{11}$/, video.videoId);
       }
+      // Named hotels use YouTube/property media — never random Unsplash stock.
+      assert.match(pkg.image, /i\.ytimg\.com\/vi\//, pkg.id);
+      assert.ok(!pkg.image.includes("unsplash"), pkg.id);
+      const videoIds = new Set(pkg.videos.map((v) => v.videoId));
+      for (const src of pkg.images) {
+        assert.match(src, /i\.ytimg\.com\/vi\//, `${pkg.id} gallery`);
+        const id = src.split("/vi/")[1]?.split("/")[0];
+        assert.ok(id && videoIds.has(id), `${pkg.id} gallery id ${id}`);
+      }
+      const roomImages = new Set<string>();
+      for (const room of pkg.rooms) {
+        assert.match(room.image, /i\.ytimg\.com\/vi\//, `${pkg.id}:${room.id}`);
+        assert.ok(!room.image.includes("unsplash"), `${pkg.id}:${room.id}`);
+        const id = room.image.split("/vi/")[1]?.split("/")[0];
+        assert.ok(id && videoIds.has(id), `${pkg.id}:${room.id} cross-hotel?`);
+        roomImages.add(room.image);
+      }
+      // Distinct per room when enough property videos; otherwise reuse this stay's media only.
+      assert.equal(
+        roomImages.size,
+        Math.min(pkg.rooms.length, pkg.videos.length),
+        `${pkg.id} unique room images`,
+      );
     }
   });
 
