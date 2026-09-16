@@ -1,39 +1,43 @@
 # Stay media (property-owned photos)
 
-Catalog galleries and room cards use **vendored property-owned photos** under
-`public/stays/{stayId}/` (wired in `src/lib/property-media.ts` via `stay-media.json`).
+Catalog galleries and room cards use **local** paths under `public/stays/{stayId}/`
+(wired via `src/lib/stay-media.json`). Serving from the app origin avoids CDN
+**403 hotlink blocks** when Referer is `tripweave-web.vercel.app` (Simplotel etc.).
 
-Images are committed locally because several hotel CDNs (Simplotel and others)
-return **403 when the Referer is `tripweave-web.vercel.app`**. Hotlinking is
-unreliable; serving from the app origin avoids that.
+## Populating `public/stays`
 
-YouTube thumbnails are **not** used for catalog media. YouTube remains only for
-reviewer consensus / property-tour video chips. Do **not** use Unsplash stock.
+`npm run materialize:stays` (also `predev` / `prebuild`):
+
+1. Keeps existing JPEGs if the catalog is already complete
+2. Else decodes optional `data/vendored-stays-chunks/*.tar.b64` when present
+3. Else downloads from official hotel URLs in `data/stay-photo-sources.json`
+   (hotel-domain Referer; `wsrv.nl` proxy for hosts that reset TLS, e.g. Toshali)
+
+Prefer committing the materialized JPEGs when `git push` of binaries is available.
+This PR ships the source map + materialize script so CI/Vercel can vendor at build time.
+
+Do **not** use YouTube thumbs or Unsplash for named hotels.
 
 ## Layout
 
-For each stay:
+- `gallery-1.jpg` … — property gallery
+- `rooms/{roomId}.jpg` — one image per packages-data room id
 
-- `gallery-1.jpg` … `gallery-n.jpg` — property gallery
-- `rooms/{roomId}.jpg` — one image per room id in packages-data
+## Sources (Sep 2026)
 
-Paths in `src/lib/stay-media.json` look like `/stays/{stayId}/gallery-1.jpg`.
-
-## Sources (vendored Sep 2026)
-
-| Stay ID | Original source (downloaded, not hotlinked) |
+| Stay ID | Source |
 | --- | --- |
-| `taj-puri-resort-spa` | IHCL Sanity CDN via tajhotels.com |
-| `mayfair-heritage-puri` | Mayfair Simplotel CDN |
-| `swosti-premium-beach-resort` | Swosti Simplotel CDN |
-| `regenta-central-puri` | Royal Orchid Hotels |
-| `empires-hotel-puri` | Empires Hotel WP uploads |
-| `mayfair-waves-puri` | Mayfair Waves Simplotel CDN |
-| `chariot-resort-puri` | thechariotpuri.com + retrod booking media |
-| `chanakya-bnr-puri` | chanakyahotels.com (404 listing thumbs replaced with working assets) |
-| `mahodadhi-palace-puri` | Orchid / Mahodadhi brand CDN |
+| `taj-puri-resort-spa` | IHCL Sanity |
+| `mayfair-heritage-puri` | Mayfair Simplotel |
+| `swosti-premium-beach-resort` | Swosti Simplotel |
+| `regenta-central-puri` | Royal Orchid |
+| `empires-hotel-puri` | Empires WP |
+| `mayfair-waves-puri` | Mayfair Waves Simplotel |
+| `chariot-resort-puri` | thechariotpuri.com + retrod |
+| `chanakya-bnr-puri` | chanakyahotels.com (404 thumbs replaced) |
+| `mahodadhi-palace-puri` | Orchid / Mahodadhi |
 | `holiday-resort-puri` | puriholidayresort.com |
-| `hans-coco-palms` | Hans Hotels Simplotel CDN |
-| `toshali-sands-puri` | toshaliresort.com official room photos |
+| `hans-coco-palms` | Hans Simplotel |
+| `toshali-sands-puri` | toshaliresort.com |
 
-`STAYS_NEEDING_USER_FILES` is empty — every catalog stay has local photos.
+`STAYS_NEEDING_USER_FILES` is empty.

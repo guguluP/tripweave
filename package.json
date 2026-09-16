@@ -18,7 +18,10 @@
     "check:auth": "node scripts/check-auth-invariant.mjs",
     "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/auth/gate-identity.test.ts src/lib/youtube/youtube.test.ts src/lib/packages.test.ts src/lib/trust-score.test.ts",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "materialize:stays": "node scripts/materialize-stay-photos.mjs",
+    "prebuild": "npm run materialize:stays",
+    "predev": "npm run materialize:stays"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.4",
