@@ -4,6 +4,7 @@ import { CHARIOT_RESORT_PURI_ROOMS } from "./official-rooms/chariot-resort-puri.
 import { CHANAKYA_BNR_PURI_ROOMS } from "./official-rooms/chanakya-bnr-puri.ts";
 import { MAHODADHI_PALACE_PURI_ROOMS } from "./official-rooms/mahodadhi-palace-puri.ts";
 import { HOLIDAY_RESORT_PURI_ROOMS } from "./official-rooms/holiday-resort-puri.ts";
+import { TOSHALI_SANDS_PURI_ROOMS } from "./official-rooms/toshali-sands-puri.ts";
 
 
 type RawRoom = Omit<RoomType, "image">;
@@ -78,29 +79,7 @@ export const RAW_B: RawStay[] = [{
       { videoId: "RahjVg0t6nk", title: "Resort campus and pool" },
       { videoId: "ZOCBaU2Ignk", title: "Family stay at Toshali Sands" },
     ],
-    rooms: [
-      {
-        id: "cottage",
-        name: "Deluxe Cottage",
-        summary: "Garden cottage. The stay is the campus, not a sea window.",
-        deltaPerNight: 0,
-        occupancy: 2,
-      },
-      {
-        id: "sea-cottage",
-        name: "Sea View Cottage",
-        summary: "Closer to the dunes. Confirm the actual outlook before paying.",
-        deltaPerNight: 900,
-        occupancy: 3,
-      },
-      {
-        id: "family",
-        name: "Family Cottage",
-        summary: "Two rooms, lawn, parking at the door. Best for kids.",
-        deltaPerNight: 1400,
-        occupancy: 5,
-      },
-    ],
+    rooms: TOSHALI_SANDS_PURI_ROOMS,
     days: [
       {
         title: "Cottage check-in",
