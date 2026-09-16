@@ -75,12 +75,17 @@ function jobsFromSources(sources) {
   return jobs;
 }
 
-async function catalogComplete(sources) {
+async function missingJobs(sources) {
+  const missing = [];
   for (const job of jobsFromSources(sources)) {
     const rel = job.path.replace(/^stays\//, "");
-    if (!(await fileExists(path.join(destRoot, rel)))) return false;
+    if (!(await fileExists(path.join(destRoot, rel)))) missing.push(rel);
   }
-  return true;
+  return missing;
+}
+
+async function catalogComplete(sources) {
+  return (await missingJobs(sources)).length === 0;
 }
 
 function refererFor(url, referers) {
@@ -110,6 +115,10 @@ function download(url, referer, proxyHosts) {
   };
   let buf = tryCurl(url, referer);
   if (!buf && proxyHosts.includes(host)) {
+    const proxied = `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=1600&output=jpg`;
+    buf = tryCurl(proxied, "");
+  }
+  if (!buf) {
     const proxied = `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=1600&output=jpg`;
     buf = tryCurl(proxied, "");
   }
@@ -185,8 +194,10 @@ for (const job of jobsFromSources(sources)) {
   written += 1;
 }
 
-if (!(await catalogComplete(sources))) {
-  console.error("stay photos: catalog still incomplete");
+const missing = await missingJobs(sources);
+if (missing.length) {
+  for (const rel of missing) console.error(`missing stays/${rel}`);
+  console.error(`stay photos: catalog still incomplete (${missing.length} missing)`);
   process.exit(1);
 }
 console.log(`stay photos: ok via download (${written} written)`);
