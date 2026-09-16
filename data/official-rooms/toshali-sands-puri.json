@@ -1,4 +1,83 @@
-{
-  "error": "The official toshaliresort.com site was reachable only at a human-verification/security-check page during this scrape, so no official room data or image URLs could be extracted.",
-  "rooms": []
-}
+[
+  {
+    "name": "Standard Deluxe Room With Garden View",
+    "sqm": 12.1703,
+    "guests": null,
+    "bed": null,
+    "images": [
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/standard1.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/standard2.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/standard3.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/asset/home/standard-room.jpg"
+    ]
+  },
+  {
+    "name": "Deluxe Room With Balcony & Garden View",
+    "sqm": null,
+    "guests": null,
+    "bed": null,
+    "images": [
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room1.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room2.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room3.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room4.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/asset/home/deluxe-room.jpg"
+    ]
+  },
+  {
+    "name": "Premium Room With Balcony & Garden View",
+    "sqm": null,
+    "guests": null,
+    "bed": null,
+    "images": [
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room4.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/deluxe-room5.jpg"
+    ]
+  },
+  {
+    "name": "Executive Suite With Two Bed Room & Garden View",
+    "sqm": null,
+    "guests": null,
+    "bed": "two beds",
+    "images": [
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/exe-deluxe1.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/exe-deluxe2.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/exe-deluxe3.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/exe-deluxe4.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/exe-deluxe5.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/exe-deluxe6.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/exe-deluxe7.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/asset/home/executive-dlx-room.jpg"
+    ]
+  },
+  {
+    "name": "Cottage with Garden View",
+    "sqm": 17.0942,
+    "guests": null,
+    "bed": "King/Twin; sofa cum bed",
+    "images": [
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/cottage1.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/cottage2.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/cottage3.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/cottage4.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/cottage5.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/cottage6.jpg",
+      "https://www.toshaliresort.com/toshali-sands-nature-escape/asset/home/cottage-room.jpg"
+    ]
+  },
+  {
+    "name": "Villa with Garden View",
+    "sqm": 29.1716,
+    "guests": null,
+    "bed": "King/Twin; sofa cum bed",
+    "images": [
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/villa1.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/villa2.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/villa3.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/villa5.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/villa6.jpg",
+      "https://www.toshaliresort.com/toshali-sands-ethnic-village/img/rooms/villa8.jpg",
+      "https://www.toshaliresort.com/toshali-sands-nature-escape/asset/home/villa-outside-view.jpg"
+    ]
+  }
+]
