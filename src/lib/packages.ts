@@ -114,7 +114,7 @@ const LEISURE_DAY: DayPlan = {
 };
 
 export const PACKAGES: StayPackage[] = RAW.map((p) => {
-  // Media is property-owned (official CDNs or /stays placeholders) — not YouTube thumbs.
+  // Media is property-owned and vendored under /stays — not YouTube thumbs.
   const media = attachPropertyMedia(p);
   const base = {
     ...p,
