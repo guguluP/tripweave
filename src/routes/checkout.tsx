@@ -37,6 +37,7 @@ import { loadTravelers, validateTravelers, clearSensitiveTravelers } from "@/lib
 import { saveTravellers } from "@/lib/server/travellers";
 import {
   getPublicRazorpayKeyId,
+  isRazorpayTestMode,
   loadRazorpayScript,
   openRazorpayCheckout,
 } from "@/lib/razorpay-client";
@@ -164,7 +165,7 @@ function CheckoutInner() {
       <Shell>
         <div className="mx-auto flex max-w-md flex-col items-center px-4 py-16 text-center">
           <SuccessCheck />
-          <h1 className="mt-6 font-display text-4xl">Stay held</h1>
+          <h1 className="mt-6 font-display text-4xl">Booking confirmed</h1>
           <p className="mt-3 text-muted">
             {confirmation.name} is booked. Your confirmation code is
           </p>
@@ -379,10 +380,12 @@ function CheckoutInner() {
         <div>
           <Stagger>
             <p className="eyebrow">Checkout</p>
-            <h1 className="mt-2 font-display text-4xl">Pay and hold this stay</h1>
+            <h1 className="mt-2 font-display text-4xl">Pay and confirm this stay</h1>
             <p className="mt-3 flex items-center gap-2 text-sm text-muted">
               <Lock className="size-3.5" />
-              Secure payment via Razorpay. Test mode: use Razorpay test cards / UPI.
+              {isRazorpayTestMode()
+                ? "Secure payment via Razorpay (test mode)."
+                : "Secure payment via Razorpay."}
             </p>
           </Stagger>
 
@@ -436,9 +439,11 @@ function CheckoutInner() {
                 text={busy ? "Opening Razorpay…" : `Pay ${formatMoney(total)} with Razorpay`}
               />
             </Button>
-            <p className="text-xs text-subtle">
-              Test card 4100 2800 0000 1007 · CVV 123 · 12/26 · or UPI test@razorpay
-            </p>
+            {isRazorpayTestMode() ? (
+              <p className="text-xs text-subtle">
+                Test card 4100 2800 0000 1007 · CVV 123 · 12/26 · or UPI test@razorpay
+              </p>
+            ) : null}
           </form>
         </div>
 
