@@ -1,9 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Shell } from "@/components/shell";
 import { PackageCard } from "@/components/package-card";
 import { ReviewerCompare } from "@/components/reviewer-consensus";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { ClearInput, LearnMore, Shimmer, SlidingTabs, Stagger } from "@/components/motion";
 import {
   DEFAULT_BRIEF,
@@ -19,6 +20,12 @@ import { useSavedIds } from "@/lib/saved";
 export const Route = createFileRoute("/matches")({ component: Matches });
 
 type Tab = "matches" | "saved" | "all";
+
+function headingFor(tab: Tab, count: number) {
+  if (tab === "matches") return "Your three matches";
+  if (tab === "all") return `All Puri stays (${count})`;
+  return "Saved stays";
+}
 
 function Matches() {
   const [ready, setReady] = useState(false);
@@ -54,18 +61,35 @@ function Matches() {
     return src;
   }, [tab, query, matches, savedIds]);
 
+  const title = headingFor(tab, tab === "all" ? PACKAGES.length : list.length);
+  const topMatch = tab === "matches" && !query ? matches[0] : undefined;
+
   return (
     <Shell>
-      <div className="mx-auto max-w-6xl px-4 py-10">
+      <div className="mx-auto max-w-6xl px-4 py-10 pb-[calc(7rem+env(safe-area-inset-bottom))]">
         <Stagger>
           <p className="eyebrow">Matches</p>
-          <h1 className="mt-2 font-display text-4xl">Your three in Puri</h1>
+          <h1 className="mt-2 font-display text-4xl">{title}</h1>
           <p className="mt-3 max-w-xl text-muted">
             Ranked for a {brief.nights}-night {brief.style} trip, {brief.budget} budget, {brief.vibe}{" "}
             vibe{brief.flexible ? ", with flexible dates" : ""}. Twelve stays in the catalog; three
-            on this list.
+            on the short list.
           </p>
         </Stagger>
+
+        {/* Primary CTA early on mobile so it is not buried under the bottom nav */}
+        <div className="mt-6 flex flex-wrap items-center gap-3 md:hidden">
+          {topMatch ? (
+            <Button asChild size="lg" className="flex-1">
+              <Link to="/trip/$id" params={{ id: topMatch.id }}>
+                View top match
+              </Link>
+            </Button>
+          ) : null}
+          <Button asChild variant="outline" size="lg" className={topMatch ? "" : "flex-1"}>
+            <Link to="/plan">Edit brief</Link>
+          </Button>
+        </div>
 
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <SlidingTabs
@@ -94,6 +118,7 @@ function Matches() {
                   key={pkg.id}
                   pkg={pkg}
                   rank={tab === "matches" && !query ? RANK_LABELS[i] : undefined}
+                  nights={brief.nights}
                 />
               ))}
         </div>
@@ -116,7 +141,7 @@ function Matches() {
           <ReviewerCompare items={matches.map((p) => ({ id: p.id, name: p.name }))} />
         ) : null}
 
-        <LearnMore to="/plan" className="mt-8 text-sm font-medium text-primary">
+        <LearnMore to="/plan" className="mt-8 hidden text-sm font-medium text-primary md:inline-flex">
           Edit brief
         </LearnMore>
       </div>

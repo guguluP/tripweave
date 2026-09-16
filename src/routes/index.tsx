@@ -4,7 +4,7 @@ import { Shell } from "@/components/shell";
 import { PackageCard } from "@/components/package-card";
 import { Button } from "@/components/ui/button";
 import { LearnMore, Stagger } from "@/components/motion";
-import { PACKAGES } from "@/lib/packages";
+import { DEFAULT_BRIEF, PACKAGES } from "@/lib/packages";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -27,7 +27,7 @@ function Home() {
               Twelve honest Puri hotels. Ranked to three.
             </h1>
             <p className="mt-4 max-w-md text-base text-primary-fg/80">
-              Answer a short brief. We return three verified stays with all-in rupee prices — from a
+              Answer a short brief. We return three curated stays with all-in rupee prices — from a
               single night to a slow week.
             </p>
           </Stagger>
@@ -55,7 +55,7 @@ function Home() {
           {
             icon: ShieldCheck,
             title: "Trust Score",
-            body: "Operator history plus what YouTube stay-reviewers actually said — not a star average.",
+            body: "Property completeness + curated YouTube stay reviews — not a star average.",
           },
           {
             icon: Wallet,
@@ -88,7 +88,7 @@ function Home() {
         </div>
         <div className="mt-8 grid gap-5 md:grid-cols-3">
           {featured.map((pkg) => (
-            <PackageCard key={pkg.id} pkg={pkg} />
+            <PackageCard key={pkg.id} pkg={pkg} nights={DEFAULT_BRIEF.nights} />
           ))}
         </div>
       </section>
@@ -106,7 +106,7 @@ function Home() {
               t: "Pick from three",
               d: "Ranked by fit. Read the YouTube reviewer consensus, then swap extras — the rupee total updates live.",
             },
-            { n: "03", t: "Pay and hold", d: "Sign in, pay with a card, get a confirmation code." },
+            { n: "03", t: "Pay and confirm", d: "Sign in, pay with Razorpay, get a confirmation code." },
           ].map((step) => (
             <li key={step.n} className="rounded-xl border border-border bg-surface p-5">
               <p className="font-display text-2xl text-primary">{step.n}</p>
