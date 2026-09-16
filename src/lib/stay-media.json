@@ -221,9 +221,12 @@
         "/stays/toshali-sands-puri/gallery-8.jpg"
       ],
       "rooms": {
+        "standard-deluxe": "/stays/toshali-sands-puri/rooms/standard-deluxe.jpg",
+        "deluxe-balcony": "/stays/toshali-sands-puri/rooms/deluxe-balcony.jpg",
+        "premium-balcony": "/stays/toshali-sands-puri/rooms/premium-balcony.jpg",
+        "executive-suite": "/stays/toshali-sands-puri/rooms/executive-suite.jpg",
         "cottage": "/stays/toshali-sands-puri/rooms/cottage.jpg",
-        "sea-cottage": "/stays/toshali-sands-puri/rooms/sea-cottage.jpg",
-        "family": "/stays/toshali-sands-puri/rooms/family.jpg"
+        "villa": "/stays/toshali-sands-puri/rooms/villa.jpg"
       }
     }
   }
