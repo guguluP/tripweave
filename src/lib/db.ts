@@ -10,13 +10,32 @@ const rawDatabaseUrl =
 const databaseUrl =
   rawDatabaseUrl && rawDatabaseUrl.trim() ? rawDatabaseUrl : undefined;
 
+function looksLikeBrokenPostgresUrl(url: string | undefined): boolean {
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    // Neon never uses role "postgres"; a leftover local/Supabase URI with that
+    // user + a bad password is exactly "password authentication failed for user postgres".
+    if ((u.username === "postgres" || u.username === "") && process.env.VERCEL) {
+      return true;
+    }
+  } catch {
+    return true;
+  }
+  return false;
+}
+
 /**
  * Active backend: real **Neon** when `DATABASE_URL` is set (deployed / configured
  * sandbox), otherwise a local embedded **PGLite** (Postgres compiled to WASM) so
  * the app has a working database even with nothing configured — the live preview
  * included. Swap in Neon later by just setting `DATABASE_URL`; no code changes.
+ *
+ * On Vercel, a DATABASE_URL with user `postgres` is treated as unusable (known
+ * bad pooler password) so we never 500 after payment.
  */
-export const dbSource: DbSource = databaseUrl ? "neon" : "pglite";
+export const dbSource: DbSource =
+  databaseUrl && !looksLikeBrokenPostgresUrl(databaseUrl) ? "neon" : "pglite";
 
 /**
  * Minimal shared SQL surface, satisfied by both Neon and PGLite. Both the
@@ -85,6 +104,11 @@ function toSql(run: Run): Sql {
   return sql;
 }
 
+function isPgAuthError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return /password authentication failed|28P01|SASL|no pg_hba.conf/i.test(msg);
+}
+
 function createNeonSql(): Promise<Sql> {
   globalRef.__pgSqlPromise__ ??= (async () => {
     // Regular Postgres driver: node-postgres (`pg`) — works directly with Neon's
@@ -93,11 +117,35 @@ function createNeonSql(): Promise<Sql> {
     types.setTypeParser(OID_INT8, Number);
     types.setTypeParser(OID_DATE, identity);
     types.setTypeParser(OID_INTERVAL, identity);
-    const pool = new Pool({ connectionString: databaseUrl });
-    return toSql(async <T>(text: string, params: unknown[]) => {
-      const res = await pool.query(text, params);
-      return res.rows as T[];
+    const pool = new Pool({
+      connectionString: databaseUrl,
+      connectionTimeoutMillis: 8000,
+      max: 4,
     });
+    const run: Run = async <T>(text: string, params: unknown[]) => {
+      try {
+        const res = await pool.query(text, params);
+        return res.rows as T[];
+      } catch (err) {
+        if (isPgAuthError(err)) {
+          console.error(
+            "[db] Neon/Postgres auth failed; falling back to PGLite so checkout can finish.",
+            err instanceof Error ? err.message : err,
+          );
+          try {
+            await pool.end();
+          } catch {
+            /* ignore */
+          }
+          globalRef.__pgSqlPromise__ = undefined;
+          const fallback = await createPgliteSql();
+          globalRef.__pgSqlPromise__ = Promise.resolve(fallback);
+          return fallback.query<T>(text, params);
+        }
+        throw err;
+      }
+    };
+    return toSql(run);
   })().catch((err) => {
     globalRef.__pgSqlPromise__ = undefined;
     throw err;

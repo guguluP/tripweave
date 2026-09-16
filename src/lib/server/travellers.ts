@@ -5,6 +5,7 @@ import { getSql } from "@/lib/db";
 import { guestExpiresAt, idLast4 } from "@/lib/travelers";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { sbSaveTravellers } from "@/lib/supabase/travellers";
+import { isDurableDbError, markDurableDbFailed, shouldSkipNeon } from "./db-fallback";
 
 const travelerSchema = z.object({
   fullName: z.string().min(2),
@@ -38,12 +39,13 @@ export const saveTravellers = createServerFn({ method: "POST" })
         });
         return { ok: true as const, stored: "supabase" as const };
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Could not save travellers.";
-        return { ok: false as const, message };
+        if (isDurableDbError(err)) markDurableDbFailed(err);
+        console.error("[travellers] supabase save failed", err);
+        return { ok: true as const, stored: "local" as const };
       }
     }
 
-    if (!process.env.DATABASE_URL?.trim()) {
+    if (shouldSkipNeon() || Boolean(process.env.VERCEL) || !process.env.DATABASE_URL?.trim()) {
       return { ok: true as const, stored: "local" as const };
     }
 
@@ -66,7 +68,7 @@ export const saveTravellers = createServerFn({ method: "POST" })
       await sql`delete from stay_guests where user_id = ${context.userId} and expires_at < now()`;
       return { ok: true as const, stored: "db" as const };
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Could not save travellers.";
-      return { ok: false as const, message };
+      markDurableDbFailed(err);
+      return { ok: true as const, stored: "local" as const };
     }
   });

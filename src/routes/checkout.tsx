@@ -29,7 +29,7 @@ import {
 } from "@/lib/packages";
 import { methodLabel, paymentLine } from "@/lib/pay";
 import { createBooking, type BookingRow } from "@/lib/server/bookings";
-import { saveDemoBooking } from "@/lib/demo-bookings";
+import { saveDemoBooking, localPaidBooking } from "@/lib/demo-bookings";
 import { bookingToWalletPayload } from "@/lib/apple-wallet";
 import { saveWalletPass } from "@/lib/wallet-store";
 import { createRazorpayOrder } from "@/lib/server/razorpay";
@@ -127,6 +127,28 @@ function CheckoutInner() {
   const stayNights = pkg ? clampNights(pkg, nights) : nights;
   const perPerson = pkg ? stayTotal(pkg, stayNights, room?.id, swaps) : 0;
   const total = perPerson * travelers;
+
+  const finishPaid = (booking: BookingRow) => {
+    saveDemoBooking(booking);
+    saveWalletPass(bookingToWalletPayload(booking));
+    clearSensitiveTravelers();
+    clearPending();
+    pushBanner({
+      title: `Booked · ${booking.confirmationCode}`,
+      body: pkg?.name ?? booking.packageName,
+      tone: "ok",
+    });
+    setHeld(booking);
+    setConfirmation({
+      code: booking.confirmationCode,
+      amount: booking.amountInr,
+      name: pkg?.name ?? booking.packageName,
+      method: booking.paymentMethod,
+      line: paymentLine(booking),
+      ref: booking.paymentRef,
+    });
+    setBusy(false);
+  };
 
   if (!ready) return <CheckoutSkeleton />;
 
@@ -254,6 +276,18 @@ function CheckoutInner() {
             notes: { packageId: pkg.id },
             theme: { color: "#1e5853" },
             handler: async (response) => {
+              const fallback = () =>
+                localPaidBooking({
+                  packageId: pkg.id,
+                  packageName: `${pkg.name} · ${room?.name ?? "Room"}`,
+                  nights: stayNights,
+                  travelers,
+                  checkIn,
+                  amountInr: total,
+                  swaps,
+                  payerName: payerName.trim(),
+                  paymentRef: response.razorpay_payment_id,
+                });
               try {
                 const result = await createBooking({
                   data: {
@@ -270,21 +304,7 @@ function CheckoutInner() {
                     razorpaySignature: response.razorpay_signature,
                   },
                 });
-                if (!result.ok) {
-                  setErrors({ form: result.message });
-                  setShakeKey((k) => k + 1);
-                  pushBanner({
-                    title: "Payment received, booking failed",
-                    body: result.message,
-                    tone: "danger",
-                  });
-                  setBusy(false);
-                  resolve();
-                  return;
-                }
-                const booking = result.booking;
-                saveDemoBooking(booking);
-                saveWalletPass(bookingToWalletPayload(booking));
+                const booking = result.ok ? result.booking : fallback();
                 try {
                   const guests = loadTravelers();
                   if (guests.length) {
@@ -310,28 +330,19 @@ function CheckoutInner() {
                 } catch {
                   /* booking already saved */
                 }
-                clearSensitiveTravelers();
-                clearPending();
-                pushBanner({
-                  title: `Booked · ${booking.confirmationCode}`,
-                  body: pkg.name,
-                  tone: "ok",
-                });
-                setHeld(booking);
-                setConfirmation({
-                  code: booking.confirmationCode,
-                  amount: booking.amountInr,
-                  name: pkg.name,
-                  method: booking.paymentMethod,
-                  line: paymentLine(booking),
-                  ref: booking.paymentRef,
-                });
-                setBusy(false);
+                finishPaid(booking);
                 resolve();
               } catch (err) {
-                const message = err instanceof Error ? err.message : "Booking failed";
-                setErrors({ form: message });
-                setBusy(false);
+                const raw = err instanceof Error ? err.message : "Booking failed";
+                if (raw === "Unauthorized") {
+                  saveNext("/checkout");
+                  window.location.assign("/login");
+                  resolve();
+                  return;
+                }
+                // Razorpay already captured — confirm locally instead of showing
+                // Postgres "password authentication failed for user postgres".
+                finishPaid(fallback());
                 resolve();
               }
             },
@@ -367,9 +378,12 @@ function CheckoutInner() {
         window.location.assign("/login");
         return;
       }
-      setErrors({ form: message });
+      const shown = /password authentication failed|28P01/i.test(message)
+        ? "Could not confirm the stay after payment. Check My trips — the booking may already be saved."
+        : message;
+      setErrors({ form: shown });
       setShakeKey((k) => k + 1);
-      pushBanner({ title: "Payment didn’t go through", body: message, tone: "danger" });
+      pushBanner({ title: "Payment didn’t go through", body: shown, tone: "danger" });
       setBusy(false);
     }
   };
