@@ -155,3 +155,18 @@ create policy "reviewer_consensus_no_client_delete"
   using (false);
 
 comment on table public.reviewer_consensus is 'Cached YouTube reviewer consensus per stay. Public read. Server writes via service role.';
+
+alter table public.reviewer_consensus add column if not exists room_notes jsonb not null default '{}'::jsonb;
+
+grant usage on schema public to anon, authenticated, service_role;
+grant select on table public.reviewer_consensus to anon, authenticated, service_role;
+grant all on table public.bookings to service_role;
+grant all on table public.travellers to service_role;
+grant all on table public.payment_events to service_role;
+grant all on table public.reviewer_consensus to service_role;
+grant usage, select on all sequences in schema public to service_role;
+
+create unique index if not exists payment_events_payment_id_uidx
+  on public.payment_events (payment_id)
+  where payment_id is not null;
+

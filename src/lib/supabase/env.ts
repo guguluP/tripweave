@@ -1,4 +1,5 @@
 /** Shared env helpers for Supabase. Server-only secrets must never use VITE_. */
+import { SUPABASE_PROJECT_URL } from "./project.ts";
 
 function pick(...vals: Array<string | undefined>): string {
   for (const v of vals) {
@@ -25,7 +26,7 @@ function fromNamedJson(raw: string | undefined): string {
 }
 
 export function supabaseUrl(): string {
-  return pick(process.env.SUPABASE_URL, process.env.VITE_SUPABASE_URL);
+  return pick(process.env.SUPABASE_URL, process.env.VITE_SUPABASE_URL) || SUPABASE_PROJECT_URL;
 }
 
 /** Public / anon / publishable key. Safe for the browser. */
@@ -59,13 +60,18 @@ export function isSupabaseConfigured(): boolean {
   return Boolean(supabaseUrl() && (supabaseServiceRoleKey() || supabaseAnonKey()));
 }
 
+/** True when the server can bypass RLS (required for bookings writes). */
+export function isSupabaseAdminConfigured(): boolean {
+  return Boolean(supabaseUrl() && supabaseServiceRoleKey());
+}
+
 /** Browser-safe: only public URL + anon/publishable key. */
 export function isSupabaseBrowserConfigured(): boolean {
   const env =
     typeof import.meta !== "undefined"
       ? (import.meta as ImportMeta & { env?: Record<string, string> }).env
       : undefined;
-  const url = pick(env?.VITE_SUPABASE_URL);
+  const url = pick(env?.VITE_SUPABASE_URL) || SUPABASE_PROJECT_URL;
   const key = pick(env?.VITE_SUPABASE_ANON_KEY, env?.VITE_SUPABASE_PUBLISHABLE_KEY);
   return Boolean(url && key);
 }

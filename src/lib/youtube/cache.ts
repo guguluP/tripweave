@@ -168,6 +168,7 @@ export async function writeDurableCache(
         origin: consensus.origin,
         video_hash: hash,
         updated_at: consensus.updatedAt,
+        room_notes: consensus.roomNotes ?? {},
       },
       { onConflict: "package_id" },
     );
