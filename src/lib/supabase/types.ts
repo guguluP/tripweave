@@ -50,5 +50,18 @@ export type SbReviewerConsensus = {
   sources: unknown;
   origin: "seed" | "live" | "empty";
   video_hash: string | null;
+  room_notes?: Record<string, unknown> | null;
   updated_at: string;
+};
+
+export type SbPaymentEvent = {
+  id: number;
+  user_id: string | null;
+  booking_id: number | null;
+  provider: string;
+  event_type: string;
+  order_id: string | null;
+  payment_id: string | null;
+  payload: Record<string, unknown>;
+  created_at: string;
 };

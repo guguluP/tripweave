@@ -18,6 +18,7 @@ import {
 } from "@/lib/server/bookings";
 import { cancelDemoBooking, listDemoBookings, mergeBookings } from "@/lib/demo-bookings";
 import { isDemoMode } from "@/lib/auth/use-current-user";
+import { getPersistStatus } from "@/lib/supabase/status";
 
 export const Route = createFileRoute("/trips")({ component: Trips });
 
@@ -43,6 +44,7 @@ function Trips() {
 function TripsInner() {
   const [bookings, setBookings] = useState<BookingRow[] | null>(null);
   const [cancelling, setCancelling] = useState<number | null>(null);
+  const [cloud, setCloud] = useState<boolean | null>(null);
 
   const refresh = () => {
     if (isDemoMode()) {
@@ -56,6 +58,9 @@ function TripsInner() {
 
   useEffect(() => {
     refresh();
+    getPersistStatus()
+      .then((s) => setCloud(s.cloud))
+      .catch(() => setCloud(false));
   }, []);
 
   return (
@@ -64,6 +69,11 @@ function TripsInner() {
         <Stagger>
           <p className="eyebrow">My trips</p>
           <h1 className="mt-2 font-display text-4xl">Bookings</h1>
+          {cloud === true ? (
+            <p className="mt-2 text-sm text-muted">Synced to your TripWeave account.</p>
+          ) : cloud === false ? (
+            <p className="mt-2 text-sm text-muted">Shown from this device until cloud save is connected.</p>
+          ) : null}
         </Stagger>
         {bookings === null ? (
           <Skeleton className="mt-8 h-32 w-full rounded-xl" />

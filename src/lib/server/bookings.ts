@@ -10,6 +10,7 @@ import {
   sbInsertBooking,
   sbListBookings,
 } from "@/lib/supabase/bookings";
+import { sbInsertPaymentEvent } from "@/lib/supabase/payments";
 import {
   isDurableDbError,
   markDurableDbFailed,
@@ -38,7 +39,7 @@ export type BookingRow = {
 };
 
 export type CreateBookingResult =
-  | { ok: true; booking: BookingRow }
+  | { ok: true; booking: BookingRow; stored: "supabase" | "local" }
   | { ok: false; message: string; field?: string };
 
 type DbBooking = {
@@ -278,7 +279,20 @@ export const createBooking = createServerFn({ method: "POST" })
           userId: context.userId,
           ...local,
         });
-        if (booking) return { ok: true, booking };
+        if (booking) {
+          await sbInsertPaymentEvent({
+            userId: context.userId,
+            bookingId: booking.id,
+            eventType: "captured",
+            orderId: data.razorpayOrderId ?? null,
+            paymentId: paid.ref,
+            payload: {
+              method: paid.method,
+              confirmation: code,
+            },
+          });
+          return { ok: true, booking, stored: "supabase" };
+        }
       } catch (err) {
         if (isDurableDbError(err)) markDurableDbFailed(err);
         console.error("[bookings] supabase insert failed, keeping confirmation", err);
@@ -286,7 +300,7 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
     if (useMemoryStore()) {
-      return { ok: true, booking: memoryBooking(local) };
+      return { ok: true, booking: memoryBooking(local), stored: "local" };
     }
 
     try {
@@ -308,11 +322,11 @@ export const createBooking = createServerFn({ method: "POST" })
                   payment_method, payment_ref, upi_handle, bank_name, created_at
       `;
       const row = rows[0];
-      if (!row) return { ok: true, booking: memoryBooking(local) };
-      return { ok: true, booking: mapBooking(row) };
+      if (!row) return { ok: true, booking: memoryBooking(local), stored: "local" };
+      return { ok: true, booking: mapBooking(row), stored: "local" };
     } catch (err) {
       markDurableDbFailed(err);
-      return { ok: true, booking: memoryBooking(local) };
+      return { ok: true, booking: memoryBooking(local), stored: "local" };
     }
   });
 

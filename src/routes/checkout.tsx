@@ -91,6 +91,7 @@ function CheckoutInner() {
     method: string;
     line: string;
     ref: string | null;
+    stored: "supabase" | "local";
   } | null>(null);
 
   useEffect(() => {
@@ -128,7 +129,7 @@ function CheckoutInner() {
   const perPerson = pkg ? stayTotal(pkg, stayNights, room?.id, swaps) : 0;
   const total = perPerson * travelers;
 
-  const finishPaid = (booking: BookingRow) => {
+  const finishPaid = (booking: BookingRow, stored: "supabase" | "local" = "local") => {
     saveDemoBooking(booking);
     saveWalletPass(bookingToWalletPayload(booking));
     clearSensitiveTravelers();
@@ -146,6 +147,7 @@ function CheckoutInner() {
       method: booking.paymentMethod,
       line: paymentLine(booking),
       ref: booking.paymentRef,
+      stored,
     });
     setBusy(false);
   };
@@ -202,6 +204,11 @@ function CheckoutInner() {
           {confirmation.ref ? (
             <p className="mt-1 text-xs text-subtle">Ref {confirmation.ref}</p>
           ) : null}
+          <p className="mt-3 text-xs text-subtle">
+            {confirmation.stored === "supabase"
+              ? "Saved to your TripWeave account — it will show up on any device you sign in from."
+              : "Saved on this device. Sign-in bookings sync to the cloud once the live site keys are connected."}
+          </p>
           <div className="mt-8 w-full text-left">
             <AddToWallet booking={held} />
           </div>
@@ -305,6 +312,7 @@ function CheckoutInner() {
                   },
                 });
                 const booking = result.ok ? result.booking : fallback();
+                const stored = result.ok ? result.stored : "local";
                 try {
                   const guests = loadTravelers();
                   if (guests.length) {
@@ -330,7 +338,7 @@ function CheckoutInner() {
                 } catch {
                   /* booking already saved */
                 }
-                finishPaid(booking);
+                finishPaid(booking, stored);
                 resolve();
               } catch (err) {
                 const raw = err instanceof Error ? err.message : "Booking failed";
@@ -342,7 +350,7 @@ function CheckoutInner() {
                 }
                 // Razorpay already captured — confirm locally instead of showing
                 // Postgres "password authentication failed for user postgres".
-                finishPaid(fallback());
+                finishPaid(fallback(), "local");
                 resolve();
               }
             },
