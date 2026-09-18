@@ -3,6 +3,8 @@
  * Nearest major airport: Bhubaneswar (BBI) ~60–70 km.
  * Rail: Puri station is in town.
  */
+import type { ArriveBy, OriginId } from "./origins.ts";
+import { inboundFor } from "./origins.ts";
 
 export type TransportLeg = {
   mode: string;
@@ -370,6 +372,102 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
     ],
     localNote: "Classic Puri beach hotel. Peak weekends fill the lawn — mid-week is calmer.",
   },
+  "regenta-central-puri": {
+    neighborhood: "Near Jagannath Temple",
+    best: {
+      mode: "Train to Puri + auto, or cab from BBI",
+      duration: "10–15 min from the station · 70–100 min from BBI",
+      costHint: "₹120–250 auto · ₹1,400–2,000 cab",
+      why: "Temple-side 4-star. Rail arrivals win; flyers take a cab straight to Grand Road.",
+      luggage: "ok",
+      rank: 1,
+    },
+    fromAirport: [
+      {
+        mode: "App cab",
+        duration: "70–100 min",
+        costHint: "₹1,400–2,000",
+        why: "Drop on the temple side of town — skip the beach loop.",
+        luggage: "easy",
+        rank: 1,
+      },
+    ],
+    fromStation: [
+      {
+        mode: "Auto / walk",
+        duration: "8–15 min",
+        costHint: "₹80–180",
+        why: "Short ride toward Jagannath. Fine with a cabin bag.",
+        luggage: "ok",
+        rank: 1,
+      },
+    ],
+    localNote: "Ask the desk for a quiet darshan window. Festival nights the road closes.",
+  },
+  "hans-coco-palms": {
+    neighborhood: "Sea Beach Road",
+    best: {
+      mode: "App cab from BBI",
+      duration: "1 hr 15 min – 1 hr 45 min",
+      costHint: "₹1,500–2,100",
+      why: "On the beach road with the palms — cabs pin it without fuss.",
+      luggage: "easy",
+      rank: 1,
+    },
+    fromAirport: [
+      {
+        mode: "App cab / hotel transfer",
+        duration: "75–105 min",
+        costHint: "₹1,500–2,100",
+        why: "Direct to the garden gate.",
+        luggage: "easy",
+        rank: 1,
+      },
+    ],
+    fromStation: [
+      {
+        mode: "Auto",
+        duration: "10–18 min",
+        costHint: "₹120–250",
+        why: "Short hop to the sand.",
+        luggage: "ok",
+        rank: 1,
+      },
+    ],
+    localNote: "Beach-side value stay. Evening walk on the sand is the point.",
+  },
+  "empires-hotel-puri": {
+    neighborhood: "Grand Road",
+    best: {
+      mode: "Train to Puri + auto",
+      duration: "8–15 min from the station",
+      costHint: "₹80–180",
+      why: "Temple-night hotel on Grand Road. Rail is the natural arrival.",
+      luggage: "ok",
+      rank: 1,
+    },
+    fromAirport: [
+      {
+        mode: "App cab",
+        duration: "70–100 min",
+        costHint: "₹1,400–2,000",
+        why: "Ask for Grand Road / temple side, not the marine drive hotels.",
+        luggage: "easy",
+        rank: 1,
+      },
+    ],
+    fromStation: [
+      {
+        mode: "Auto",
+        duration: "8–15 min",
+        costHint: "₹80–180",
+        why: "The walk is possible; an auto is kinder with bags.",
+        luggage: "ok",
+        rank: 1,
+      },
+    ],
+    localNote: "Built for a darshan night, not a beach week. Grand Road closes on big festival evenings.",
+  },
 };
 
 const DEFAULT: Omit<PropertyTransport, "packageId"> = {
@@ -418,6 +516,43 @@ const DEFAULT: Omit<PropertyTransport, "packageId"> = {
 export function getTransportForPackage(packageId: string): PropertyTransport {
   const base = BY_ID[packageId] ?? DEFAULT;
   return { packageId, ...base };
+}
+
+export type Journey = {
+  packageId: string;
+  originId: OriginId | string;
+  arriveBy: ArriveBy;
+  inbound: ReturnType<typeof inboundFor>;
+  lastMile: TransportLeg;
+  localNote: string;
+  neighborhood: string;
+  showDigiYatra: boolean;
+};
+
+export function lastMileForArrival(packageId: string, arriveBy: ArriveBy): TransportLeg {
+  const t = getTransportForPackage(packageId);
+  if (arriveBy === "train") return t.fromStation[0] ?? t.best;
+  if (arriveBy === "road") return t.fromAirport[0] ?? t.best;
+  return t.fromAirport[0] ?? t.best;
+}
+
+export function getJourney(
+  packageId: string,
+  originId: OriginId | string | undefined,
+  arriveBy: ArriveBy,
+): Journey {
+  const t = getTransportForPackage(packageId);
+  const inbound = inboundFor(originId, arriveBy);
+  return {
+    packageId,
+    originId: originId || "other",
+    arriveBy,
+    inbound,
+    lastMile: lastMileForArrival(packageId, arriveBy),
+    localNote: t.localNote,
+    neighborhood: t.neighborhood,
+    showDigiYatra: inbound.gateway === "BBI",
+  };
 }
 
 export const DIGIYATRA_GUIDE = {

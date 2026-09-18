@@ -16,6 +16,7 @@ import {
   type StayPackage,
 } from "@/lib/packages";
 import { useSavedIds } from "@/lib/saved";
+import { getOrigin } from "@/lib/origins";
 
 export const Route = createFileRoute("/matches")({ component: Matches });
 
@@ -71,9 +72,10 @@ function Matches() {
           <p className="eyebrow">Matches</p>
           <h1 className="mt-2 font-display text-4xl">{title}</h1>
           <p className="mt-3 max-w-xl text-muted">
-            Ranked for a {brief.nights}-night {brief.style} trip, {brief.budget} budget, {brief.vibe}{" "}
-            vibe{brief.flexible ? ", with flexible dates" : ""}. Twelve stays in the catalog; three
-            on the short list.
+            Ranked for a {brief.nights}-night {brief.style} trip from {getOrigin(brief.origin).label},{" "}
+            {brief.budget} budget, {brief.vibe} vibe
+            {brief.flexible ? ", with flexible dates" : ""}. Twelve stays in the catalog; three on
+            the short list.
           </p>
         </Stagger>
 

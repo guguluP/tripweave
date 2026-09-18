@@ -27,8 +27,8 @@ function Home() {
               Twelve honest Puri hotels. Ranked to three.
             </h1>
             <p className="mt-4 max-w-md text-base text-primary-fg/80">
-              Answer a short brief. We return three curated stays with all-in rupee prices — from a
-              single night to a slow week.
+              Answer a short brief — including how you get here. We return three curated stays with
+              all-in rupee prices, from a single night to a slow week.
             </p>
           </Stagger>
           <div className="mt-8 flex flex-wrap items-center gap-4">

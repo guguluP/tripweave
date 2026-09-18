@@ -10,6 +10,7 @@ import { DigitPop, Stagger, TextSwap } from "@/components/motion";
 import { PropertyMedia } from "@/components/property-media";
 import { ReviewerConsensus } from "@/components/reviewer-consensus";
 import { RoomPicker } from "@/components/room-picker";
+import { DigiYatraPanel, TransportPanel } from "@/components/transport-panel";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { youtubeSourceCount } from "@/lib/trust-score";
 import {
@@ -25,6 +26,7 @@ import {
   stayTotal,
 } from "@/lib/packages";
 import { cn } from "@/lib/utils";
+import { getJourney } from "@/lib/transport";
 
 export const Route = createFileRoute("/trip/$id")({ component: TripDetail });
 
@@ -63,6 +65,8 @@ function TripDetail() {
   const room = getRoom(pkg, roomId);
   const days = daysForStay(pkg, nights);
   const price = stayTotal(pkg, nights, room.id, swaps);
+  const brief = loadBrief();
+  const journey = getJourney(pkg.id, brief.origin, brief.arriveBy);
 
   const toggleSwap = (dayIdx: number, optionId: string) => {
     setSwaps((s) => {
@@ -158,6 +162,11 @@ function TripDetail() {
         />
 
         <ReviewerConsensus packageId={pkg.id} roomId={room.id} roomName={room.name} />
+
+        <div className="mt-10 grid gap-4">
+          <TransportPanel journey={journey} />
+          {journey.showDigiYatra ? <DigiYatraPanel /> : null}
+        </div>
 
         <h2 className="mt-10 font-display text-2xl">Stay plan</h2>
         <p className="mt-1 text-sm text-muted">

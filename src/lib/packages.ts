@@ -1,6 +1,7 @@
 import { trustScoreForPackage } from "./trust-score.ts";
 import { attachPropertyMedia } from "./property-media.ts";
 import { RAW } from "./packages-data.ts";
+import { getOrigin, type ArriveBy, type OriginId } from "./origins.ts";
 
 export type Vibe = "culture" | "beach" | "relax" | "adventure";
 export type Budget = "value" | "mid" | "premium";
@@ -73,6 +74,8 @@ export type Brief = {
   style: TravelStyle;
   nights: number;
   flexible: boolean;
+  origin: OriginId;
+  arriveBy: ArriveBy;
 };
 
 export const DEFAULT_BRIEF: Brief = {
@@ -81,6 +84,8 @@ export const DEFAULT_BRIEF: Brief = {
   style: "couple",
   nights: 3,
   flexible: false,
+  origin: "kolkata",
+  arriveBy: "fly",
 };
 
 export const BRIEF_KEY = "tripweave-brief";
@@ -237,12 +242,19 @@ export function loadBrief(): Brief {
     if (!raw) return DEFAULT_BRIEF;
     const parsed = JSON.parse(raw) as Partial<Brief>;
     const nights = Number(parsed.nights);
+    const origin = getOrigin(parsed.origin as string | undefined).id;
+    const allowed = getOrigin(origin).inbound.map((l) => l.mode);
+    const arriveBy = allowed.includes(parsed.arriveBy as ArriveBy)
+      ? (parsed.arriveBy as ArriveBy)
+      : getOrigin(origin).defaultArriveBy;
     return {
       vibe: parsed.vibe ?? DEFAULT_BRIEF.vibe,
       budget: parsed.budget ?? DEFAULT_BRIEF.budget,
       style: parsed.style ?? DEFAULT_BRIEF.style,
       nights: Number.isFinite(nights) && nights >= 1 ? Math.min(14, nights) : DEFAULT_BRIEF.nights,
       flexible: Boolean(parsed.flexible),
+      origin,
+      arriveBy,
     };
   } catch {
     return DEFAULT_BRIEF;
