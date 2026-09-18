@@ -12,6 +12,8 @@ import {
   RANK_LABELS,
   loadBrief,
   matchPackages,
+  originFitReason,
+  rankingBlurb,
   type Brief,
   type StayPackage,
 } from "@/lib/packages";
@@ -74,8 +76,8 @@ function Matches() {
           <p className="mt-3 max-w-xl text-muted">
             Ranked for a {brief.nights}-night {brief.style} trip from {getOrigin(brief.origin).label},{" "}
             {brief.budget} budget, {brief.vibe} vibe
-            {brief.flexible ? ", with flexible dates" : ""}. Twelve stays in the catalog; three on
-            the short list.
+            {brief.flexible ? ", with flexible dates" : ""}. {rankingBlurb(brief)} Twelve stays in
+            the catalog; three on the short list.
           </p>
         </Stagger>
 
@@ -121,6 +123,9 @@ function Matches() {
                   pkg={pkg}
                   rank={tab === "matches" && !query ? RANK_LABELS[i] : undefined}
                   nights={brief.nights}
+                  originWhy={
+                    tab === "matches" && !query ? originFitReason(pkg, brief) : undefined
+                  }
                 />
               ))}
         </div>

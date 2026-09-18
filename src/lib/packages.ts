@@ -97,6 +97,7 @@ export type PendingBooking = {
   swaps: Record<string, string>;
   nights: number;
   roomId: string;
+  checkIn?: string;
 };
 
 export function formatMoney(amount: number, currency = "INR") {
@@ -195,6 +196,87 @@ export function stayTotal(
   return total;
 }
 
+export function originTraits(pkg: StayPackage) {
+  const blob = `${pkg.id} ${pkg.neighborhood} ${pkg.includes.join(" ")}`.toLowerCase();
+  return {
+    temple: /jagannath|grand road|station|railway|chanakya|empires|regenta/.test(blob),
+    beach:
+      /beach|balukhand|marine|baliapanda|chakratirtha|coco|chariot|holiday|mahodadhi|swosti|waves|heritage/.test(
+        blob,
+      ),
+    far: /toshali|konark/.test(blob),
+    airportTransfer: /airport transfer/.test(blob),
+  };
+}
+
+export function originFitScore(pkg: StayPackage, brief: Brief): number {
+  const { temple, beach, far, airportTransfer } = originTraits(pkg);
+  const local =
+    brief.origin === "bhubaneswar" ||
+    brief.origin === "cuttack" ||
+    brief.origin === "khordha" ||
+    brief.origin === "puri";
+  let score = 0;
+  if (brief.arriveBy === "train" || brief.arriveBy === "bus") {
+    if (temple) score += 2.2;
+    if (far) score -= 1.6;
+    if (beach && !temple) score += 0.4;
+  }
+  if (brief.arriveBy === "fly") {
+    if (airportTransfer) score += 1.8;
+    if (beach) score += 0.8;
+    if (temple && !airportTransfer) score -= 0.3;
+  }
+  if (brief.arriveBy === "road" && !far) score += 0.6;
+  if (local && !far) score += 1.3;
+  if (local && far) score -= 1.1;
+  if (brief.origin === "puri" && temple) score += 1.4;
+  return score;
+}
+
+export function originFitReason(pkg: StayPackage, brief: Brief): string {
+  const { temple, beach, far, airportTransfer } = originTraits(pkg);
+  const city = getOrigin(brief.origin).label;
+  if (brief.arriveBy === "train" || brief.arriveBy === "bus") {
+    if (temple) {
+      return `Temple / station side — shorter last mile after a ${brief.arriveBy} from ${city}.`;
+    }
+    if (far) {
+      return `Out toward Konark — longer hop after a ${brief.arriveBy} from ${city}.`;
+    }
+  }
+  if (brief.arriveBy === "fly" && airportTransfer) {
+    return `Airport transfer included — useful flying in from ${city}.`;
+  }
+  const local =
+    brief.origin === "bhubaneswar" ||
+    brief.origin === "cuttack" ||
+    brief.origin === "khordha" ||
+    brief.origin === "puri";
+  if (local && !far) return `Closer to town — a short hop from ${city}.`;
+  if (brief.arriveBy === "fly" && beach) return `Beach stay after a flight from ${city}.`;
+  return `Ranked for a ${brief.arriveBy} trip from ${city}.`;
+}
+
+export function rankingBlurb(brief: Brief): string {
+  const city = getOrigin(brief.origin).label;
+  if (brief.arriveBy === "train" || brief.arriveBy === "bus") {
+    return `Temple-side stays rank higher than Konark for a ${brief.arriveBy} from ${city}.`;
+  }
+  if (brief.arriveBy === "fly") {
+    return `Airport-transfer hotels lift for a flight from ${city}.`;
+  }
+  if (
+    brief.origin === "khordha" ||
+    brief.origin === "bhubaneswar" ||
+    brief.origin === "cuttack" ||
+    brief.origin === "puri"
+  ) {
+    return `Town stays rank above far-out Konark for a trip from ${city}.`;
+  }
+  return `Ranked for a ${brief.arriveBy} trip from ${city}.`;
+}
+
 export function matchPackages(brief: Brief) {
   const scored = PACKAGES.map((p) => {
     let score = 0;
@@ -211,6 +293,7 @@ export function matchPackages(brief: Brief) {
         score += Math.max(0, 2 - nightDiff / 2);
       }
     }
+    score += originFitScore(p, brief);
     return { ...p, matchScore: score };
   });
   return scored
@@ -288,6 +371,7 @@ export function loadPending(): PendingBooking | null {
           ? clampNights(pkg, nightsRaw)
           : (pkg?.nights ?? DEFAULT_BRIEF.nights),
       roomId: typeof parsed.roomId === "string" && parsed.roomId ? parsed.roomId : (pkg?.rooms[0]?.id ?? ""),
+      checkIn: typeof parsed.checkIn === "string" && /^\d{4}-\d{2}-\d{2}$/.test(parsed.checkIn) ? parsed.checkIn : undefined,
     };
   } catch {
     return null;

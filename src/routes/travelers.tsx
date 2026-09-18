@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, ShakeField, ShakeSelect, Stagger } from "@/components/motion";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { pushBanner } from "@/lib/banners";
-import { getTransportForPackage } from "@/lib/transport";
+import { getJourney } from "@/lib/transport";
 import {
   DIGIYATRA_LABELS,
   GENDER_LABELS,
@@ -27,7 +27,8 @@ import {
   type Traveler,
   type TravelerErrors,
 } from "@/lib/travelers";
-import { formatMoney, getPackage, getRoom, loadPending, nightsPhrase, stayTotal } from "@/lib/packages";
+import { formatMoney, getPackage, getRoom, loadBrief, loadPending, nightsPhrase, stayTotal } from "@/lib/packages";
+import { quoteStay } from "@/lib/inventory";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/travelers")({ component: TravelersPage });
@@ -69,6 +70,7 @@ function TravelersInner() {
   const [swaps, setSwaps] = useState<Record<string, string>>({});
   const [nights, setNights] = useState(1);
   const [roomId, setRoomId] = useState("");
+  const [checkIn, setCheckIn] = useState("");
   const [count, setCount] = useState(2);
   const [list, setList] = useState<Traveler[]>([emptyTraveler(), emptyTraveler()]);
   const [errors, setErrors] = useState<TravelerErrors[]>([]);
@@ -81,30 +83,48 @@ function TravelersInner() {
     setSwaps(pending?.swaps ?? {});
     setNights(pending?.nights ?? 1);
     setRoomId(pending?.roomId ?? "");
+    setCheckIn(pending?.checkIn ?? "");
     const saved = loadTravelers();
+    const pendingPkg = pending?.packageId ? getPackage(pending.packageId) : undefined;
+    const pendingRoom = pendingPkg ? getRoom(pendingPkg, pending?.roomId) : undefined;
+    const cap = pendingRoom?.occupancy ?? 8;
     if (saved.length > 0) {
-      setList(saved);
-      setCount(saved.length);
+      const sliced = saved.slice(0, cap);
+      setList(sliced);
+      setCount(sliced.length);
     } else if (user?.primaryEmail || user?.displayName) {
       setList([
         emptyTraveler({
           fullName: user.displayName ?? "",
           email: user.primaryEmail ?? "",
         }),
-        emptyTraveler(),
       ]);
+      setCount(1);
     }
     setReady(true);
   }, [user?.displayName, user?.primaryEmail]);
 
   const pkg = packageId ? getPackage(packageId) : undefined;
-  const transport = packageId ? getTransportForPackage(packageId) : null;
+  const brief = loadBrief();
+  const journey = packageId ? getJourney(packageId, brief.origin, brief.arriveBy) : null;
   const room = pkg ? getRoom(pkg, roomId) : undefined;
-  const perPerson = pkg ? stayTotal(pkg, nights, room?.id, swaps) : 0;
-  const total = perPerson * count;
+  const maxGuests = room?.occupancy ?? 8;
+  const quote =
+    pkg && checkIn
+      ? quoteStay({
+          packageId: pkg.id,
+          roomId: room?.id,
+          checkIn,
+          nights,
+          swaps,
+        })
+      : null;
+  const perPerson = quote?.perPerson ?? (pkg ? stayTotal(pkg, nights, room?.id, swaps) : 0);
+  const total = perPerson * Math.min(count, maxGuests);
 
   const syncCount = (n: number) => {
-    const next = Math.min(8, Math.max(1, n));
+    const cap = room?.occupancy ?? 8;
+    const next = Math.min(cap, Math.max(1, n));
     setCount(next);
     setList((prev) => {
       if (prev.length === next) return prev;
@@ -120,6 +140,14 @@ function TravelersInner() {
   };
 
   const onContinue = () => {
+    if (room && count > room.occupancy) {
+      pushBanner({
+        title: `This room sleeps ${room.occupancy}`,
+        body: "Remove extra guests or pick a larger room.",
+        tone: "danger",
+      });
+      return;
+    }
     const result = validateTravelers(list.slice(0, count));
     setErrors(result.errors);
     if (!result.ok) {
@@ -198,7 +226,7 @@ function TravelersInner() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <p className="text-sm font-medium">Guests</p>
+              <p className="text-sm font-medium">Guests · sleeps {maxGuests}</p>
               <div className="inline-flex h-11 items-center rounded-md border border-border bg-elevated">
                 <button
                   type="button"
@@ -211,8 +239,9 @@ function TravelersInner() {
                 <span className="min-w-10 text-center text-sm tabular-nums">{count}</span>
                 <button
                   type="button"
-                  className="grid size-11 place-items-center text-muted hover:text-fg"
+                  className="grid size-11 place-items-center text-muted hover:text-fg disabled:opacity-40"
                   aria-label="More guests"
+                  disabled={count >= maxGuests}
                   onClick={() => syncCount(count + 1)}
                 >
                   <Plus className="size-4" />
@@ -229,6 +258,11 @@ function TravelersInner() {
               DigiLocker assist
             </Button>
           </div>
+          {count >= maxGuests ? (
+            <p className="mt-3 text-xs text-muted">
+              This room sleeps {maxGuests}. Extra guests need a larger room — occupancy is a hard cap.
+            </p>
+          ) : null}
 
           <div className="mt-8 grid gap-5">
             {list.slice(0, count).map((t, i) => {
@@ -449,7 +483,7 @@ function TravelersInner() {
             </div>
           </Card>
 
-          {transport ? <TransportPanel transport={transport} /> : null}
+          {journey ? <TransportPanel journey={journey} /> : null}
           <DigiYatraPanel />
         </aside>
       </div>

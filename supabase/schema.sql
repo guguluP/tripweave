@@ -196,6 +196,202 @@ create policy "block_client_profiles"
   on public.profiles for all to anon, authenticated
   using (false) with check (false);
 
+grant all on table public.profiles to service_role;
+grant all on table public.saved_stays to service_role;
+
 -- Writes go through public.tw_apply (gated RPC). Do not grant table writes to anon.
+create or replace function public.tw_apply(p_gate text, p_op text, p_payload jsonb)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  expected text := 'twg_6fc5976ec6ca8ce5a99ec06cb98d6a98';
+  uid text;
+  rec jsonb;
+  rec_id bigint;
+begin
+  if p_gate is distinct from expected then
+    raise exception 'forbidden';
+  end if;
+
+  uid := p_payload->>'user_id';
+
+  if p_op = 'list_bookings' then
+    return coalesce((
+      select jsonb_agg(to_jsonb(b) order by b.created_at desc)
+      from public.bookings b
+      where b.user_id = uid
+    ), '[]'::jsonb);
+
+  elsif p_op = 'insert_booking' then
+    insert into public.bookings (
+      user_id, package_id, package_name, nights, travelers, check_in,
+      amount_inr, swaps, status, card_last4, card_brand, payer_name,
+      confirmation_code, payment_method, payment_ref, upi_handle, bank_name
+    ) values (
+      uid,
+      p_payload->>'package_id',
+      p_payload->>'package_name',
+      (p_payload->>'nights')::int,
+      (p_payload->>'travelers')::int,
+      (p_payload->>'check_in')::date,
+      (p_payload->>'amount_inr')::int,
+      coalesce(p_payload->'swaps', '{}'::jsonb),
+      coalesce(p_payload->>'status', 'paid'),
+      p_payload->>'card_last4',
+      p_payload->>'card_brand',
+      p_payload->>'payer_name',
+      p_payload->>'confirmation_code',
+      p_payload->>'payment_method',
+      p_payload->>'payment_ref',
+      p_payload->>'upi_handle',
+      p_payload->>'bank_name'
+    )
+    returning to_jsonb(bookings.*) into rec;
+    return rec;
+
+  elsif p_op = 'cancel_booking' then
+    update public.bookings
+      set status = coalesce(nullif(p_payload->>'status', ''), 'refunded'),
+          swaps = case
+            when p_payload ? 'swaps' and p_payload->'swaps' is not null
+              then p_payload->'swaps'
+            else swaps
+          end
+      where id = (p_payload->>'id')::bigint
+        and user_id = uid
+        and status in ('paid', 'held')
+      returning to_jsonb(bookings.*) into rec;
+    return rec;
+
+  elsif p_op = 'insert_payment_event' then
+    insert into public.payment_events (
+      user_id, booking_id, provider, event_type, order_id, payment_id, payload
+    ) values (
+      uid,
+      nullif(p_payload->>'booking_id', '')::bigint,
+      coalesce(p_payload->>'provider', 'razorpay'),
+      p_payload->>'event_type',
+      p_payload->>'order_id',
+      p_payload->>'payment_id',
+      coalesce(p_payload->'payload', '{}'::jsonb)
+    )
+    returning to_jsonb(payment_events.*) into rec;
+    return rec;
+
+  elsif p_op = 'toggle_saved' then
+    if coalesce((p_payload->>'on')::boolean, false) then
+      insert into public.saved_stays (user_id, package_id)
+      values (uid, p_payload->>'package_id')
+      on conflict do nothing;
+      return jsonb_build_object('on', true);
+    else
+      delete from public.saved_stays
+      where user_id = uid and package_id = p_payload->>'package_id';
+      return jsonb_build_object('on', false);
+    end if;
+
+  elsif p_op = 'list_saved' then
+    return coalesce((
+      select jsonb_agg(package_id order by created_at desc)
+      from public.saved_stays
+      where user_id = uid
+    ), '[]'::jsonb);
+
+  elsif p_op = 'save_travellers' then
+    rec_id := nullif(p_payload->>'booking_id', '')::bigint;
+    delete from public.travellers
+      where user_id = uid
+        and (rec_id is null or booking_id = rec_id);
+    insert into public.travellers (
+      user_id, booking_id, full_name, phone, email, nationality, id_type,
+      id_last4, emergency_name, emergency_phone, digiyatra_status, expires_at
+    )
+    select
+      uid,
+      rec_id,
+      t->>'full_name',
+      coalesce(t->>'phone', ''),
+      coalesce(t->>'email', ''),
+      t->>'nationality',
+      t->>'id_type',
+      t->>'id_last4',
+      t->>'emergency_name',
+      t->>'emergency_phone',
+      t->>'digiyatra_status',
+      nullif(t->>'expires_at', '')::timestamptz
+    from jsonb_array_elements(coalesce(p_payload->'travelers', '[]'::jsonb)) as t;
+    return jsonb_build_object('ok', true);
+
+  elsif p_op = 'list_travellers' then
+    delete from public.travellers
+      where user_id = uid and expires_at is not null and expires_at < now();
+    return coalesce((
+      select jsonb_agg(to_jsonb(t) order by t.created_at desc)
+      from public.travellers t
+      where t.user_id = uid
+    ), '[]'::jsonb);
+
+  elsif p_op = 'get_profile' then
+    select to_jsonb(p) into rec from public.profiles p where p.user_id = uid;
+    return rec;
+
+  elsif p_op = 'upsert_profile' then
+    insert into public.profiles (user_id, display_name, email, phone, updated_at)
+    values (
+      uid,
+      p_payload->>'display_name',
+      nullif(p_payload->>'email', ''),
+      p_payload->>'phone',
+      now()
+    )
+    on conflict (user_id) do update set
+      display_name = excluded.display_name,
+      email = coalesce(excluded.email, public.profiles.email),
+      phone = excluded.phone,
+      updated_at = now()
+    returning to_jsonb(profiles.*) into rec;
+    return rec;
+
+  elsif p_op = 'upsert_consensus' then
+    insert into public.reviewer_consensus (
+      package_id, overall_sentiment, key_positives, key_negatives, caveats,
+      consensus_summary, sources, origin, video_hash, updated_at, room_notes
+    ) values (
+      p_payload->>'package_id',
+      p_payload->>'overall_sentiment',
+      coalesce(p_payload->'key_positives', '[]'::jsonb),
+      coalesce(p_payload->'key_negatives', '[]'::jsonb),
+      coalesce(p_payload->'caveats', '[]'::jsonb),
+      coalesce(p_payload->>'consensus_summary', ''),
+      coalesce(p_payload->'sources', '[]'::jsonb),
+      coalesce(p_payload->>'origin', 'live'),
+      p_payload->>'video_hash',
+      coalesce(nullif(p_payload->>'updated_at', '')::timestamptz, now()),
+      coalesce(p_payload->'room_notes', '{}'::jsonb)
+    )
+    on conflict (package_id) do update set
+      overall_sentiment = excluded.overall_sentiment,
+      key_positives = excluded.key_positives,
+      key_negatives = excluded.key_negatives,
+      caveats = excluded.caveats,
+      consensus_summary = excluded.consensus_summary,
+      sources = excluded.sources,
+      origin = excluded.origin,
+      video_hash = excluded.video_hash,
+      updated_at = excluded.updated_at,
+      room_notes = excluded.room_notes
+    returning to_jsonb(reviewer_consensus.*) into rec;
+    return rec;
+  end if;
+
+  raise exception 'unknown op %', p_op;
+end;
+$$;
+
+revoke all on function public.tw_apply(text, text, jsonb) from public;
+grant execute on function public.tw_apply(text, text, jsonb) to anon, authenticated, service_role;
 
 

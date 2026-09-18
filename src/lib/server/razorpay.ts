@@ -144,7 +144,43 @@ export const verifyRazorpayPayment = createServerFn({ method: "POST" })
     };
   });
 
-/** Public key id for the client (never the secret). */
+export type RefundResult =
+  | { ok: true; refundId: string; amountInr: number }
+  | { ok: false; message: string };
+
+export async function refundRazorpayPayment(
+  paymentId: string,
+  amountInr: number,
+): Promise<RefundResult> {
+  if (!paymentId.startsWith("pay_")) {
+    return { ok: false, message: "Not a Razorpay payment." };
+  }
+  const amountPaise = Math.round(amountInr * 100);
+  if (amountPaise <= 0) {
+    return { ok: false, message: "Nothing to refund." };
+  }
+  try {
+    const res = await fetch(`https://api.razorpay.com/v1/payments/${paymentId}/refund`, {
+      method: "POST",
+      headers: {
+        Authorization: authHeader(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ amount: amountPaise }),
+    });
+    const json = (await res.json()) as {
+      id?: string;
+      amount?: number;
+      error?: { description?: string };
+    };
+    if (!res.ok || !json.id) {
+      return { ok: false, message: json.error?.description ?? `Refund failed (${res.status})` };
+    }
+    return { ok: true, refundId: json.id, amountInr: Math.round((json.amount ?? amountPaise) / 100) };
+  } catch (err) {
+    return { ok: false, message: err instanceof Error ? err.message : "Refund failed." };
+  }
+}
 export const getRazorpayKeyId = createServerFn({ method: "GET" }).handler(async () => {
   return getKeyId();
 });

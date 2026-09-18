@@ -3,7 +3,11 @@ import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { charge, methodLabel, type PayMethod } from "@/lib/pay";
-import { clampNights, getPackage, getRoom, stayTotal } from "@/lib/packages";
+import { clampNights, getPackage, getRoom } from "@/lib/packages";
+import { quoteStay, recordHold, releaseHold, travelersFitRoom } from "@/lib/inventory";
+import { writeMeta, readMeta } from "@/lib/booking-meta";
+import { deskFor } from "@/lib/hotel-desk";
+import { refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import {
   sbCancelBooking,
@@ -202,7 +206,24 @@ export const createBooking = createServerFn({ method: "POST" })
 
     const nights = clampNights(pkg, data.nights ?? pkg.nights);
     const room = getRoom(pkg, data.roomId);
-    const amount = stayTotal(pkg, nights, room.id, data.swaps) * data.travelers;
+    if (!travelersFitRoom(room.occupancy, data.travelers)) {
+      return {
+        ok: false,
+        message: `This room sleeps ${room.occupancy}. You listed ${data.travelers} guests.`,
+        field: "travelers",
+      };
+    }
+    const quote = quoteStay({
+      packageId: pkg.id,
+      roomId: room.id,
+      checkIn: data.checkIn,
+      nights,
+      swaps: data.swaps,
+    });
+    if (!quote?.available) {
+      return { ok: false, message: "Those nights are sold out for this room. Pick another date." };
+    }
+    const amount = quote.perPerson * data.travelers;
     const packageName = `${pkg.name} · ${room.name}`;
     const code = makeCode();
 
@@ -260,7 +281,10 @@ export const createBooking = createServerFn({ method: "POST" })
       travelers: data.travelers,
       checkIn: data.checkIn,
       amountInr: amount,
-      swaps: data.swaps ?? {},
+      swaps: writeMeta(data.swaps ?? {}, {
+        roomId: room.id,
+        hotelEmail: deskFor(pkg.id).email,
+      }),
       status: "paid",
       cardLast4: paid.last4,
       cardBrand: paid.brand,
@@ -280,6 +304,13 @@ export const createBooking = createServerFn({ method: "POST" })
           ...local,
         });
         if (booking) {
+          recordHold({
+            packageId: pkg.id,
+            roomId: room.id,
+            checkIn: data.checkIn,
+            nights,
+            status: "paid",
+          });
           await sbInsertPaymentEvent({
             userId: context.userId,
             bookingId: booking.id,
@@ -300,12 +331,19 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
     if (useMemoryStore()) {
+      recordHold({
+        packageId: pkg.id,
+        roomId: room.id,
+        checkIn: data.checkIn,
+        nights,
+        status: "paid",
+      });
       return { ok: true, booking: memoryBooking(local), stored: "local" };
     }
 
     try {
       const sql = await getSql();
-      const swapsJson = JSON.stringify(data.swaps ?? {});
+      const swapsJson = JSON.stringify(local.swaps);
       const rows = await sql<DbBooking>`
         insert into bookings (
           user_id, package_id, package_name, nights, travelers, check_in,
@@ -322,50 +360,123 @@ export const createBooking = createServerFn({ method: "POST" })
                   payment_method, payment_ref, upi_handle, bank_name, created_at
       `;
       const row = rows[0];
-      if (!row) return { ok: true, booking: memoryBooking(local), stored: "local" };
+      if (!row) {
+        recordHold({
+          packageId: pkg.id,
+          roomId: room.id,
+          checkIn: data.checkIn,
+          nights,
+          status: "paid",
+        });
+        return { ok: true, booking: memoryBooking(local), stored: "local" };
+      }
+      recordHold({
+        packageId: pkg.id,
+        roomId: room.id,
+        checkIn: data.checkIn,
+        nights,
+        status: "paid",
+      });
       return { ok: true, booking: mapBooking(row), stored: "local" };
     } catch (err) {
       markDurableDbFailed(err);
+      recordHold({
+        packageId: pkg.id,
+        roomId: room.id,
+        checkIn: data.checkIn,
+        nights,
+        status: "paid",
+      });
       return { ok: true, booking: memoryBooking(local), stored: "local" };
     }
   });
 
+export type CancelResult =
+  | { ok: true; status: string; refundAmount: number; message: string }
+  | { ok: false; message: string };
+
 export const cancelBooking = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((id: number) => id)
-  .handler(async ({ context, data: id }) => {
+  .handler(async ({ context, data: id }): Promise<CancelResult> => {
+    let rows: BookingRow[] = [...(g.__twMemoryBookings__ ?? [])];
     if (isSupabaseConfigured()) {
       try {
-        await sbCancelBooking(context.userId, id);
-        const mem = g.__twMemoryBookings__?.find((x) => x.id === id);
-        if (mem) mem.status = "cancelled";
-        return { ok: true };
+        const cloud = await sbListBookings(context.userId);
+        if (cloud?.length) rows = cloud;
+      } catch {
+        /* memory */
+      }
+    }
+    const target = rows.find((b) => b.id === id);
+    if (!target || (target.status !== "paid" && target.status !== "held")) {
+      return { ok: false, message: "That stay is not open to cancel." };
+    }
+
+    const policy = refundPolicyFor(target.checkIn);
+    const amount = refundAmountInr(target.amountInr, target.checkIn);
+    if (policy.fraction <= 0) {
+      return { ok: false, message: policy.label };
+    }
+
+    let refundId: string | undefined;
+    const ref = target.paymentRef ?? "";
+    if (target.paymentMethod === "razorpay" && ref.startsWith("pay_")) {
+      const { refundRazorpayPayment } = await import("@/lib/server/razorpay");
+      const refunded = await refundRazorpayPayment(ref, amount);
+      if (!refunded.ok) return { ok: false, message: refunded.message };
+      refundId = refunded.refundId;
+    }
+
+    const status = "refunded";
+    const meta = writeMeta(target.swaps, {
+      refundId,
+      refundAmount: amount,
+      refundedAt: new Date().toISOString(),
+    });
+    target.status = status;
+    target.swaps = meta;
+    const roomId = readMeta(meta).roomId ?? "";
+    if (roomId) releaseHold(target.packageId, roomId, target.checkIn, target.nights);
+
+    g.__twMemoryBookings__ = (g.__twMemoryBookings__ ?? []).map((b) =>
+      b.id === id ? { ...b, status, swaps: meta } : b,
+    );
+
+    if (isSupabaseConfigured()) {
+      try {
+        await sbCancelBooking(context.userId, id, { status, swaps: meta });
+        await sbInsertPaymentEvent({
+          userId: context.userId,
+          bookingId: id,
+          eventType: "refunded",
+          paymentId: refundId ?? target.paymentRef,
+          payload: { amount, refundId, confirmation: target.confirmationCode },
+        });
       } catch (err) {
         if (isDurableDbError(err)) markDurableDbFailed(err);
         console.error("[bookings] supabase cancel failed", err);
       }
+    } else if (!useMemoryStore()) {
+      try {
+        const sql = await getSql();
+        const swapsJson = JSON.stringify(meta);
+        await sql`
+          update bookings
+          set status = ${status}, swaps = ${swapsJson}
+          where id = ${id} and user_id = ${context.userId} and status in ('paid', 'held')
+        `;
+      } catch (err) {
+        markDurableDbFailed(err);
+      }
     }
-    if (useMemoryStore()) {
-      const list = g.__twMemoryBookings__ ?? [];
-      const b = list.find((x) => x.id === id);
-      if (b) b.status = "cancelled";
-      return { ok: true };
-    }
-    try {
-      const sql = await getSql();
-      await sql`
-        update bookings
-        set status = 'cancelled'
-        where id = ${id} and user_id = ${context.userId} and status = 'paid'
-      `;
-      return { ok: true };
-    } catch (err) {
-      markDurableDbFailed(err);
-      const list = g.__twMemoryBookings__ ?? [];
-      const b = list.find((x) => x.id === id);
-      if (b) b.status = "cancelled";
-      return { ok: true };
-    }
+
+    return {
+      ok: true,
+      status,
+      refundAmount: amount,
+      message: `${policy.label}. ₹${amount.toLocaleString("en-IN")} will return to the original payment.`,
+    };
   });
 
 export { methodLabel };

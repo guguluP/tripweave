@@ -10,6 +10,7 @@ import { DigitPop, Stagger, TextSwap } from "@/components/motion";
 import { PropertyMedia } from "@/components/property-media";
 import { ReviewerConsensus } from "@/components/reviewer-consensus";
 import { RoomPicker } from "@/components/room-picker";
+import { StayQuoteCard } from "@/components/stay-quote";
 import { DigiYatraPanel, TransportPanel, BusGuidePanel } from "@/components/transport-panel";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { youtubeSourceCount } from "@/lib/trust-score";
@@ -23,8 +24,8 @@ import {
   nightsPhrase,
   saveNext,
   savePending,
-  stayTotal,
 } from "@/lib/packages";
+import { addDays, leftoverForRooms, quoteStay, todayIso } from "@/lib/inventory";
 import { cn } from "@/lib/utils";
 import { getJourney } from "@/lib/transport";
 
@@ -39,14 +40,20 @@ function TripDetail() {
   const [booking, setBooking] = useState(false);
   const [nights, setNights] = useState(pkg?.nights ?? 1);
   const [roomId, setRoomId] = useState(pkg?.rooms[0]?.id ?? "");
+  const [checkIn, setCheckIn] = useState(() => addDays(todayIso(), 1));
 
   useEffect(() => {
     if (!pkg) return;
     const briefNights = typeof window === "undefined" ? pkg.nights : loadBrief().nights;
-    setNights(clampNights(pkg, briefNights));
-    setRoomId(pkg.rooms[0]!.id);
+    const nextNights = clampNights(pkg, briefNights);
+    setNights(nextNights);
+    const leftover = leftoverForRooms(pkg.id, checkIn, nextNights);
+    const firstOpen = pkg.rooms.find((r) => leftover[r.id]?.available) ?? pkg.rooms[0]!;
+    setRoomId(firstOpen.id);
     setSwaps({});
     setBooking(false);
+    // Initial room only — later date changes keep the guest's pick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pkg]);
 
   if (!pkg) {
@@ -64,7 +71,14 @@ function TripDetail() {
 
   const room = getRoom(pkg, roomId);
   const days = daysForStay(pkg, nights);
-  const price = stayTotal(pkg, nights, room.id, swaps);
+  const quote = quoteStay({
+    packageId: pkg.id,
+    roomId: room.id,
+    checkIn,
+    nights,
+    swaps,
+  });
+  const price = quote?.perPerson ?? 0;
   const brief = loadBrief();
   const journey = getJourney(pkg.id, brief.origin, brief.arriveBy);
 
@@ -79,7 +93,7 @@ function TripDetail() {
   };
 
   const goBook = () => {
-    savePending({ packageId: pkg.id, swaps, nights, roomId: room.id });
+    savePending({ packageId: pkg.id, swaps, nights, roomId: room.id, checkIn });
     if (isPending) return;
     setBooking(true);
     if (!user) {
@@ -154,11 +168,19 @@ function TripDetail() {
           </p>
         </div>
 
+        <StayQuoteCard
+          quote={quote}
+          checkIn={checkIn}
+          minDate={todayIso()}
+          onCheckIn={setCheckIn}
+        />
+
         <RoomPicker
           rooms={pkg.rooms}
           selectedId={room.id}
           onSelect={setRoomId}
           pricePerNight={pkg.pricePerNight}
+          leftover={leftoverForRooms(pkg.id, checkIn, nights)}
         />
 
         <ReviewerConsensus packageId={pkg.id} roomId={room.id} roomName={room.name} />
@@ -213,10 +235,12 @@ function TripDetail() {
               <DigitPop value={formatMoney(price)} />
             </p>
             <p className="text-xs text-muted">
-              all-in · per person · {nightsPhrase(nights)} · {room.name}
+              {quote?.available
+                ? `all-in · per person · ${nightsPhrase(nights)} · ${room.name} · sleeps ${room.occupancy}`
+                : "Sold out — pick another date"}
             </p>
           </div>
-          <Button size="lg" onClick={goBook} disabled={isPending}>
+          <Button size="lg" onClick={goBook} disabled={isPending || !quote?.available}>
             <TextSwap text={booking ? "Traveller details…" : "Book this stay"} shimmer={booking} />
           </Button>
         </div>

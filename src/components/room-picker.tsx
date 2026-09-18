@@ -6,11 +6,13 @@ export function RoomPicker({
   selectedId,
   onSelect,
   pricePerNight,
+  leftover,
 }: {
   rooms: RoomType[];
   selectedId: string;
   onSelect: (id: string) => void;
   pricePerNight: number;
+  leftover?: Record<string, { remaining: number; available: boolean }>;
 }) {
   const compact = rooms.length > 6;
   return (
@@ -19,8 +21,8 @@ export function RoomPicker({
         Choose a room
       </h2>
       <p className="mt-1 text-sm text-muted">
-        {rooms.length} official types. Reviewer notes follow the room you pick.
-        Price is per person, per night.
+        {rooms.length} official types. Occupancy is a hard cap — leftover rooms are what TripWeave
+        still holds for these dates.
       </p>
       <div
         className={cn(
@@ -31,6 +33,8 @@ export function RoomPicker({
         {rooms.map((room) => {
           const on = room.id === selectedId;
           const night = pricePerNight + room.deltaPerNight;
+          const left = leftover?.[room.id];
+          const soldOut = left ? !left.available : false;
           return (
             <button
               key={room.id}
@@ -40,6 +44,7 @@ export function RoomPicker({
               className={cn(
                 "min-w-0 overflow-hidden rounded-xl border text-left transition-colors duration-150",
                 on ? "border-primary bg-surface" : "border-border bg-elevated hover:bg-surface",
+                soldOut && "opacity-70",
               )}
             >
               <img
@@ -58,7 +63,14 @@ export function RoomPicker({
                 >
                   {room.name}
                 </span>
-                <span className="mt-1 block text-xs text-muted">Sleeps {room.occupancy}</span>
+                <span className="mt-1 block text-xs text-muted">
+                  Sleeps {room.occupancy}
+                  {left
+                    ? soldOut
+                      ? " · sold out"
+                      : ` · ${left.remaining} left`
+                    : ""}
+                </span>
                 <span
                   className={cn(
                     "mt-1 block text-muted",

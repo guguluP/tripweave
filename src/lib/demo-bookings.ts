@@ -1,4 +1,6 @@
 import type { BookingRow } from "@/lib/server/bookings";
+import { writeMeta } from "@/lib/booking-meta";
+import { refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
 
 const KEY = "tripweave-demo-bookings";
 
@@ -50,9 +52,35 @@ export function mergeBookings(server: BookingRow[]): BookingRow[] {
   return [...extra, ...server].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 }
 
-export function cancelDemoBooking(id: number) {
-  const next = read().map((b) => (b.id === id ? { ...b, status: "cancelled" } : b));
+export function cancelDemoBooking(id: number): { ok: true; refundAmount: number; message: string } | { ok: false; message: string } {
+  const rows = read();
+  const target = rows.find((b) => b.id === id);
+  if (!target || (target.status !== "paid" && target.status !== "held")) {
+    return { ok: false, message: "That stay is not open to cancel." };
+  }
+  const policy = refundPolicyFor(target.checkIn);
+  const amount = refundAmountInr(target.amountInr, target.checkIn);
+  if (policy.fraction <= 0) {
+    return { ok: false, message: policy.label };
+  }
+  const next = rows.map((b) =>
+    b.id === id
+      ? {
+          ...b,
+          status: "refunded",
+          swaps: writeMeta(b.swaps, {
+            refundAmount: amount,
+            refundedAt: new Date().toISOString(),
+          }),
+        }
+      : b,
+  );
   write(next);
+  return {
+    ok: true,
+    refundAmount: amount,
+    message: `${policy.label}. ₹${amount.toLocaleString("en-IN")} will return to the original payment.`,
+  };
 }
 
 export function clearDemoBookings() {
