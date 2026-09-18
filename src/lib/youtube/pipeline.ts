@@ -7,6 +7,7 @@ import {
   summarizeConsensusNarrative,
   summarizeTranscript,
 } from "./summarize.ts";
+import { captionFailureCopy } from "./caption-copy.ts";
 import { fetchTranscriptsSequential } from "./transcript.ts";
 import type { ConsensusSource, PackageReviewConsensus } from "./types.ts";
 import { youtubeUrl } from "./types.ts";
@@ -73,8 +74,12 @@ export async function rebuildConsensus(packageId: string): Promise<PackageReview
   });
 
   if (ok.length === 0) {
-    logConsensusEvent("fail", packageId, { reason: "no_transcripts" });
-    return attachRoomNotes(packageId, { ...fallback, failedSources: failed });
+    logConsensusEvent("fail", packageId, { reason: "no_transcripts", failed: failed.map((f) => f.reason) });
+    return attachRoomNotes(packageId, {
+      ...fallback,
+      failedSources: failed,
+      rebuildNote: captionFailureCopy(failed) ?? undefined,
+    });
   }
 
   const hotelName = pkg?.name ?? packageId;
@@ -101,7 +106,12 @@ export async function rebuildConsensus(packageId: string): Promise<PackageReview
 
   if (summaries.length === 0) {
     logConsensusEvent("fail", packageId, { reason: "no_summaries" });
-    return attachRoomNotes(packageId, { ...fallback, failedSources: failed, sources });
+    return attachRoomNotes(packageId, {
+      ...fallback,
+      failedSources: failed,
+      sources,
+      rebuildNote: captionFailureCopy(failed) ?? "Could not turn captions into notes.",
+    });
   }
 
   let consensus = aggregateSummaries(packageId, summaries, sources, failed, "live");

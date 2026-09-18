@@ -18,6 +18,7 @@ import {
 } from "@/lib/youtube/server";
 import type { PackageReviewConsensus, Sentiment } from "@/lib/youtube/types";
 import { getSeededConsensus } from "@/lib/youtube/get-seeded";
+import { captionFailureCopy, isCaptionHostBlock } from "@/lib/youtube/caption-copy";
 import { cn } from "@/lib/utils";
 
 const SENTIMENT_LABEL: Record<Sentiment, string> = {
@@ -168,6 +169,10 @@ export function ReviewerConsensus({
       ? "No source videos yet"
       : `Based on ${count} YouTube ${count === 1 ? "review" : "reviews"}`;
   const failedCount = data.failedSources?.length ?? 0;
+  const failedCopy =
+    data.rebuildNote ?? (failedCount > 0 ? captionFailureCopy(data.failedSources ?? []) : null);
+  const blockedAll =
+    failedCount > 0 && (data.failedSources ?? []).every((f) => isCaptionHostBlock(f.reason));
   const roomNotes = roomId ? data.roomNotes?.[roomId] : undefined;
 
   return (
@@ -268,6 +273,7 @@ export function ReviewerConsensus({
         ) : null}
 
         {message ? <p className="mt-4 text-sm text-muted">{message}</p> : null}
+        {!message && failedCopy ? <p className="mt-4 text-sm text-muted">{failedCopy}</p> : null}
 
         <div className="mt-5 border-t border-border pt-4">
           <button
@@ -306,7 +312,7 @@ export function ReviewerConsensus({
               ))}
             </ul>
           ) : null}
-          {failedCount > 0 ? (
+          {failedCount > 0 && !blockedAll && !failedCopy ? (
             <p className="mt-2 text-xs text-subtle">
               {failedCount} {failedCount === 1 ? "video had" : "videos had"} no usable captions.
             </p>
