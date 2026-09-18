@@ -4,14 +4,18 @@ Book honest Puri hotel stays with all-in INR prices, traveller details, Razorpay
 
 ## Features
 
-- **Plan & match** — short preference brief → three package options from a 12-stay Puri catalog
-- **Rooms & nights** — 2–3 room types per hotel, room-specific reviewer notes, 1-night stays welcome
+- **Plan & match** — short preference brief → three package options from a 12-stay Puri catalog, ranked by vibe, budget, nights, **and origin / arrival**
+- **Live rates** — dated seasonal tariffs (festival / weekend / high season) and leftover rooms TripWeave still holds
+- **Rooms & occupancy** — official room types; guest count cannot exceed the room’s sleep cap
 - **Property media** — photo galleries and YouTube property tours on every stay
 - **Travellers** — guest name, phone, email, ID, emergency contact (DigiLocker demo autofill available)
 - **Razorpay Standard Checkout** — test cards / UPI; order create + signature verify on the server
-- **My trips** — list, cancel, confirmation codes
+- **Hotel confirmation** — desk voucher + mailto to the hotel reservations desk after pay
+- **Refunds** — full if you cancel ≥48h before noon check-in, 50% inside that window, none after; Razorpay `pay_` refunds
+- **Account profile** — display name and mobile saved to your TripWeave account
+- **My trips** — list, cancel & refund, confirmation codes, desk voucher
 - **Offline pass** — HTML pass card + calendar (`.ics`); Apple Wallet `.pkpass` when certs are configured
-- **Supabase (optional)** — durable `bookings` / `travellers` when env vars are set
+- **Supabase (optional)** — durable `bookings` / `travellers` / `profiles` when env vars are set
 - **Demo mode** — sign in without a database to test the full payment flow
 - **Reviewer consensus** — structured notes from curated YouTube stay-review videos on every package page
 

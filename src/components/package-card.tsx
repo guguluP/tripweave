@@ -17,11 +17,13 @@ export function PackageCard({
   pkg,
   rank,
   nights,
+  originWhy,
 }: {
   pkg: StayPackage;
   rank?: string;
   /** When known from the brief, show an N-night total alongside the nightly rate. */
   nights?: number;
+  originWhy?: string;
 }) {
   const sources = youtubeSourceCount(pkg);
   const stayNights =
@@ -69,6 +71,7 @@ export function PackageCard({
             <p className="mt-1 text-sm text-muted">
               {pkg.destination} · {pkg.nightsMin}–{pkg.nightsMax} nights
             </p>
+            {originWhy ? <p className="mt-1 text-xs text-subtle">{originWhy}</p> : null}
             <div className="mt-2">
               <ReviewerChip packageId={pkg.id} />
             </div>

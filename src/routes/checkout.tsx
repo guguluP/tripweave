@@ -28,6 +28,10 @@ import {
   saveNext,
   loadBrief,
 } from "@/lib/packages";
+import { quoteStay, travelersFitRoom } from "@/lib/inventory";
+import { hotelMailto } from "@/lib/hotel-desk";
+import { refundPolicyFor } from "@/lib/refund-policy";
+import { loadLocalProfile } from "@/lib/profile-local";
 import { methodLabel, paymentLine } from "@/lib/pay";
 import { createBooking, type BookingRow } from "@/lib/server/bookings";
 import { saveDemoBooking, localPaidBooking } from "@/lib/demo-bookings";
@@ -103,6 +107,7 @@ function CheckoutInner() {
     setSwaps(pending?.swaps ?? {});
     setNights(pending?.nights ?? 1);
     setRoomId(pending?.roomId ?? "");
+    if (pending?.checkIn) setCheckIn(pending.checkIn);
     try {
       const n = Number(window.localStorage.getItem("tripweave-traveler-count") || "0");
       if (n >= 1 && n <= 8) setTravelers(n);
@@ -124,13 +129,25 @@ function CheckoutInner() {
 
   useEffect(() => {
     if (user?.displayName && !payerName) setPayerName(user.displayName);
+    const local = loadLocalProfile();
+    if (local?.displayName && !payerName) setPayerName(local.displayName);
   }, [user, payerName]);
 
   const pkg = packageId ? getPackage(packageId) : undefined;
   const room = pkg ? getRoom(pkg, roomId) : undefined;
   const stayNights = pkg ? clampNights(pkg, nights) : nights;
-  const perPerson = pkg ? stayTotal(pkg, stayNights, room?.id, swaps) : 0;
+  const quote = pkg
+    ? quoteStay({
+        packageId: pkg.id,
+        roomId: room?.id,
+        checkIn,
+        nights: stayNights,
+        swaps,
+      })
+    : null;
+  const perPerson = quote?.perPerson ?? (pkg ? stayTotal(pkg, stayNights, room?.id, swaps) : 0);
   const total = perPerson * travelers;
+  const occupancy = room?.occupancy ?? 8;
   const brief = loadBrief();
   const journey = pkg ? getJourney(pkg.id, brief.origin, brief.arriveBy) : null;
 
@@ -217,9 +234,32 @@ function CheckoutInner() {
           <div className="mt-8 w-full text-left">
             <AddToWallet booking={held} />
           </div>
-          <Button asChild size="lg" className="mt-6">
-            <Link to="/trips">View trips</Link>
-          </Button>
+          <div className="mt-6 flex w-full flex-col gap-3">
+            <Button asChild size="lg">
+              <a
+                href={hotelMailto({
+                  packageId: held.packageId,
+                  packageName: held.packageName,
+                  confirmationCode: held.confirmationCode,
+                  checkIn: held.checkIn,
+                  nights: held.nights,
+                  travelers: held.travelers,
+                  payerName: held.payerName,
+                  amountInr: held.amountInr,
+                })}
+              >
+                Email hotel desk
+              </a>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/voucher/$code" params={{ code: confirmation.code }}>
+                Open desk voucher
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/trips">View trips</Link>
+            </Button>
+          </div>
         </div>
       </Shell>
     );
@@ -229,6 +269,16 @@ function CheckoutInner() {
     e.preventDefault();
     if (payerName.trim().length < 2) {
       setErrors({ payerName: "Name on the payment, please." });
+      setShakeKey((k) => k + 1);
+      return;
+    }
+    if (room && !travelersFitRoom(room.occupancy, travelers)) {
+      setErrors({ form: `This room sleeps ${room.occupancy}.` });
+      setShakeKey((k) => k + 1);
+      return;
+    }
+    if (quote && !quote.available) {
+      setErrors({ checkIn: "Those nights are sold out. Pick another date." });
       setShakeKey((k) => k + 1);
       return;
     }
@@ -434,10 +484,10 @@ function CheckoutInner() {
                 label="Travelers"
                 type="number"
                 min={1}
-                max={8}
+                max={occupancy}
                 value={travelers}
                 onChange={(e) =>
-                  setTravelers(Math.min(8, Math.max(1, Number(e.target.value) || 1)))
+                  setTravelers(Math.min(occupancy, Math.max(1, Number(e.target.value) || 1)))
                 }
               />
             </div>
@@ -460,12 +510,28 @@ function CheckoutInner() {
               </p>
             ) : null}
 
-            <Button type="submit" size="lg" disabled={busy} className="mt-2">
+            <Button type="submit" size="lg" disabled={busy || (quote != null && !quote.available)} className="mt-2">
               <TextSwap
                 shimmer={busy}
-                text={busy ? "Opening Razorpay…" : `Pay ${formatMoney(total)} with Razorpay`}
+                text={
+                  busy
+                    ? "Opening Razorpay…"
+                    : quote && !quote.available
+                      ? "Sold out for these nights"
+                      : `Pay ${formatMoney(total)} with Razorpay`
+                }
               />
             </Button>
+            <p className="text-xs text-subtle">
+              This room sleeps {occupancy}. {refundPolicyFor(checkIn).label}.
+            </p>
+            {quote ? (
+              <p className="text-xs text-subtle">
+                {quote.available
+                  ? `${quote.remaining} of ${quote.units} rooms left for these nights.`
+                  : "Pick another date — leftover inventory is sold out."}
+              </p>
+            ) : null}
             {isRazorpayTestMode() ? (
               <p className="text-xs text-subtle">
                 Test card 4100 2800 0000 1007 · CVV 123 · 12/26 · or UPI test@razorpay
@@ -510,6 +576,20 @@ function CheckoutInner() {
                 </dd>
               </div>
             </dl>
+            {quote ? (
+              <ul className="mt-4 grid gap-1 text-xs text-muted">
+                {quote.nightsQuoted.map((n) => (
+                  <li key={n.date} className="flex justify-between gap-3">
+                    <span>
+                      {n.date} · {n.label}
+                    </span>
+                    <span className="tabular-nums">
+                      {n.remaining <= 0 ? "Sold out" : `${formatMoney(n.rate)} · ${n.remaining} left`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
         </Card>
       </div>

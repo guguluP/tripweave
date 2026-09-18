@@ -91,7 +91,13 @@ export async function sbInsertBooking(
 export async function sbCancelBooking(
   userId: string,
   id: number,
+  extra?: { status?: string; swaps?: Record<string, string> },
 ): Promise<boolean | null> {
-  await twApply("cancel_booking", { user_id: userId, id });
+  await twApply("cancel_booking", {
+    user_id: userId,
+    id,
+    status: extra?.status ?? "refunded",
+    swaps: extra?.swaps,
+  });
   return true;
 }

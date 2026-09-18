@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Shell } from "@/components/shell";
 import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, MotionToggle, Stagger, TextSwap } from "@/components/motion";
 import { signOut } from "@/lib/auth/client";
@@ -15,6 +17,10 @@ import { listDemoBookings } from "@/lib/demo-bookings";
 import { AddToWallet } from "@/components/wallet-pass";
 import { bookingToWalletPayload } from "@/lib/apple-wallet";
 import { listWalletPasses } from "@/lib/wallet-store";
+import { getProfile, saveProfile } from "@/lib/server/profile";
+import { loadLocalProfile, saveLocalProfile } from "@/lib/profile-local";
+import { isClosedStay } from "@/lib/refund-policy";
+import { pushBanner } from "@/lib/banners";
 
 export const Route = createFileRoute("/account")({ component: Account });
 
@@ -44,6 +50,9 @@ function AccountInner() {
   const [wallet] = useState(() =>
     typeof window === "undefined" ? [] : listWalletPasses(),
   );
+  const [displayName, setDisplayName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (isDemoMode()) {
@@ -55,12 +64,28 @@ function AccountInner() {
       .catch(() => setBookings([]));
   }, []);
 
+  useEffect(() => {
+    const local = loadLocalProfile();
+    if (local?.displayName) setDisplayName(local.displayName);
+    else if (user?.displayName) setDisplayName(user.displayName);
+    if (local?.phone) setPhone(local.phone);
+    if (isDemoMode()) return;
+    getProfile()
+      .then((p) => {
+        if (p.displayName) setDisplayName(p.displayName);
+        if (p.phone) setPhone(p.phone);
+      })
+      .catch(() => {
+        /* local / session name is enough */
+      });
+  }, [user?.displayName]);
+
   const paid = useMemo(
-    () => (bookings ?? []).filter((b) => b.status === "paid"),
+    () => (bookings ?? []).filter((b) => !isClosedStay(b.status)),
     [bookings],
   );
   const cancelled = useMemo(
-    () => (bookings ?? []).filter((b) => b.status === "cancelled"),
+    () => (bookings ?? []).filter((b) => isClosedStay(b.status)),
     [bookings],
   );
   const spent = paid.reduce((sum, b) => sum + b.amountInr, 0);
@@ -68,7 +93,30 @@ function AccountInner() {
 
   if (!user) return <AccountSkeleton />;
 
-  const label = user.displayName ?? user.primaryEmail ?? "Guest";
+  const label = displayName || user.displayName || user.primaryEmail || "Guest";
+  const email = user.primaryEmail ?? "";
+
+  const onSaveProfile = async (e: FormEvent) => {
+    e.preventDefault();
+    const name = displayName.trim();
+    if (name.length < 2) {
+      pushBanner({ title: "Name is too short", tone: "danger" });
+      return;
+    }
+    const next = { displayName: name, phone: phone.trim(), email };
+    saveLocalProfile(next);
+    setSaving(true);
+    try {
+      if (!isDemoMode()) {
+        await saveProfile({ data: next });
+      }
+      pushBanner({ title: "Profile saved", tone: "ok" });
+    } catch {
+      pushBanner({ title: "Saved on this device", body: "Cloud profile will sync when you are signed in.", tone: "info" });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <Shell>
@@ -90,11 +138,44 @@ function AccountInner() {
           )}
           <div>
             <h1 className="font-display text-3xl">{label}</h1>
-            {user.primaryEmail ? (
-              <p className="text-sm text-muted">{user.primaryEmail}</p>
-            ) : null}
+            {email ? <p className="text-sm text-muted">{email}</p> : null}
           </div>
         </div>
+
+        <Card className="mt-8 p-5 shadow-none">
+          <p className="eyebrow">Profile</p>
+          <h2 className="mt-1 font-display text-xl">Name on the stay</h2>
+          <p className="mt-1 text-sm text-muted">
+            Used as the payer name and on the hotel desk voucher.
+          </p>
+          <form className="mt-4 grid gap-3" onSubmit={onSaveProfile}>
+            <Label>
+              Display name
+              <Input
+                value={displayName}
+                autoComplete="name"
+                onChange={(e) => setDisplayName(e.target.value)}
+              />
+            </Label>
+            <Label>
+              Mobile
+              <Input
+                value={phone}
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="10-digit mobile"
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              />
+            </Label>
+            <Label>
+              Email
+              <Input value={email} readOnly disabled />
+            </Label>
+            <Button type="submit" disabled={saving}>
+              <TextSwap text={saving ? "Saving" : "Save profile"} shimmer={saving} />
+            </Button>
+          </form>
+        </Card>
 
         <div className="mt-8 grid grid-cols-2 gap-3">
           <Card className="p-4 shadow-none">
@@ -114,7 +195,7 @@ function AccountInner() {
         <div className="mt-6 flex items-center justify-between gap-4 rounded-lg border border-border bg-elevated px-4 py-3">
           <div>
             <p className="text-sm font-medium">Show cancelled</p>
-            <p className="text-xs text-muted">List stays you released instead of paid ones.</p>
+            <p className="text-xs text-muted">List stays you released or refunded.</p>
           </div>
           <MotionToggle
             on={showCancelled}
