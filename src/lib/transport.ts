@@ -16,11 +16,75 @@ export type TransportLeg = {
   rank: number;
 };
 
+function amaFromBus(
+  kind: "beach" | "temple" | "baliapanda" | "konark" | "station",
+): TransportLeg[] {
+  if (kind === "temple") {
+    return [
+      {
+        mode: "Walk / auto from Puri Bus Stand",
+        duration: "8–15 min",
+        costHint: "₹0–180",
+        why: "OSRTC and Ama 50/51 drop at Puri Bus Stand. Ama 74 runs station → Jagannath via the stand.",
+        luggage: "ok",
+        rank: 1,
+      },
+    ];
+  }
+  if (kind === "station") {
+    return [
+      {
+        mode: "Ama Bus 52 or walk from Puri Bus Stand",
+        duration: "5–12 min",
+        costHint: "₹0–80",
+        why: "Route 52 stops at Puri Railway Station. The bus stand is next door.",
+        luggage: "ok",
+        rank: 1,
+      },
+    ];
+  }
+  if (kind === "baliapanda") {
+    return [
+      {
+        mode: "Ama Bus 52 to Baliapanda",
+        duration: "15–25 min",
+        costHint: "₹10–40",
+        why: "Route 52 is Puri Bus Stand → Mangalahata via Railway Station, Beach Road and Baliapanda.",
+        luggage: "ok",
+        rank: 1,
+      },
+    ];
+  }
+  if (kind === "konark") {
+    return [
+      {
+        mode: "Ama Bus 57 toward Konark, or a cab from the bus stand",
+        duration: "25–45 min",
+        costHint: "₹20–700",
+        why: "Route 57 runs Puri Bus Stand along Marine Drive to Konark. With luggage, a cab from the stand is kinder.",
+        luggage: "ok",
+        rank: 1,
+      },
+    ];
+  }
+  return [
+    {
+      mode: "Ama Bus 52 (Beach Road) or auto from Puri Bus Stand",
+      duration: "15–30 min",
+      costHint: "₹10–250",
+      why: "Route 52 covers Railway Station, Beach Road and Baliapanda. An auto is faster with bags.",
+      luggage: "ok",
+      rank: 1,
+    },
+  ];
+}
+
 export type PropertyTransport = {
   packageId: string;
   neighborhood: string;
   fromAirport: TransportLeg[];
   fromStation: TransportLeg[];
+  fromBus?: TransportLeg[];
   /** Single best overall recommendation for most guests. */
   best: TransportLeg;
   localNote: string;
@@ -491,11 +555,11 @@ const DEFAULT: Omit<PropertyTransport, "packageId"> = {
       rank: 1,
     },
     {
-      mode: "Bus (OSRTC / private) + auto",
-      duration: "2–3.5 hr",
-      costHint: "₹150–400 total",
-      why: "Cheapest; more effort with bags.",
-      luggage: "hard",
+      mode: "OSRTC Baramunda or Ama Bus 50 / 51 / DD1 + auto",
+      duration: "90–150 min",
+      costHint: "₹40–200",
+      why: "Official buses. DD1 is the airport double-decker to Mandira Parking; 50/51 run station or Baramunda to Puri Bus Stand.",
+      luggage: "ok",
       rank: 2,
     },
   ],
@@ -509,13 +573,31 @@ const DEFAULT: Omit<PropertyTransport, "packageId"> = {
       rank: 1,
     },
   ],
+  fromBus: amaFromBus("beach"),
   localNote:
-    "Fly into Bhubaneswar (BBI). Direct trains to Puri work well if you prefer rail from major cities.",
+    "Fly into Bhubaneswar (BBI), take OSRTC or Ama Bus into Puri Bus Stand, or train to Puri station.",
 };
+
+function inferFromBus(packageId: string, neighborhood: string): TransportLeg[] {
+  if (/toshali/i.test(packageId) || /Konark/i.test(neighborhood)) return amaFromBus("konark");
+  if (/chanakya/i.test(packageId)) return amaFromBus("station");
+  if (/chariot/i.test(packageId) || /Baliapanda/i.test(neighborhood)) return amaFromBus("baliapanda");
+  if (
+    /empires|regenta/i.test(packageId) ||
+    /Grand Road|Jagannath/i.test(neighborhood)
+  ) {
+    return amaFromBus("temple");
+  }
+  return amaFromBus("beach");
+}
 
 export function getTransportForPackage(packageId: string): PropertyTransport {
   const base = BY_ID[packageId] ?? DEFAULT;
-  return { packageId, ...base };
+  return {
+    packageId,
+    ...base,
+    fromBus: base.fromBus?.length ? base.fromBus : inferFromBus(packageId, base.neighborhood),
+  };
 }
 
 export type Journey = {
@@ -532,37 +614,7 @@ export type Journey = {
 
 export function busStandLastMile(packageId: string): TransportLeg {
   const t = getTransportForPackage(packageId);
-  if (/toshali|konark/i.test(packageId) || /Konark/i.test(t.neighborhood)) {
-    return {
-      mode: "Pre-booked cab from Puri Bus Stand",
-      duration: "25–40 min",
-      costHint: "₹400–700",
-      why: "The campus sits outside town. OSRTC drops at Puri Bus Stand — don’t wait for an Ama Bus this far.",
-      luggage: "easy",
-      rank: 1,
-    };
-  }
-  if (
-    /chanakya|empires|regenta/i.test(packageId) ||
-    /Grand Road|Jagannath|station|railway/i.test(t.neighborhood)
-  ) {
-    return {
-      mode: "Walk / auto from Puri Bus Stand",
-      duration: "8–15 min",
-      costHint: "₹0–180",
-      why: "Temple-side stays are a short hop from the OSRTC / Ama Bus stand.",
-      luggage: "ok",
-      rank: 1,
-    };
-  }
-  return {
-    mode: "Ama Bus Route 52 or auto from Puri Bus Stand",
-    duration: "15–30 min",
-    costHint: "₹10–250",
-    why: "Ama Bus 52 runs via Railway Station, Beach Road and Baliapanda. An auto is faster with bags.",
-    luggage: "ok",
-    rank: 1,
-  };
+  return t.fromBus?.[0] ?? inferFromBus(packageId, t.neighborhood)[0]!;
 }
 
 export function lastMileForArrival(packageId: string, arriveBy: ArriveBy): TransportLeg {
@@ -617,17 +669,32 @@ export const BUS_GUIDE = {
     name: "OSRTC",
     summary:
       "Odisha State Road Transport — the official intercity bus. Baramunda (Bhubaneswar) to Puri Bus Stand runs through the day from about ₹80, first services around 05:15.",
-    book: "https://osrtc.org",
+    book: "https://booking.osrtc.org",
     android: "https://play.google.com/store/apps/details?id=com.apps.osrtc",
     ios: "https://apps.apple.com/in/app/osrtc-bus-booking/id6711344311",
-    drop: "Puri Bus Stand, next to the station side of town.",
+    drop: "Puri Bus Stand, next to the station side of town. From Baramunda ISBT the hop is about 1–2 hr from ₹81.",
+    routes: [
+      "Baramunda (Bhubaneswar) → Puri Bus Stand, all day from ~05:15",
+      "Kolkata Babughat → Puri (Shree Jagannath Express Volvo, overnight)",
+      "Cuttack Badambadi / CNBT → Puri",
+      "Puri ↔ Bengaluru via Berhampur, Vizag, Tirupati",
+    ],
   },
   ama: {
     name: "Ama Bus",
     summary:
-      "CRUT city buses across Bhubaneswar, Cuttack and Puri. Live track and QR tickets. Route 52 runs Puri Bus Stand via Railway Station, Beach Road and Baliapanda.",
+      "CRUT city buses across Bhubaneswar, Cuttack, Khordha and Puri. Live track, QR tickets, NCMC and WhatsApp booking.",
     site: "https://capitalregiontransport.in/transit-services/ama-bus",
     android: "https://play.google.com/store/apps/details?id=com.chalo.crut",
     whatsapp: "https://wa.me/919078050218",
+    routes: [
+      "50 / 51 — Bhubaneswar station or Baramunda → Puri Bus Stand",
+      "DD1 — Airport / Master Canteen → Shree Mandira Parking (double-decker)",
+      "52 — Puri Bus Stand via Railway, Beach Road, Baliapanda",
+      "56 / 56E — Khordha / Jatani via Pipili → Puri",
+      "57 — Puri → Konark / Astaranga on Marine Drive",
+      "58 / 59 — Cuttack (Jagatpur / Mahanadi Vihar) → Puri",
+      "74 — Puri Railway → Jagannath Temple via the bus stand",
+    ],
   },
 };

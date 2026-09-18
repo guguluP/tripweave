@@ -159,6 +159,11 @@ export function BusGuidePanel() {
           <p className="text-sm font-medium">{BUS_GUIDE.osrtc.name}</p>
           <p className="mt-1 text-xs text-muted">{BUS_GUIDE.osrtc.summary}</p>
           <p className="mt-2 text-xs text-subtle">{BUS_GUIDE.osrtc.drop}</p>
+          <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-subtle">
+            {BUS_GUIDE.osrtc.routes.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button type="button" size="sm" variant="outline" asChild>
               <a href={BUS_GUIDE.osrtc.book} target="_blank" rel="noreferrer">
@@ -182,6 +187,11 @@ export function BusGuidePanel() {
         <div className="rounded-lg border border-border bg-surface px-3 py-3">
           <p className="text-sm font-medium">{BUS_GUIDE.ama.name}</p>
           <p className="mt-1 text-xs text-muted">{BUS_GUIDE.ama.summary}</p>
+          <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-subtle">
+            {BUS_GUIDE.ama.routes.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button type="button" size="sm" variant="outline" asChild>
               <a href={BUS_GUIDE.ama.android} target="_blank" rel="noreferrer">

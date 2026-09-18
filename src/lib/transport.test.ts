@@ -48,16 +48,35 @@ describe("travel connectivity", () => {
     assert.equal(origin.defaultArriveBy, "bus");
     const inbound = inboundFor("bhubaneswar", "bus");
     assert.equal(inbound.gateway, "BUS");
-    assert.match(inbound.label, /OSRTC|Baramunda/);
+    assert.match(inbound.label, /OSRTC|Baramunda|Ama/);
     const j = getJourney("taj-puri-resort-spa", "bhubaneswar", "bus");
     assert.equal(j.showBusGuide, true);
     assert.match(j.lastMile.mode, /Ama Bus|Bus Stand|auto/i);
   });
 
+  it("uses Ama Bus 56 from Khordha / Jatani", () => {
+    const inbound = inboundFor("khordha", "bus");
+    assert.match(inbound.label, /56/);
+    assert.equal(getOrigin("khordha").defaultArriveBy, "bus");
+  });
+
+  it("uses OSRTC from Cuttack", () => {
+    const inbound = inboundFor("cuttack", "bus");
+    assert.equal(inbound.gateway, "BUS");
+    assert.match(inbound.label, /OSRTC|Ama/);
+  });
+
   it("maps Ama Bus for temple-side stays from the bus stand", () => {
     const last = lastMileForArrival("chanakya-bnr-puri", "bus");
-    assert.match(last.mode.toLowerCase(), /walk|auto/);
+    assert.match(last.mode.toLowerCase(), /walk|auto|ama/);
     const far = lastMileForArrival("toshali-sands-puri", "bus");
-    assert.match(far.mode.toLowerCase(), /cab/);
+    assert.match(far.mode, /57|cab|Konark/i);
+    const beach = lastMileForArrival("chariot-resort-puri", "bus");
+    assert.match(beach.mode, /52|Baliapanda/i);
+  });
+
+  it("offers OSRTC Bengaluru as a bus inbound", () => {
+    assert.ok(arriveOptionsFor("bengaluru").includes("bus"));
+    assert.match(inboundFor("bengaluru", "bus").label, /OSRTC/);
   });
 });
