@@ -1,7 +1,7 @@
-import { ArrowRight, CarFront, Landmark, Plane, TrainFront } from "lucide-react";
+import { ArrowRight, Bus, CarFront, Landmark, Plane, TrainFront } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { DIGIYATRA_GUIDE, type Journey, type TransportLeg } from "@/lib/transport";
+import { BUS_GUIDE, DIGIYATRA_GUIDE, type Journey, type TransportLeg } from "@/lib/transport";
 import { getOrigin } from "@/lib/origins";
 import { cn } from "@/lib/utils";
 
@@ -43,13 +43,15 @@ function LegRow({
 
 export function TransportPanel({ journey }: { journey: Journey }) {
   const origin = getOrigin(journey.originId);
-  const skipInbound = origin.id === "puri";
+  const skipInbound = origin.id === "puri" && journey.arriveBy !== "bus";
   const GatewayIcon =
     journey.inbound.gateway === "PURI"
       ? TrainFront
-      : journey.inbound.gateway === "ROAD"
-        ? CarFront
-        : Plane;
+      : journey.inbound.gateway === "BUS"
+        ? Bus
+        : journey.inbound.gateway === "ROAD"
+          ? CarFront
+          : Plane;
 
   return (
     <Card className="space-y-4 p-5 shadow-none">
@@ -92,6 +94,8 @@ export function TransportPanel({ journey }: { journey: Journey }) {
         <p className="flex items-center gap-2 text-xs font-medium text-muted">
           {journey.arriveBy === "train" ? (
             <Landmark className="size-3.5" />
+          ) : journey.arriveBy === "bus" ? (
+            <Bus className="size-3.5" />
           ) : (
             <CarFront className="size-3.5" />
           )}
@@ -132,6 +136,71 @@ export function DigiYatraPanel() {
             <ArrowRight className="size-3.5" />
           </a>
         </Button>
+      </div>
+    </Card>
+  );
+}
+
+export function BusGuidePanel() {
+  return (
+    <Card className="space-y-4 p-5 shadow-none">
+      <div className="flex items-start gap-3">
+        <span className="grid size-10 place-items-center rounded-md bg-primary/10 text-primary">
+          <Bus className="size-4" />
+        </span>
+        <div>
+          <p className="eyebrow">Bus · OSRTC & Ama Bus</p>
+          <h3 className="mt-1 font-display text-lg">Official buses into Puri</h3>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <div className="rounded-lg border border-border bg-surface px-3 py-3">
+          <p className="text-sm font-medium">{BUS_GUIDE.osrtc.name}</p>
+          <p className="mt-1 text-xs text-muted">{BUS_GUIDE.osrtc.summary}</p>
+          <p className="mt-2 text-xs text-subtle">{BUS_GUIDE.osrtc.drop}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button type="button" size="sm" variant="outline" asChild>
+              <a href={BUS_GUIDE.osrtc.book} target="_blank" rel="noreferrer">
+                Book OSRTC
+                <ArrowRight className="size-3.5" />
+              </a>
+            </Button>
+            <Button type="button" size="sm" variant="outline" asChild>
+              <a href={BUS_GUIDE.osrtc.android} target="_blank" rel="noreferrer">
+                Android
+              </a>
+            </Button>
+            <Button type="button" size="sm" variant="outline" asChild>
+              <a href={BUS_GUIDE.osrtc.ios} target="_blank" rel="noreferrer">
+                iOS
+              </a>
+            </Button>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-surface px-3 py-3">
+          <p className="text-sm font-medium">{BUS_GUIDE.ama.name}</p>
+          <p className="mt-1 text-xs text-muted">{BUS_GUIDE.ama.summary}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button type="button" size="sm" variant="outline" asChild>
+              <a href={BUS_GUIDE.ama.android} target="_blank" rel="noreferrer">
+                Ama Bus app
+                <ArrowRight className="size-3.5" />
+              </a>
+            </Button>
+            <Button type="button" size="sm" variant="outline" asChild>
+              <a href={BUS_GUIDE.ama.whatsapp} target="_blank" rel="noreferrer">
+                WhatsApp tickets
+              </a>
+            </Button>
+            <Button type="button" size="sm" variant="outline" asChild>
+              <a href={BUS_GUIDE.ama.site} target="_blank" rel="noreferrer">
+                Route map
+              </a>
+            </Button>
+          </div>
+        </div>
       </div>
     </Card>
   );

@@ -10,7 +10,7 @@ import { DigitPop, Stagger, TextSwap } from "@/components/motion";
 import { PropertyMedia } from "@/components/property-media";
 import { ReviewerConsensus } from "@/components/reviewer-consensus";
 import { RoomPicker } from "@/components/room-picker";
-import { DigiYatraPanel, TransportPanel } from "@/components/transport-panel";
+import { DigiYatraPanel, TransportPanel, BusGuidePanel } from "@/components/transport-panel";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { youtubeSourceCount } from "@/lib/trust-score";
 import {
@@ -165,6 +165,7 @@ function TripDetail() {
 
         <div className="mt-10 grid gap-4">
           <TransportPanel journey={journey} />
+          {journey.showBusGuide ? <BusGuidePanel /> : null}
           {journey.showDigiYatra ? <DigiYatraPanel /> : null}
         </div>
 
