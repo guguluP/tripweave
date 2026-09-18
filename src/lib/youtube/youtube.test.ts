@@ -5,6 +5,7 @@ import { getSeededConsensus, listSeededPackageIds, SEED_CONSENSUS } from "./get-
 import { parseVideoSummary } from "./summarize.ts";
 import { cleanTranscriptText, pickPreferredTrack } from "./transcript.ts";
 import { LANGUAGE_PRIORITY } from "./types.ts";
+import { captionFailureCopy, isCaptionHostBlock } from "./caption-copy.ts";
 import { PACKAGE_VIDEOS, videoHash, videosForPackage } from "./videos.ts";
 
 describe("language priority", () => {
@@ -165,5 +166,27 @@ describe("curated mapping", () => {
       assert.ok(seed.roomNotes);
       assert.ok(Object.keys(seed.roomNotes).length >= 2, id);
     }
+  });
+});
+
+describe("caption failure copy", () => {
+  it("does not call a YouTube IP block 'no captions'", () => {
+    const failed = [
+      { videoId: "aaaaaaaaaaa", reason: "rate_limit" as const, message: "rate" },
+      { videoId: "bbbbbbbbbbb", reason: "blocked" as const, message: "bot" },
+      { videoId: "ccccccccccc", reason: "rate_limit" as const, message: "limit" },
+    ];
+    assert.equal(failed.every((f) => isCaptionHostBlock(f.reason)), true);
+    const copy = captionFailureCopy(failed) ?? "";
+    assert.match(copy, /blocked caption/i);
+    assert.doesNotMatch(copy, /no usable captions/i);
+  });
+
+  it("says no captions only when that is the reason", () => {
+    const copy = captionFailureCopy([
+      { videoId: "aaaaaaaaaaa", reason: "no_captions", message: "none" },
+      { videoId: "bbbbbbbbbbb", reason: "no_captions", message: "none" },
+    ]);
+    assert.equal(copy, "2 videos had no usable captions.");
   });
 });

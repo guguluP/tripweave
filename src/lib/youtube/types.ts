@@ -72,6 +72,8 @@ export type PackageReviewConsensus = {
   origin: "seed" | "live" | "empty";
   /** Videos we tried but could not transcribe (live runs only). */
   failedSources?: TranscriptFetchError[];
+  /** Shown after a rebuild that could not read captions. */
+  rebuildNote?: string;
   /** Reviewer notes keyed by room id on the stay. */
   roomNotes?: Record<string, RoomReviewNotes>;
 };

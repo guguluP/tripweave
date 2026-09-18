@@ -27,6 +27,9 @@ export const refreshReviewerConsensus = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<ConsensusResponse> => {
     try {
       const consensus = await rebuildConsensus(data.packageId);
+      if (consensus.origin !== "live" && consensus.rebuildNote) {
+        return { ok: false, message: consensus.rebuildNote, consensus };
+      }
       return { ok: true, consensus };
     } catch (err) {
       console.warn("[reviewer-consensus] rebuild", err);
