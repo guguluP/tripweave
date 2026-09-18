@@ -14,6 +14,8 @@ export type OriginId =
   | "bengaluru"
   | "chennai"
   | "visakhapatnam"
+  | "cuttack"
+  | "khordha"
   | "bhubaneswar"
   | "puri"
   | "other";
@@ -71,11 +73,11 @@ export const ORIGINS: OriginCity[] = [
       },
       {
         mode: "bus",
-        label: "OSRTC Kolkata → Puri / Bhubaneswar",
-        duration: "8–12 hr",
-        costHint: "₹400–1,200",
-        why: "State buses on NH16. Cheaper than the overnight 3A if you travel light.",
-        tips: "Book on osrtc.org or the OSRTC app. Drop at Puri Bus Stand, next to the station.",
+        label: "OSRTC Shree Jagannath Express (Kolkata → Puri)",
+        duration: "9.5–11 hr overnight",
+        costHint: "₹1,150–1,800 Volvo · from ~₹700 ordinary",
+        why: "Official state bus from Babughat / Esplanade. You sleep on the Volvo and wake at Puri Bus Stand.",
+        tips: "Book at booking.osrtc.org. Overnight services leave Kolkata around 19:00–21:30.",
         gateway: "BUS",
       },
     ],
@@ -167,6 +169,15 @@ export const ORIGINS: OriginCity[] = [
         why: "Daily nonstop. Do not take the train unless you have two spare days.",
         gateway: "BBI",
       },
+      {
+        mode: "bus",
+        label: "OSRTC Puri ↔ Bengaluru",
+        duration: "Overnight via Berhampur, Vizag, Tirupati",
+        costHint: "₹1,800–3,200",
+        why: "Direct state bus if you want to skip the airport. Long road — pack light.",
+        tips: "Book at booking.osrtc.org. Drops at Puri Bus Stand.",
+        gateway: "BUS",
+      },
     ],
   },
   {
@@ -235,18 +246,76 @@ export const ORIGINS: OriginCity[] = [
     ],
   },
   {
-    id: "bhubaneswar",
-    label: "Bhubaneswar",
-    hint: "OSRTC from Baramunda",
+    id: "cuttack",
+    label: "Cuttack",
+    hint: "OSRTC or Ama Bus",
     defaultArriveBy: "bus",
     inbound: [
       {
         mode: "bus",
-        label: "OSRTC Baramunda → Puri Bus Stand",
+        label: "OSRTC / Ama Bus Cuttack → Puri",
+        duration: "1.5–2.5 hr",
+        costHint: "₹80–180",
+        why: "OSRTC from Badambadi / CNBT. Ama Bus 58 and 59 also run Jagatpur / Mahanadi Vihar to Puri Bus Stand.",
+        tips: "Book OSRTC at booking.osrtc.org. Track Ama Bus in the CRUT app.",
+        gateway: "BUS",
+      },
+      {
+        mode: "train",
+        label: "CTC → Puri",
+        duration: "1.5–2.5 hr door to door",
+        costHint: "₹20–120",
+        why: "Fine if you are already at Cuttack station with light bags.",
+        gateway: "PURI",
+      },
+      {
+        mode: "road",
+        label: "Cab Cuttack → Puri",
+        duration: "1 hr 20 min – 2 hr",
+        costHint: "₹1,400–2,200",
+        why: "Faster with luggage than the bus on a festival weekend.",
+        gateway: "ROAD",
+      },
+    ],
+  },
+  {
+    id: "khordha",
+    label: "Khordha / Jatani",
+    hint: "Ama Bus 56 via Pipili",
+    defaultArriveBy: "bus",
+    inbound: [
+      {
+        mode: "bus",
+        label: "Ama Bus 56 / 56E → Puri Bus Stand",
+        duration: "1.5–2.5 hr",
+        costHint: "₹30–80",
+        why: "CRUT Ama Bus 56 from Khordha New Bus Stand and 56E from Khordha Road station run via Jatani and Pipili.",
+        tips: "Live-track and pay in the Ama Bus app. Festival weeks add 56E extras.",
+        gateway: "BUS",
+      },
+      {
+        mode: "road",
+        label: "Cab via Pipili / NH316",
+        duration: "1 hr – 1 hr 40 min",
+        costHint: "₹1,200–2,000",
+        why: "The fast option with bags. Same road the Ama Bus uses.",
+        gateway: "ROAD",
+      },
+    ],
+  },
+  {
+    id: "bhubaneswar",
+    label: "Bhubaneswar",
+    hint: "OSRTC + Ama Bus",
+    defaultArriveBy: "bus",
+    inbound: [
+      {
+        mode: "bus",
+        label: "OSRTC Baramunda or Ama Bus 50 / 51 / DD1",
         duration: "1–2 hr",
-        costHint: "₹80–150",
-        why: "The cheap, official hop. Buses run from early morning to evening from Baramunda.",
-        tips: "Book on osrtc.org or the OSRTC app. First services from about 05:15. Ama Bus also covers the capital region.",
+        costHint: "₹40–150",
+        why: "OSRTC from Baramunda ISBT to Puri Bus Stand all day from about ₹81. Ama 50 (BBS station) and 51 (Baramunda) are the city-branded hop. DD1 is the airport double-decker to Mandira Parking.",
+        tips: "OSRTC: booking.osrtc.org. Ama Bus: CRUT app or WhatsApp +91 9078050218.",
         gateway: "BUS",
       },
       {

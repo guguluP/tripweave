@@ -97,8 +97,8 @@ function Plan() {
             ))}
           </div>
           <p className="mt-2 text-xs text-muted">
-            Puri has no airport. Flyers land at Bhubaneswar (BBI). OSRTC and Ama Bus drop at Puri
-            Bus Stand.
+            Puri has no airport. Flyers land at Bhubaneswar (BBI). OSRTC is the
+            intercity bus; Ama Bus is the city network — including Khordha / Jatani (route 56).
           </p>
         </fieldset>
 
