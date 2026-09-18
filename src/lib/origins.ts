@@ -4,7 +4,7 @@
  * from a home city — fly into BBI, train into Puri, or drive.
  */
 
-export type ArriveBy = "fly" | "train" | "road";
+export type ArriveBy = "fly" | "train" | "road" | "bus";
 
 export type OriginId =
   | "kolkata"
@@ -25,7 +25,7 @@ export type InboundLeg = {
   costHint: string;
   why: string;
   tips?: string;
-  gateway: "BBI" | "PURI" | "ROAD";
+  gateway: "BBI" | "PURI" | "ROAD" | "BUS";
 };
 
 export type OriginCity = {
@@ -68,6 +68,15 @@ export const ORIGINS: OriginCity[] = [
         costHint: "Toll + fuel ~₹4,000–6,000",
         why: "Only if you want the car in Puri for Konark and Chilika.",
         gateway: "ROAD",
+      },
+      {
+        mode: "bus",
+        label: "OSRTC Kolkata → Puri / Bhubaneswar",
+        duration: "8–12 hr",
+        costHint: "₹400–1,200",
+        why: "State buses on NH16. Cheaper than the overnight 3A if you travel light.",
+        tips: "Book on osrtc.org or the OSRTC app. Drop at Puri Bus Stand, next to the station.",
+        gateway: "BUS",
       },
     ],
   },
@@ -214,20 +223,38 @@ export const ORIGINS: OriginCity[] = [
         why: "Useful if you want the car for Konark.",
         gateway: "ROAD",
       },
+      {
+        mode: "bus",
+        label: "OSRTC Vizag → Bhubaneswar / Puri",
+        duration: "8–10 hr",
+        costHint: "₹400–1,000",
+        why: "The East Coast road is the natural bus path. Prefer a day service if you have bags.",
+        tips: "Book OSRTC. Last mile from Puri Bus Stand is a short auto.",
+        gateway: "BUS",
+      },
     ],
   },
   {
     id: "bhubaneswar",
     label: "Bhubaneswar",
-    hint: "An hour down the road",
-    defaultArriveBy: "road",
+    hint: "OSRTC from Baramunda",
+    defaultArriveBy: "bus",
     inbound: [
+      {
+        mode: "bus",
+        label: "OSRTC Baramunda → Puri Bus Stand",
+        duration: "1–2 hr",
+        costHint: "₹80–150",
+        why: "The cheap, official hop. Buses run from early morning to evening from Baramunda.",
+        tips: "Book on osrtc.org or the OSRTC app. First services from about 05:15. Ama Bus also covers the capital region.",
+        gateway: "BUS",
+      },
       {
         mode: "road",
         label: "Cab or self-drive Bhubaneswar → Puri",
         duration: "1 hr 15 min – 1 hr 50 min",
         costHint: "₹1,500–2,500 one way",
-        why: "The only last mile that matters. NH316 is the usual road.",
+        why: "Faster with luggage than the bus. NH316 is the usual road.",
         tips: "Leave before 8am or after 7pm to miss the temple-weekend crawl.",
         gateway: "ROAD",
       },
@@ -244,15 +271,24 @@ export const ORIGINS: OriginCity[] = [
   {
     id: "puri",
     label: "Already in Puri",
-    hint: "Skip the inbound",
-    defaultArriveBy: "road",
+    hint: "Ama Bus around town",
+    defaultArriveBy: "bus",
     inbound: [
+      {
+        mode: "bus",
+        label: "Ama Bus around Puri",
+        duration: "10–40 min",
+        costHint: "₹10–50 with a digital ticket",
+        why: "CRUT Ama Bus is the city network. Route 52 runs Puri Bus Stand via the railway station, Beach Road and Baliapanda.",
+        tips: "Track and pay in the Ama Bus app, or WhatsApp +91 9078050218. Women get a digital fare cut.",
+        gateway: "BUS",
+      },
       {
         mode: "road",
         label: "Local cab / auto to the stay",
         duration: "10–40 min",
         costHint: "₹100–700",
-        why: "You are in town. Use the hotel’s last-mile note.",
+        why: "Faster with luggage than waiting for the next Ama Bus.",
         gateway: "ROAD",
       },
     ],
@@ -260,7 +296,7 @@ export const ORIGINS: OriginCity[] = [
   {
     id: "other",
     label: "Somewhere else",
-    hint: "Fly BBI or train to Puri",
+    hint: "Fly, train, or OSRTC",
     defaultArriveBy: "fly",
     inbound: [
       {
@@ -279,6 +315,15 @@ export const ORIGINS: OriginCity[] = [
         why: "Puri is a railhead. If your city has a direct, take it.",
         gateway: "PURI",
       },
+      {
+        mode: "bus",
+        label: "OSRTC into Puri Bus Stand",
+        duration: "Depends on your city",
+        costHint: "From ~₹80 inside Odisha",
+        why: "If you are already in the state — Cuttack, Berhampur, Rourkela, Sambalpur — OSRTC is the official intercity bus.",
+        tips: "Book at osrtc.org. Ama Bus is the city layer once you are in Puri.",
+        gateway: "BUS",
+      },
     ],
   },
 ];
@@ -286,6 +331,7 @@ export const ORIGINS: OriginCity[] = [
 export const ARRIVE_BY: { id: ArriveBy; label: string; hint: string }[] = [
   { id: "fly", label: "Fly", hint: "Into Bhubaneswar (BBI)" },
   { id: "train", label: "Train", hint: "Into Puri or BBS" },
+  { id: "bus", label: "Bus", hint: "OSRTC & Ama Bus" },
   { id: "road", label: "Road", hint: "Cab or self-drive" },
 ];
 

@@ -85,7 +85,7 @@ function Plan() {
 
         <fieldset className="mt-8">
           <legend className="text-sm font-medium">How you’ll arrive</legend>
-          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {ARRIVE_BY.filter((v) => arriveChoices.includes(v.id)).map((v) => (
               <Choice
                 key={v.id}
@@ -97,7 +97,8 @@ function Plan() {
             ))}
           </div>
           <p className="mt-2 text-xs text-muted">
-            Puri has no airport. Flyers land at Bhubaneswar (BBI); trains can run into Puri station.
+            Puri has no airport. Flyers land at Bhubaneswar (BBI). OSRTC and Ama Bus drop at Puri
+            Bus Stand.
           </p>
         </fieldset>
 

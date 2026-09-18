@@ -41,4 +41,23 @@ describe("travel connectivity", () => {
     }
     assert.equal(getOrigin("nope").id, "other");
   });
+
+  it("uses OSRTC into Puri Bus Stand from Bhubaneswar", () => {
+    const origin = getOrigin("bhubaneswar");
+    assert.ok(arriveOptionsFor("bhubaneswar").includes("bus"));
+    assert.equal(origin.defaultArriveBy, "bus");
+    const inbound = inboundFor("bhubaneswar", "bus");
+    assert.equal(inbound.gateway, "BUS");
+    assert.match(inbound.label, /OSRTC|Baramunda/);
+    const j = getJourney("taj-puri-resort-spa", "bhubaneswar", "bus");
+    assert.equal(j.showBusGuide, true);
+    assert.match(j.lastMile.mode, /Ama Bus|Bus Stand|auto/i);
+  });
+
+  it("maps Ama Bus for temple-side stays from the bus stand", () => {
+    const last = lastMileForArrival("chanakya-bnr-puri", "bus");
+    assert.match(last.mode.toLowerCase(), /walk|auto/);
+    const far = lastMileForArrival("toshali-sands-puri", "bus");
+    assert.match(far.mode.toLowerCase(), /cab/);
+  });
 });
