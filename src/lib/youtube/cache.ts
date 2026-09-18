@@ -1,3 +1,4 @@
+import { twApply } from "@/lib/supabase/rpc";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { PackageReviewConsensus, RoomReviewNotes, Sentiment } from "./types.ts";
@@ -153,26 +154,20 @@ export async function writeDurableCache(
 ) {
   writeMemoryCache(consensus, hash);
   if (!isSupabaseConfigured()) return;
-  const sb = getSupabaseAdmin();
-  if (!sb) return;
   try {
-    const { error } = await sb.from("reviewer_consensus").upsert(
-      {
-        package_id: consensus.packageId,
-        overall_sentiment: consensus.overallSentiment,
-        key_positives: consensus.keyPositives,
-        key_negatives: consensus.keyNegatives,
-        caveats: consensus.caveats,
-        consensus_summary: consensus.consensusSummary,
-        sources: consensus.sources,
-        origin: consensus.origin,
-        video_hash: hash,
-        updated_at: consensus.updatedAt,
-        room_notes: consensus.roomNotes ?? {},
-      },
-      { onConflict: "package_id" },
-    );
-    if (error) console.warn("[reviewer-consensus] supabase write", error.message);
+    await twApply("upsert_consensus", {
+      package_id: consensus.packageId,
+      overall_sentiment: consensus.overallSentiment,
+      key_positives: consensus.keyPositives,
+      key_negatives: consensus.keyNegatives,
+      caveats: consensus.caveats,
+      consensus_summary: consensus.consensusSummary,
+      sources: consensus.sources,
+      origin: consensus.origin,
+      video_hash: hash,
+      updated_at: consensus.updatedAt,
+      room_notes: consensus.roomNotes ?? {},
+    });
   } catch (err) {
     console.warn("[reviewer-consensus] supabase write failed", err);
   }

@@ -1,16 +1,25 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signOut } from "@/lib/auth/client";
-import { clearDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user";
+import { clearDemoMode, isDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TextSwap } from "@/components/motion";
 import { saveNext } from "@/lib/packages";
 import { isRealUser } from "@/lib/session-guard";
+import { mergeSaved } from "@/lib/saved";
+import { listSavedStays } from "@/lib/supabase/saved";
 
 export function AuthSlot() {
   const { user, isPending } = useCurrentUserState();
   const [signingOut, setSigningOut] = useState(false);
+
+  useEffect(() => {
+    if (!isRealUser(user) || isDemoMode()) return;
+    listSavedStays()
+      .then((ids) => mergeSaved(ids))
+      .catch(() => {});
+  }, [user]);
 
   if (isPending) {
     return <Skeleton className="h-9 w-24 rounded-md" />;

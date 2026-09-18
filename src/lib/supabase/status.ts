@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getSupabaseAdmin } from "./server";
-import { isSupabaseAdminConfigured, isSupabaseConfigured } from "./env";
+import { twApply } from "./rpc";
+import { isSupabaseConfigured } from "./env";
 
 export type PersistStatus =
   | { cloud: true }
@@ -12,21 +12,18 @@ export type PersistStatus =
  */
 export const getPersistStatus = createServerFn({ method: "GET" }).handler(
   async (): Promise<PersistStatus> => {
-    if (!isSupabaseConfigured() || !isSupabaseAdminConfigured()) {
+    if (!isSupabaseConfigured()) {
       return { cloud: false, reason: "keys" };
     }
-    const sb = getSupabaseAdmin();
-    if (!sb) return { cloud: false, reason: "keys" };
     try {
-      const { error } = await sb.from("bookings").select("id").limit(1);
-      if (!error) return { cloud: true };
-      const msg = error.message.toLowerCase();
-      if (msg.includes("schema cache") || msg.includes("does not exist") || msg.includes("could not find")) {
-        return { cloud: false, reason: "schema" };
-      }
-      console.error("[supabase] persist status", error.message);
+      const ping = await twApply<{ ok?: boolean }>("ping", {});
+      if (ping?.ok) return { cloud: true };
       return { cloud: false, reason: "error" };
     } catch (err) {
+      const msg = err instanceof Error ? err.message.toLowerCase() : "";
+      if (msg.includes("schema") || msg.includes("does not exist") || msg.includes("could not find")) {
+        return { cloud: false, reason: "schema" };
+      }
       console.error("[supabase] persist status failed", err);
       return { cloud: false, reason: "error" };
     }

@@ -1,4 +1,4 @@
-import { getSupabaseAdmin } from "./server";
+import { twApply } from "./rpc";
 
 export type PaymentEventInput = {
   userId: string;
@@ -10,20 +10,19 @@ export type PaymentEventInput = {
 };
 
 export async function sbInsertPaymentEvent(input: PaymentEventInput): Promise<boolean> {
-  const sb = getSupabaseAdmin();
-  if (!sb) return false;
-  const { error } = await sb.from("payment_events").insert({
-    user_id: input.userId,
-    booking_id: input.bookingId ?? null,
-    provider: "razorpay",
-    event_type: input.eventType,
-    order_id: input.orderId ?? null,
-    payment_id: input.paymentId ?? null,
-    payload: input.payload ?? {},
-  });
-  if (error) {
-    console.error("[supabase] payment_events", error.message);
+  try {
+    await twApply("insert_payment_event", {
+      user_id: input.userId,
+      booking_id: input.bookingId ?? null,
+      provider: "razorpay",
+      event_type: input.eventType,
+      order_id: input.orderId ?? null,
+      payment_id: input.paymentId ?? null,
+      payload: input.payload ?? {},
+    });
+    return true;
+  } catch (err) {
+    console.error("[supabase] payment_events", err);
     return false;
   }
-  return true;
 }

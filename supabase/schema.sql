@@ -170,3 +170,32 @@ create unique index if not exists payment_events_payment_id_uidx
   on public.payment_events (payment_id)
   where payment_id is not null;
 
+create table if not exists public.saved_stays (
+  user_id text not null,
+  package_id text not null,
+  created_at timestamptz not null default now(),
+  primary key (user_id, package_id)
+);
+create index if not exists saved_stays_user_id_idx on public.saved_stays (user_id);
+alter table public.saved_stays enable row level security;
+drop policy if exists "block_client_saved_stays" on public.saved_stays;
+create policy "block_client_saved_stays"
+  on public.saved_stays for all to anon, authenticated
+  using (false) with check (false);
+
+create table if not exists public.profiles (
+  user_id text primary key,
+  display_name text,
+  email text,
+  phone text,
+  updated_at timestamptz not null default now()
+);
+alter table public.profiles enable row level security;
+drop policy if exists "block_client_profiles" on public.profiles;
+create policy "block_client_profiles"
+  on public.profiles for all to anon, authenticated
+  using (false) with check (false);
+
+-- Writes go through public.tw_apply (gated RPC). Do not grant table writes to anon.
+
+

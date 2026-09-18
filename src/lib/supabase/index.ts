@@ -10,3 +10,4 @@ export { sbSaveTravellers, sbListTravellers, sbPurgeExpiredTravellers } from "./
 export { sbInsertPaymentEvent } from "./payments";
 export { getPersistStatus } from "./status";
 export { SUPABASE_PROJECT_REF, SUPABASE_PROJECT_URL } from "./project.ts";
+export { syncSavedStay, listSavedStays } from "./saved";
