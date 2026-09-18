@@ -1,5 +1,6 @@
 import type { BookingRow } from "@/lib/server/bookings";
-import { getSupabaseAdmin } from "./server";
+import { twApply } from "./rpc";
+
 import type { SbBooking } from "./types";
 
 function mapSbBooking(row: SbBooking): BookingRow {
@@ -37,18 +38,8 @@ function mapSbBooking(row: SbBooking): BookingRow {
 }
 
 export async function sbListBookings(userId: string): Promise<BookingRow[] | null> {
-  const sb = getSupabaseAdmin();
-  if (!sb) return null;
-  const { data, error } = await sb
-    .from("bookings")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
-  if (error) {
-    console.error("[supabase] listBookings", error.message);
-    throw new Error(error.message);
-  }
-  return (data as SbBooking[]).map(mapSbBooking);
+  const data = await twApply<SbBooking[]>("list_bookings", { user_id: userId });
+  return (Array.isArray(data) ? data : []).map(mapSbBooking);
 }
 
 export type InsertBookingInput = {
@@ -74,53 +65,33 @@ export type InsertBookingInput = {
 export async function sbInsertBooking(
   input: InsertBookingInput,
 ): Promise<BookingRow | null> {
-  const sb = getSupabaseAdmin();
-  if (!sb) return null;
-  const { data, error } = await sb
-    .from("bookings")
-    .insert({
-      user_id: input.userId,
-      package_id: input.packageId,
-      package_name: input.packageName,
-      nights: input.nights,
-      travelers: input.travelers,
-      check_in: input.checkIn,
-      amount_inr: input.amountInr,
-      swaps: input.swaps,
-      status: input.status,
-      card_last4: input.cardLast4,
-      card_brand: input.cardBrand,
-      payer_name: input.payerName,
-      confirmation_code: input.confirmationCode,
-      payment_method: input.paymentMethod,
-      payment_ref: input.paymentRef,
-      upi_handle: input.upiHandle,
-      bank_name: input.bankName,
-    })
-    .select("*")
-    .single();
-  if (error) {
-    console.error("[supabase] insertBooking", error.message);
-    throw new Error(error.message);
-  }
-  return mapSbBooking(data as SbBooking);
+  const data = await twApply<SbBooking>("insert_booking", {
+    user_id: input.userId,
+    package_id: input.packageId,
+    package_name: input.packageName,
+    nights: input.nights,
+    travelers: input.travelers,
+    check_in: input.checkIn,
+    amount_inr: input.amountInr,
+    swaps: input.swaps,
+    status: input.status,
+    card_last4: input.cardLast4,
+    card_brand: input.cardBrand,
+    payer_name: input.payerName,
+    confirmation_code: input.confirmationCode,
+    payment_method: input.paymentMethod,
+    payment_ref: input.paymentRef,
+    upi_handle: input.upiHandle,
+    bank_name: input.bankName,
+  });
+  if (!data) return null;
+  return mapSbBooking(data);
 }
 
 export async function sbCancelBooking(
   userId: string,
   id: number,
 ): Promise<boolean | null> {
-  const sb = getSupabaseAdmin();
-  if (!sb) return null;
-  const { error } = await sb
-    .from("bookings")
-    .update({ status: "cancelled" })
-    .eq("id", id)
-    .eq("user_id", userId)
-    .eq("status", "paid");
-  if (error) {
-    console.error("[supabase] cancelBooking", error.message);
-    throw new Error(error.message);
-  }
+  await twApply("cancel_booking", { user_id: userId, id });
   return true;
 }

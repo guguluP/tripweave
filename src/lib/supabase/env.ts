@@ -1,5 +1,4 @@
-/** Shared env helpers for Supabase. Server-only secrets must never use VITE_. */
-import { SUPABASE_PROJECT_URL } from "./project.ts";
+import { SUPABASE_ANON_KEY, SUPABASE_PROJECT_URL, SUPABASE_PUBLISHABLE_KEY } from "./project.ts";
 
 function pick(...vals: Array<string | undefined>): string {
   for (const v of vals) {
@@ -37,6 +36,8 @@ export function supabaseAnonKey(): string {
     fromNamedJson(process.env.SUPABASE_PUBLISHABLE_KEYS),
     process.env.VITE_SUPABASE_ANON_KEY,
     process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+    SUPABASE_ANON_KEY,
+    SUPABASE_PUBLISHABLE_KEY,
   );
 }
 
@@ -53,25 +54,31 @@ export function supabaseServiceRoleKey(): string {
 }
 
 /**
- * True when Supabase is configured for server booking storage.
- * Prefer service/secret on the server; fall back to anon/publishable.
+ * True when the app can talk to the live TripWeave project.
+ * Public keys are baked in, so this is true unless explicitly disabled.
  */
 export function isSupabaseConfigured(): boolean {
-  return Boolean(supabaseUrl() && (supabaseServiceRoleKey() || supabaseAnonKey()));
+  if (process.env.SUPABASE_DISABLED === "1") return false;
+  return Boolean(supabaseUrl() && supabaseAnonKey());
 }
 
-/** True when the server can bypass RLS (required for bookings writes). */
+/** True when the server can bypass RLS with the service role. */
 export function isSupabaseAdminConfigured(): boolean {
   return Boolean(supabaseUrl() && supabaseServiceRoleKey());
 }
 
 /** Browser-safe: only public URL + anon/publishable key. */
 export function isSupabaseBrowserConfigured(): boolean {
+  if (process.env.SUPABASE_DISABLED === "1") return false;
   const env =
     typeof import.meta !== "undefined"
       ? (import.meta as ImportMeta & { env?: Record<string, string> }).env
       : undefined;
   const url = pick(env?.VITE_SUPABASE_URL) || SUPABASE_PROJECT_URL;
-  const key = pick(env?.VITE_SUPABASE_ANON_KEY, env?.VITE_SUPABASE_PUBLISHABLE_KEY);
+  const key = pick(
+    env?.VITE_SUPABASE_ANON_KEY,
+    env?.VITE_SUPABASE_PUBLISHABLE_KEY,
+    SUPABASE_ANON_KEY,
+  );
   return Boolean(url && key);
 }

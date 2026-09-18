@@ -10,7 +10,7 @@ function read(): string[] {
     const parsed = raw ? (JSON.parse(raw) as unknown) : [];
     return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === "string") : [];
   } catch {
-    return [];
+    return EMPTY;
   }
 }
 
@@ -28,14 +28,31 @@ if (typeof window !== "undefined") {
   });
 }
 
+function write(ids: string[]) {
+  window.localStorage.setItem(KEY, JSON.stringify(ids));
+  emit();
+}
+
 export function toggleSaved(id: string): boolean {
   const cur = new Set(read());
   const on = !cur.has(id);
   if (on) cur.add(id);
   else cur.delete(id);
-  window.localStorage.setItem(KEY, JSON.stringify([...cur]));
-  emit();
+  write([...cur]);
   return on;
+}
+
+export function mergeSaved(ids: string[]) {
+  if (typeof window === "undefined" || !ids.length) return;
+  const cur = new Set(read());
+  let changed = false;
+  for (const id of ids) {
+    if (!cur.has(id)) {
+      cur.add(id);
+      changed = true;
+    }
+  }
+  if (changed) write([...cur]);
 }
 
 export function useSavedIds(): string[] {

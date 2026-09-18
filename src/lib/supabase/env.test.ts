@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { SUPABASE_PROJECT_URL } from "./project.ts";
+import { SUPABASE_ANON_KEY, SUPABASE_PROJECT_URL } from "./project.ts";
 import {
   isSupabaseAdminConfigured,
   isSupabaseConfigured,
@@ -10,39 +10,33 @@ import {
 } from "./env.ts";
 
 describe("supabase env", () => {
-  it("defaults to the TripWeave project URL", () => {
+  it("defaults to the TripWeave project URL and public anon key", () => {
     const prevUrl = process.env.SUPABASE_URL;
     const prevVite = process.env.VITE_SUPABASE_URL;
+    const prevDisabled = process.env.SUPABASE_DISABLED;
     delete process.env.SUPABASE_URL;
     delete process.env.VITE_SUPABASE_URL;
+    delete process.env.SUPABASE_DISABLED;
     try {
       assert.equal(supabaseUrl(), SUPABASE_PROJECT_URL);
+      assert.equal(supabaseAnonKey(), SUPABASE_ANON_KEY);
+      assert.equal(isSupabaseConfigured(), true);
     } finally {
       if (prevUrl !== undefined) process.env.SUPABASE_URL = prevUrl;
       if (prevVite !== undefined) process.env.VITE_SUPABASE_URL = prevVite;
+      if (prevDisabled !== undefined) process.env.SUPABASE_DISABLED = prevDisabled;
     }
   });
 
-  it("is unconfigured without keys", () => {
-    const keys = [
-      "SUPABASE_ANON_KEY",
-      "SUPABASE_PUBLISHABLE_KEY",
-      "SUPABASE_PUBLISHABLE_KEYS",
-      "VITE_SUPABASE_ANON_KEY",
-      "VITE_SUPABASE_PUBLISHABLE_KEY",
-      "SUPABASE_SERVICE_ROLE_KEY",
-      "SUPABASE_SECRET_KEY",
-      "SUPABASE_SECRET_KEYS",
-    ] as const;
+  it("has no service role unless env provides one", () => {
+    const keys = ["SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SECRET_KEY", "SUPABASE_SECRET_KEYS"] as const;
     const prev: Record<string, string | undefined> = {};
     for (const k of keys) {
       prev[k] = process.env[k];
       delete process.env[k];
     }
     try {
-      assert.equal(supabaseAnonKey(), "");
       assert.equal(supabaseServiceRoleKey(), "");
-      assert.equal(isSupabaseConfigured(), false);
       assert.equal(isSupabaseAdminConfigured(), false);
     } finally {
       for (const k of keys) {

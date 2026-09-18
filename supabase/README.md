@@ -3,7 +3,7 @@
 Live project: **TripWeave** (`csegihiepvxezuypsvop`, `ap-south-1`).  
 API URL: `https://csegihiepvxezuypsvop.supabase.co`
 
-The app talks to this project over the Data API (`@supabase/supabase-js`):
+The app talks to this project over the Data API (`@supabase/supabase-js`). Public URL and anon key are baked into the app. Personal rows (bookings, travellers, saved stays, profiles, payment events) are written through a gated RPC — the browser key cannot read or write those tables directly.
 
 | Table | Who writes | What |
 |-------|------------|------|

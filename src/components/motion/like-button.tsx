@@ -2,6 +2,8 @@ import { useState, type CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 import { toggleSaved, useIsSaved } from "@/lib/saved";
 import { prefersReducedMotion, readCssNumber, readMs } from "@/lib/motion";
+import { isDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user";
+import { syncSavedStay } from "@/lib/supabase/saved";
 
 type Particle = {
   px: string;
@@ -36,6 +38,7 @@ export function LikeButton({
   className?: string;
 }) {
   const liked = useIsSaved(id);
+  const { user } = useCurrentUserState();
   const [bursting, setBursting] = useState(false);
   const [particles, setParticles] = useState<Particle[]>(() =>
     Array.from({ length: 8 }, () => ({
@@ -60,6 +63,9 @@ export function LikeButton({
         e.preventDefault();
         e.stopPropagation();
         const next = toggleSaved(id);
+        if (user && !isDemoMode()) {
+          syncSavedStay({ data: { packageId: id, on: next } }).catch(() => {});
+        }
         if (next && !prefersReducedMotion()) {
           setParticles(spray());
           setBursting(true);
