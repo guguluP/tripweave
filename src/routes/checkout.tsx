@@ -26,6 +26,7 @@ import {
   nightsPhrase,
   stayTotal,
   saveNext,
+  loadBrief,
 } from "@/lib/packages";
 import { methodLabel, paymentLine } from "@/lib/pay";
 import { createBooking, type BookingRow } from "@/lib/server/bookings";
@@ -41,6 +42,8 @@ import {
   loadRazorpayScript,
   openRazorpayCheckout,
 } from "@/lib/razorpay-client";
+import { getJourney } from "@/lib/transport";
+import { getOrigin } from "@/lib/origins";
 
 export const Route = createFileRoute("/checkout")({ component: Checkout });
 
@@ -128,6 +131,8 @@ function CheckoutInner() {
   const stayNights = pkg ? clampNights(pkg, nights) : nights;
   const perPerson = pkg ? stayTotal(pkg, stayNights, room?.id, swaps) : 0;
   const total = perPerson * travelers;
+  const brief = loadBrief();
+  const journey = pkg ? getJourney(pkg.id, brief.origin, brief.arriveBy) : null;
 
   const finishPaid = (booking: BookingRow, stored: "supabase" | "local" = "local") => {
     saveDemoBooking(booking);
@@ -476,6 +481,11 @@ function CheckoutInner() {
             <p className="mt-1 text-sm text-muted">
               {nightsPhrase(stayNights)} · {room?.name ?? "Room"} · {pkg.neighborhood}
             </p>
+            {journey ? (
+              <p className="mt-2 text-xs text-subtle">
+                {getOrigin(brief.origin).label} · {journey.inbound.label}
+              </p>
+            ) : null}
             <dl className="mt-5 grid gap-2 text-sm">
               <div className="flex justify-between">
                 <dt className="text-muted">Per person</dt>

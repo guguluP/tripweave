@@ -1,10 +1,17 @@
-import { ArrowRight, CarFront, Landmark, Plane } from "lucide-react";
+import { ArrowRight, CarFront, Landmark, Plane, TrainFront } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { DIGIYATRA_GUIDE, type PropertyTransport, type TransportLeg } from "@/lib/transport";
+import { DIGIYATRA_GUIDE, type Journey, type TransportLeg } from "@/lib/transport";
+import { getOrigin } from "@/lib/origins";
 import { cn } from "@/lib/utils";
 
-function LegRow({ leg, recommended }: { leg: TransportLeg; recommended?: boolean }) {
+function LegRow({
+  leg,
+  recommended,
+}: {
+  leg: Pick<TransportLeg, "mode" | "duration" | "costHint" | "why">;
+  recommended?: boolean;
+}) {
   return (
     <li
       className={cn(
@@ -18,7 +25,7 @@ function LegRow({ leg, recommended }: { leg: TransportLeg; recommended?: boolean
             {leg.mode}
             {recommended ? (
               <span className="ml-2 text-[0.65rem] font-semibold uppercase tracking-wider text-primary">
-                Best
+                Next
               </span>
             ) : null}
           </p>
@@ -34,54 +41,68 @@ function LegRow({ leg, recommended }: { leg: TransportLeg; recommended?: boolean
   );
 }
 
-export function TransportPanel({ transport }: { transport: PropertyTransport }) {
+export function TransportPanel({ journey }: { journey: Journey }) {
+  const origin = getOrigin(journey.originId);
+  const skipInbound = origin.id === "puri";
+  const GatewayIcon =
+    journey.inbound.gateway === "PURI"
+      ? TrainFront
+      : journey.inbound.gateway === "ROAD"
+        ? CarFront
+        : Plane;
+
   return (
     <Card className="space-y-4 p-5 shadow-none">
       <div className="flex items-start gap-3">
         <span className="grid size-10 place-items-center rounded-md bg-primary/10 text-primary">
-          <CarFront className="size-4" />
+          <GatewayIcon className="size-4" />
         </span>
         <div>
-          <p className="eyebrow">Best way to the property</p>
-          <h3 className="mt-1 font-display text-lg">{transport.best.mode}</h3>
+          <p className="eyebrow">Getting there</p>
+          <h3 className="mt-1 font-display text-lg">
+            {skipInbound ? `To ${journey.neighborhood}` : `${origin.label} → ${journey.neighborhood}`}
+          </h3>
         </div>
       </div>
-      <p className="text-sm text-muted">{transport.best.why}</p>
-      <dl className="grid grid-cols-2 gap-3 text-sm">
-        <div className="rounded-lg bg-surface px-3 py-2">
-          <dt className="text-xs text-subtle">Time</dt>
-          <dd className="mt-0.5 font-medium">{transport.best.duration}</dd>
-        </div>
-        <div className="rounded-lg bg-surface px-3 py-2">
-          <dt className="text-xs text-subtle">Typical cost</dt>
-          <dd className="mt-0.5 font-medium">{transport.best.costHint}</dd>
-        </div>
-      </dl>
-      {transport.best.tips ? <p className="text-xs text-subtle">{transport.best.tips}</p> : null}
-      <p className="text-xs text-subtle">{transport.localNote}</p>
 
-      <div className="space-y-2 border-t border-border pt-4">
-        <p className="flex items-center gap-2 text-xs font-medium text-muted">
-          <Plane className="size-3.5" />
-          From BBI airport
-        </p>
-        <ul className="grid gap-2">
-          {transport.fromAirport.map((leg, i) => (
-            <LegRow key={leg.mode} leg={leg} recommended={i === 0} />
-          ))}
-        </ul>
-      </div>
+      {!skipInbound ? (
+        <div className="space-y-2">
+          <p className="flex items-center gap-2 text-xs font-medium text-muted">
+            <GatewayIcon className="size-3.5" />
+            1. From {origin.label}
+          </p>
+          <ul className="grid gap-2">
+            <LegRow
+              recommended
+              leg={{
+                mode: journey.inbound.label,
+                duration: journey.inbound.duration,
+                costHint: journey.inbound.costHint,
+                why: journey.inbound.why,
+              }}
+            />
+          </ul>
+          {journey.inbound.tips ? (
+            <p className="text-xs text-subtle">{journey.inbound.tips}</p>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="space-y-2">
         <p className="flex items-center gap-2 text-xs font-medium text-muted">
-          <Landmark className="size-3.5" />
-          From Puri station
+          {journey.arriveBy === "train" ? (
+            <Landmark className="size-3.5" />
+          ) : (
+            <CarFront className="size-3.5" />
+          )}
+          {skipInbound ? "To the stay" : "2. Last mile to the stay"}
         </p>
         <ul className="grid gap-2">
-          {transport.fromStation.map((leg, i) => (
-            <LegRow key={leg.mode} leg={leg} recommended={i === 0} />
-          ))}
+          <LegRow recommended leg={journey.lastMile} />
         </ul>
       </div>
+
+      <p className="text-xs text-subtle">{journey.localNote}</p>
     </Card>
   );
 }
@@ -90,7 +111,7 @@ export function DigiYatraPanel() {
   return (
     <Card className="space-y-3 p-5 shadow-none">
       <p className="eyebrow">DigiYatra · {DIGIYATRA_GUIDE.airportCode}</p>
-      <h3 className="font-display text-lg">Airport e-gates only</h3>
+      <h3 className="font-display text-lg">Airport e-gates at BBI</h3>
       <p className="text-sm text-muted">{DIGIYATRA_GUIDE.summary}</p>
       <ol className="list-decimal space-y-1.5 pl-4 text-xs text-subtle">
         {DIGIYATRA_GUIDE.steps.map((s) => (

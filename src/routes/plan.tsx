@@ -12,6 +12,7 @@ import {
   type TravelStyle,
   type Vibe,
 } from "@/lib/packages";
+import { ARRIVE_BY, ORIGINS, arriveOptionsFor, getOrigin, type ArriveBy } from "@/lib/origins";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/plan")({ component: Plan });
@@ -42,9 +43,18 @@ function Plan() {
     typeof window === "undefined" ? DEFAULT_BRIEF : loadBrief(),
   );
   const [busy, setBusy] = useState(false);
+  const arriveChoices = arriveOptionsFor(brief.origin);
 
   const update = <K extends keyof Brief>(key: K, value: Brief[K]) => {
-    setBrief((b) => ({ ...b, [key]: value }));
+    setBrief((b) => {
+      const next = { ...b, [key]: value };
+      if (key === "origin") {
+        const origin = getOrigin(value as Brief["origin"]);
+        const allowed = origin.inbound.map((l) => l.mode);
+        if (!allowed.includes(next.arriveBy)) next.arriveBy = origin.defaultArriveBy;
+      }
+      return next;
+    });
   };
 
   return (
@@ -54,11 +64,44 @@ function Plan() {
           <p className="eyebrow">Your brief</p>
           <h1 className="mt-2 font-display text-4xl">Tell us what you want</h1>
           <p className="mt-3 text-muted">
-            We use this to rank a short list — not to spam you with 200 results.
+            We use this to rank a short list — and to map how you actually get to the stay.
           </p>
         </Stagger>
 
         <fieldset className="mt-10">
+          <legend className="text-sm font-medium">Coming from</legend>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {ORIGINS.map((v) => (
+              <Choice
+                key={v.id}
+                selected={brief.origin === v.id}
+                title={v.label}
+                hint={v.hint}
+                onClick={() => update("origin", v.id)}
+              />
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="mt-8">
+          <legend className="text-sm font-medium">How you’ll arrive</legend>
+          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+            {ARRIVE_BY.filter((v) => arriveChoices.includes(v.id)).map((v) => (
+              <Choice
+                key={v.id}
+                selected={brief.arriveBy === v.id}
+                title={v.label}
+                hint={v.hint}
+                onClick={() => update("arriveBy", v.id as ArriveBy)}
+              />
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-muted">
+            Puri has no airport. Flyers land at Bhubaneswar (BBI); trains can run into Puri station.
+          </p>
+        </fieldset>
+
+        <fieldset className="mt-8">
           <legend className="text-sm font-medium">Trip vibe</legend>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {VIBES.map((v) => (
