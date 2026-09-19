@@ -16,7 +16,6 @@ Book honest Puri hotel stays with all-in INR prices, traveller details, Razorpay
 - **My trips** — list, cancel & refund, confirmation codes, desk voucher
 - **Offline pass** — HTML pass card + calendar (`.ics`); Apple Wallet `.pkpass` when certs are configured
 - **Supabase (optional)** — durable `bookings` / `travellers` / `profiles` when env vars are set
-- **Demo mode** — sign in without a database to test the full payment flow
 - **Reviewer consensus** — structured notes from curated YouTube stay-review videos on every package page
 
 ## Stack
@@ -36,7 +35,6 @@ cp .env.example .env
 npm run dev
 ```
 
-Open the app, use **Demo** sign-in if auth DB is not configured, then plan → travellers → checkout.
 
 ## Environment variables
 
@@ -129,16 +127,6 @@ Full list: [Razorpay test cards](https://razorpay.com/docs/payments/payments/tes
 5. In Razorpay Dashboard → **Transactions** (Test mode), the payment should appear
 
 If the UI says **“Razorpay is not configured”**, the server is missing `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` (or the deploy was not restarted after adding them).
-
-## Demo flow (no database)
-
-1. Open **Login** → **Continue as demo**
-2. Plan a trip and select a package
-3. Add traveller details (or use DigiLocker demo fill)
-4. Pay with the Razorpay test card / UPI above
-5. Save **Offline pass + calendar** or open **My trips**
-
-Bookings in demo mode are stored in the browser (`localStorage`) unless Supabase is configured.
 
 ## Reviewer consensus (YouTube)
 
