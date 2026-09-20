@@ -2,6 +2,7 @@ import { trustScoreForPackage } from "./trust-score.ts";
 import { attachPropertyMedia } from "./property-media.ts";
 import { RAW } from "./packages-data.ts";
 import { getOrigin, type ArriveBy, type OriginId } from "./origins.ts";
+import { getTravelEstimate } from "./transport.ts";
 
 export type Vibe = "culture" | "beach" | "relax" | "adventure";
 export type Budget = "value" | "mid" | "premium";

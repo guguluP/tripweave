@@ -5,6 +5,7 @@
  */
 import type { ArriveBy, OriginId } from "./origins.ts";
 import { inboundFor } from "./origins.ts";
+import type { Brief } from "./packages.ts";
 
 export type TransportLeg = {
   mode: string;
@@ -698,3 +699,49 @@ export const BUS_GUIDE = {
     ],
   },
 };
+
+export function getTravelEstimate(
+  packageId: string,
+  brief: Brief
+): {
+  costRange: string;
+  bestOption: TransportLeg;
+  alternatives: TransportLeg[];
+} {
+  const t = getTransportForPackage(packageId);
+  const lastMile = lastMileForArrival(packageId, brief.arriveBy);
+
+  const baseCost = parseInt(lastMile.costHint.replace(/[^0-9]/g, '') || '1500');
+
+  let styleMultiplier = 1;
+  if (brief.style === 'family') styleMultiplier = 1.3;
+  if (brief.style === 'solo') styleMultiplier = 0.85;
+  if (brief.style === 'couple') styleMultiplier = 1.0;
+
+  const estimatedCost = Math.round(baseCost * styleMultiplier * 1.05); // small buffer
+
+  const costRange = `₹${estimatedCost - 500}–${estimatedCost + 700}`;
+
+  return {
+    costRange,
+    bestOption: lastMile,
+    alternatives: t.fromAirport
+      .filter((l) => l.rank > 1)
+      .slice(0, 2)
+  };
+}
+
+export function getBestOptionForStyle(
+  packageId: string,
+  arriveBy: ArriveBy,
+  style: TravelStyle
+): TransportLeg {
+  const t = getTransportForPackage(packageId);
+  const base = lastMileForArrival(packageId, arriveBy);
+
+  if (style === 'family' && base.mode.includes('Hotel')) return base;
+  if (style === 'solo' && base.mode.includes('App cab') || base.mode.includes('auto')) return base;
+  if (style === 'couple' && base.mode.includes('Hotel')) return base;
+
+  return base;
+}
