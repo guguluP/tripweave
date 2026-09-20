@@ -5,6 +5,7 @@ Book honest Puri hotel stays with all-in INR prices, traveller details, Razorpay
 ## Features
 
 - **Plan & match** — short preference brief → three package options from a 12-stay Puri catalog, ranked by vibe, budget, nights, **and origin / arrival**
+- **Travel** — live last-mile cost from your origin, style-ranked options (hotel transfer / cab / bus + auto), “Plan my travel” for the three matches, optional hotel pickup on Razorpay, and travel details on the desk voucher / offline pass
 - **Live rates** — dated seasonal tariffs (festival / weekend / high season) and leftover rooms TripWeave still holds
 - **Rooms & occupancy** — official room types; guest count cannot exceed the room’s sleep cap
 - **Property media** — photo galleries and YouTube property tours on every stay

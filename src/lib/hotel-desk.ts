@@ -88,6 +88,7 @@ export function hotelMailto(input: {
   payerName: string;
   amountInr: number;
   roomName?: string;
+  travelSummary?: string;
 }): string {
   const desk = deskFor(input.packageId);
   const subject = `New stay ${input.confirmationCode} — ${input.packageName}`;
@@ -104,6 +105,7 @@ export function hotelMailto(input: {
     `Guests: ${input.travelers}`,
     `Guest name: ${input.payerName}`,
     `Amount paid: ₹${input.amountInr.toLocaleString("en-IN")}`,
+    ...(input.travelSummary ? ["", "Travel", input.travelSummary] : []),
     "",
     "Please reply to the guest to confirm the hold.",
   ]

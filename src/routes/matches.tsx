@@ -19,6 +19,9 @@ import {
 } from "@/lib/packages";
 import { useSavedIds } from "@/lib/saved";
 import { getOrigin } from "@/lib/origins";
+import { loadTravelDraft, patchTravelDraft, quoteTravel } from "@/lib/travel-plan";
+import { TravelEstimateCard } from "@/components/travel-estimate";
+import { TravelPlanner } from "@/components/travel-planner";
 
 export const Route = createFileRoute("/matches")({ component: Matches });
 
@@ -36,12 +39,15 @@ function Matches() {
   const [matches, setMatches] = useState<StayPackage[]>([]);
   const [tab, setTab] = useState<Tab>("matches");
   const [query, setQuery] = useState("");
+  const [plannerOpen, setPlannerOpen] = useState(false);
+  const [lastMileByPackage, setLastMileByPackage] = useState<Record<string, string>>({});
   const savedIds = useSavedIds();
 
   useEffect(() => {
     const b = loadBrief();
     setBrief(b);
     setMatches(matchPackages(b));
+    setLastMileByPackage(loadTravelDraft().lastMileByPackage);
     setReady(true);
   }, []);
 
@@ -82,15 +88,28 @@ function Matches() {
         </Stagger>
 
         {/* Primary CTA early on mobile so it is not buried under the bottom nav */}
-        <div className="mt-6 flex flex-wrap items-center gap-3 md:hidden">
+        {ready && tab === "matches" && !query && matches[0] ? (
+          <TravelEstimateCard
+            className="mt-8"
+            arriveBy={brief.arriveBy}
+            quote={quoteTravel(matches[0].id, brief, { lastMileId: lastMileByPackage[matches[0].id] })}
+          />
+        ) : null}
+
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           {topMatch ? (
-            <Button asChild size="lg" className="flex-1">
+            <Button asChild size="lg" className="flex-1 md:flex-none">
               <Link to="/trip/$id" params={{ id: topMatch.id }}>
                 View top match
               </Link>
             </Button>
           ) : null}
-          <Button asChild variant="outline" size="lg" className={topMatch ? "" : "flex-1"}>
+          {ready && tab === "matches" && matches.length > 0 ? (
+            <Button type="button" variant="outline" size="lg" onClick={() => setPlannerOpen(true)}>
+              Plan my travel
+            </Button>
+          ) : null}
+          <Button asChild variant="outline" size="lg" className={topMatch ? "hidden md:inline-flex" : "flex-1"}>
             <Link to="/plan">Edit brief</Link>
           </Button>
         </div>
@@ -126,6 +145,16 @@ function Matches() {
                   originWhy={
                     tab === "matches" && !query ? originFitReason(pkg, brief) : undefined
                   }
+                  brief={brief}
+                  lastMileId={lastMileByPackage[pkg.id]}
+                  onLastMile={
+                    tab === "matches"
+                      ? (id) => {
+                          patchTravelDraft(pkg.id, { lastMileId: id });
+                          setLastMileByPackage((prev) => ({ ...prev, [pkg.id]: id }));
+                        }
+                      : undefined
+                  }
                 />
               ))}
         </div>
@@ -152,6 +181,18 @@ function Matches() {
           Edit brief
         </LearnMore>
       </div>
+      {plannerOpen ? (
+        <TravelPlanner
+          brief={brief}
+          packages={matches.slice(0, 3)}
+          lastMileByPackage={lastMileByPackage}
+          onSelectLastMile={(packageId, lastMileId) => {
+            patchTravelDraft(packageId, { lastMileId });
+            setLastMileByPackage((prev) => ({ ...prev, [packageId]: lastMileId }));
+          }}
+          onClose={() => setPlannerOpen(false)}
+        />
+      ) : null}
     </Shell>
   );
 }

@@ -13,6 +13,8 @@ import {
   type Vibe,
 } from "@/lib/packages";
 import { ARRIVE_BY, ORIGINS, arriveOptionsFor, getOrigin, type ArriveBy } from "@/lib/origins";
+import { inboundPreview } from "@/lib/travel-plan";
+import { TravelEstimateCard } from "@/components/travel-estimate";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/plan")({ component: Plan });
@@ -188,8 +190,14 @@ function Plan() {
           />
         </div>
 
+        <TravelEstimateCard
+          className="mt-10"
+          arriveBy={brief.arriveBy}
+          quote={inboundPreview(brief)}
+        />
+
         <Button
-          className="mt-10 w-full sm:w-auto"
+          className="mt-8 w-full sm:w-auto"
           size="lg"
           onClick={() => {
             setBusy(true);

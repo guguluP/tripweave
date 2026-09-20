@@ -21,6 +21,7 @@ import {
   getPackage,
   getRoom,
   loadBrief,
+  loadPending,
   nightsPhrase,
   saveNext,
   savePending,
@@ -28,6 +29,16 @@ import {
 import { addDays, leftoverForRooms, quoteStay, todayIso } from "@/lib/inventory";
 import { cn } from "@/lib/utils";
 import { getJourney } from "@/lib/transport";
+import { writeMeta } from "@/lib/booking-meta";
+import {
+  arrivalPinLabel,
+  defaultTravelPlan,
+  EMPTY_TRAVEL,
+  patchTravelDraft,
+  pickupChargeInr,
+  quoteTravel,
+  type TravelPlan,
+} from "@/lib/travel-plan";
 
 export const Route = createFileRoute("/trip/$id")({ component: TripDetail });
 
@@ -41,6 +52,7 @@ function TripDetail() {
   const [nights, setNights] = useState(pkg?.nights ?? 1);
   const [roomId, setRoomId] = useState(pkg?.rooms[0]?.id ?? "");
   const [checkIn, setCheckIn] = useState(() => addDays(todayIso(), 1));
+  const [travel, setTravel] = useState<TravelPlan>(EMPTY_TRAVEL);
 
   useEffect(() => {
     if (!pkg) return;
@@ -52,6 +64,9 @@ function TripDetail() {
     setRoomId(firstOpen.id);
     setSwaps({});
     setBooking(false);
+    const briefNow = loadBrief();
+    const pending = loadPending();
+    setTravel(defaultTravelPlan(pkg.id, briefNow, pending?.packageId === pkg.id ? pending.travel : undefined));
     // Initial room only — later date changes keep the guest's pick.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pkg]);
@@ -81,6 +96,14 @@ function TripDetail() {
   const price = quote?.perPerson ?? 0;
   const brief = loadBrief();
   const journey = getJourney(pkg.id, brief.origin, brief.arriveBy);
+  const travelQuote = quoteTravel(pkg.id, brief, travel);
+  const pickupInr = pickupChargeInr(pkg.id, { ...travel, arriveBy: brief.arriveBy, origin: brief.origin });
+
+  const setTravelAndDraft = (next: TravelPlan) => {
+    const merged = { ...next, arriveBy: brief.arriveBy, origin: brief.origin };
+    setTravel(merged);
+    patchTravelDraft(pkg.id, merged);
+  };
 
   const toggleSwap = (dayIdx: number, optionId: string) => {
     setSwaps((s) => {
@@ -93,7 +116,15 @@ function TripDetail() {
   };
 
   const goBook = () => {
-    savePending({ packageId: pkg.id, swaps, nights, roomId: room.id, checkIn });
+    const plan = { ...travel, arriveBy: brief.arriveBy, origin: brief.origin };
+    savePending({
+      packageId: pkg.id,
+      swaps: writeMeta(swaps, { travel: plan, pickupInr, roomId: room.id }),
+      nights,
+      roomId: room.id,
+      checkIn,
+      travel: plan,
+    });
     if (isPending) return;
     setBooking(true);
     if (!user) {
@@ -111,6 +142,7 @@ function TripDetail() {
         name={pkg.name}
         images={pkg.images}
         videos={pkg.videos}
+        arrivalPin={arrivalPinLabel(brief.arriveBy)}
       />
       <div className="mx-auto max-w-3xl px-4 pb-28">
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -186,7 +218,13 @@ function TripDetail() {
         <ReviewerConsensus packageId={pkg.id} roomId={room.id} roomName={room.name} />
 
         <div className="mt-10 grid gap-4">
-          <TransportPanel journey={journey} />
+          <TransportPanel
+            journey={journey}
+            quote={travelQuote}
+            plan={{ ...travel, arriveBy: brief.arriveBy, origin: brief.origin }}
+            onChange={setTravelAndDraft}
+            interactive
+          />
           {journey.showBusGuide ? <BusGuidePanel /> : null}
           {journey.showDigiYatra ? <DigiYatraPanel /> : null}
         </div>
@@ -236,7 +274,9 @@ function TripDetail() {
             </p>
             <p className="text-xs text-muted">
               {quote?.available
-                ? `all-in · per person · ${nightsPhrase(nights)} · ${room.name} · sleeps ${room.occupancy}`
+                ? pickupInr > 0
+                  ? `all-in · per person · ${nightsPhrase(nights)} · ${room.name} · pickup ${formatMoney(pickupInr)} at checkout`
+                  : `all-in · per person · ${nightsPhrase(nights)} · ${room.name} · sleeps ${room.occupancy}`
                 : "Sold out — pick another date"}
             </p>
           </div>

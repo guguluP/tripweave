@@ -17,6 +17,7 @@ import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as PlanRouteImport } from './routes/plan'
 import { Route as TripsRouteImport } from './routes/trips'
 import { Route as TripIdRouteImport } from './routes/trip.$id'
+import { Route as VoucherCodeRouteImport } from './routes/voucher.$code'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as PayTestRouteImport } from './routes/pay-test'
 import { Route as TravelersRouteImport } from './routes/travelers'
@@ -64,6 +65,11 @@ const TripIdRoute = TripIdRouteImport.update({
   path: '/trip/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VoucherCodeRoute = VoucherCodeRouteImport.update({
+  id: '/voucher/$code',
+  path: '/voucher/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TravelersRoute = TravelersRouteImport.update({
   id: '/travelers',
   path: '/travelers',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/plan': typeof PlanRoute
   '/trips': typeof TripsRoute
   '/trip/$id': typeof TripIdRoute
+  '/voucher/$code': typeof VoucherCodeRoute
   '/pay-test': typeof PayTestRoute
   '/travelers': typeof TravelersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/plan': typeof PlanRoute
   '/trips': typeof TripsRoute
   '/trip/$id': typeof TripIdRoute
+  '/voucher/$code': typeof VoucherCodeRoute
   '/pay-test': typeof PayTestRoute
   '/travelers': typeof TravelersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   '/plan': typeof PlanRoute
   '/trips': typeof TripsRoute
   '/trip/$id': typeof TripIdRoute
+  '/voucher/$code': typeof VoucherCodeRoute
   '/pay-test': typeof PayTestRoute
   '/travelers': typeof TravelersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -155,6 +164,7 @@ export interface FileRouteTypes {
     | '/plan'
     | '/trips'
     | '/trip/$id'
+    | '/voucher/$code'
     | '/pay-test'
     | '/travelers'
     | '/api/auth/$'
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/plan'
     | '/trips'
     | '/trip/$id'
+    | '/voucher/$code'
     | '/pay-test'
     | '/travelers'
     | '/api/auth/$'
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/plan'
     | '/trips'
     | '/trip/$id'
+    | '/voucher/$code'
     | '/pay-test'
     | '/travelers'
     | '/api/auth/$'
@@ -204,6 +216,7 @@ export interface RootRouteChildren {
   PlanRoute: typeof PlanRoute
   TripsRoute: typeof TripsRoute
   TripIdRoute: typeof TripIdRoute
+  VoucherCodeRoute: typeof VoucherCodeRoute
   PayTestRoute: typeof PayTestRoute
   TravelersRoute: typeof TravelersRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -270,6 +283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TripIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/voucher/$code': {
+      id: '/voucher/$code'
+      path: '/voucher/$code'
+      fullPath: '/voucher/$code'
+      preLoaderRoute: typeof VoucherCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pay-test': {
       id: '/pay-test'
       path: '/pay-test'
@@ -324,6 +344,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlanRoute: PlanRoute,
   TripsRoute: TripsRoute,
   TripIdRoute: TripIdRoute,
+  VoucherCodeRoute: VoucherCodeRoute,
   PayTestRoute: PayTestRoute,
   TravelersRoute: TravelersRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

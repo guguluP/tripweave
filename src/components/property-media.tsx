@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Play, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Play, X } from "lucide-react";
 import { LikeButton } from "@/components/motion";
 import { youtubeThumb, youtubeUrl } from "@/lib/youtube/types";
 import { cn } from "@/lib/utils";
@@ -65,12 +65,14 @@ export function PropertyMedia({
   images,
   videos,
   featured,
+  arrivalPin,
 }: {
   id: string;
   name: string;
   images: string[];
   videos: Video[];
   featured?: string;
+  arrivalPin?: string;
 }) {
   const gallery = useMemo(() => {
     const list = images.filter(Boolean);
@@ -135,6 +137,12 @@ export function PropertyMedia({
           <span className="pointer-events-none absolute left-4 top-4 rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg">
             Property · {index + 1}/{gallery.length}
           </span>
+          {arrivalPin ? (
+            <span className="pointer-events-none absolute left-4 top-14 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-fg">
+              <MapPin className="size-3" />
+              {arrivalPin}
+            </span>
+          ) : null}
         </button>
         <div className="absolute right-4 top-4 z-10">
           <LikeButton id={id} />

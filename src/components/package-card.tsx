@@ -4,6 +4,7 @@ import {
   nightsPhrase,
   stayTotal,
   variantLabel,
+  type Brief,
   type StayPackage,
 } from "@/lib/packages";
 import { TrustMeter } from "@/components/trust-meter";
@@ -11,19 +12,27 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { DigitPop, LearnMore, LikeButton } from "@/components/motion";
 import { ReviewerChip } from "@/components/reviewer-consensus";
+import { LastMilePicker } from "@/components/last-mile-picker";
 import { youtubeSourceCount } from "@/lib/trust-score";
+import { quoteTravel } from "@/lib/travel-plan";
 
 export function PackageCard({
   pkg,
   rank,
   nights,
   originWhy,
+  brief,
+  lastMileId,
+  onLastMile,
 }: {
   pkg: StayPackage;
   rank?: string;
   /** When known from the brief, show an N-night total alongside the nightly rate. */
   nights?: number;
   originWhy?: string;
+  brief?: Brief;
+  lastMileId?: string;
+  onLastMile?: (id: string) => void;
 }) {
   const sources = youtubeSourceCount(pkg);
   const stayNights =
@@ -32,6 +41,7 @@ export function PackageCard({
       : null;
   const multiTotal =
     stayNights && stayNights > 1 ? stayTotal(pkg, stayNights) : null;
+  const quote = brief ? quoteTravel(pkg.id, brief, { lastMileId }) : null;
 
   return (
     <Card className="relative h-full overflow-visible transition-transform duration-150 hover:-translate-y-0.5">
@@ -65,7 +75,7 @@ export function PackageCard({
             </div>
           ) : null}
         </div>
-        <div className="flex flex-col gap-3 p-4">
+        <div className="flex flex-col gap-3 p-4 pb-0">
           <div>
             <h3 className="font-display text-lg leading-snug">{pkg.name}</h3>
             <p className="mt-1 text-sm text-muted">
@@ -105,6 +115,18 @@ export function PackageCard({
           </LearnMore>
         </div>
       </Link>
+      {quote && onLastMile ? (
+        <div className="border-t border-border p-4">
+          <LastMilePicker
+            quote={quote}
+            selectedId={lastMileId || quote.recommendedId}
+            onSelect={onLastMile}
+            compact
+          />
+        </div>
+      ) : quote ? (
+        <p className="border-t border-border px-4 py-3 text-xs text-muted">{quote.costLine}</p>
+      ) : null}
     </Card>
   );
 }

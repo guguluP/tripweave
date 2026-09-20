@@ -7,6 +7,7 @@ import { clampNights, getPackage, getRoom } from "@/lib/packages";
 import { quoteStay, recordHold, releaseHold, travelersFitRoom } from "@/lib/inventory";
 import { writeMeta, readMeta } from "@/lib/booking-meta";
 import { deskFor } from "@/lib/hotel-desk";
+import { parseTravelPlan, pickupChargeInr } from "@/lib/travel-plan";
 import { refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import {
@@ -223,7 +224,9 @@ export const createBooking = createServerFn({ method: "POST" })
     if (!quote?.available) {
       return { ok: false, message: "Those nights are sold out for this room. Pick another date." };
     }
-    const amount = quote.perPerson * data.travelers;
+    const travel = parseTravelPlan(readMeta(data.swaps).travel);
+    const pickupInr = pickupChargeInr(pkg.id, travel);
+    const amount = quote.perPerson * data.travelers + pickupInr;
     const packageName = `${pkg.name} · ${room.name}`;
     const code = makeCode();
 
@@ -284,6 +287,8 @@ export const createBooking = createServerFn({ method: "POST" })
       swaps: writeMeta(data.swaps ?? {}, {
         roomId: room.id,
         hotelEmail: deskFor(pkg.id).email,
+        travel,
+        pickupInr,
       }),
       status: "paid",
       cardLast4: paid.last4,

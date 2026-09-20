@@ -1,5 +1,7 @@
 /** Extra booking fields stored inside swaps.__tw so we do not need a schema bump. */
 
+import type { TravelPlan } from "./travel-plan.ts";
+
 export type BookingMeta = {
   roomId?: string;
   hotelEmail?: string;
@@ -7,6 +9,8 @@ export type BookingMeta = {
   refundId?: string;
   refundAmount?: number;
   refundedAt?: string;
+  travel?: TravelPlan;
+  pickupInr?: number;
 };
 
 const KEY = "__tw";

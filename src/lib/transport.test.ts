@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { PACKAGES } from "./packages.ts";
-import { getJourney, getTransportForPackage, lastMileForArrival } from "./transport.ts";
+import { getJourney, getTransportForPackage, lastMileForArrival, lastMileOptions } from "./transport.ts";
 import { arriveOptionsFor, getOrigin, inboundFor, ORIGINS } from "./origins.ts";
 
 describe("travel connectivity", () => {
@@ -73,6 +73,12 @@ describe("travel connectivity", () => {
     assert.match(far.mode, /57|cab|Konark/i);
     const beach = lastMileForArrival("chariot-resort-puri", "bus");
     assert.match(beach.mode, /52|Baliapanda/i);
+  });
+
+  it("lists more than one last-mile option from BBI for beach stays", () => {
+    const opts = lastMileOptions("chariot-resort-puri", "fly");
+    assert.ok(opts.length >= 1);
+    assert.ok(opts.every((l) => l.mode && l.costHint));
   });
 
   it("offers OSRTC Bengaluru as a bus inbound", () => {

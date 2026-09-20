@@ -2,7 +2,6 @@ import { trustScoreForPackage } from "./trust-score.ts";
 import { attachPropertyMedia } from "./property-media.ts";
 import { RAW } from "./packages-data.ts";
 import { getOrigin, type ArriveBy, type OriginId } from "./origins.ts";
-import { getTravelEstimate } from "./transport.ts";
 
 export type Vibe = "culture" | "beach" | "relax" | "adventure";
 export type Budget = "value" | "mid" | "premium";
@@ -93,12 +92,22 @@ export const BRIEF_KEY = "tripweave-brief";
 export const PENDING_KEY = "tripweave-pending";
 export const NEXT_KEY = "tripweave-next";
 
+export type PendingTravel = {
+  lastMileId: string;
+  includePickup: boolean;
+  carrierRef: string;
+  arrivalTime: string;
+  arriveBy: ArriveBy;
+  origin: OriginId;
+};
+
 export type PendingBooking = {
   packageId: string;
   swaps: Record<string, string>;
   nights: number;
   roomId: string;
   checkIn?: string;
+  travel?: PendingTravel;
 };
 
 export function formatMoney(amount: number, currency = "INR") {
@@ -350,6 +359,24 @@ export function saveBrief(brief: Brief) {
   window.localStorage.setItem(BRIEF_KEY, JSON.stringify(brief));
 }
 
+function asArriveBy(value: unknown): ArriveBy {
+  return value === "train" || value === "bus" || value === "road" || value === "fly" ? value : "fly";
+}
+
+function asPendingTravel(raw: unknown): PendingTravel | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const t = raw as Record<string, unknown>;
+  if (typeof t.lastMileId !== "string" || !t.lastMileId) return undefined;
+  return {
+    lastMileId: t.lastMileId,
+    includePickup: Boolean(t.includePickup),
+    carrierRef: typeof t.carrierRef === "string" ? t.carrierRef : "",
+    arrivalTime: typeof t.arrivalTime === "string" ? t.arrivalTime : "",
+    arriveBy: asArriveBy(t.arriveBy),
+    origin: getOrigin(typeof t.origin === "string" ? t.origin : "kolkata").id,
+  };
+}
+
 export function savePending(pending: PendingBooking) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(PENDING_KEY, JSON.stringify(pending));
@@ -373,6 +400,7 @@ export function loadPending(): PendingBooking | null {
           : (pkg?.nights ?? DEFAULT_BRIEF.nights),
       roomId: typeof parsed.roomId === "string" && parsed.roomId ? parsed.roomId : (pkg?.rooms[0]?.id ?? ""),
       checkIn: typeof parsed.checkIn === "string" && /^\d{4}-\d{2}-\d{2}$/.test(parsed.checkIn) ? parsed.checkIn : undefined,
+      travel: asPendingTravel(parsed.travel),
     };
   } catch {
     return null;

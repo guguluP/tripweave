@@ -5,7 +5,6 @@
  */
 import type { ArriveBy, OriginId } from "./origins.ts";
 import { inboundFor } from "./origins.ts";
-import type { Brief } from "./packages.ts";
 
 export type TransportLeg = {
   mode: string;
@@ -618,12 +617,29 @@ export function busStandLastMile(packageId: string): TransportLeg {
   return t.fromBus?.[0] ?? inferFromBus(packageId, t.neighborhood)[0]!;
 }
 
-export function lastMileForArrival(packageId: string, arriveBy: ArriveBy): TransportLeg {
+export function lastMileOptions(packageId: string, arriveBy: ArriveBy): TransportLeg[] {
   const t = getTransportForPackage(packageId);
-  if (arriveBy === "bus") return busStandLastMile(packageId);
-  if (arriveBy === "train") return t.fromStation[0] ?? t.best;
-  if (arriveBy === "road") return t.fromAirport[0] ?? t.best;
-  return t.fromAirport[0] ?? t.best;
+  let legs: TransportLeg[];
+  if (arriveBy === "bus") {
+    legs = t.fromBus?.length ? t.fromBus : [busStandLastMile(packageId)];
+  } else if (arriveBy === "train") {
+    legs = t.fromStation.length ? t.fromStation : [t.best];
+  } else {
+    legs = t.fromAirport.length ? t.fromAirport : [t.best];
+  }
+  const seen = new Set<string>();
+  const unique: TransportLeg[] = [];
+  for (const leg of legs) {
+    const key = `${leg.rank}:${leg.mode}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(leg);
+  }
+  return unique;
+}
+
+export function lastMileForArrival(packageId: string, arriveBy: ArriveBy): TransportLeg {
+  return lastMileOptions(packageId, arriveBy)[0] ?? getTransportForPackage(packageId).best;
 }
 
 export function getJourney(
@@ -700,48 +716,4 @@ export const BUS_GUIDE = {
   },
 };
 
-export function getTravelEstimate(
-  packageId: string,
-  brief: Brief
-): {
-  costRange: string;
-  bestOption: TransportLeg;
-  alternatives: TransportLeg[];
-} {
-  const t = getTransportForPackage(packageId);
-  const lastMile = lastMileForArrival(packageId, brief.arriveBy);
 
-  const baseCost = parseInt(lastMile.costHint.replace(/[^0-9]/g, '') || '1500');
-
-  let styleMultiplier = 1;
-  if (brief.style === 'family') styleMultiplier = 1.3;
-  if (brief.style === 'solo') styleMultiplier = 0.85;
-  if (brief.style === 'couple') styleMultiplier = 1.0;
-
-  const estimatedCost = Math.round(baseCost * styleMultiplier * 1.05); // small buffer
-
-  const costRange = `₹${estimatedCost - 500}–${estimatedCost + 700}`;
-
-  return {
-    costRange,
-    bestOption: lastMile,
-    alternatives: t.fromAirport
-      .filter((l) => l.rank > 1)
-      .slice(0, 2)
-  };
-}
-
-export function getBestOptionForStyle(
-  packageId: string,
-  arriveBy: ArriveBy,
-  style: TravelStyle
-): TransportLeg {
-  const t = getTransportForPackage(packageId);
-  const base = lastMileForArrival(packageId, arriveBy);
-
-  if (style === 'family' && base.mode.includes('Hotel')) return base;
-  if (style === 'solo' && base.mode.includes('App cab') || base.mode.includes('auto')) return base;
-  if (style === 'couple' && base.mode.includes('Hotel')) return base;
-
-  return base;
-}

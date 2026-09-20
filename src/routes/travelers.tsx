@@ -12,6 +12,7 @@ import { DigitPop, ShakeField, ShakeSelect, Stagger } from "@/components/motion"
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { pushBanner } from "@/lib/banners";
 import { getJourney } from "@/lib/transport";
+import { defaultTravelPlan, quoteTravel } from "@/lib/travel-plan";
 import {
   DIGIYATRA_LABELS,
   GENDER_LABELS,
@@ -107,6 +108,8 @@ function TravelersInner() {
   const pkg = packageId ? getPackage(packageId) : undefined;
   const brief = loadBrief();
   const journey = packageId ? getJourney(packageId, brief.origin, brief.arriveBy) : null;
+  const travelPlan = packageId ? defaultTravelPlan(packageId, brief, loadPending()?.travel) : null;
+  const travelQuote = packageId && travelPlan ? quoteTravel(packageId, brief, travelPlan) : null;
   const room = pkg ? getRoom(pkg, roomId) : undefined;
   const maxGuests = room?.occupancy ?? 8;
   const quote =
@@ -483,7 +486,9 @@ function TravelersInner() {
             </div>
           </Card>
 
-          {journey ? <TransportPanel journey={journey} /> : null}
+          {journey ? (
+            <TransportPanel journey={journey} quote={travelQuote ?? undefined} plan={travelPlan ?? undefined} />
+          ) : null}
           <DigiYatraPanel />
         </aside>
       </div>

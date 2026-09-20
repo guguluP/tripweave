@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DigitPop,
+  MotionToggle,
   ShakeField,
   Stagger,
   SuccessCheck,
@@ -48,6 +49,20 @@ import {
 } from "@/lib/razorpay-client";
 import { getJourney } from "@/lib/transport";
 import { getOrigin } from "@/lib/origins";
+import { writeMeta, readMeta } from "@/lib/booking-meta";
+import {
+  defaultTravelPlan,
+  EMPTY_TRAVEL,
+  formatInrRange,
+  pickupChargeInr,
+  quoteTravel,
+  travelShareText,
+  travelSummaryLine,
+  type TravelPlan,
+} from "@/lib/travel-plan";
+import { TravelShareButtons } from "@/components/travel-planner";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/checkout")({ component: Checkout });
 
@@ -90,6 +105,7 @@ function CheckoutInner() {
   const [shakeKey, setShakeKey] = useState(0);
   const [busy, setBusy] = useState(false);
   const [travelersOk, setTravelersOk] = useState(false);
+  const [travel, setTravel] = useState<TravelPlan>(EMPTY_TRAVEL);
   const [held, setHeld] = useState<BookingRow | null>(null);
   const [confirmation, setConfirmation] = useState<{
     code: string;
@@ -108,6 +124,10 @@ function CheckoutInner() {
     setNights(pending?.nights ?? 1);
     setRoomId(pending?.roomId ?? "");
     if (pending?.checkIn) setCheckIn(pending.checkIn);
+    const b = loadBrief();
+    if (pending?.packageId) {
+      setTravel(defaultTravelPlan(pending.packageId, b, pending.travel));
+    }
     try {
       const n = Number(window.localStorage.getItem("tripweave-traveler-count") || "0");
       if (n >= 1 && n <= 8) setTravelers(n);
@@ -146,10 +166,19 @@ function CheckoutInner() {
       })
     : null;
   const perPerson = quote?.perPerson ?? (pkg ? stayTotal(pkg, stayNights, room?.id, swaps) : 0);
-  const total = perPerson * travelers;
   const occupancy = room?.occupancy ?? 8;
   const brief = loadBrief();
   const journey = pkg ? getJourney(pkg.id, brief.origin, brief.arriveBy) : null;
+  const plan = {
+    ...travel,
+    arriveBy: brief.arriveBy,
+    origin: brief.origin,
+  };
+  const travelQuote = pkg ? quoteTravel(pkg.id, brief, plan) : null;
+  const pickupInr = pkg ? pickupChargeInr(pkg.id, plan) : 0;
+  const stayDue = perPerson * travelers;
+  const total = stayDue + pickupInr;
+  const swapsForPay = writeMeta(swaps, { travel: plan, pickupInr, roomId: room?.id });
 
   const finishPaid = (booking: BookingRow, stored: "supabase" | "local" = "local") => {
     saveDemoBooking(booking);
@@ -207,6 +236,30 @@ function CheckoutInner() {
   }
 
   if (confirmation && held) {
+    const heldPlan = {
+      ...plan,
+      ...readMeta(held.swaps).travel,
+    };
+    const heldQuote = quoteTravel(held.packageId, brief, heldPlan);
+    const travelText = travelSummaryLine(heldQuote, heldPlan);
+    const mailto = hotelMailto({
+      packageId: held.packageId,
+      packageName: held.packageName,
+      confirmationCode: held.confirmationCode,
+      checkIn: held.checkIn,
+      nights: held.nights,
+      travelers: held.travelers,
+      payerName: held.payerName,
+      amountInr: held.amountInr,
+      travelSummary: travelShareText({
+        confirmationCode: held.confirmationCode,
+        hotelName: held.packageName,
+        checkIn: held.checkIn,
+        quote: heldQuote,
+        plan: heldPlan,
+        guests: held.travelers,
+      }),
+    });
     return (
       <Shell>
         <div className="mx-auto flex max-w-md flex-col items-center px-4 py-16 text-center">
@@ -234,23 +287,29 @@ function CheckoutInner() {
           <div className="mt-8 w-full text-left">
             <AddToWallet booking={held} />
           </div>
+          <Card className="mt-6 w-full space-y-3 p-4 text-left shadow-none">
+            <p className="eyebrow">Travel</p>
+            <p className="text-sm">{travelText}</p>
+            {heldPlan.carrierRef ? (
+              <p className="text-xs text-muted">Carrier {heldPlan.carrierRef}</p>
+            ) : null}
+            <iframe
+              title="Last-mile map"
+              src={heldQuote.mapEmbedUrl}
+              className="h-40 w-full rounded-md border border-border"
+              loading="lazy"
+            />
+            <TravelShareButtons
+              hotelName={held.packageName}
+              quote={heldQuote}
+              plan={heldPlan}
+              confirmationCode={held.confirmationCode}
+              checkIn={held.checkIn}
+              guests={held.travelers}
+              emailHref={mailto}
+            />
+          </Card>
           <div className="mt-6 flex w-full flex-col gap-3">
-            <Button asChild size="lg">
-              <a
-                href={hotelMailto({
-                  packageId: held.packageId,
-                  packageName: held.packageName,
-                  confirmationCode: held.confirmationCode,
-                  checkIn: held.checkIn,
-                  nights: held.nights,
-                  travelers: held.travelers,
-                  payerName: held.payerName,
-                  amountInr: held.amountInr,
-                })}
-              >
-                Email hotel desk
-              </a>
-            </Button>
             <Button asChild variant="outline">
               <Link to="/voucher/$code" params={{ code: confirmation.code }}>
                 Open desk voucher
@@ -302,6 +361,7 @@ function CheckoutInner() {
             packageId: pkg.id,
             travelers: String(travelers),
             checkIn,
+            pickupInr: String(pickupInr),
           },
         },
       });
@@ -335,7 +395,7 @@ function CheckoutInner() {
               name: payerName.trim(),
               email: user?.primaryEmail ?? undefined,
             },
-            notes: { packageId: pkg.id },
+            notes: { packageId: pkg.id, pickupInr: String(pickupInr) },
             theme: { color: "#1e5853" },
             handler: async (response) => {
               const fallback = () =>
@@ -346,7 +406,7 @@ function CheckoutInner() {
                   travelers,
                   checkIn,
                   amountInr: total,
-                  swaps,
+                  swaps: swapsForPay,
                   payerName: payerName.trim(),
                   paymentRef: response.razorpay_payment_id,
                 });
@@ -354,7 +414,7 @@ function CheckoutInner() {
                 const result = await createBooking({
                   data: {
                     packageId: pkg.id,
-                    swaps,
+                    swaps: swapsForPay,
                     travelers,
                     checkIn,
                     nights: stayNights,
@@ -504,6 +564,50 @@ function CheckoutInner() {
               }}
             />
 
+            {travelQuote?.pickup.available ? (
+              <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-elevated px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium">
+                    {travelQuote.pickup.included
+                      ? "Ask hotel to send the included transfer"
+                      : `Add hotel pickup · ${formatInrRange(travelQuote.pickup.price, travelQuote.pickup.price)}`}
+                  </p>
+                  <p className="text-xs text-muted">
+                    {travelQuote.pickup.included
+                      ? "No extra charge — we’ll include your flight or train number in the desk email."
+                      : "Added to this Razorpay total. One car, not per guest."}
+                  </p>
+                </div>
+                <MotionToggle
+                  on={plan.includePickup}
+                  onChange={(v) => setTravel({ ...plan, includePickup: v })}
+                  label="Hotel pickup"
+                />
+              </div>
+            ) : null}
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-1.5">
+                <Label htmlFor="checkout-carrier">Flight / train / bus number</Label>
+                <Input
+                  id="checkout-carrier"
+                  value={plan.carrierRef}
+                  placeholder="6E 123 / Puri Exp"
+                  autoComplete="off"
+                  onChange={(e) => setTravel({ ...plan, carrierRef: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="checkout-eta">Arrival time</Label>
+                <Input
+                  id="checkout-eta"
+                  type="time"
+                  value={plan.arrivalTime}
+                  onChange={(e) => setTravel({ ...plan, arrivalTime: e.target.value })}
+                />
+              </div>
+            </div>
+
             {errors.form ? (
               <p className="rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">
                 {errors.form}
@@ -547,16 +651,20 @@ function CheckoutInner() {
             <p className="mt-1 text-sm text-muted">
               {nightsPhrase(stayNights)} · {room?.name ?? "Room"} · {pkg.neighborhood}
             </p>
-            {journey ? (
+            {travelQuote ? (
+              <p className="mt-2 text-xs text-subtle">
+                {getOrigin(brief.origin).label} · {travelQuote.costLine}
+              </p>
+            ) : journey ? (
               <p className="mt-2 text-xs text-subtle">
                 {getOrigin(brief.origin).label} · {journey.inbound.label}
               </p>
             ) : null}
             <dl className="mt-5 grid gap-2 text-sm">
               <div className="flex justify-between">
-                <dt className="text-muted">Per person</dt>
+                <dt className="text-muted">Stay</dt>
                 <dd className="tabular-nums">
-                  <DigitPop value={formatMoney(perPerson)} />
+                  <DigitPop value={formatMoney(stayDue)} />
                 </dd>
               </div>
               <div className="flex justify-between">
@@ -565,6 +673,14 @@ function CheckoutInner() {
                   <DigitPop value={travelers} />
                 </dd>
               </div>
+              {pickupInr > 0 ? (
+                <div className="flex justify-between">
+                  <dt className="text-muted">Hotel pickup</dt>
+                  <dd className="tabular-nums">
+                    <DigitPop value={formatMoney(pickupInr)} />
+                  </dd>
+                </div>
+              ) : null}
               <div className="flex justify-between">
                 <dt className="text-muted">Method</dt>
                 <dd>Razorpay</dd>

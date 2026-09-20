@@ -17,7 +17,10 @@
  */
 
 import type { BookingRow } from "@/lib/server/bookings";
-import { getPackage } from "@/lib/packages";
+import { DEFAULT_BRIEF, getPackage, type Brief } from "@/lib/packages";
+import { readMeta } from "@/lib/booking-meta";
+import { parseTravelPlan, quoteTravel, travelSummaryLine } from "@/lib/travel-plan";
+import type { OriginId } from "@/lib/origins";
 
 export type WalletPassPayload = {
   confirmationCode: string;
@@ -32,6 +35,11 @@ export type WalletPassPayload = {
   amountInr: number;
   paymentRef: string | null;
   status: string;
+  travelLine?: string;
+  carrierRef?: string;
+  arrivalTime?: string;
+  pickupLine?: string;
+  mapUrl?: string;
 };
 
 export function bookingToWalletPayload(
@@ -47,9 +55,17 @@ export function bookingToWalletPayload(
     | "amountInr"
     | "paymentRef"
     | "status"
-  >,
+  > & { swaps?: Record<string, string> },
 ): WalletPassPayload {
   const pkg = getPackage(booking.packageId);
+  const plan = parseTravelPlan(readMeta(booking.swaps).travel);
+  const brief: Brief = {
+    ...DEFAULT_BRIEF,
+    origin: (plan.origin as OriginId) || DEFAULT_BRIEF.origin,
+    arriveBy: plan.arriveBy || DEFAULT_BRIEF.arriveBy,
+  };
+  const quote = pkg ? quoteTravel(pkg.id, brief, plan) : null;
+  const pickup = readMeta(booking.swaps).pickupInr ?? 0;
   return {
     confirmationCode: booking.confirmationCode,
     packageName: booking.packageName,
@@ -63,6 +79,16 @@ export function bookingToWalletPayload(
     amountInr: booking.amountInr,
     paymentRef: booking.paymentRef,
     status: booking.status,
+    travelLine: quote ? travelSummaryLine(quote, plan) : undefined,
+    carrierRef: plan.carrierRef || undefined,
+    arrivalTime: plan.arrivalTime || undefined,
+    pickupLine:
+      pickup > 0
+        ? `Hotel pickup ₹${pickup.toLocaleString("en-IN")}`
+        : plan.includePickup
+          ? "Hotel car requested"
+          : undefined,
+    mapUrl: quote?.mapDirectionsUrl,
   };
 }
 
@@ -155,6 +181,24 @@ export function buildPassJson(
           label: "Status",
           value: payload.status,
         },
+        ...(payload.travelLine
+          ? [
+              {
+                key: "travel",
+                label: "Travel",
+                value: payload.travelLine,
+              },
+            ]
+          : []),
+        ...(payload.carrierRef
+          ? [
+              {
+                key: "carrier",
+                label: "Flight / train / bus",
+                value: payload.carrierRef,
+              },
+            ]
+          : []),
         {
           key: "help",
           label: "Support",
@@ -209,6 +253,8 @@ export function buildBookingIcs(payload: WalletPassPayload): string {
     `Guests: ${payload.travelers}`,
     `Nights: ${payload.nights}`,
     payload.paymentRef ? `Payment ref: ${payload.paymentRef}` : "",
+    payload.travelLine ? `Travel: ${payload.travelLine}` : "",
+    payload.carrierRef ? `Carrier: ${payload.carrierRef}` : "",
   ]
     .filter(Boolean)
     .join("\\n");
@@ -274,6 +320,11 @@ export function buildOfflinePassHtml(payload: WalletPassPayload): string {
     <div class="row"><span class="label">Check-out</span><span>${escapeHtml(checkOut)}</span></div>
     <div class="row"><span class="label">Guests</span><span>${payload.travelers}</span></div>
     <div class="row"><span class="label">Location</span><span>${escapeHtml(payload.neighborhood)}</span></div>
+    ${payload.travelLine ? `<div class="row"><span class="label">Travel</span><span>${escapeHtml(payload.travelLine)}</span></div>` : ""}
+    ${payload.carrierRef ? `<div class="row"><span class="label">Carrier</span><span>${escapeHtml(payload.carrierRef)}</span></div>` : ""}
+    ${payload.arrivalTime ? `<div class="row"><span class="label">ETA</span><span>${escapeHtml(payload.arrivalTime)}</span></div>` : ""}
+    ${payload.pickupLine ? `<div class="row"><span class="label">Pickup</span><span>${escapeHtml(payload.pickupLine)}</span></div>` : ""}
+    ${payload.mapUrl ? `<p class="hint"><a href="${escapeHtml(payload.mapUrl)}" style="color:#fff">Open last-mile map</a></p>` : ""}
     <img class="qr" width="180" height="180" alt="QR ${escapeHtml(payload.confirmationCode)}" src="${qrUrl}"/>
     <p class="hint">Save this page or screenshot for offline check-in. Show at the hotel desk.</p>
   </div>

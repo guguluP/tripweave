@@ -48,6 +48,9 @@ export function WalletPassCard({ payload }: { payload: WalletPassPayload }) {
         </div>
         <WalletCards className="size-5 text-primary-fg/80" />
       </div>
+      {payload.travelLine ? (
+        <p className="mt-4 px-5 text-xs text-primary-fg/80">{payload.travelLine}</p>
+      ) : null}
       <div className="mt-5 grid grid-cols-[1fr_auto] items-end gap-4 px-5 pb-5">
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
@@ -95,7 +98,7 @@ type BookingLike = Pick<
   | "amountInr"
   | "paymentRef"
   | "status"
->;
+> & { swaps?: Record<string, string> };
 
 export function AddToWallet({
   booking,

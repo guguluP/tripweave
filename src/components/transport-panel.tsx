@@ -1,8 +1,13 @@
-import { ArrowRight, Bus, CarFront, Landmark, Plane, TrainFront } from "lucide-react";
+import { ArrowRight, Bus, CarFront, Landmark, MapPin, Plane, TrainFront } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { LastMilePicker } from "@/components/last-mile-picker";
 import { BUS_GUIDE, DIGIYATRA_GUIDE, type Journey, type TransportLeg } from "@/lib/transport";
 import { getOrigin } from "@/lib/origins";
+import { formatInrRange, type TravelPlan, type TravelQuote } from "@/lib/travel-plan";
+import { MotionToggle } from "@/components/motion";
 import { cn } from "@/lib/utils";
 
 function LegRow({
@@ -41,7 +46,19 @@ function LegRow({
   );
 }
 
-export function TransportPanel({ journey }: { journey: Journey }) {
+export function TransportPanel({
+  journey,
+  quote,
+  plan,
+  onChange,
+  interactive = false,
+}: {
+  journey: Journey;
+  quote?: TravelQuote;
+  plan?: TravelPlan;
+  onChange?: (next: TravelPlan) => void;
+  interactive?: boolean;
+}) {
   const origin = getOrigin(journey.originId);
   const skipInbound = origin.id === "puri" && journey.arriveBy !== "bus";
   const GatewayIcon =
@@ -64,8 +81,10 @@ export function TransportPanel({ journey }: { journey: Journey }) {
           <h3 className="mt-1 font-display text-lg">
             {skipInbound ? `To ${journey.neighborhood}` : `${origin.label} → ${journey.neighborhood}`}
           </h3>
+          {quote ? <p className="mt-1 text-sm tabular-nums text-muted">{quote.costLine}</p> : null}
         </div>
       </div>
+      {quote ? <p className="text-sm text-ok">{quote.bestLine}</p> : null}
 
       {!skipInbound ? (
         <div className="space-y-2">
@@ -87,6 +106,18 @@ export function TransportPanel({ journey }: { journey: Journey }) {
           {journey.inbound.tips ? (
             <p className="text-xs text-subtle">{journey.inbound.tips}</p>
           ) : null}
+          {quote && quote.bookingLinks.length > 0 ? (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {quote.bookingLinks.map((link) => (
+                <Button key={link.href} type="button" size="sm" variant="outline" asChild>
+                  <a href={link.href} target="_blank" rel="noreferrer">
+                    {link.label}
+                    <ArrowRight className="size-3.5" />
+                  </a>
+                </Button>
+              ))}
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -101,10 +132,80 @@ export function TransportPanel({ journey }: { journey: Journey }) {
           )}
           {skipInbound ? "To the stay" : "2. Last mile to the stay"}
         </p>
-        <ul className="grid gap-2">
-          <LegRow recommended leg={journey.lastMile} />
-        </ul>
+        {interactive && quote && plan && onChange ? (
+          <LastMilePicker
+            quote={quote}
+            selectedId={plan.lastMileId || quote.recommendedId}
+            onSelect={(id) => {
+              const next = quote.options.find((o) => o.id === id);
+              onChange({
+                ...plan,
+                lastMileId: id,
+                includePickup: next?.bucket === "hotel" ? plan.includePickup || quote.pickup.available : false,
+              });
+            }}
+          />
+        ) : (
+          <ul className="grid gap-2">
+            <LegRow recommended leg={quote?.lastMile ?? journey.lastMile} />
+          </ul>
+        )}
       </div>
+
+      {interactive && quote && plan && onChange && quote.pickup.available ? (
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-elevated px-4 py-3">
+          <div>
+            <p className="text-sm font-medium">
+              {quote.pickup.included
+                ? "Ask hotel to send the included transfer"
+                : `Add hotel pickup · ${formatInrRange(quote.pickup.price, quote.pickup.price)}`}
+            </p>
+            <p className="text-xs text-muted">
+              {quote.pickup.included
+                ? "Already in the stay price. We’ll email the desk your flight or train number."
+                : "Charged with the stay on Razorpay. One car, not per guest."}
+            </p>
+          </div>
+          <MotionToggle
+            on={plan.includePickup}
+            onChange={(v) => onChange({ ...plan, includePickup: v })}
+            label="Hotel pickup"
+          />
+        </div>
+      ) : null}
+
+      {interactive && quote && plan && onChange ? (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-1.5">
+            <Label htmlFor="carrier-ref">Flight / train / bus number</Label>
+            <Input
+              id="carrier-ref"
+              value={plan.carrierRef}
+              placeholder="6E 123 / Puri Exp / OSRTC"
+              autoComplete="off"
+              onChange={(e) => onChange({ ...plan, carrierRef: e.target.value })}
+            />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="arrival-time">Arrival time</Label>
+            <Input
+              id="arrival-time"
+              type="time"
+              value={plan.arrivalTime}
+              onChange={(e) => onChange({ ...plan, arrivalTime: e.target.value })}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {quote ? (
+        <Button type="button" size="sm" variant="outline" asChild>
+          <a href={quote.mapDirectionsUrl} target="_blank" rel="noreferrer">
+            <MapPin className="size-3.5" />
+            Open last-mile map
+          </a>
+        </Button>
+      ) : null}
 
       <p className="text-xs text-subtle">{journey.localNote}</p>
     </Card>

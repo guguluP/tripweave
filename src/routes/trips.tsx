@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, LearnMore, Stagger, TextSwap } from "@/components/motion";
 import { pushBanner } from "@/lib/banners";
-import { formatMoney, getPackage, nightsPhrase } from "@/lib/packages";
+import { DEFAULT_BRIEF, formatMoney, getPackage, loadBrief, nightsPhrase } from "@/lib/packages";
 import { paymentLine } from "@/lib/pay";
 import { cancelBooking, listBookings, type BookingRow } from "@/lib/server/bookings";
 import { cancelDemoBooking, listDemoBookings, mergeBookings } from "@/lib/demo-bookings";
@@ -17,6 +17,14 @@ import { isDemoMode } from "@/lib/auth/use-current-user";
 import { getPersistStatus } from "@/lib/supabase/status";
 import { hotelMailto } from "@/lib/hotel-desk";
 import { readMeta } from "@/lib/booking-meta";
+import {
+  parseTravelPlan,
+  quoteTravel,
+  travelShareText,
+  travelSummaryLine,
+  whatsappShareHref,
+} from "@/lib/travel-plan";
+import type { OriginId } from "@/lib/origins";
 import {
   isClosedStay,
   refundAmountInr,
@@ -97,6 +105,22 @@ function TripsInner() {
               const refundInr = refundAmountInr(b.amountInr, b.checkIn);
               const meta = readMeta(b.swaps);
               const refundedAmount = meta.refundAmount ?? (b.status === "refunded" ? refundInr : 0);
+              const brief = typeof window === "undefined" ? DEFAULT_BRIEF : loadBrief();
+              const plan = parseTravelPlan(meta.travel);
+              const travelQuote = quoteTravel(b.packageId, {
+                ...brief,
+                origin: (plan.origin as OriginId) || brief.origin,
+                arriveBy: plan.arriveBy || brief.arriveBy,
+              }, plan);
+              const travelLine = plan.lastMileId ? travelSummaryLine(travelQuote, plan) : null;
+              const travelBody = travelShareText({
+                confirmationCode: b.confirmationCode,
+                hotelName: b.packageName,
+                checkIn: b.checkIn,
+                quote: travelQuote,
+                plan,
+                guests: b.travelers,
+              });
               return (
                 <Card key={b.id} className="overflow-hidden shadow-none">
                   <div className="grid sm:grid-cols-[9rem_1fr]">
@@ -130,6 +154,7 @@ function TripsInner() {
                       {b.paymentRef ? (
                         <p className="text-xs text-subtle">Ref {b.paymentRef}</p>
                       ) : null}
+                      {travelLine ? <p className="text-xs text-muted">{travelLine}</p> : null}
                       {closed && refundedAmount > 0 ? (
                         <p className="text-xs text-muted">
                           Refund {formatMoney(refundedAmount)} to the original payment.
@@ -151,9 +176,15 @@ function TripsInner() {
                                   travelers: b.travelers,
                                   payerName: b.payerName,
                                   amountInr: b.amountInr,
+                                  travelSummary: travelBody,
                                 })}
                               >
                                 Email hotel desk
+                              </a>
+                            </Button>
+                            <Button asChild variant="outline" size="sm">
+                              <a href={whatsappShareHref(travelBody)} target="_blank" rel="noreferrer">
+                                Share travel
                               </a>
                             </Button>
                             <Button asChild variant="outline" size="sm">
