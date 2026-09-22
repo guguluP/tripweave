@@ -4,7 +4,6 @@ import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DEFAULT_BRIEF, formatMoney, loadBrief, nightsPhrase } from "@/lib/packages";
-import { listDemoBookings } from "@/lib/demo-bookings";
 import { listBookings, type BookingRow } from "@/lib/server/bookings";
 import { deskFor, hotelMailto } from "@/lib/hotel-desk";
 import { readMeta } from "@/lib/booking-meta";
@@ -24,8 +23,6 @@ function VoucherPage() {
   const [booking, setBooking] = useState<BookingRow | null>(null);
 
   useEffect(() => {
-    const local = listDemoBookings().find((b) => b.confirmationCode === code);
-    if (local) setBooking(local);
     void listBookings()
       .then((rows) => {
         const found = rows.find((b) => b.confirmationCode === code);

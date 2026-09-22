@@ -30,12 +30,13 @@ import {
   loadBrief,
 } from "@/lib/packages";
 import { quoteStay, travelersFitRoom } from "@/lib/inventory";
+import { usePaidHolds } from "@/lib/use-occupancy";
 import { hotelMailto } from "@/lib/hotel-desk";
 import { refundPolicyFor } from "@/lib/refund-policy";
 import { loadLocalProfile } from "@/lib/profile-local";
 import { methodLabel, paymentLine } from "@/lib/pay";
 import { createBooking, type BookingRow } from "@/lib/server/bookings";
-import { saveDemoBooking, localPaidBooking } from "@/lib/demo-bookings";
+
 import { bookingToWalletPayload } from "@/lib/apple-wallet";
 import { saveWalletPass } from "@/lib/wallet-store";
 import { createRazorpayOrder } from "@/lib/server/razorpay";
@@ -93,6 +94,7 @@ function Checkout() {
 
 function CheckoutInner() {
   const { user } = useCurrentUserState();
+  usePaidHolds();
   const [ready, setReady] = useState(false);
   const [packageId, setPackageId] = useState<string | null>(null);
   const [swaps, setSwaps] = useState<Record<string, string>>({});
@@ -181,7 +183,6 @@ function CheckoutInner() {
   const swapsForPay = writeMeta(swaps, { travel: plan, pickupInr, roomId: room?.id });
 
   const finishPaid = (booking: BookingRow, stored: "supabase" | "local" = "local") => {
-    saveDemoBooking(booking);
     saveWalletPass(bookingToWalletPayload(booking));
     clearSensitiveTravelers();
     clearPending();
@@ -398,18 +399,6 @@ function CheckoutInner() {
             notes: { packageId: pkg.id, pickupInr: String(pickupInr) },
             theme: { color: "#1e5853" },
             handler: async (response) => {
-              const fallback = () =>
-                localPaidBooking({
-                  packageId: pkg.id,
-                  packageName: `${pkg.name} · ${room?.name ?? "Room"}`,
-                  nights: stayNights,
-                  travelers,
-                  checkIn,
-                  amountInr: total,
-                  swaps: swapsForPay,
-                  payerName: payerName.trim(),
-                  paymentRef: response.razorpay_payment_id,
-                });
               try {
                 const result = await createBooking({
                   data: {
@@ -426,8 +415,15 @@ function CheckoutInner() {
                     razorpaySignature: response.razorpay_signature,
                   },
                 });
-                const booking = result.ok ? result.booking : fallback();
-                const stored = result.ok ? result.stored : "local";
+                if (!result.ok) {
+                  setErrors({ form: result.message });
+                  pushBanner({ title: "Payment received, booking not saved", body: result.message, tone: "danger" });
+                  setBusy(false);
+                  resolve();
+                  return;
+                }
+                const booking = result.booking;
+                const stored = result.stored;
                 try {
                   const guests = loadTravelers();
                   if (guests.length) {
@@ -463,9 +459,13 @@ function CheckoutInner() {
                   resolve();
                   return;
                 }
-                // Razorpay already captured — confirm locally instead of showing
-                // Postgres "password authentication failed for user postgres".
-                finishPaid(fallback(), "local");
+                setErrors({ form: raw });
+                pushBanner({
+                  title: "Payment received, booking not saved",
+                  body: raw,
+                  tone: "danger",
+                });
+                setBusy(false);
                 resolve();
               }
             },

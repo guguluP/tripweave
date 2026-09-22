@@ -30,6 +30,7 @@ import {
 } from "@/lib/travelers";
 import { formatMoney, getPackage, getRoom, loadBrief, loadPending, nightsPhrase, stayTotal } from "@/lib/packages";
 import { quoteStay } from "@/lib/inventory";
+import { usePaidHolds } from "@/lib/use-occupancy";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/travelers")({ component: TravelersPage });
@@ -66,6 +67,7 @@ function FieldGroup({ title, children }: { title: string; children: ReactNode })
 function TravelersInner() {
   const navigate = useNavigate();
   const { user } = useCurrentUserState();
+  usePaidHolds();
   const [ready, setReady] = useState(false);
   const [packageId, setPackageId] = useState<string | null>(null);
   const [swaps, setSwaps] = useState<Record<string, string>>({});

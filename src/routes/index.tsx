@@ -15,8 +15,8 @@ function Home() {
     <Shell>
       <section className="relative isolate min-h-[32rem] overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=80"
-          alt="Puri beach at dusk"
+          src="/puri-beach.jpg"
+          alt="Puri beach, Odisha"
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-fg/55" />
@@ -31,7 +31,10 @@ function Home() {
               all-in rupee prices, from a single night to a slow week.
             </p>
           </Stagger>
-          <div className="mt-8 flex flex-wrap items-center gap-4">
+          <p className="mt-6 text-xs text-primary-fg/60">
+            Puri beach photo by Radosław Botev, CC BY-SA
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-4">
             <Button asChild size="lg">
               <Link to="/plan">
                 Find my hotel

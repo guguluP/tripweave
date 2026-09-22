@@ -5,7 +5,7 @@ import type { ConsensusResponse } from "./types.ts";
 
 const idSchema = z.object({ packageId: z.string().min(1).max(80) });
 
-/** Cached / seeded consensus. Safe to call on page load. */
+/** Page-load consensus. Rebuilds from YouTube when the live notes are stale and xAI is configured. */
 export const getReviewerConsensus = createServerFn({ method: "POST" })
   .validator((data: unknown) => idSchema.parse(data))
   .handler(async ({ data }): Promise<ConsensusResponse> => {
@@ -18,10 +18,7 @@ export const getReviewerConsensus = createServerFn({ method: "POST" })
     }
   });
 
-/**
- * Force a YouTube + LLM rebuild. User-initiated (button) — not on page load.
- * Spends xAI quota only when XAI_API_KEY is present.
- */
+/** Force a YouTube + LLM rebuild. Spends xAI quota when XAI_API_KEY is present. */
 export const refreshReviewerConsensus = createServerFn({ method: "POST" })
   .validator((data: unknown) => idSchema.parse(data))
   .handler(async ({ data }): Promise<ConsensusResponse> => {

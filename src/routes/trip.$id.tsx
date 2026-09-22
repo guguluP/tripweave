@@ -27,6 +27,7 @@ import {
   savePending,
 } from "@/lib/packages";
 import { addDays, leftoverForRooms, quoteStay, todayIso } from "@/lib/inventory";
+import { usePaidHolds } from "@/lib/use-occupancy";
 import { cn } from "@/lib/utils";
 import { getJourney } from "@/lib/transport";
 import { writeMeta } from "@/lib/booking-meta";
@@ -53,6 +54,7 @@ function TripDetail() {
   const [roomId, setRoomId] = useState(pkg?.rooms[0]?.id ?? "");
   const [checkIn, setCheckIn] = useState(() => addDays(todayIso(), 1));
   const [travel, setTravel] = useState<TravelPlan>(EMPTY_TRAVEL);
+  usePaidHolds();
 
   useEffect(() => {
     if (!pkg) return;

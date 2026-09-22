@@ -11,6 +11,7 @@ import { getCookie } from "@tanstack/react-start/server";
 import { Pool } from "pg";
 import { getPglite } from "../db";
 import { emailAndPasswordEnabled } from "./email-password";
+import { sendPasswordResetEmail } from "./password-email";
 import { gateIdentitySessions } from "./gate-session.server";
 import { GROK_PROVIDERS } from "./providers";
 import { pgliteDialect } from "./pglite-dialect";
@@ -135,6 +136,9 @@ export const auth = betterAuth({
     ? {
         enabled: true,
         requireEmailVerification: false,
+        sendResetPassword: async ({ user, url }) => {
+          await sendPasswordResetEmail(user.email, url);
+        },
       }
     : undefined,
   socialProviders: googleSocial,

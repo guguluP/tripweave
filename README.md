@@ -143,10 +143,11 @@ TripWeave does not scrape the open web for ratings. Each stay has a **manual lis
 1. Captions are fetched with `youtube-transcript-api-js` (no API key). Language order: Odia → Hindi → English → Bengali → Tamil → Telugu. Manual captions beat auto-generated.
 2. Each transcript is summarised to JSON with the xAI chat API when `XAI_API_KEY` is present.
 3. Per-video notes are merged into one consensus and cached (memory, then Supabase table `reviewer_consensus` if configured).
-4. **Demo / offline:** a curated seed cache ships with the app, so every stay still has a consensus when YouTube rate-limits or the LLM is off. Page load never calls the LLM.
-5. **Rebuild from videos** on the package page is the admin/user force-refresh. Sequential, rate-limited.
+4. **Page load** uses a live consensus when it is less than a day old. Otherwise, if `XAI_API_KEY` is set, the page rebuilds from captions. A curated seed still shows when YouTube or the model is unavailable.
+5. **Rebuild from videos** on the package page forces that refresh.
+6. **Search:** set `YOUTUBE_API_KEY` (Data API v3) and TripWeave adds stay-review videos on top of the hand-picked list in `src/lib/youtube/videos.ts`.
 
-Adding a stay: map video IDs in `src/lib/youtube/videos.ts` and (optionally) a seed entry in `src/lib/youtube/seed.ts`. Automatic YouTube search is a later step.
+Adding a stay: map video IDs in `src/lib/youtube/videos.ts` and (optionally) a seed entry in `src/lib/youtube/seed.ts`.
 
 ## Project layout (selected)
 

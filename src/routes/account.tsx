@@ -9,11 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, MotionToggle, Stagger, TextSwap } from "@/components/motion";
 import { signOut } from "@/lib/auth/client";
-import { clearDemoMode, isDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user";
+import { clearDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user";
 import { formatMoney } from "@/lib/packages";
 import { paymentLine } from "@/lib/pay";
 import { listBookings, type BookingRow } from "@/lib/server/bookings";
-import { listDemoBookings } from "@/lib/demo-bookings";
+
 import { AddToWallet } from "@/components/wallet-pass";
 import { bookingToWalletPayload } from "@/lib/apple-wallet";
 import { listWalletPasses } from "@/lib/wallet-store";
@@ -55,10 +55,6 @@ function AccountInner() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (isDemoMode()) {
-      setBookings(listDemoBookings());
-      return;
-    }
     listBookings()
       .then(setBookings)
       .catch(() => setBookings([]));
@@ -69,7 +65,6 @@ function AccountInner() {
     if (local?.displayName) setDisplayName(local.displayName);
     else if (user?.displayName) setDisplayName(user.displayName);
     if (local?.phone) setPhone(local.phone);
-    if (isDemoMode()) return;
     getProfile()
       .then((p) => {
         if (p.displayName) setDisplayName(p.displayName);
@@ -107,9 +102,7 @@ function AccountInner() {
     saveLocalProfile(next);
     setSaving(true);
     try {
-      if (!isDemoMode()) {
-        await saveProfile({ data: next });
-      }
+      await saveProfile({ data: next });
       pushBanner({ title: "Profile saved", tone: "ok" });
     } catch {
       pushBanner({ title: "Saved on this device", body: "Cloud profile will sync when you are signed in.", tone: "info" });

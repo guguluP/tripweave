@@ -1,4 +1,6 @@
 import type { BookingRow } from "@/lib/server/bookings";
+import { getSupabaseAdmin } from "./server";
+import { SUPABASE_WRITE_GATE } from "./write-gate";
 import { twApply } from "./rpc";
 
 import type { SbBooking } from "./types";
@@ -60,12 +62,16 @@ export type InsertBookingInput = {
   paymentRef: string | null;
   upiHandle: string | null;
   bankName: string | null;
+  roomId: string;
+  units: number;
 };
 
 export async function sbInsertBooking(
   input: InsertBookingInput,
 ): Promise<BookingRow | null> {
-  const data = await twApply<SbBooking>("insert_booking", {
+  const sb = getSupabaseAdmin();
+  if (!sb) return null;
+  const payload = {
     user_id: input.userId,
     package_id: input.packageId,
     package_name: input.packageName,
@@ -73,7 +79,7 @@ export async function sbInsertBooking(
     travelers: input.travelers,
     check_in: input.checkIn,
     amount_inr: input.amountInr,
-    swaps: input.swaps,
+    swaps: { ...input.swaps, roomId: input.roomId },
     status: input.status,
     card_last4: input.cardLast4,
     card_brand: input.cardBrand,
@@ -83,7 +89,15 @@ export async function sbInsertBooking(
     payment_ref: input.paymentRef,
     upi_handle: input.upiHandle,
     bank_name: input.bankName,
+    room_id: input.roomId,
+    units: input.units,
+  };
+  const reserved = await sb.rpc("tw_reserve_insert", {
+    p_gate: SUPABASE_WRITE_GATE,
+    p_payload: payload,
   });
+  if (reserved.error) throw new Error(reserved.error.message);
+  const data = reserved.data as SbBooking | null;
   if (!data) return null;
   return mapSbBooking(data);
 }

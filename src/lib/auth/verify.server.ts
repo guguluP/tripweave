@@ -13,7 +13,6 @@ if (databaseConfigured && !authConfigured) {
 }
 
 export const DEV_USER_ID = "dev-user";
-export const DEMO_USER_ID = "demo-user";
 
 export class UnauthorizedError extends Error {
   readonly status = 401;
@@ -25,22 +24,11 @@ export class UnauthorizedError extends Error {
 
 export type VerifiedUser = { id: string; email: string | null };
 
-function hasDemoCookie(request: Request): boolean {
-  const cookie = request.headers.get("cookie") ?? "";
-  return /(?:^|;\s*)tripweave-demo=1(?:;|$)/.test(cookie);
-}
-
 export async function getSessionUser(
   bearerToken?: string,
 ): Promise<VerifiedUser | null> {
   const request = getRequest();
-  if (request && hasDemoCookie(request)) {
-    return { id: DEMO_USER_ID, email: "demo@tripweave.app" };
-  }
   if (!authConfigured && !gateIdentityEnabled()) {
-    if (!databaseConfigured) {
-      return { id: DEMO_USER_ID, email: "demo@tripweave.app" };
-    }
     return null;
   }
   if (!request) return null;
@@ -60,17 +48,8 @@ export async function getSessionUser(
 }
 
 export async function requireUserId(bearerToken?: string): Promise<string> {
-  const request = getRequest();
-  if (request && hasDemoCookie(request)) {
-    return DEMO_USER_ID;
-  }
   if (!authConfigured && !gateIdentityEnabled()) {
-    if (databaseConfigured) {
-      throw new Error(
-        "Auth is disabled but DATABASE_URL is set — refusing shared demo user on a real database.",
-      );
-    }
-    return DEMO_USER_ID;
+    throw new UnauthorizedError();
   }
   const user = await getSessionUser(bearerToken);
   if (!user) throw new UnauthorizedError();

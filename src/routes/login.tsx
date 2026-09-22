@@ -11,12 +11,13 @@ import { isRealUser } from "@/lib/session-guard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LOGIN_HERO, loginCheckoutBody, loginCheckoutPrompt } from "@/lib/login-copy";
 
-type LoginSearch = { error?: string };
+type LoginSearch = { error?: string; token?: string };
 
 export const Route = createFileRoute("/login")({
   component: Login,
   validateSearch: (s: Record<string, unknown>): LoginSearch => ({
     error: typeof s.error === "string" ? s.error : undefined,
+    token: typeof s.token === "string" ? s.token : undefined,
   }),
 });
 
@@ -93,7 +94,7 @@ async function waitForSession(timeoutMs = 8000) {
 function Login() {
   const search = Route.useSearch();
   const { user, isPending } = useCurrentUserState();
-  const [mode, setMode] = useState<"in" | "up">("in");
+  const [mode, setMode] = useState<"in" | "up" | "reset">(search.token ? "reset" : "in");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -133,6 +134,49 @@ function Login() {
 
   const onEmail = async (e: FormEvent) => {
     e.preventDefault();
+    const mailer = authClient as typeof authClient & {
+      requestPasswordReset: (input: { email: string; redirectTo: string }) => Promise<{ error: { message?: string } | null }>;
+      resetPassword: (input: { newPassword: string; token: string }) => Promise<{ error: { message?: string } | null }>;
+    };
+    if (mode === "reset") {
+      const next: typeof errors = {};
+      if (search.token) {
+        if (password.length < 8) next.password = "Use at least 8 characters.";
+        if (password !== confirm) next.confirm = "Passwords don’t match.";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        next.email = "Please enter a valid email.";
+      }
+      if (Object.keys(next).length) {
+        setErrors(next);
+        setShakeKey((k) => k + 1);
+        return;
+      }
+      setErrors({});
+      setBusy(true);
+      try {
+        if (search.token) {
+          const { error: err } = await mailer.resetPassword({ newPassword: password, token: search.token });
+          if (err) throw new Error(err.message ?? "Could not reset password");
+          setPassword("");
+          setConfirm("");
+          setMode("in");
+          setErrors({ form: "Password updated. Sign in with the new password." });
+        } else {
+          const { error: err } = await mailer.requestPasswordReset({
+            email: email.trim().toLowerCase(),
+            redirectTo: `${window.location.origin}/login`,
+          });
+          if (err) throw new Error(err.message ?? "Could not send reset email");
+          setErrors({ form: "If that email has an account, a reset link is on its way." });
+        }
+      } catch (err) {
+        setErrors({ form: friendlyAuthError(err instanceof Error ? err.message : "Could not reset password") });
+        setShakeKey((k) => k + 1);
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     const next: typeof errors = {};
     if (mode === "up" && !name.trim()) next.name = "Please enter your name.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) next.email = "Please enter a valid email.";
@@ -237,14 +281,18 @@ function Login() {
             <BrandWord />
           </Link>
           <h1 className="mt-8 font-display text-3xl">
-            <TextSwap text={mode === "in" ? "Welcome back" : "Create your account"} />
+            <TextSwap text={mode === "reset" ? "Reset password" : mode === "in" ? "Welcome back" : "Create your account"} />
           </h1>
           <p className="mt-2 text-sm text-muted">
             <TextSwap
               text={
                 nextPath.startsWith("/checkout")
                   ? loginCheckoutBody()
-                  : mode === "in"
+                  : mode === "reset"
+                    ? search.token
+                      ? "Choose a new password for your email account."
+                      : "We will email you a link to choose a new password."
+                    : mode === "in"
                     ? "Sign in with Google, or with the email you registered."
                     : "Create an account with your email, or continue with Google."
               }
@@ -298,6 +346,7 @@ function Login() {
                     </div>
                   </div>
 
+                  {mode === "reset" ? null : (
                   <SlidingTabs
                     fullWidth
                     tabs={[
@@ -310,6 +359,7 @@ function Login() {
                       setErrors((er) => ({ ...er, form: undefined, name: undefined, confirm: undefined }));
                     }}
                   />
+                  )}
 
                   <form className="mt-6 grid gap-3" noValidate onSubmit={onEmail}>
                     {mode === "up" ? (
@@ -326,6 +376,7 @@ function Login() {
                         autoComplete="name"
                       />
                     ) : null}
+                    {mode === "reset" && search.token ? null : (
                     <ShakeField
                       label="Email"
                       type="email"
@@ -342,8 +393,10 @@ function Login() {
                       }}
                       autoComplete="email"
                     />
+                    )}
+                    {mode === "reset" && !search.token ? null : (
                     <ShakeField
-                      label="Password"
+                      label={mode === "reset" ? "New password" : "Password"}
                       type="password"
                       name="password"
                       value={password}
@@ -353,9 +406,10 @@ function Login() {
                         setPassword(e.target.value);
                         setErrors((er) => ({ ...er, password: undefined, form: undefined }));
                       }}
-                      autoComplete={mode === "up" ? "new-password" : "current-password"}
+                      autoComplete={mode === "in" ? "current-password" : "new-password"}
                     />
-                    {mode === "up" ? (
+                    )}
+                    {mode === "up" || (mode === "reset" && search.token) ? (
                       <ShakeField
                         label="Confirm password"
                         type="password"
@@ -370,12 +424,37 @@ function Login() {
                         autoComplete="new-password"
                       />
                     ) : null}
-                    {/* TODO(auth): Forgot password — Better Auth supports
-                        /request-password-reset only when emailAndPassword.sendResetPassword
-                        is configured with a real mailer. We do not have transactional email
-                        wired yet, so no forgot-password UI until that lands cleanly. */}
+                    {mode === "in" ? (
+                      <button
+                        type="button"
+                        className="text-left text-sm text-muted underline-offset-4 hover:underline"
+                        onClick={() => {
+                          setMode("reset");
+                          setErrors({});
+                        }}
+                      >
+                        Forgot password
+                      </button>
+                    ) : null}
+                    {mode === "reset" && !search.token ? (
+                      <button
+                        type="button"
+                        className="text-left text-sm text-muted underline-offset-4 hover:underline"
+                        onClick={() => setMode("in")}
+                      >
+                        Back to sign in
+                      </button>
+                    ) : null}
                     <Button type="submit" variant="outline" className="w-full" disabled={busy || Boolean(oauthBusy)}>
-                      {busy ? "Working…" : mode === "in" ? "Sign in with email" : "Create email account"}
+                      {busy
+                        ? "Working…"
+                        : mode === "reset"
+                          ? search.token
+                            ? "Save new password"
+                            : "Email reset link"
+                          : mode === "in"
+                            ? "Sign in with email"
+                            : "Create email account"}
                     </Button>
                   </form>
                 </>

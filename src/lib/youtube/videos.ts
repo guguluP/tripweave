@@ -5,11 +5,9 @@ import type { CuratedVideo } from "./types.ts";
  * no Shorts, no ads, no hotel promo reels when a real stay-review exists.
  *
  * Adding a package later: append an entry here. The seed cache and the
- * live pipeline both read this map.
- *
- * Later (not v1): a `discover.ts` helper can fill gaps with YouTube Data
- * API v3 search (~100 free search calls/day) filtered by views, recency,
- * and no Shorts. Keep this manual map as the quality override.
+ * live pipeline both read this map. `discover.ts` adds more stay-review
+ * videos from the YouTube Data API when YOUTUBE_API_KEY is set. This list
+ * stays the quality override and is never replaced by search.
  */
 export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
   "taj-puri-resort-spa": [

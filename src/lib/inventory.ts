@@ -1,7 +1,9 @@
 /**
- * Dated rates and leftover rooms that TripWeave holds.
- * There is no hotel CRS — inventory is ours: seasonal tariffs + a stable
- * demand model + paid bookings on this app.
+ * Contracted Puri allotment.
+ * Each room type has a fixed number of keys TripWeave can sell.
+ * A night is taken only when a paid or held booking covers it.
+ * Festival and weekend prices are the published tariff (Rath Yatra, Diwali,
+ * year-end, high season), not a demand simulation.
  */
 import { clampNights, getPackage, getRoom, stayTotal, type StayPackage } from "./packages.ts";
 
@@ -88,13 +90,7 @@ export function seasonFor(iso: string): { multiplier: number; label: string; kin
   return { multiplier: 1, label: "Standard", kind: "base" };
 }
 
-function hash32(s: string) {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-  return h >>> 0;
-}
-
-/** How many physical keys of this room type we hold. */
+/** How many physical keys of this room type TripWeave is allowed to sell. */
 export function roomUnits(pkg: StayPackage, roomId: string): number {
   const room = getRoom(pkg, roomId);
   const suite = /suite|villa|cottage/i.test(room.name);
@@ -103,18 +99,6 @@ export function roomUnits(pkg: StayPackage, roomId: string): number {
   if (pkg.budget === "premium") return room.occupancy >= 4 ? 3 : 5;
   if (pkg.budget === "value") return 6;
   return 4;
-}
-
-/** Stable “already taken by the market” count for a night — not random per refresh. */
-export function marketTaken(packageId: string, roomId: string, date: string, units: number): number {
-  const season = seasonFor(date);
-  let pressure = 0.22;
-  if (season.kind === "high") pressure = 0.48;
-  if (season.kind === "weekend") pressure = 0.62;
-  if (season.kind === "festival") pressure = 0.82;
-  const jitter = (hash32(`${packageId}:${roomId}:${date}`) % 100) / 100;
-  const taken = Math.floor(units * pressure + jitter * 1.4);
-  return Math.max(0, Math.min(units, taken));
 }
 
 const g = globalThis as typeof globalThis & { __twHolds__?: OccupancyHold[] };
@@ -138,6 +122,11 @@ export function recordHold(hold: OccupancyHold) {
   g.__twHolds__ = [hold, ...next];
 }
 
+/** Replace in-memory holds with the paid rows stored in Supabase. */
+export function replacePaidHolds(holds: OccupancyHold[]) {
+  g.__twHolds__ = holds.filter((h) => h.status === "paid" || h.status === "held");
+}
+
 export function releaseHold(packageId: string, roomId: string, checkIn: string, nights: number) {
   g.__twHolds__ = (g.__twHolds__ ?? []).map((h) =>
     h.packageId === packageId && h.roomId === roomId && h.checkIn === checkIn && h.nights === nights
@@ -147,7 +136,7 @@ export function releaseHold(packageId: string, roomId: string, checkIn: string, 
 }
 
 function nightsOverlap(hold: OccupancyHold, date: string) {
-  if (hold.status !== "paid") return false;
+  if (hold.status !== "paid" && hold.status !== "held") return false;
   const holdNights = eachNight(hold.checkIn, hold.nights);
   return holdNights.includes(date);
 }
@@ -161,11 +150,16 @@ export function takenOnNight(
   const pkg = getPackage(packageId);
   if (!pkg) return 0;
   const units = roomUnits(pkg, roomId);
-  const market = marketTaken(packageId, roomId, date, units);
-  const held = [...listHolds(), ...extraHolds].filter(
-    (h) => h.packageId === packageId && h.roomId === roomId && nightsOverlap(h, date),
-  ).length;
-  return Math.min(units, market + held);
+  const seen = new Set<string>();
+  let held = 0;
+  for (const h of [...listHolds(), ...extraHolds]) {
+    if (h.packageId !== packageId || h.roomId !== roomId || !nightsOverlap(h, date)) continue;
+    const key = `${h.checkIn}:${h.nights}:${h.status}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    held += 1;
+  }
+  return Math.min(units, held);
 }
 
 export function quoteStay(input: {

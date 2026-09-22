@@ -4,7 +4,8 @@ import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { charge, methodLabel, type PayMethod } from "@/lib/pay";
 import { clampNights, getPackage, getRoom } from "@/lib/packages";
-import { quoteStay, recordHold, releaseHold, travelersFitRoom } from "@/lib/inventory";
+import { quoteStay, recordHold, releaseHold, roomUnits, travelersFitRoom } from "@/lib/inventory";
+import { refreshOccupancy } from "@/lib/server/occupancy";
 import { writeMeta, readMeta } from "@/lib/booking-meta";
 import { deskFor } from "@/lib/hotel-desk";
 import { parseTravelPlan, pickupChargeInr } from "@/lib/travel-plan";
@@ -214,6 +215,7 @@ export const createBooking = createServerFn({ method: "POST" })
         field: "travelers",
       };
     }
+    await refreshOccupancy().catch(() => []);
     const quote = quoteStay({
       packageId: pkg.id,
       roomId: room.id,
@@ -307,6 +309,8 @@ export const createBooking = createServerFn({ method: "POST" })
         const booking = await sbInsertBooking({
           userId: context.userId,
           ...local,
+          roomId: room.id,
+          units: roomUnits(pkg, room.id),
         });
         if (booking) {
           recordHold({
@@ -330,6 +334,10 @@ export const createBooking = createServerFn({ method: "POST" })
           return { ok: true, booking, stored: "supabase" };
         }
       } catch (err) {
+        const message = err instanceof Error ? err.message : "";
+        if (message.includes("sold_out")) {
+          return { ok: false, message: "Those nights are sold out for this room. Pick another date." };
+        }
         if (isDurableDbError(err)) markDurableDbFailed(err);
         console.error("[bookings] supabase insert failed, keeping confirmation", err);
       }

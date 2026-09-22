@@ -12,8 +12,7 @@ import { pushBanner } from "@/lib/banners";
 import { DEFAULT_BRIEF, formatMoney, getPackage, loadBrief, nightsPhrase } from "@/lib/packages";
 import { paymentLine } from "@/lib/pay";
 import { cancelBooking, listBookings, type BookingRow } from "@/lib/server/bookings";
-import { cancelDemoBooking, listDemoBookings, mergeBookings } from "@/lib/demo-bookings";
-import { isDemoMode } from "@/lib/auth/use-current-user";
+
 import { getPersistStatus } from "@/lib/supabase/status";
 import { hotelMailto } from "@/lib/hotel-desk";
 import { readMeta } from "@/lib/booking-meta";
@@ -59,13 +58,9 @@ function TripsInner() {
   const [cloud, setCloud] = useState<boolean | null>(null);
 
   const refresh = () => {
-    if (isDemoMode()) {
-      setBookings(listDemoBookings());
-      return;
-    }
     listBookings()
-      .then((rows) => setBookings(mergeBookings(rows)))
-      .catch(() => setBookings(listDemoBookings()));
+      .then((rows) => setBookings(rows))
+      .catch(() => setBookings([]));
   };
 
   useEffect(() => {
@@ -199,25 +194,6 @@ function TripsInner() {
                               onClick={async () => {
                                 setCancelling(b.id);
                                 try {
-                                  if (isDemoMode()) {
-                                    const local = cancelDemoBooking(b.id);
-                                    if (!local.ok) {
-                                      pushBanner({
-                                        title: "Could not cancel",
-                                        body: local.message,
-                                        tone: "danger",
-                                      });
-                                      return;
-                                    }
-                                    pushBanner({
-                                      title: "Stay refunded",
-                                      body: local.message,
-                                      tone: "info",
-                                    });
-                                    refresh();
-                                    return;
-                                  }
-                                  cancelDemoBooking(b.id);
                                   const remote = await cancelBooking({ data: b.id });
                                   if (!remote.ok) {
                                     pushBanner({

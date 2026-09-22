@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { authClient, authEnabled } from "./client";
 
 export type AppUser = {
@@ -17,39 +17,22 @@ export const DEV_USER: AppUser = {
   isDevFallback: true,
 };
 
-export const DEMO_USER: AppUser = {
-  id: "demo-user",
-  displayName: "Demo Guest",
-  primaryEmail: "demo@tripweave.app",
-  profileImageUrl: null,
-  isDevFallback: true,
-};
-
 export const DEMO_FLAG_KEY = "tripweave-demo";
 
+/** Demo guest sessions are retired. This only clears leftovers in the browser. */
 export function isDemoMode(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return window.localStorage.getItem(DEMO_FLAG_KEY) === "1";
-  } catch {
-    return false;
-  }
+  return false;
 }
 
 export function enableDemoMode(): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(DEMO_FLAG_KEY, "1");
-    document.cookie = `${DEMO_FLAG_KEY}=1; path=/; max-age=86400; SameSite=Lax`;
-  } catch {
-    /* ignore */
-  }
+  clearDemoMode();
 }
 
 export function clearDemoMode(): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.removeItem(DEMO_FLAG_KEY);
+    window.localStorage.removeItem("tripweave-demo-bookings");
     document.cookie = `${DEMO_FLAG_KEY}=; path=/; max-age=0; SameSite=Lax`;
   } catch {
     /* ignore */
@@ -62,12 +45,8 @@ export type CurrentUserState = {
 };
 
 export function useCurrentUserState(): CurrentUserState {
-  const [demo, setDemo] = useState(false);
-  const [demoReady, setDemoReady] = useState(false);
-
   useEffect(() => {
-    setDemo(isDemoMode());
-    setDemoReady(true);
+    clearDemoMode();
   }, []);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -75,14 +54,6 @@ export function useCurrentUserState(): CurrentUserState {
 
   if (!authEnabled) {
     return { user: DEV_USER, isPending: false };
-  }
-
-  if (!demoReady) {
-    return { user: null, isPending: true };
-  }
-
-  if (demo) {
-    return { user: DEMO_USER, isPending: false };
   }
 
   const user = session.data?.user;

@@ -11,7 +11,12 @@ import { captionFailureCopy } from "./caption-copy.ts";
 import { fetchTranscriptsSequential } from "./transcript.ts";
 import type { ConsensusSource, PackageReviewConsensus } from "./types.ts";
 import { youtubeUrl } from "./types.ts";
-import { videoHash, videosForPackage } from "./videos.ts";
+import { hashVideos, resolveVideos } from "./discover.ts";
+
+const STALE_MS = 24 * 60 * 60 * 1000;
+const COOLDOWN_MS = 30 * 60 * 1000;
+const cool = globalThis as typeof globalThis & { __twConsensusCool__?: Map<string, number> };
+if (!cool.__twConsensusCool__) cool.__twConsensusCool__ = new Map();
 
 /** Live rebuilds rarely mention rooms — keep curated room notes on the payload. */
 function attachRoomNotes(
@@ -26,19 +31,37 @@ function attachRoomNotes(
   return { ...consensus, roomNotes: seed.roomNotes };
 }
 
+async function storedConsensus(packageId: string, hash: string) {
+  const cached = await readDurableCache(packageId, hash);
+  if (cached) return attachRoomNotes(packageId, cached);
+  const seed = getSeededConsensus(packageId);
+  if (seed) return attachRoomNotes(packageId, seed);
+  return null;
+}
+
 /**
- * Read path — never calls YouTube or the LLM.
- * Memory → Supabase → curated seed. Works fully offline/demo.
+ * Page load reads a fresh live consensus. When that is missing or older
+ * than a day and XAI_API_KEY is set, it rebuilds from YouTube captions.
  */
 export async function loadConsensus(packageId: string): Promise<PackageReviewConsensus> {
-  const videos = videosForPackage(packageId);
-  const hash = videoHash(packageId);
+  const videos = await resolveVideos(packageId);
+  const hash = hashVideos(packageId, videos);
   const cached = await readDurableCache(packageId, hash);
-  if (cached) {
+  const age = cached ? Date.now() - new Date(cached.updatedAt).getTime() : Number.POSITIVE_INFINITY;
+  if (cached && cached.origin === "live" && age < STALE_MS) {
     const consensus = attachRoomNotes(packageId, cached);
     logConsensusEvent("hit", packageId, { origin: consensus.origin });
     return consensus;
   }
+  const cooledUntil = cool.__twConsensusCool__!.get(packageId) ?? 0;
+  if (isXaiConfigured() && Date.now() > cooledUntil) {
+    const live = await rebuildConsensus(packageId);
+    if (live.origin !== "live") {
+      cool.__twConsensusCool__!.set(packageId, Date.now() + COOLDOWN_MS);
+    }
+    return live;
+  }
+  if (cached) return attachRoomNotes(packageId, cached);
   const seed = getSeededConsensus(packageId);
   if (seed) {
     writeMemoryCache(seed, hash);
@@ -50,15 +73,16 @@ export async function loadConsensus(packageId: string): Promise<PackageReviewCon
 }
 
 /**
- * Live rebuild. User-initiated only. Sequential YouTube fetches,
- * one LLM call per usable transcript, one optional aggregator call.
- * Falls back to the previous seed/cache if nothing usable comes back.
+ * Live rebuild. Sequential YouTube fetches, one LLM call per usable
+ * transcript, one optional aggregator call. Search fills extra videos
+ * when YOUTUBE_API_KEY is set. Falls back to the previous notes if
+ * captions or the model are unavailable.
  */
 export async function rebuildConsensus(packageId: string): Promise<PackageReviewConsensus> {
   const pkg = getPackage(packageId);
-  const videos = videosForPackage(packageId);
-  const hash = videoHash(packageId);
-  const fallback = await loadConsensus(packageId);
+  const videos = await resolveVideos(packageId);
+  const hash = hashVideos(packageId, videos);
+  const fallback = (await storedConsensus(packageId, hash)) ?? emptyConsensus(packageId);
 
   if (videos.length === 0) {
     const empty = attachRoomNotes(packageId, emptyConsensus(packageId));
