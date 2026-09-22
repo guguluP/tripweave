@@ -37,5 +37,6 @@ export function stayStatusLabel(status: string) {
   if (status === "cancelled") return "Cancelled";
   if (status === "held") return "Held";
   if (status === "completed") return "Completed";
+  if (status === "confirmed") return "Desk confirmed";
   return "Paid";
 }

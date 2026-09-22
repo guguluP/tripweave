@@ -1,4 +1,5 @@
 import { trustScoreForPackage } from "./trust-score.ts";
+import { overlayFor } from "./catalog-store.ts";
 import { attachPropertyMedia } from "./property-media.ts";
 import { RAW } from "./packages-data.ts";
 import { getOrigin, type ArriveBy, type OriginId } from "./origins.ts";
@@ -147,8 +148,48 @@ export const PACKAGES: StayPackage[] = RAW.map((p) => {
   };
 });
 
+function withCatalog(pkg: StayPackage): StayPackage {
+  const overlay = overlayFor(pkg.id);
+  if (!overlay) return pkg;
+  let next = pkg;
+  if (overlay.pricePerNight && overlay.pricePerNight > 0) {
+    next = {
+      ...next,
+      pricePerNight: overlay.pricePerNight,
+      priceFrom: overlay.pricePerNight,
+      pricePerPerson: overlay.pricePerNight * next.nights,
+    };
+  }
+  if (overlay.image) {
+    next = { ...next, image: overlay.image, images: [overlay.image, ...next.images.filter((src) => src !== overlay.image)] };
+  }
+  if (overlay.extras && overlay.extras.length > 0) {
+    const prices = new Map(overlay.extras.map((extra) => [extra.optionId, extra]));
+    next = {
+      ...next,
+      days: next.days.map((day) => ({
+        ...day,
+        options: day.options.map((option) => {
+          const edited = prices.get(option.id);
+          return edited ? { ...option, delta: edited.delta, label: edited.label || option.label } : option;
+        }),
+      })),
+    };
+  }
+  if (overlay.guestCount && overlay.guestRating) {
+    const guest = (overlay.guestRating / 5) * 100;
+    next = { ...next, trustScore: Math.min(100, Math.round(next.trustScore * 0.7 + guest * 0.3)) };
+  }
+  return next;
+}
+
+export function listPackages() {
+  return PACKAGES.map(withCatalog);
+}
+
 export function getPackage(id: string) {
-  return PACKAGES.find((p) => p.id === id);
+  const pkg = PACKAGES.find((p) => p.id === id);
+  return pkg ? withCatalog(pkg) : undefined;
 }
 
 export function getRoom(pkg: StayPackage, roomId?: string | null): RoomType {
@@ -288,7 +329,7 @@ export function rankingBlurb(brief: Brief): string {
 }
 
 export function matchPackages(brief: Brief) {
-  const scored = PACKAGES.map((p) => {
+  const scored = listPackages().map((p) => {
     let score = 0;
     if (p.vibe === brief.vibe) score += 3;
     if (p.budget === brief.budget) score += 2;

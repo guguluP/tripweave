@@ -11,6 +11,8 @@ export type BookingMeta = {
   refundedAt?: string;
   travel?: TravelPlan;
   pickupInr?: number;
+  guestEmail?: string;
+  deskNote?: string;
 };
 
 const KEY = "__tw";

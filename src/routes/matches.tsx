@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ClearInput, LearnMore, Shimmer, SlidingTabs, Stagger } from "@/components/motion";
 import {
   DEFAULT_BRIEF,
-  PACKAGES,
+  listPackages,
   RANK_LABELS,
   loadBrief,
   matchPackages,
@@ -54,9 +54,9 @@ function Matches() {
   const list = useMemo(() => {
     let src: StayPackage[] =
       tab === "all"
-        ? PACKAGES
+        ? listPackages()
         : tab === "saved"
-          ? PACKAGES.filter((p) => savedIds.includes(p.id))
+          ? listPackages().filter((p) => savedIds.includes(p.id))
           : matches;
     const q = query.trim().toLowerCase();
     if (q) {
@@ -70,7 +70,7 @@ function Matches() {
     return src;
   }, [tab, query, matches, savedIds]);
 
-  const title = headingFor(tab, tab === "all" ? PACKAGES.length : list.length);
+  const title = headingFor(tab, tab === "all" ? listPackages().length : list.length);
   const topMatch = tab === "matches" && !query ? matches[0] : undefined;
 
   return (

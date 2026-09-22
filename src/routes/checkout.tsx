@@ -180,7 +180,12 @@ function CheckoutInner() {
   const pickupInr = pkg ? pickupChargeInr(pkg.id, plan) : 0;
   const stayDue = perPerson * travelers;
   const total = stayDue + pickupInr;
-  const swapsForPay = writeMeta(swaps, { travel: plan, pickupInr, roomId: room?.id });
+  const swapsForPay = writeMeta(swaps, {
+    travel: plan,
+    pickupInr,
+    roomId: room?.id,
+    guestEmail: user?.primaryEmail ?? undefined,
+  });
 
   const finishPaid = (booking: BookingRow, stored: "supabase" | "local" = "local") => {
     saveWalletPass(bookingToWalletPayload(booking));

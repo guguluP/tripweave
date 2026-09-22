@@ -107,11 +107,17 @@ export async function sbCancelBooking(
   id: number,
   extra?: { status?: string; swaps?: Record<string, string> },
 ): Promise<boolean | null> {
-  await twApply("cancel_booking", {
-    user_id: userId,
-    id,
-    status: extra?.status ?? "refunded",
-    swaps: extra?.swaps,
+  const sb = getSupabaseAdmin();
+  if (!sb) return null;
+  const { error } = await sb.rpc("tw_cancel_open", {
+    p_gate: SUPABASE_WRITE_GATE,
+    p_payload: {
+      user_id: userId,
+      id,
+      status: extra?.status ?? "refunded",
+      swaps: extra?.swaps ?? null,
+    },
   });
+  if (error) throw new Error(error.message);
   return true;
 }

@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { DigitPop, Stagger, TextSwap } from "@/components/motion";
 import { PropertyMedia } from "@/components/property-media";
 import { ReviewerConsensus } from "@/components/reviewer-consensus";
+import { StayMap } from "@/components/stay-map";
 import { RoomPicker } from "@/components/room-picker";
 import { StayQuoteCard } from "@/components/stay-quote";
 import { DigiYatraPanel, TransportPanel, BusGuidePanel } from "@/components/transport-panel";
@@ -160,6 +161,7 @@ function TripDetail() {
         </div>
 
         <p className="mt-6 text-muted">{pkg.summary}</p>
+        <StayMap packageId={pkg.id} name={pkg.name} />
 
         <div className="mt-6 flex flex-wrap gap-2">
           {pkg.includes.map((item) => (

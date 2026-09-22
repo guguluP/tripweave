@@ -1,6 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Compass, Map, UserRound, WalletCards } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { loadCatalog } from "@/lib/server/catalog";
+import { setCatalogOverlays } from "@/lib/catalog-store";
 import { BrandWord, WeaveMark } from "@/components/logo";
 import { AuthSlot } from "@/components/auth-slot";
 import { cn } from "@/lib/utils";
@@ -20,6 +22,15 @@ export function Shell({
   bare?: boolean;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [, setCatalogTick] = useState(0);
+  useEffect(() => {
+    loadCatalog()
+      .then((rows) => {
+        setCatalogOverlays(rows);
+        setCatalogTick((n) => n + 1);
+      })
+      .catch(() => undefined);
+  }, []);
 
   if (bare) {
     return <div className="min-h-dvh bg-bg text-fg">{children}</div>;

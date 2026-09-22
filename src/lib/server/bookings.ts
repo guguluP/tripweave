@@ -422,7 +422,7 @@ export const cancelBooking = createServerFn({ method: "POST" })
       }
     }
     const target = rows.find((b) => b.id === id);
-    if (!target || (target.status !== "paid" && target.status !== "held")) {
+    if (!target || (target.status !== "paid" && target.status !== "held" && target.status !== "confirmed")) {
       return { ok: false, message: "That stay is not open to cancel." };
     }
 

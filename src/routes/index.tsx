@@ -5,7 +5,7 @@ import { Shell } from "@/components/shell";
 import { PackageCard } from "@/components/package-card";
 import { Button } from "@/components/ui/button";
 import { LearnMore, Stagger } from "@/components/motion";
-import { DEFAULT_BRIEF, PACKAGES } from "@/lib/packages";
+import { DEFAULT_BRIEF, listPackages } from "@/lib/packages";
 
 const COVER_CLIPS = ["/cover/shore.mp4", "/cover/coast.mp4", "/cover/waves.mp4"] as const;
 const COVER_FADE_MS = 1100;
@@ -92,7 +92,7 @@ function Cover() {
 }
 
 function Home() {
-  const featured = [...PACKAGES].sort((a, b) => b.trustScore - a.trustScore).slice(0, 3);
+  const featured = [...listPackages()].sort((a, b) => b.trustScore - a.trustScore).slice(0, 3);
 
   return (
     <Shell>

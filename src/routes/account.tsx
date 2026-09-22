@@ -18,6 +18,7 @@ import { AddToWallet } from "@/components/wallet-pass";
 import { bookingToWalletPayload } from "@/lib/apple-wallet";
 import { listWalletPasses } from "@/lib/wallet-store";
 import { getProfile, saveProfile } from "@/lib/server/profile";
+import { PartnerDesk } from "@/components/partner-desk";
 import { loadLocalProfile, saveLocalProfile } from "@/lib/profile-local";
 import { isClosedStay } from "@/lib/refund-policy";
 import { pushBanner } from "@/lib/banners";
@@ -251,6 +252,7 @@ function AccountInner() {
           </div>
         ) : null}
 
+        <PartnerDesk />
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild>
             <Link to="/trips">View bookings</Link>
