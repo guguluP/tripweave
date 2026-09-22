@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { ArrowRight, Landmark, ShieldCheck, Wallet } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { PackageCard } from "@/components/package-card";
@@ -6,7 +7,42 @@ import { Button } from "@/components/ui/button";
 import { LearnMore, Stagger } from "@/components/motion";
 import { DEFAULT_BRIEF, PACKAGES } from "@/lib/packages";
 
+const COVER_CLIPS = ["/cover/shore.mp4", "/cover/coast.mp4", "/cover/waves.mp4"] as const;
+
 export const Route = createFileRoute("/")({ component: Home });
+
+function Cover() {
+  const [clip, setClip] = useState(0);
+  const [showStill, setShowStill] = useState(true);
+
+  useEffect(() => {
+    if (!showStill) return;
+    const id = window.setTimeout(() => setShowStill(false), 5000);
+    return () => window.clearTimeout(id);
+  }, [showStill]);
+
+  return (
+    <>
+      <img
+        src="/cover/puri.jpg"
+        alt="Puri beach"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      {showStill ? null : (
+        <video
+          key={COVER_CLIPS[clip]}
+          src={COVER_CLIPS[clip]}
+          poster="/cover/puri.jpg"
+          autoPlay
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover"
+          onEnded={() => setClip((n) => (n + 1) % COVER_CLIPS.length)}
+        />
+      )}
+    </>
+  );
+}
 
 function Home() {
   const featured = [...PACKAGES].sort((a, b) => b.trustScore - a.trustScore).slice(0, 3);
@@ -14,11 +50,7 @@ function Home() {
   return (
     <Shell>
       <section className="relative isolate min-h-[32rem] overflow-hidden">
-        <img
-          src="/puri-beach.jpg"
-          alt="Puri beach, Odisha"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+        <Cover />
         <div className="absolute inset-0 bg-fg/55" />
         <div className="relative mx-auto flex min-h-[32rem] max-w-6xl flex-col justify-end px-4 py-16">
           <Stagger>
@@ -31,10 +63,7 @@ function Home() {
               all-in rupee prices, from a single night to a slow week.
             </p>
           </Stagger>
-          <p className="mt-6 text-xs text-primary-fg/60">
-            Puri beach photo by Radosław Botev, CC BY-SA
-          </p>
-          <div className="mt-4 flex flex-wrap items-center gap-4">
+          <div className="mt-8 flex flex-wrap items-center gap-4">
             <Button asChild size="lg">
               <Link to="/plan">
                 Find my hotel
