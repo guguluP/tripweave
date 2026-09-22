@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createHmac } from "node:crypto";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
+import { computePayable, payTestAllowed } from "@/lib/server/payable";
 
 function getKeyId() {
   return process.env.RAZORPAY_KEY_ID?.trim() || process.env.VITE_RAZORPAY_KEY_ID?.trim() || "";
@@ -20,67 +21,201 @@ function authHeader() {
   return "Basic " + Buffer.from(`${id}:${secret}`).toString("base64");
 }
 
-const createOrderSchema = z.object({
-  amountInr: z.number().positive(),
+type PendingOrder = {
+  orderId: string;
+  userId: string;
+  amountInr: number;
+  amountPaise: number;
+  packageId: string;
+  roomId: string;
+  nights: number;
+  travelers: number;
+  checkIn: string;
+  createdAt: number;
+  used?: boolean;
+};
+
+const g = globalThis as typeof globalThis & { __twPendingOrders__?: Map<string, PendingOrder> };
+if (!g.__twPendingOrders__) g.__twPendingOrders__ = new Map();
+
+const ORDER_TTL_MS = 45 * 60 * 1000;
+
+function pruneOrders(now = Date.now()) {
+  const store = g.__twPendingOrders__!;
+  for (const [id, row] of store) {
+    if (row.used || now - row.createdAt > ORDER_TTL_MS) store.delete(id);
+  }
+}
+
+export function rememberOrder(row: PendingOrder) {
+  pruneOrders();
+  g.__twPendingOrders__!.set(row.orderId, row);
+}
+
+export function peekOrder(orderId: string): PendingOrder | undefined {
+  pruneOrders();
+  return g.__twPendingOrders__!.get(orderId);
+}
+
+export function consumeOrder(orderId: string, userId: string): PendingOrder | undefined {
+  const row = peekOrder(orderId);
+  if (!row || row.userId !== userId || row.used) return undefined;
+  row.used = true;
+  return row;
+}
+
+const staySchema = z.object({
+  packageId: z.string().min(1),
+  swaps: z.record(z.string(), z.string()).optional().default({}),
+  travelers: z.number().int().min(1).max(12),
+  checkIn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  nights: z.number().int().min(1).max(14).optional(),
+  roomId: z.string().max(40).optional(),
   receipt: z.string().min(1).max(40).optional(),
-  notes: z.record(z.string(), z.string()).optional(),
 });
 
+const createOrderSchema = z.discriminatedUnion("kind", [
+  staySchema.extend({ kind: z.literal("stay") }),
+  z.object({
+    kind: z.literal("test"),
+    receipt: z.string().min(1).max(40).optional(),
+  }),
+]);
+
 export type CreateOrderResult =
-  | { ok: true; orderId: string; amount: number; currency: string; keyId: string }
+  | { ok: true; orderId: string; amount: number; currency: string; keyId: string; amountInr: number }
   | { ok: false; message: string };
 
-/**
- * Create a Razorpay order. Amount is in whole rupees; we convert to paise.
- */
+async function razorpayCreateOrder(amountPaise: number, receipt: string, notes: Record<string, string>) {
+  const body = {
+    amount: amountPaise,
+    currency: "INR",
+    receipt,
+    notes,
+  };
+  const res = await fetch("https://api.razorpay.com/v1/orders", {
+    method: "POST",
+    headers: {
+      Authorization: authHeader(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  const json = (await res.json()) as {
+    id?: string;
+    amount?: number;
+    currency?: string;
+    error?: { description?: string; code?: string };
+  };
+  if (!res.ok || !json.id) {
+    const msg = json.error?.description ?? `Razorpay order failed (${res.status})`;
+    console.error("[razorpay] create order failed", res.status, json);
+    if (res.status === 401) {
+      return { ok: false as const, message: "Razorpay authentication failed. Check API keys." };
+    }
+    return { ok: false as const, message: msg };
+  }
+  return {
+    ok: true as const,
+    orderId: json.id,
+    amount: json.amount ?? amountPaise,
+    currency: json.currency ?? "INR",
+  };
+}
+
+export async function fetchRazorpayOrder(orderId: string): Promise<{ amountPaise: number } | null> {
+  try {
+    const res = await fetch(`https://api.razorpay.com/v1/orders/${orderId}`, {
+      headers: { Authorization: authHeader() },
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { amount?: number };
+    if (!json.amount || !Number.isFinite(json.amount)) return null;
+    return { amountPaise: json.amount };
+  } catch {
+    return null;
+  }
+}
+
 export const createRazorpayOrder = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((data: unknown) => createOrderSchema.parse(data))
-  .handler(async ({ data }): Promise<CreateOrderResult> => {
-    const amountPaise = Math.round(data.amountInr * 100);
-    if (amountPaise < 100) {
-      return { ok: false, message: "Amount must be at least ₹1 (100 paise)." };
-    }
-
+  .handler(async ({ data, context }): Promise<CreateOrderResult> => {
     try {
-      const body = {
-        amount: amountPaise,
-        currency: "INR",
-        receipt: data.receipt ?? `tw_${Date.now()}`,
-        notes: data.notes ?? {},
-      };
-
-      const res = await fetch("https://api.razorpay.com/v1/orders", {
-        method: "POST",
-        headers: {
-          Authorization: authHeader(),
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-
-      const json = (await res.json()) as {
-        id?: string;
-        amount?: number;
-        currency?: string;
-        error?: { description?: string; code?: string };
-      };
-
-      if (!res.ok || !json.id) {
-        const msg = json.error?.description ?? `Razorpay order failed (${res.status})`;
-        console.error("[razorpay] create order failed", res.status, json);
-        if (res.status === 401) {
-          return { ok: false, message: "Razorpay authentication failed. Check API keys." };
+      if (data.kind === "test") {
+        if (!payTestAllowed()) {
+          return { ok: false, message: "Test charges are disabled on this host." };
         }
-        return { ok: false, message: msg };
+        const amountPaise = 100;
+        const created = await razorpayCreateOrder(amountPaise, data.receipt ?? `tw_test_${Date.now()}`, {
+          purpose: "razorpay_activation_test",
+          userId: context.userId,
+        });
+        if (!created.ok) return created;
+        rememberOrder({
+          orderId: created.orderId,
+          userId: context.userId,
+          amountInr: 1,
+          amountPaise,
+          packageId: "_test",
+          roomId: "",
+          nights: 0,
+          travelers: 0,
+          checkIn: "",
+          createdAt: Date.now(),
+        });
+        return {
+          ok: true,
+          orderId: created.orderId,
+          amount: created.amount,
+          currency: created.currency,
+          keyId: getKeyId(),
+          amountInr: 1,
+        };
       }
+
+      const payable = await computePayable(data);
+      if (!payable.ok) return { ok: false, message: payable.message };
+      const amountPaise = Math.round(payable.amountInr * 100);
+      if (amountPaise < 100) {
+        return { ok: false, message: "Amount must be at least \u20b91 (100 paise)." };
+      }
+
+      const created = await razorpayCreateOrder(
+        amountPaise,
+        data.receipt ?? `tw_${payable.packageId}_${Date.now()}`.slice(0, 40),
+        {
+          packageId: payable.packageId,
+          roomId: payable.roomId,
+          travelers: String(payable.travelers),
+          checkIn: payable.checkIn,
+          nights: String(payable.nights),
+          pickupInr: String(payable.pickupInr),
+          userId: context.userId,
+        },
+      );
+      if (!created.ok) return created;
+
+      rememberOrder({
+        orderId: created.orderId,
+        userId: context.userId,
+        amountInr: payable.amountInr,
+        amountPaise,
+        packageId: payable.packageId,
+        roomId: payable.roomId,
+        nights: payable.nights,
+        travelers: payable.travelers,
+        checkIn: payable.checkIn,
+        createdAt: Date.now(),
+      });
 
       return {
         ok: true,
-        orderId: json.id,
-        amount: json.amount ?? amountPaise,
-        currency: json.currency ?? "INR",
+        orderId: created.orderId,
+        amount: created.amount,
+        currency: created.currency,
         keyId: getKeyId(),
+        amountInr: payable.amountInr,
       };
     } catch (err) {
       console.error("[razorpay] create order error", err);
@@ -108,7 +243,6 @@ function timingSafeEqual(a: Buffer, b: Buffer): boolean {
   return out === 0;
 }
 
-/** Core signature check — usable from other server modules without createServerFn. */
 export function verifyRazorpaySignature(input: {
   razorpay_order_id: string;
   razorpay_payment_id: string;
@@ -128,9 +262,6 @@ export function verifyRazorpaySignature(input: {
   return { ok: true };
 }
 
-/**
- * Verify Razorpay payment signature: HMAC-SHA256(order_id|payment_id, secret).
- */
 export const verifyRazorpayPayment = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((data: unknown) => verifySchema.parse(data))
@@ -181,6 +312,7 @@ export async function refundRazorpayPayment(
     return { ok: false, message: err instanceof Error ? err.message : "Refund failed." };
   }
 }
+
 export const getRazorpayKeyId = createServerFn({ method: "GET" }).handler(async () => {
   return getKeyId();
 });
