@@ -3,12 +3,12 @@ import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { charge, methodLabel, type PayMethod } from "@/lib/pay";
-import { clampNights, getPackage, getRoom } from "@/lib/packages";
-import { quoteStay, recordHold, releaseHold, roomUnits, travelersFitRoom } from "@/lib/inventory";
-import { refreshOccupancy } from "@/lib/server/occupancy";
+import { getPackage, getRoom } from "@/lib/packages";
+import { recordHold, releaseHold, roomUnits } from "@/lib/inventory";
+import { computePayable, sandboxPaymentsAllowed } from "@/lib/server/payable";
 import { writeMeta, readMeta } from "@/lib/booking-meta";
 import { deskFor } from "@/lib/hotel-desk";
-import { parseTravelPlan, pickupChargeInr } from "@/lib/travel-plan";
+import { parseTravelPlan } from "@/lib/travel-plan";
 import { refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import {
@@ -25,6 +25,7 @@ import {
 
 export type BookingRow = {
   id: number;
+  userId?: string;
   packageId: string;
   packageName: string;
   nights: number;
@@ -101,7 +102,6 @@ function mapBooking(row: DbBooking): BookingRow {
   };
 }
 
-/** In-memory bookings when Neon/Postgres is unavailable. Process-local. */
 const g = globalThis as typeof globalThis & {
   __twMemoryBookings__?: BookingRow[];
   __twMemoryId__?: number;
@@ -110,9 +110,6 @@ if (!g.__twMemoryBookings__) g.__twMemoryBookings__ = [];
 if (!g.__twMemoryId__) g.__twMemoryId__ = 1;
 
 function useMemoryStore() {
-  // Auth already skips DATABASE_URL on Vercel (bad pooler password).
-  // There is no bookings table in migrations/*.sql — Neon would 500 even with
-  // a working password. Persist via Supabase REST, else memory + localStorage.
   if (isSupabaseConfigured()) return false;
   return shouldSkipNeon() || Boolean(process.env.VERCEL);
 }
@@ -140,6 +137,10 @@ function memoryBooking(input: Omit<BookingRow, "id" | "createdAt"> & { createdAt
   return rememberBooking(booking);
 }
 
+function memoryForUser(userId: string) {
+  return (g.__twMemoryBookings__ ?? []).filter((b) => b.userId === userId);
+}
+
 export const listBookings = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
@@ -152,9 +153,7 @@ export const listBookings = createServerFn({ method: "GET" })
         console.error("[bookings] supabase list failed", err);
       }
     }
-    if (useMemoryStore()) {
-      return g.__twMemoryBookings__ ?? [];
-    }
+    if (useMemoryStore()) return memoryForUser(context.userId);
     try {
       const sql = await getSql();
       const rows = await sql<DbBooking>`
@@ -168,7 +167,7 @@ export const listBookings = createServerFn({ method: "GET" })
       return rows.map(mapBooking);
     } catch (err) {
       markDurableDbFailed(err);
-      return g.__twMemoryBookings__ ?? [];
+      return memoryForUser(context.userId);
     }
   });
 
@@ -196,41 +195,25 @@ export const createBooking = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((data: unknown) => createSchema.parse(data))
   .handler(async ({ context, data }): Promise<CreateBookingResult> => {
-    const pkg = getPackage(data.packageId);
-    if (!pkg) return { ok: false, message: "Stay not found." };
-
-    const checkIn = new Date(`${data.checkIn}T12:00:00`);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (Number.isNaN(checkIn.getTime()) || checkIn < today) {
-      return { ok: false, message: "Check-in must be today or later.", field: "checkIn" };
-    }
-
-    const nights = clampNights(pkg, data.nights ?? pkg.nights);
-    const room = getRoom(pkg, data.roomId);
-    if (!travelersFitRoom(room.occupancy, data.travelers)) {
-      return {
-        ok: false,
-        message: `This room sleeps ${room.occupancy}. You listed ${data.travelers} guests.`,
-        field: "travelers",
-      };
-    }
-    await refreshOccupancy().catch(() => []);
-    const quote = quoteStay({
-      packageId: pkg.id,
-      roomId: room.id,
-      checkIn: data.checkIn,
-      nights,
+    const payable = await computePayable({
+      packageId: data.packageId,
       swaps: data.swaps,
+      travelers: data.travelers,
+      checkIn: data.checkIn,
+      nights: data.nights,
+      roomId: data.roomId,
     });
-    if (!quote?.available) {
-      return { ok: false, message: "Those nights are sold out for this room. Pick another date." };
-    }
-    const travel = parseTravelPlan(readMeta(data.swaps).travel);
-    const pickupInr = pickupChargeInr(pkg.id, travel);
-    const amount = quote.perPerson * data.travelers + pickupInr;
-    const packageName = `${pkg.name} · ${room.name}`;
+    if (!payable.ok) return { ok: false, message: payable.message, field: payable.field };
+
+    const pkg = getPackage(payable.packageId);
+    if (!pkg) return { ok: false, message: "Stay not found." };
+    const room = getRoom(pkg, payable.roomId);
+    const nights = payable.nights;
+    const amount = payable.amountInr;
+    const pickupInr = payable.pickupInr;
+    const packageName = payable.packageName;
     const code = makeCode();
+    const travel = parseTravelPlan(readMeta(data.swaps ?? {}).travel);
 
     let paid: {
       ok: true;
@@ -246,7 +229,7 @@ export const createBooking = createServerFn({ method: "POST" })
       if (!data.razorpayPaymentId || !data.razorpayOrderId || !data.razorpaySignature) {
         return { ok: false, message: "Missing Razorpay payment details." };
       }
-      const { verifyRazorpaySignature } = await import("@/lib/server/razorpay");
+      const { verifyRazorpaySignature, peekOrder, consumeOrder, fetchRazorpayOrder } = await import("@/lib/server/razorpay");
       const verified = verifyRazorpaySignature({
         razorpay_order_id: data.razorpayOrderId,
         razorpay_payment_id: data.razorpayPaymentId,
@@ -255,6 +238,27 @@ export const createBooking = createServerFn({ method: "POST" })
       if (!verified.ok) {
         return { ok: false, message: verified.message || "Payment verification failed." };
       }
+      const pending = peekOrder(data.razorpayOrderId);
+      if (pending) {
+        if (pending.userId !== context.userId) {
+          return { ok: false, message: "This payment belongs to another session." };
+        }
+        if (
+          pending.packageId !== payable.packageId ||
+          pending.checkIn !== payable.checkIn ||
+          pending.roomId !== payable.roomId ||
+          pending.nights !== payable.nights ||
+          pending.travelers !== payable.travelers ||
+          pending.amountInr !== payable.amountInr
+        ) {
+          return { ok: false, message: "Payment does not match this stay. Start checkout again." };
+        }
+      }
+      const remote = await fetchRazorpayOrder(data.razorpayOrderId);
+      if (remote && remote.amountPaise !== Math.round(payable.amountInr * 100)) {
+        return { ok: false, message: "Paid amount does not match the current stay price." };
+      }
+      consumeOrder(data.razorpayOrderId, context.userId);
       paid = {
         ok: true,
         method: "razorpay",
@@ -265,6 +269,9 @@ export const createBooking = createServerFn({ method: "POST" })
         ref: data.razorpayPaymentId,
       };
     } else {
+      if (!sandboxPaymentsAllowed()) {
+        return { ok: false, message: "Only Razorpay checkout is accepted on this host." };
+      }
       const result = charge({
         method: data.method as PayMethod,
         payerName: data.payerName,
@@ -280,6 +287,7 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
     const local = {
+      userId: context.userId,
       packageId: pkg.id,
       packageName,
       nights,
@@ -303,7 +311,6 @@ export const createBooking = createServerFn({ method: "POST" })
       bankName: paid.bank,
     };
 
-    // Payment is already captured. Never fail the guest on a dead DATABASE_URL.
     if (isSupabaseConfigured()) {
       try {
         const booking = await sbInsertBooking({
@@ -326,10 +333,7 @@ export const createBooking = createServerFn({ method: "POST" })
             eventType: "captured",
             orderId: data.razorpayOrderId ?? null,
             paymentId: paid.ref,
-            payload: {
-              method: paid.method,
-              confirmation: code,
-            },
+            payload: { method: paid.method, confirmation: code },
           });
           return { ok: true, booking, stored: "supabase" };
         }
@@ -344,13 +348,7 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
     if (useMemoryStore()) {
-      recordHold({
-        packageId: pkg.id,
-        roomId: room.id,
-        checkIn: data.checkIn,
-        nights,
-        status: "paid",
-      });
+      recordHold({ packageId: pkg.id, roomId: room.id, checkIn: data.checkIn, nights, status: "paid" });
       return { ok: true, booking: memoryBooking(local), stored: "local" };
     }
 
@@ -373,33 +371,12 @@ export const createBooking = createServerFn({ method: "POST" })
                   payment_method, payment_ref, upi_handle, bank_name, created_at
       `;
       const row = rows[0];
-      if (!row) {
-        recordHold({
-          packageId: pkg.id,
-          roomId: room.id,
-          checkIn: data.checkIn,
-          nights,
-          status: "paid",
-        });
-        return { ok: true, booking: memoryBooking(local), stored: "local" };
-      }
-      recordHold({
-        packageId: pkg.id,
-        roomId: room.id,
-        checkIn: data.checkIn,
-        nights,
-        status: "paid",
-      });
+      recordHold({ packageId: pkg.id, roomId: room.id, checkIn: data.checkIn, nights, status: "paid" });
+      if (!row) return { ok: true, booking: memoryBooking(local), stored: "local" };
       return { ok: true, booking: mapBooking(row), stored: "local" };
     } catch (err) {
       markDurableDbFailed(err);
-      recordHold({
-        packageId: pkg.id,
-        roomId: room.id,
-        checkIn: data.checkIn,
-        nights,
-        status: "paid",
-      });
+      recordHold({ packageId: pkg.id, roomId: room.id, checkIn: data.checkIn, nights, status: "paid" });
       return { ok: true, booking: memoryBooking(local), stored: "local" };
     }
   });
@@ -412,7 +389,7 @@ export const cancelBooking = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((id: number) => id)
   .handler(async ({ context, data: id }): Promise<CancelResult> => {
-    let rows: BookingRow[] = [...(g.__twMemoryBookings__ ?? [])];
+    let rows: BookingRow[] = memoryForUser(context.userId);
     if (isSupabaseConfigured()) {
       try {
         const cloud = await sbListBookings(context.userId);
@@ -423,6 +400,9 @@ export const cancelBooking = createServerFn({ method: "POST" })
     }
     const target = rows.find((b) => b.id === id);
     if (!target || (target.status !== "paid" && target.status !== "held" && target.status !== "confirmed")) {
+      return { ok: false, message: "That stay is not open to cancel." };
+    }
+    if (target.userId && target.userId !== context.userId) {
       return { ok: false, message: "That stay is not open to cancel." };
     }
 
@@ -488,7 +468,7 @@ export const cancelBooking = createServerFn({ method: "POST" })
       ok: true,
       status,
       refundAmount: amount,
-      message: `${policy.label}. ₹${amount.toLocaleString("en-IN")} will return to the original payment.`,
+      message: `${policy.label}. \u20b9${amount.toLocaleString("en-IN")} will return to the original payment.`,
     };
   });
 
