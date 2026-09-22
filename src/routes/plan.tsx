@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { DigitPop, MotionToggle, Stagger, TextSwap } from "@/components/motion";
@@ -93,30 +93,19 @@ function Plan() {
 
         <fieldset className="mt-10">
           <legend className="text-sm font-medium">Coming from</legend>
-          <select
-            className="mt-3 w-full rounded-lg border border-border bg-elevated px-3 py-3 text-sm"
-            value={brief.origin}
-            onChange={(e) => update("origin", e.target.value as Brief["origin"])}
-          >
-            {ORIGINS.filter((city) => city.id !== "other").map((city) => (
-              <option key={city.id} value={city.id}>
-                {city.label} — {city.hint}
-              </option>
-            ))}
-            <option value="other">Somewhere else</option>
-          </select>
-          {brief.origin === "other" ? (
-            <label className="mt-3 block text-sm">
-              <span className="text-muted">Your city</span>
-              <input
-                className="mt-1 w-full rounded-lg border border-border bg-elevated px-3 py-3"
-                value={brief.originCity ?? ""}
-                placeholder="Ranchi, Jaipur, Berhampur…"
-                maxLength={60}
-                onChange={(e) => update("originCity", e.target.value)}
-              />
-            </label>
-          ) : null}
+          <CityMenu
+            origin={brief.origin}
+            originCity={brief.originCity ?? ""}
+            onListed={(id) => update("origin", id)}
+            onCustom={(name) => {
+              setBrief((b) => {
+                const next = { ...b, origin: "other" as const, originCity: name };
+                const allowed = getOrigin("other").inbound.map((leg) => leg.mode);
+                if (!allowed.includes(next.arriveBy)) next.arriveBy = getOrigin("other").defaultArriveBy;
+                return next;
+              });
+            }}
+          />
         </fieldset>
 
         <fieldset className="mt-8">
@@ -244,6 +233,103 @@ function Plan() {
         </Button>
       </div>
     </Shell>
+  );
+}
+
+function CityMenu({
+  origin,
+  originCity,
+  onListed,
+  onCustom,
+}: {
+  origin: Brief["origin"];
+  originCity: string;
+  onListed: (id: Brief["origin"]) => void;
+  onCustom: (name: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const box = useRef<HTMLDivElement>(null);
+  const listed = ORIGINS.filter((city) => city.id !== "other");
+  const shown = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return listed;
+    return listed.filter((city) => city.label.toLowerCase().includes(q) || city.hint.toLowerCase().includes(q));
+  }, [listed, query]);
+  const label = origin === "other" ? originCity.trim() || "Somewhere else" : getOrigin(origin).label;
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (event: MouseEvent) => {
+      if (!box.current?.contains(event.target as Node)) setOpen(false);
+    };
+    window.addEventListener("mousedown", close);
+    return () => window.removeEventListener("mousedown", close);
+  }, [open]);
+
+  return (
+    <div ref={box} className="relative mt-3">
+      <button
+        type="button"
+        className="flex min-h-14 w-full items-center justify-between rounded-lg border border-border bg-elevated px-4 text-left text-base"
+        aria-expanded={open}
+        onClick={() => {
+          setOpen((v) => !v);
+          setQuery("");
+        }}
+      >
+        <span>
+          <span className="block font-medium">{label}</span>
+          <span className="block text-sm text-muted">
+            {origin === "other" ? "Your city" : getOrigin(origin).hint}
+          </span>
+        </span>
+        <span className="text-muted" aria-hidden>▾</span>
+      </button>
+      {open ? (
+        <div className="absolute z-40 mt-2 w-full rounded-lg border border-border bg-bg p-2 shadow-lg">
+          <input
+            autoFocus
+            className="min-h-12 w-full rounded-md border border-border bg-elevated px-3 text-base"
+            placeholder="Search cities"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <ul className="mt-2 max-h-72 overflow-auto">
+            {shown.map((city) => (
+              <li key={city.id}>
+                <button
+                  type="button"
+                  className="w-full rounded-md px-3 py-3 text-left hover:bg-surface"
+                  onClick={() => {
+                    onListed(city.id);
+                    setOpen(false);
+                  }}
+                >
+                  <span className="block text-base font-medium">{city.label}</span>
+                  <span className="block text-sm text-muted">{city.hint}</span>
+                </button>
+              </li>
+            ))}
+            <li>
+              <button
+                type="button"
+                className="w-full rounded-md px-3 py-3 text-left hover:bg-surface"
+                onClick={() => {
+                  onCustom(query.trim());
+                  setOpen(false);
+                }}
+              >
+                <span className="block text-base font-medium">
+                  {query.trim() ? `Use “${query.trim()}”` : "Somewhere else"}
+                </span>
+                <span className="block text-sm text-muted">Type a city, then choose this</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

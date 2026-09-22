@@ -28,7 +28,8 @@ export function TravelEstimateCard({
         </span>
         <div className="min-w-0">
           <p className="eyebrow">Getting there</p>
-          <p className="mt-1 font-display text-2xl leading-snug tabular-nums">{quote.costLine}</p>
+          <p className="mt-1 text-sm text-muted">From {quote.originLabel}</p>
+          <p className="mt-1 font-display text-2xl leading-snug">{quote.costLine}</p>
           <p className="mt-1 text-sm text-ok">{quote.bestLine}</p>
         </div>
       </div>

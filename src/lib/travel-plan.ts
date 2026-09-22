@@ -3,14 +3,14 @@
  * Stay matching stays in packages.ts — this file ranks last-mile, prices hotel
  * pickup, and holds the guest's travel draft until checkout.
  */
-import { inboundFor, getOrigin, type ArriveBy } from "./origins.ts";
+import { inboundFor, type ArriveBy } from "./origins.ts";
 import {
   BUS_GUIDE,
   getTransportForPackage,
   lastMileOptions,
   type TransportLeg,
 } from "./transport.ts";
-import { getPackage, type Brief } from "./packages.ts";
+import { getPackage, originPlace, type Brief } from "./packages.ts";
 
 export type TravelPlan = {
   lastMileId: string;
@@ -212,10 +212,11 @@ function bestReason(leg: TransportLeg, brief: Brief): string {
   return bits.slice(0, 2).join(" · ");
 }
 
-export function travelBookingLinks(arriveBy: ArriveBy): BookingLink[] {
+export function travelBookingLinks(arriveBy: ArriveBy, from = ""): BookingLink[] {
   if (arriveBy === "fly") {
+    const q = from ? `Flights from ${from} to BBI` : "Flights to BBI";
     return [
-      { label: "Google Flights", href: "https://www.google.com/travel/flights?q=Flights%20to%20BBI" },
+      { label: "Google Flights", href: `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}` },
       { label: "Book cab from BBI", href: "https://www.olacabs.com" },
     ];
   }
@@ -376,7 +377,6 @@ export function rankLastMiles(packageId: string, brief: Brief): RankedLastMile[]
 }
 
 export function quoteTravel(packageId: string, brief: Brief, plan?: Partial<TravelPlan>): TravelQuote {
-  const origin = getOrigin(brief.origin);
   const inbound = inboundFor(brief.origin, brief.arriveBy);
   const options = rankLastMiles(packageId, brief);
   const recommendedId = options.find((o) => o.recommended)?.id ?? options[0]?.id ?? "";
@@ -395,7 +395,7 @@ export function quoteTravel(packageId: string, brief: Brief, plan?: Partial<Trav
     : lastMile.why;
   return {
     packageId,
-    originLabel: origin.label,
+    originLabel: originPlace(brief),
     inbound,
     lastMile,
     options,
@@ -405,7 +405,7 @@ export function quoteTravel(packageId: string, brief: Brief, plan?: Partial<Trav
     costLine,
     bestLine,
     pickup,
-    bookingLinks: travelBookingLinks(brief.arriveBy),
+    bookingLinks: travelBookingLinks(brief.arriveBy, originPlace(brief)),
     lastMileLinks: lastMileBookingLinks(lastMile),
     why: lastMile.why,
     mapEmbedUrl: mapEmbedUrl(brief.arriveBy),
@@ -414,7 +414,18 @@ export function quoteTravel(packageId: string, brief: Brief, plan?: Partial<Trav
 }
 
 export function inboundPreview(brief: Brief): TravelQuote {
-  return quoteTravel("typical", brief);
+  const quote = quoteTravel("mayfair-heritage-puri", brief);
+  const city = originPlace(brief);
+  const named =
+    brief.origin === "other" && brief.originCity?.trim()
+      ? `${city} · ${quote.inbound.label}`
+      : quote.inbound.label;
+  return {
+    ...quote,
+    costLine: quote.inbound.costHint,
+    bestLine: quote.inbound.why,
+    inbound: { ...quote.inbound, label: named },
+  };
 }
 
 function defaultIncludePickup(brief: Brief, pickup: PickupQuote): boolean {
