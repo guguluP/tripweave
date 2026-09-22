@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { quoteStay } from "@/lib/inventory";
 import {
   formatMoney,
   nightsPhrase,
@@ -22,6 +23,7 @@ export function PackageCard({
   nights,
   originWhy,
   brief,
+  checkIn,
   lastMileId,
   onLastMile,
 }: {
@@ -29,6 +31,8 @@ export function PackageCard({
   rank?: string;
   /** When known from the brief, show an N-night total alongside the nightly rate. */
   nights?: number;
+  /** When set, the card uses the seasonal quote instead of the flat nightly rate. */
+  checkIn?: string;
   originWhy?: string;
   brief?: Brief;
   lastMileId?: string;
@@ -39,8 +43,16 @@ export function PackageCard({
     typeof nights === "number" && Number.isFinite(nights) && nights >= 1
       ? Math.min(pkg.nightsMax, Math.max(pkg.nightsMin, Math.round(nights)))
       : null;
-  const multiTotal =
-    stayNights && stayNights > 1 ? stayTotal(pkg, stayNights) : null;
+  const dated =
+    checkIn && stayNights
+      ? quoteStay({ packageId: pkg.id, checkIn, nights: stayNights })
+      : null;
+  const multiTotal = dated
+    ? dated.perPerson
+    : stayNights && stayNights > 1
+      ? stayTotal(pkg, stayNights)
+      : null;
+  const nightly = dated ? Math.round(dated.perPerson / Math.max(dated.nights, 1)) : pkg.priceFrom;
   const quote = brief ? quoteTravel(pkg.id, brief, { lastMileId }) : null;
 
   return (
@@ -89,19 +101,23 @@ export function PackageCard({
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 text-sm">
               <p>
-                <span className="text-muted">from </span>
+                <span className="text-muted">{dated ? "" : "catalog "}</span>
                 <span className="font-semibold tabular-nums">
-                  <DigitPop value={formatMoney(pkg.priceFrom)} />
+                  <DigitPop value={formatMoney(nightly)} />
                 </span>
                 <span className="text-muted"> / night / person</span>
               </p>
-              {multiTotal != null && stayNights != null ? (
+              {!dated ? (
+                <p className="mt-0.5 text-xs text-subtle">Seasonal price is set at checkout.</p>
+              ) : null}
+              {multiTotal != null && stayNights != null && stayNights > 1 ? (
                 <p className="mt-0.5 text-xs text-subtle">
                   <span className="tabular-nums">
                     <DigitPop value={formatMoney(multiTotal)} />
                   </span>
                   {" "}
                   for {nightsPhrase(stayNights)}
+                  {dated ? " · seasonal rate" : ""}
                 </p>
               ) : null}
             </div>

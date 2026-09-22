@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, ShakeField, ShakeSelect, Stagger } from "@/components/motion";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { pushBanner } from "@/lib/banners";
+import { DIGILOCKER_STATUS } from "@/lib/digilocker";
 import { getJourney } from "@/lib/transport";
 import { defaultTravelPlan, quoteTravel } from "@/lib/travel-plan";
 import {
@@ -19,6 +20,7 @@ import {
   ID_LABELS,
   emptyTraveler,
   loadTravelers,
+  maskAadhaar,
   saveTravelers,
   travelerInitials,
   validateTravelers,
@@ -227,6 +229,9 @@ function TravelersInner() {
               documents. After you pay, we store last 4 digits of ID until 14 days after checkout,
               then delete guest details. DigiYatra is only for Bhubaneswar airport.
             </p>
+            <p className="mt-3 max-w-xl rounded-md border border-border bg-elevated px-3 py-2 text-xs text-muted">
+              Sandbox only — live DigiLocker is off. {DIGILOCKER_STATUS.reason}
+            </p>
           </Stagger>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -362,6 +367,9 @@ function TravelersInner() {
                       error={err.idNumber}
                       shakeKey={shakeKey}
                       onChange={(e) => update(i, { idNumber: e.target.value, identitySource: "manual" })}
+                      onBlur={() => {
+                        if (t.idType === "aadhaar") update(i, { idNumber: maskAadhaar(t.idNumber) });
+                      }}
                     />
                   </FieldGroup>
 

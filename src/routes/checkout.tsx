@@ -349,6 +349,7 @@ function CheckoutInner() {
                   },
                 });
                 if (!result.ok) {
+                  clearSensitiveTravelers();
                   setErrors({ form: result.message });
                   pushBanner({ title: "Payment received, booking not saved", body: result.message, tone: "danger" });
                   setBusy(false);
@@ -383,6 +384,7 @@ function CheckoutInner() {
                 finishPaid(result.booking, result.stored);
                 resolve();
               } catch (err) {
+                clearSensitiveTravelers();
                 const raw = err instanceof Error ? err.message : "Booking failed";
                 if (raw === "Unauthorized") {
                   saveNext("/checkout");
@@ -404,6 +406,7 @@ function CheckoutInner() {
             },
           },
           (failure) => {
+            clearSensitiveTravelers();
             setBusy(false);
             const msg = failure?.error?.description || failure?.error?.reason || "Payment failed. Try again.";
             setErrors({ form: msg });
@@ -451,6 +454,7 @@ function CheckoutInner() {
               </div>
             ) : null}
             {errors.form ? <p className="rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">{errors.form}</p> : null}
+            <p className="text-xs text-muted">{refundPolicyFor(checkIn).label}. My trips uses this same rule after you pay.</p>
             <Button type="submit" size="lg" disabled={busy || (quote != null && !quote.available)} className="mt-2">
               <TextSwap shimmer={busy} text={busy ? "Opening Razorpay\u2026" : quote && !quote.available ? "Sold out for these nights" : `Pay ${formatMoney(total)} with Razorpay`} />
             </Button>

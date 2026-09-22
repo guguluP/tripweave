@@ -53,6 +53,7 @@ export function useCurrentUserState(): CurrentUserState {
   const session = authEnabled ? authClient.useSession() : { data: null, isPending: false };
 
   if (!authEnabled) {
+    if (import.meta.env.PROD) return { user: null, isPending: false };
     return { user: DEV_USER, isPending: false };
   }
 

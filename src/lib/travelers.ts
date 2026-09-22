@@ -64,7 +64,12 @@ function normalizeTraveler(raw: unknown): Traveler | null {
     gender: (t.gender as Gender) || "prefer_not",
     nationality: typeof t.nationality === "string" ? t.nationality : "IN",
     idType: (t.idType as IdType) || "aadhaar",
-    idNumber: typeof t.idNumber === "string" ? t.idNumber : "",
+    idNumber:
+      (t.idType as IdType) === "aadhaar"
+        ? maskAadhaar(typeof t.idNumber === "string" ? t.idNumber : "")
+        : typeof t.idNumber === "string"
+          ? t.idNumber
+          : "",
     specialRequests: typeof t.specialRequests === "string" ? t.specialRequests : "",
     emergencyName: typeof t.emergencyName === "string" ? t.emergencyName : "",
     emergencyPhone: typeof t.emergencyPhone === "string" ? t.emergencyPhone : "",
@@ -74,10 +79,23 @@ function normalizeTraveler(raw: unknown): Traveler | null {
   });
 }
 
+/** Full Aadhaar never goes to localStorage. Last 4 only. */
+export function maskAadhaar(idNumber: string): string {
+  const digits = idNumber.replace(/\D/g, "");
+  if (digits.length <= 4) return digits;
+  return digits.slice(-4);
+}
+
+export function persistTraveler(t: Traveler): Traveler {
+  if (t.idType !== "aadhaar") return t;
+  const idNumber = maskAadhaar(t.idNumber);
+  return idNumber === t.idNumber ? t : { ...t, idNumber };
+}
+
 export function saveTravelers(list: Traveler[]) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(TRAVELERS_KEY, JSON.stringify(list));
+    window.localStorage.setItem(TRAVELERS_KEY, JSON.stringify(list.map(persistTraveler)));
   } catch {
     /* ignore */
   }

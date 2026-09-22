@@ -39,7 +39,7 @@ function VoucherPage() {
         <div className="mx-auto max-w-lg px-4 py-16">
           <h1 className="font-display text-3xl">Voucher not found</h1>
           <p className="mt-3 text-sm text-muted">
-            Check the confirmation code on My trips, or open this page on the same device you paid on.
+            Sign in on the account that paid. A confirmation code does not open someone else’s voucher.
           </p>
           <Button asChild className="mt-6">
             <Link to="/trips">My trips</Link>

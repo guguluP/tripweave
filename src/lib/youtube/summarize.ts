@@ -1,6 +1,8 @@
 import type { FetchedTranscriptResult, VideoSummary } from "./types.ts";
 
-const MODEL = "grok-4.5";
+function modelId() {
+  return process.env.XAI_MODEL?.trim() || "grok-4.5";
+}
 const MAX_TRANSCRIPT_CHARS = 12_000;
 const MAX_TOKENS = 700;
 
@@ -77,7 +79,7 @@ async function chatJson(user: string): Promise<string | null> {
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: MODEL,
+      model: modelId(),
       temperature: 0.2,
       max_tokens: MAX_TOKENS,
       response_format: { type: "json_object" },

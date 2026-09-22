@@ -2,7 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { createHmac } from "node:crypto";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
+import { recordHold, releaseHoldById, roomUnits, tryReserveHold } from "@/lib/inventory";
+import { getPackage } from "@/lib/packages";
 import { computePayable, payTestAllowed } from "@/lib/server/payable";
+import { pendingHoldId as checkoutPendingId, releaseCheckoutHold, reserveCheckoutHold } from "@/lib/server/room-holds";
 
 function getKeyId() {
   return process.env.RAZORPAY_KEY_ID?.trim() || process.env.VITE_RAZORPAY_KEY_ID?.trim() || "";
@@ -123,6 +126,38 @@ async function razorpayCreateOrder(amountPaise: number, receipt: string, notes: 
   };
 }
 
+export async function fetchRazorpayPayment(paymentId: string): Promise<{
+  id: string;
+  status: string;
+  amountPaise: number;
+  amountRefundedPaise: number;
+  orderId: string | null;
+} | null> {
+  try {
+    const res = await fetch(`https://api.razorpay.com/v1/payments/${paymentId}`, {
+      headers: { Authorization: authHeader() },
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as {
+      id?: string;
+      status?: string;
+      amount?: number;
+      amount_refunded?: number;
+      order_id?: string;
+    };
+    if (!json.id || !json.status || !json.amount) return null;
+    return {
+      id: json.id,
+      status: json.status,
+      amountPaise: json.amount,
+      amountRefundedPaise: json.amount_refunded ?? 0,
+      orderId: json.order_id ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchRazorpayOrder(orderId: string): Promise<{ amountPaise: number } | null> {
   try {
     const res = await fetch(`https://api.razorpay.com/v1/orders/${orderId}`, {
@@ -141,6 +176,7 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((data: unknown) => createOrderSchema.parse(data))
   .handler(async ({ data, context }): Promise<CreateOrderResult> => {
+    let pendingHoldId = "";
     try {
       if (data.kind === "test") {
         if (!payTestAllowed()) {
@@ -176,8 +212,44 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
 
       const payable = await computePayable(data);
       if (!payable.ok) return { ok: false, message: payable.message };
+      const pkgForHold = getPackage(payable.packageId);
+      const units = pkgForHold ? roomUnits(pkgForHold, payable.roomId) : 1;
+      pendingHoldId = checkoutPendingId({
+        userId: context.userId,
+        packageId: payable.packageId,
+        roomId: payable.roomId,
+        checkIn: payable.checkIn,
+        nights: payable.nights,
+      });
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+      const holdBody = {
+        holdId: pendingHoldId,
+        packageId: payable.packageId,
+        roomId: payable.roomId,
+        checkIn: payable.checkIn,
+        nights: payable.nights,
+        status: "held" as const,
+        expiresAt,
+      };
+      const reserved = await reserveCheckoutHold({
+        ...holdBody,
+        userId: context.userId,
+        units,
+      });
+      if (reserved === "sold_out") {
+        return { ok: false, message: "Those nights just sold out. Pick another date." };
+      }
+      if (reserved === "ok") {
+        recordHold(holdBody);
+      } else if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+        return { ok: false, message: "Could not reserve this room. Try again in a moment." };
+      } else if (!tryReserveHold(holdBody)) {
+        return { ok: false, message: "Those nights just sold out. Pick another date." };
+      }
       const amountPaise = Math.round(payable.amountInr * 100);
       if (amountPaise < 100) {
+        releaseHoldById(pendingHoldId);
+        await releaseCheckoutHold({ userId: context.userId, holdId: pendingHoldId });
         return { ok: false, message: "Amount must be at least \u20b91 (100 paise)." };
       }
 
@@ -194,7 +266,21 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
           userId: context.userId,
         },
       );
-      if (!created.ok) return created;
+      if (!created.ok) {
+        releaseHoldById(pendingHoldId);
+        await releaseCheckoutHold({ userId: context.userId, holdId: pendingHoldId });
+        return created;
+      }
+      recordHold({
+        holdId: created.orderId,
+        packageId: payable.packageId,
+        roomId: payable.roomId,
+        checkIn: payable.checkIn,
+        nights: payable.nights,
+        status: "held",
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+      });
+      releaseHoldById(pendingHoldId);
 
       rememberOrder({
         orderId: created.orderId,
@@ -218,6 +304,10 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
         amountInr: payable.amountInr,
       };
     } catch (err) {
+      if (pendingHoldId) {
+        releaseHoldById(pendingHoldId);
+        await releaseCheckoutHold({ userId: context.userId, holdId: pendingHoldId });
+      }
       console.error("[razorpay] create order error", err);
       return {
         ok: false,

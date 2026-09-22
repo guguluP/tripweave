@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,12 @@ import {
   openRazorpayCheckout,
 } from "@/lib/razorpay-client";
 
-export const Route = createFileRoute("/pay-test")({ component: PayTest });
+export const Route = createFileRoute("/pay-test")({
+  beforeLoad: () => {
+    if (!import.meta.env.DEV) throw redirect({ to: "/" });
+  },
+  component: PayTest,
+});
 
 function PayTest() {
   return (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
   Check,
@@ -72,11 +72,15 @@ export function ReviewerConsensus({
   packageId,
   roomId,
   roomName,
+  onConsensus,
 }: {
   packageId: string;
   roomId?: string;
   roomName?: string;
+  onConsensus?: (consensus: PackageReviewConsensus) => void;
 }) {
+  const onConsensusRef = useRef(onConsensus);
+  onConsensusRef.current = onConsensus;
   const [data, setData] = useState<PackageReviewConsensus | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "empty" | "error">("loading");
   const [message, setMessage] = useState<string | null>(null);
@@ -119,6 +123,10 @@ export function ReviewerConsensus({
       cancelled = true;
     };
   }, [packageId]);
+
+  useEffect(() => {
+    if (data) onConsensusRef.current?.(data);
+  }, [data]);
 
   const onRefresh = async () => {
     setRefreshing(true);

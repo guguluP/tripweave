@@ -29,6 +29,7 @@ function mapSbBooking(row: SbBooking): BookingRow {
     status: row.status,
     cardLast4: row.card_last4,
     cardBrand: row.card_brand,
+    userId: row.user_id,
     payerName: row.payer_name,
     confirmationCode: row.confirmation_code,
     paymentMethod: row.payment_method ?? "card",
@@ -64,6 +65,7 @@ export type InsertBookingInput = {
   bankName: string | null;
   roomId: string;
   units: number;
+  exceptHoldIds?: string[];
 };
 
 export async function sbInsertBooking(
@@ -91,6 +93,7 @@ export async function sbInsertBooking(
     bank_name: input.bankName,
     room_id: input.roomId,
     units: input.units,
+    except_hold_ids: input.exceptHoldIds ?? [],
   };
   const reserved = await sb.rpc("tw_reserve_insert", {
     p_gate: SUPABASE_WRITE_GATE,

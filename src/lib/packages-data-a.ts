@@ -12,7 +12,15 @@ type RawRoom = Omit<RoomType, "image">;
 /** Catalog rows omit images — media is derived from each stay's curated YouTube videos. */
 export type RawStay = Omit<
   StayPackage,
-  "priceFrom" | "trustScore" | "image" | "pricePerPerson" | "images" | "rooms"
+  | "priceFrom"
+  | "trustScore"
+  | "image"
+  | "pricePerPerson"
+  | "images"
+  | "rooms"
+  | "area"
+  | "nearStation"
+  | "hasAirportTransfer"
 > & {
   rooms: RawRoom[];
 };

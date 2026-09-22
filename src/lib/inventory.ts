@@ -1,18 +1,26 @@
 /**
- * Contracted Puri allotment.
- * Each room type has a fixed number of keys TripWeave can sell.
+ * TripWeave allotment (simulated).
+ * Room counts are a catalog estimate from the room name, not a hotel contract.
  * A night is taken only when a paid or held booking covers it.
  * Festival and weekend prices are the published tariff (Rath Yatra, Diwali,
  * year-end, high season), not a demand simulation.
+ * Published festival windows run through 25 Jun 2027. Later dates say so.
  */
+export const ALLOTMENT_LABEL = "TripWeave allotment (simulated)";
+/** Last night covered by the hardcoded festival list. */
+export const FESTIVAL_CALENDAR_END = "2027-06-25";
 import { clampNights, getPackage, getRoom, stayTotal, type StayPackage } from "./packages.ts";
 
 export type OccupancyHold = {
+  /** Booking id, confirmation code, or Razorpay order id. Two guests on the same dates stay two holds. */
+  holdId?: string;
   packageId: string;
   roomId: string;
   checkIn: string;
   nights: number;
   status: string;
+  /** Checkout holds expire so an abandoned Razorpay modal does not block the room. */
+  expiresAt?: string;
 };
 
 export type NightQuote = {
@@ -71,7 +79,7 @@ function inRange(iso: string, start: string, end: string) {
   return iso >= start && iso <= end;
 }
 
-export function seasonFor(iso: string): { multiplier: number; label: string; kind: "base" | "high" | "weekend" | "festival" } {
+function seasonCore(iso: string): { multiplier: number; label: string; kind: "base" | "high" | "weekend" | "festival" } {
   for (const [start, end] of FESTIVAL) {
     if (inRange(iso, start, end)) return { multiplier: 1.45, label: "Festival", kind: "festival" };
   }
@@ -90,7 +98,18 @@ export function seasonFor(iso: string): { multiplier: number; label: string; kin
   return { multiplier: 1, label: "Standard", kind: "base" };
 }
 
-/** How many physical keys of this room type TripWeave is allowed to sell. */
+export function seasonFor(iso: string): { multiplier: number; label: string; kind: "base" | "high" | "weekend" | "festival" } {
+  const season = seasonCore(iso);
+  if (iso > FESTIVAL_CALENDAR_END && season.kind !== "festival") {
+    return { ...season, label: `${season.label} · festival calendar ends Jun 2027` };
+  }
+  return season;
+}
+
+/**
+ * Simulated key count. Suites, villas, and cottages are treated as 2 keys.
+ * This is TripWeave allotment (simulated), not a contracted hotel allotment.
+ */
 export function roomUnits(pkg: StayPackage, roomId: string): number {
   const room = getRoom(pkg, roomId);
   const suite = /suite|villa|cottage/i.test(room.name);
@@ -109,17 +128,24 @@ export function listHolds(): OccupancyHold[] {
 }
 
 export function recordHold(hold: OccupancyHold) {
-  const next = (g.__twHolds__ ?? []).filter(
-    (h) =>
-      !(
-        h.packageId === hold.packageId &&
-        h.roomId === hold.roomId &&
-        h.checkIn === hold.checkIn &&
-        h.nights === hold.nights &&
-        h.status === "paid"
-      ),
-  );
+  const next = (g.__twHolds__ ?? []).filter((h) => {
+    if (hold.holdId && h.holdId === hold.holdId) return false;
+    return true;
+  });
   g.__twHolds__ = [hold, ...next];
+}
+
+/** Check leftover keys and record a hold with no await between the two, so one isolate cannot double-sell the last key. */
+export function tryReserveHold(hold: OccupancyHold): boolean {
+  const quote = quoteStay({
+    packageId: hold.packageId,
+    roomId: hold.roomId,
+    checkIn: hold.checkIn,
+    nights: hold.nights,
+  });
+  if (!quote?.available) return false;
+  recordHold(hold);
+  return true;
 }
 
 /** Replace in-memory holds with the paid rows stored in Supabase. */
@@ -127,16 +153,29 @@ export function replacePaidHolds(holds: OccupancyHold[]) {
   g.__twHolds__ = holds.filter((h) => h.status === "paid" || h.status === "held");
 }
 
-export function releaseHold(packageId: string, roomId: string, checkIn: string, nights: number) {
-  g.__twHolds__ = (g.__twHolds__ ?? []).map((h) =>
-    h.packageId === packageId && h.roomId === roomId && h.checkIn === checkIn && h.nights === nights
+export function releaseHold(packageId: string, roomId: string, checkIn: string, nights: number, holdId?: string) {
+  g.__twHolds__ = (g.__twHolds__ ?? []).map((h) => {
+    if (holdId) return h.holdId === holdId ? { ...h, status: "cancelled" } : h;
+    return h.packageId === packageId && h.roomId === roomId && h.checkIn === checkIn && h.nights === nights
       ? { ...h, status: "cancelled" }
-      : h,
+      : h;
+  });
+}
+
+export function releaseHoldById(holdId: string) {
+  g.__twHolds__ = (g.__twHolds__ ?? []).map((h) =>
+    h.holdId === holdId ? { ...h, status: "cancelled" } : h,
   );
 }
 
-function nightsOverlap(hold: OccupancyHold, date: string) {
+function holdIsLive(hold: OccupancyHold, now = Date.now()) {
   if (hold.status !== "paid" && hold.status !== "held") return false;
+  if (hold.expiresAt && Date.parse(hold.expiresAt) <= now) return false;
+  return true;
+}
+
+function nightsOverlap(hold: OccupancyHold, date: string) {
+  if (!holdIsLive(hold)) return false;
   const holdNights = eachNight(hold.checkIn, hold.nights);
   return holdNights.includes(date);
 }
@@ -152,9 +191,9 @@ export function takenOnNight(
   const units = roomUnits(pkg, roomId);
   const seen = new Set<string>();
   let held = 0;
-  for (const h of [...listHolds(), ...extraHolds]) {
+  for (const [index, h] of [...listHolds(), ...extraHolds].entries()) {
     if (h.packageId !== packageId || h.roomId !== roomId || !nightsOverlap(h, date)) continue;
-    const key = `${h.checkIn}:${h.nights}:${h.status}`;
+    const key = h.holdId ?? `row:${index}:${h.checkIn}:${h.nights}`;
     if (seen.has(key)) continue;
     seen.add(key);
     held += 1;

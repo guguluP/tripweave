@@ -14,7 +14,7 @@ import { RoomPicker } from "@/components/room-picker";
 import { StayQuoteCard } from "@/components/stay-quote";
 import { DigiYatraPanel, TransportPanel, BusGuidePanel } from "@/components/transport-panel";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
-import { youtubeSourceCount } from "@/lib/trust-score";
+import { computeTrustScore, youtubeSourceCount } from "@/lib/trust-score";
 import {
   clampNights,
   daysForStay,
@@ -24,6 +24,7 @@ import {
   loadBrief,
   loadPending,
   nightsPhrase,
+  rememberLiveTrustScore,
   saveNext,
   savePending,
 } from "@/lib/packages";
@@ -54,6 +55,7 @@ function TripDetail() {
   const [nights, setNights] = useState(pkg?.nights ?? 1);
   const [roomId, setRoomId] = useState(pkg?.rooms[0]?.id ?? "");
   const [checkIn, setCheckIn] = useState(() => addDays(todayIso(), 1));
+  const [liveTrust, setLiveTrust] = useState<number | null>(null);
   const [travel, setTravel] = useState<TravelPlan>(EMPTY_TRAVEL);
   usePaidHolds();
 
@@ -157,7 +159,7 @@ function TripDetail() {
               {pkg.neighborhood} · {pkg.nightsMin}–{pkg.nightsMax} nights
             </p>
           </Stagger>
-          <TrustMeter score={pkg.trustScore} youtubeSources={youtubeSourceCount(pkg)} />
+          <TrustMeter score={liveTrust ?? pkg.trustScore} youtubeSources={youtubeSourceCount(pkg)} />
         </div>
 
         <p className="mt-6 text-muted">{pkg.summary}</p>
@@ -219,7 +221,16 @@ function TripDetail() {
           leftover={leftoverForRooms(pkg.id, checkIn, nights)}
         />
 
-        <ReviewerConsensus packageId={pkg.id} roomId={room.id} roomName={room.name} />
+        <ReviewerConsensus
+          packageId={pkg.id}
+          roomId={room.id}
+          roomName={room.name}
+          onConsensus={(consensus) => {
+            const score = computeTrustScore(pkg, consensus).total;
+            rememberLiveTrustScore(pkg.id, score);
+            setLiveTrust(score);
+          }}
+        />
 
         <div className="mt-10 grid gap-4">
           <TransportPanel

@@ -1,6 +1,8 @@
 -- Reservation book: paid/held bookings are the only thing that consumes a key.
 -- tw_occupancy lists those holds (no guest data).
 -- tw_reserve_insert refuses the sale when any night is already at allotment.
+-- Hold-aware replacements live in ops_durability.sql. Re-running this file
+-- after that one puts the older functions back.
 
 create or replace function public.tw_occupancy(p_gate text)
 returns jsonb
@@ -16,6 +18,7 @@ begin
   end if;
   return coalesce((
     select jsonb_agg(jsonb_build_object(
+      'holdId', b.confirmation_code,
       'packageId', b.package_id,
       'roomId', coalesce(b.swaps->>'roomId', ''),
       'checkIn', b.check_in,

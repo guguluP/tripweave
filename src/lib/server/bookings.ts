@@ -4,8 +4,25 @@ import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { charge, methodLabel, type PayMethod } from "@/lib/pay";
 import { getPackage, getRoom } from "@/lib/packages";
-import { recordHold, releaseHold, roomUnits } from "@/lib/inventory";
+import { recordHold, releaseHoldById, roomUnits } from "@/lib/inventory";
+import {
+  listReconcileJobs,
+  listRefundIntents,
+  memoryBookingsFor,
+  memoryInsertBooking,
+  memoryUpdateBooking,
+  mergeReconcileJobs,
+  refundIntentFor,
+  type ReconcileJob,
+} from "@/lib/booking-memory";
 import { computePayable, sandboxPaymentsAllowed } from "@/lib/server/payable";
+import {
+  hydrateRefundIntents,
+  loadReconcileJobs,
+  persistReconcileJob,
+  persistRefundIntent,
+} from "@/lib/server/payment-ops";
+import { holdIdsForCheckout, releaseCheckoutHold } from "@/lib/server/room-holds";
 import { writeMeta, readMeta } from "@/lib/booking-meta";
 import { deskFor } from "@/lib/hotel-desk";
 import { parseTravelPlan } from "@/lib/travel-plan";
@@ -61,6 +78,7 @@ type DbBooking = {
   status: string;
   card_last4: string | null;
   card_brand: string | null;
+  user_id?: string;
   payer_name: string;
   confirmation_code: string;
   payment_method: string | null;
@@ -92,6 +110,7 @@ function mapBooking(row: DbBooking): BookingRow {
     status: row.status,
     cardLast4: row.card_last4,
     cardBrand: row.card_brand,
+    userId: row.user_id,
     payerName: row.payer_name,
     confirmationCode: row.confirmation_code,
     paymentMethod: row.payment_method ?? "card",
@@ -102,16 +121,14 @@ function mapBooking(row: DbBooking): BookingRow {
   };
 }
 
-const g = globalThis as typeof globalThis & {
-  __twMemoryBookings__?: BookingRow[];
-  __twMemoryId__?: number;
-};
-if (!g.__twMemoryBookings__) g.__twMemoryBookings__ = [];
-if (!g.__twMemoryId__) g.__twMemoryId__ = 1;
-
 function useMemoryStore() {
   if (isSupabaseConfigured()) return false;
   return shouldSkipNeon() || Boolean(process.env.VERCEL);
+}
+
+/** Production must not tell the guest they are booked when the durable insert failed. */
+function failClosedAfterCapture() {
+  return isSupabaseConfigured() || process.env.VERCEL_ENV === "production";
 }
 
 function makeCode() {
@@ -123,37 +140,37 @@ function makeCode() {
   return out;
 }
 
-function rememberBooking(booking: BookingRow): BookingRow {
-  g.__twMemoryBookings__ = [booking, ...(g.__twMemoryBookings__ ?? [])];
-  return booking;
-}
-
-function memoryBooking(input: Omit<BookingRow, "id" | "createdAt"> & { createdAt?: string }): BookingRow {
-  const booking: BookingRow = {
-    ...input,
-    id: (g.__twMemoryId__ = (g.__twMemoryId__ ?? 1) + 1) - 1,
-    createdAt: input.createdAt ?? new Date().toISOString(),
-  };
-  return rememberBooking(booking);
-}
-
-function memoryForUser(userId: string) {
-  return (g.__twMemoryBookings__ ?? []).filter((b) => b.userId === userId);
+function applyRefundIntents(userId: string, rows: BookingRow[]): BookingRow[] {
+  const open = new Map(listRefundIntents(userId).map((intent) => [intent.bookingId, intent]));
+  return rows.map((row) => {
+    const intent = open.get(row.id);
+    if (!intent || intent.status === "applied") return row;
+    if (row.status === "paid" || row.status === "held" || row.status === "confirmed") {
+      return { ...row, status: "refund_pending" };
+    }
+    return row;
+  });
 }
 
 export const listBookings = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
+    try {
+      await hydrateRefundIntents(context.userId);
+      await drainReconcileJobs(context.userId);
+    } catch (err) {
+      console.error("[bookings] ops hydrate", err);
+    }
     if (isSupabaseConfigured()) {
       try {
         const rows = await sbListBookings(context.userId);
-        if (rows) return rows;
+        if (rows) return applyRefundIntents(context.userId, rows.map((row) => ({ ...row, userId: row.userId ?? context.userId })));
       } catch (err) {
         if (isDurableDbError(err)) markDurableDbFailed(err);
         console.error("[bookings] supabase list failed", err);
       }
     }
-    if (useMemoryStore()) return memoryForUser(context.userId);
+    if (useMemoryStore()) return applyRefundIntents(context.userId, memoryBookingsFor(context.userId));
     try {
       const sql = await getSql();
       const rows = await sql<DbBooking>`
@@ -164,10 +181,10 @@ export const listBookings = createServerFn({ method: "GET" })
         where user_id = ${context.userId}
         order by created_at desc
       `;
-      return rows.map(mapBooking);
+      return applyRefundIntents(context.userId, rows.map((row) => mapBooking({ ...row, user_id: context.userId })));
     } catch (err) {
       markDurableDbFailed(err);
-      return memoryForUser(context.userId);
+      return applyRefundIntents(context.userId, memoryBookingsFor(context.userId));
     }
   });
 
@@ -190,6 +207,295 @@ const createSchema = z.object({
   razorpayPaymentId: z.string().optional(),
   razorpaySignature: z.string().optional(),
 });
+
+type CaptureLocal = Omit<BookingRow, "id" | "createdAt">;
+type StoredPayload = CaptureLocal & {
+  roomId?: string;
+  units?: number;
+  exceptHoldIds?: string[];
+};
+
+function parsePayload(job: ReconcileJob): StoredPayload | null {
+  try {
+    return JSON.parse(job.payloadJson) as StoredPayload;
+  } catch {
+    return null;
+  }
+}
+
+async function touchJob(id: string, patch: Partial<ReconcileJob>) {
+  const current = listReconcileJobs().find((row) => row.id === id);
+  if (!current) return;
+  await persistReconcileJob({ ...current, ...patch, updatedAt: new Date().toISOString() });
+}
+
+function asBooking(value: unknown): BookingRow | null {
+  let row: Record<string, unknown> | null = null;
+  if (typeof value === "string") {
+    try {
+      row = JSON.parse(value) as Record<string, unknown>;
+    } catch {
+      return null;
+    }
+  } else if (value && typeof value === "object") {
+    row = value as Record<string, unknown>;
+  }
+  if (!row || row.id == null) return null;
+  const swaps = typeof row.swaps === "string" ? row.swaps : JSON.stringify(row.swaps ?? {});
+  return mapBooking({
+    id: Number(row.id),
+    package_id: String(row.package_id),
+    package_name: String(row.package_name),
+    nights: Number(row.nights),
+    travelers: Number(row.travelers),
+    check_in: String(row.check_in).slice(0, 10),
+    amount_inr: Number(row.amount_inr),
+    swaps,
+    status: String(row.status),
+    card_last4: row.card_last4 == null ? null : String(row.card_last4),
+    card_brand: row.card_brand == null ? null : String(row.card_brand),
+    user_id: row.user_id == null ? undefined : String(row.user_id),
+    payer_name: String(row.payer_name),
+    confirmation_code: String(row.confirmation_code),
+    payment_method: row.payment_method == null ? null : String(row.payment_method),
+    payment_ref: row.payment_ref == null ? null : String(row.payment_ref),
+    upi_handle: row.upi_handle == null ? null : String(row.upi_handle),
+    bank_name: row.bank_name == null ? null : String(row.bank_name),
+    created_at: String(row.created_at),
+  });
+}
+
+function neonWire(
+  local: CaptureLocal,
+  userId: string,
+  roomId: string,
+  units: number,
+  exceptHoldIds: string[],
+) {
+  return {
+    user_id: local.userId || userId,
+    package_id: local.packageId,
+    package_name: local.packageName,
+    nights: local.nights,
+    travelers: local.travelers,
+    check_in: local.checkIn,
+    amount_inr: local.amountInr,
+    swaps: local.swaps,
+    status: local.status,
+    card_last4: local.cardLast4,
+    card_brand: local.cardBrand,
+    payer_name: local.payerName,
+    confirmation_code: local.confirmationCode,
+    payment_method: local.paymentMethod,
+    payment_ref: local.paymentRef,
+    upi_handle: local.upiHandle,
+    bank_name: local.bankName,
+    room_id: roomId,
+    units,
+    except_hold_ids: exceptHoldIds,
+  };
+}
+
+async function insertNeonBooking(
+  payload: Record<string, unknown>,
+): Promise<{ ok: true; booking: BookingRow } | { ok: false; soldOut: boolean; missing: boolean }> {
+  try {
+    const sql = await getSql();
+    const rows = await sql.query<{ booking: unknown }>("select tw_reserve_booking($1::jsonb) as booking", [
+      JSON.stringify(payload),
+    ]);
+    const booking = asBooking(rows[0]?.booking);
+    if (!booking) return { ok: false, soldOut: false, missing: false };
+    return { ok: true, booking };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (/sold_out/i.test(message)) return { ok: false, soldOut: true, missing: false };
+    if (/42883|does not exist|tw_reserve_booking/i.test(message)) {
+      return { ok: false, soldOut: false, missing: true };
+    }
+    throw err;
+  }
+}
+
+async function insertCapturedBooking(job: ReconcileJob, payload: StoredPayload): Promise<BookingRow | null> {
+  const roomId = payload.roomId || readMeta(payload.swaps).roomId || "";
+  const units = payload.units || 1;
+  const exceptHoldIds = payload.exceptHoldIds ?? [];
+  if (isSupabaseConfigured()) {
+    return sbInsertBooking({
+      userId: payload.userId || job.userId,
+      packageId: payload.packageId,
+      packageName: payload.packageName,
+      nights: payload.nights,
+      travelers: payload.travelers,
+      checkIn: payload.checkIn,
+      amountInr: payload.amountInr,
+      swaps: payload.swaps,
+      status: payload.status,
+      cardLast4: payload.cardLast4,
+      cardBrand: payload.cardBrand,
+      payerName: payload.payerName,
+      confirmationCode: payload.confirmationCode,
+      paymentMethod: payload.paymentMethod,
+      paymentRef: payload.paymentRef,
+      upiHandle: payload.upiHandle,
+      bankName: payload.bankName,
+      roomId,
+      units,
+      exceptHoldIds,
+    });
+  }
+  if (shouldSkipNeon()) throw new Error("no durable store");
+  const neon = await insertNeonBooking(neonWire(payload, job.userId, roomId, units, exceptHoldIds));
+  if (neon.soldOut) throw new Error("sold_out");
+  if (!neon.ok) throw new Error(neon.missing ? "no durable store" : "insert returned empty");
+  return neon.booking;
+}
+
+async function releasePayloadHolds(userId: string, exceptHoldIds: string[] | undefined) {
+  for (const id of exceptHoldIds ?? []) {
+    releaseHoldById(id);
+    await releaseCheckoutHold({ userId, holdId: id });
+  }
+}
+
+async function compensateSoldOut(job: ReconcileJob, amountInr: number): Promise<string> {
+  const payload = parsePayload(job);
+  await releasePayloadHolds(job.userId, payload?.exceptHoldIds);
+  const paymentId = job.paymentId;
+  if (!paymentId.startsWith("pay_")) {
+    await touchJob(job.id, { state: "failed", lastError: "sold_out" });
+    return `Payment ${paymentId} was captured, but those nights are sold out and the stay is not confirmed. Do not pay again.`;
+  }
+  const { fetchRazorpayPayment, refundRazorpayPayment } = await import("@/lib/server/razorpay");
+  const payment = await fetchRazorpayPayment(paymentId);
+  const already = (payment?.amountRefundedPaise ?? 0) >= Math.round(amountInr * 100);
+  if (already) {
+    await touchJob(job.id, { state: "refunded", lastError: "sold_out" });
+    return "Those nights sold out after payment. The charge was sent back. The stay is not confirmed.";
+  }
+  const refunded = await refundRazorpayPayment(paymentId, amountInr);
+  if (refunded.ok) {
+    await touchJob(job.id, { state: "refunded", lastError: "sold_out" });
+    return `Those nights sold out after payment. ₹${amountInr.toLocaleString("en-IN")} was sent back. The stay is not confirmed.`;
+  }
+  await touchJob(job.id, { state: "queued", lastError: "sold_out" });
+  return `Payment ${paymentId} was captured, but those nights are sold out and the stay is not confirmed. Automatic refund failed. Do not pay again. Quote ${paymentId} to the desk.`;
+}
+
+async function runReconcileJob(job: ReconcileJob): Promise<BookingRow | null> {
+  if (job.state === "done" || job.state === "refunded" || job.state === "failed") return null;
+  if (job.lastError?.includes("sold_out")) return null;
+  const attempt = job.attempts + 1;
+  await touchJob(job.id, { attempts: attempt });
+  const payload = parsePayload(job);
+  if (!payload) {
+    await touchJob(job.id, { lastError: "bad payload", state: "failed" });
+    return null;
+  }
+  const { fetchRazorpayPayment } = await import("@/lib/server/razorpay");
+  const payment = await fetchRazorpayPayment(job.paymentId);
+  if (!payment || (payment.status !== "captured" && payment.status !== "authorized")) {
+    await touchJob(job.id, {
+      lastError: payment ? `status ${payment.status}` : "payment lookup failed",
+    });
+    return null;
+  }
+  try {
+    const booking = await insertCapturedBooking(job, payload);
+    if (!booking) {
+      await touchJob(job.id, {
+        lastError: "insert returned empty",
+        state: attempt >= 5 ? "failed" : "queued",
+      });
+      return null;
+    }
+    const roomId = payload.roomId || readMeta(payload.swaps).roomId || "";
+    if (roomId) {
+      recordHold({
+        holdId: booking.confirmationCode,
+        packageId: booking.packageId,
+        roomId,
+        checkIn: booking.checkIn,
+        nights: booking.nights,
+        status: "paid",
+      });
+    }
+    await touchJob(job.id, { lastError: undefined, state: "done" });
+    return { ...booking, userId: job.userId };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "insert failed";
+    if (message.includes("sold_out")) {
+      await touchJob(job.id, { lastError: "sold_out" });
+      return null;
+    }
+    await touchJob(job.id, { lastError: message, state: attempt >= 5 ? "failed" : "queued" });
+    console.error("[bookings] reconcile insert failed", err);
+    return null;
+  }
+}
+
+async function drainReconcileJobs(userId: string) {
+  const loaded = await loadReconcileJobs(userId);
+  if (loaded) mergeReconcileJobs(loaded);
+  const now = Date.now();
+  for (const job of listReconcileJobs()) {
+    if (job.userId !== userId || job.state !== "queued") continue;
+    if (job.attempts >= 5) continue;
+    if (job.lastError?.includes("sold_out")) {
+      const payload = parsePayload(job);
+      await compensateSoldOut(job, Number(payload?.amountInr ?? 0));
+      continue;
+    }
+    if (job.attempts > 0 && now - Date.parse(job.updatedAt) < 60_000) continue;
+    await runReconcileJob(job);
+  }
+}
+
+async function queueCaptureReconcile(input: {
+  userId: string;
+  paymentId: string;
+  orderId: string | null;
+  local: CaptureLocal;
+  roomId: string;
+  units: number;
+  exceptHoldIds: string[];
+}): Promise<CreateBookingResult> {
+  const now = new Date().toISOString();
+  const job: ReconcileJob = {
+    id: `rec_${input.paymentId}`,
+    userId: input.userId,
+    paymentId: input.paymentId,
+    orderId: input.orderId,
+    attempts: 0,
+    createdAt: now,
+    updatedAt: now,
+    state: "queued",
+    payloadJson: JSON.stringify({
+      ...input.local,
+      roomId: input.roomId,
+      units: input.units,
+      exceptHoldIds: input.exceptHoldIds,
+    }),
+  };
+  const saved = await persistReconcileJob(job);
+  const booking = await runReconcileJob(job);
+  if (booking) return { ok: true, booking, stored: isSupabaseConfigured() ? "supabase" : "local" };
+  const current = listReconcileJobs().find((row) => row.id === job.id);
+  if (current?.lastError?.includes("sold_out")) {
+    return { ok: false, message: await compensateSoldOut(current, input.local.amountInr) };
+  }
+  if (!saved) {
+    return {
+      ok: false,
+      message: `Payment ${input.paymentId} was captured, but the stay is not confirmed and the retry could not be saved. Do not pay again. Quote payment ${input.paymentId} to the desk.`,
+    };
+  }
+  return {
+    ok: false,
+    message: `Payment ${input.paymentId} was captured, but the stay is not saved yet. A retry is queued. Do not pay again — check My trips in a few minutes.`,
+  };
+}
 
 export const createBooking = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
@@ -311,6 +617,54 @@ export const createBooking = createServerFn({ method: "POST" })
       bankName: paid.bank,
     };
 
+    const holdBase = {
+      packageId: pkg.id,
+      roomId: room.id,
+      checkIn: data.checkIn,
+      nights,
+      status: "paid" as const,
+    };
+    const checkoutHoldIds = holdIdsForCheckout({
+      userId: context.userId,
+      packageId: pkg.id,
+      roomId: room.id,
+      checkIn: data.checkIn,
+      nights,
+      orderId: data.razorpayOrderId,
+    });
+    const freeCheckoutHolds = async () => {
+      for (const id of checkoutHoldIds) {
+        releaseHoldById(id);
+        await releaseCheckoutHold({ userId: context.userId, holdId: id });
+      }
+    };
+    const queuedCapture = () =>
+      queueCaptureReconcile({
+        userId: context.userId,
+        paymentId: paid.ref,
+        orderId: data.razorpayOrderId ?? null,
+        local,
+        roomId: room.id,
+        units: roomUnits(pkg, room.id),
+        exceptHoldIds: checkoutHoldIds,
+      });
+
+    const finishStored = async (booking: BookingRow, stored: "supabase" | "local") => {
+      await freeCheckoutHolds();
+      recordHold({ ...holdBase, holdId: booking.confirmationCode });
+      if (stored === "supabase") {
+        await sbInsertPaymentEvent({
+          userId: context.userId,
+          bookingId: booking.id,
+          eventType: "captured",
+          orderId: data.razorpayOrderId ?? null,
+          paymentId: paid.ref,
+          payload: { method: paid.method, confirmation: code },
+        });
+      }
+      return { ok: true as const, booking, stored };
+    };
+
     if (isSupabaseConfigured()) {
       try {
         const booking = await sbInsertBooking({
@@ -318,41 +672,45 @@ export const createBooking = createServerFn({ method: "POST" })
           ...local,
           roomId: room.id,
           units: roomUnits(pkg, room.id),
+          exceptHoldIds: checkoutHoldIds,
         });
-        if (booking) {
-          recordHold({
-            packageId: pkg.id,
-            roomId: room.id,
-            checkIn: data.checkIn,
-            nights,
-            status: "paid",
-          });
-          await sbInsertPaymentEvent({
-            userId: context.userId,
-            bookingId: booking.id,
-            eventType: "captured",
-            orderId: data.razorpayOrderId ?? null,
-            paymentId: paid.ref,
-            payload: { method: paid.method, confirmation: code },
-          });
-          return { ok: true, booking, stored: "supabase" };
-        }
+        if (booking) return await finishStored({ ...booking, userId: context.userId }, "supabase");
       } catch (err) {
         const message = err instanceof Error ? err.message : "";
         if (message.includes("sold_out")) {
+          if (paid.method === "razorpay" && failClosedAfterCapture()) return queuedCapture();
+          await freeCheckoutHolds();
           return { ok: false, message: "Those nights are sold out for this room. Pick another date." };
         }
         if (isDurableDbError(err)) markDurableDbFailed(err);
-        console.error("[bookings] supabase insert failed, keeping confirmation", err);
+        console.error("[bookings] supabase insert failed", err);
       }
+      if (paid.method === "razorpay" && failClosedAfterCapture()) return queuedCapture();
     }
 
     if (useMemoryStore()) {
-      recordHold({ packageId: pkg.id, roomId: room.id, checkIn: data.checkIn, nights, status: "paid" });
-      return { ok: true, booking: memoryBooking(local), stored: "local" };
+      if (paid.method === "razorpay" && failClosedAfterCapture()) return queuedCapture();
+      await freeCheckoutHolds();
+      recordHold({ ...holdBase, holdId: code });
+      return { ok: true, booking: memoryInsertBooking(local), stored: "local" };
     }
 
     try {
+      const neon = await insertNeonBooking(
+        neonWire(local, context.userId, room.id, roomUnits(pkg, room.id), checkoutHoldIds),
+      );
+      if (neon.ok) return await finishStored(neon.booking, "local");
+      if (neon.soldOut) {
+        if (paid.method === "razorpay" && failClosedAfterCapture()) return queuedCapture();
+        await freeCheckoutHolds();
+        return { ok: false, message: "Those nights are sold out for this room. Pick another date." };
+      }
+      if (!neon.missing) {
+        if (paid.method === "razorpay" && failClosedAfterCapture()) return queuedCapture();
+        await freeCheckoutHolds();
+        recordHold({ ...holdBase, holdId: code });
+        return { ok: true, booking: memoryInsertBooking(local), stored: "local" };
+      }
       const sql = await getSql();
       const swapsJson = JSON.stringify(local.swaps);
       const rows = await sql<DbBooking>`
@@ -371,13 +729,19 @@ export const createBooking = createServerFn({ method: "POST" })
                   payment_method, payment_ref, upi_handle, bank_name, created_at
       `;
       const row = rows[0];
-      recordHold({ packageId: pkg.id, roomId: room.id, checkIn: data.checkIn, nights, status: "paid" });
-      if (!row) return { ok: true, booking: memoryBooking(local), stored: "local" };
-      return { ok: true, booking: mapBooking(row), stored: "local" };
+      if (!row) {
+        if (paid.method === "razorpay" && failClosedAfterCapture()) return queuedCapture();
+        await freeCheckoutHolds();
+        recordHold({ ...holdBase, holdId: code });
+        return { ok: true, booking: memoryInsertBooking(local), stored: "local" };
+      }
+      return await finishStored(mapBooking({ ...row, user_id: context.userId }), "local");
     } catch (err) {
       markDurableDbFailed(err);
-      recordHold({ packageId: pkg.id, roomId: room.id, checkIn: data.checkIn, nights, status: "paid" });
-      return { ok: true, booking: memoryBooking(local), stored: "local" };
+      if (paid.method === "razorpay" && failClosedAfterCapture()) return queuedCapture();
+      await freeCheckoutHolds();
+      recordHold({ ...holdBase, holdId: code });
+      return { ok: true, booking: memoryInsertBooking(local), stored: "local" };
     }
   });
 
@@ -389,17 +753,23 @@ export const cancelBooking = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((id: number) => id)
   .handler(async ({ context, data: id }): Promise<CancelResult> => {
-    let rows: BookingRow[] = memoryForUser(context.userId);
+    try {
+      await hydrateRefundIntents(context.userId);
+    } catch (err) {
+      console.error("[bookings] refund hydrate", err);
+    }
+    let rows: BookingRow[] = memoryBookingsFor(context.userId);
     if (isSupabaseConfigured()) {
       try {
         const cloud = await sbListBookings(context.userId);
-        if (cloud?.length) rows = cloud;
+        if (cloud?.length) rows = cloud.map((row) => ({ ...row, userId: row.userId ?? context.userId }));
       } catch {
         /* memory */
       }
     }
     const target = rows.find((b) => b.id === id);
-    if (!target || (target.status !== "paid" && target.status !== "held" && target.status !== "confirmed")) {
+    const openStatus = target?.status === "paid" || target?.status === "held" || target?.status === "confirmed" || target?.status === "refund_pending";
+    if (!target || !openStatus) {
       return { ok: false, message: "That stay is not open to cancel." };
     }
     if (target.userId && target.userId !== context.userId) {
@@ -412,13 +782,41 @@ export const cancelBooking = createServerFn({ method: "POST" })
       return { ok: false, message: policy.label };
     }
 
-    let refundId: string | undefined;
+    const prior = refundIntentFor(context.userId, id);
+    let refundId = prior?.refundId;
     const ref = target.paymentRef ?? "";
-    if (target.paymentMethod === "razorpay" && ref.startsWith("pay_")) {
-      const { refundRazorpayPayment } = await import("@/lib/server/razorpay");
-      const refunded = await refundRazorpayPayment(ref, amount);
-      if (!refunded.ok) return { ok: false, message: refunded.message };
-      refundId = refunded.refundId;
+    const intentBase = {
+      id: prior?.id ?? `refund_${context.userId}_${id}`,
+      userId: context.userId,
+      bookingId: id,
+      paymentRef: ref,
+      amountInr: amount,
+      createdAt: prior?.createdAt ?? new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    const durableRequired = isSupabaseConfigured() || process.env.VERCEL_ENV === "production";
+    const pendingSaved = await persistRefundIntent({
+      ...intentBase,
+      status: prior?.status === "gateway_done" || prior?.status === "applied" ? prior.status : "pending",
+      refundId,
+    });
+    if (!pendingSaved && durableRequired && prior?.status !== "gateway_done" && prior?.status !== "applied") {
+      return { ok: false, message: "Could not record the refund. Nothing was sent back. Try again." };
+    }
+
+    if (target.paymentMethod === "razorpay" && ref.startsWith("pay_") && prior?.status !== "gateway_done" && prior?.status !== "applied") {
+      const { fetchRazorpayPayment, refundRazorpayPayment } = await import("@/lib/server/razorpay");
+      const payment = await fetchRazorpayPayment(ref);
+      const already = (payment?.amountRefundedPaise ?? 0) >= Math.round(amount * 100);
+      if (already) {
+        refundId = refundId ?? "already_refunded";
+        await persistRefundIntent({ ...intentBase, status: "gateway_done", refundId });
+      } else {
+        const refunded = await refundRazorpayPayment(ref, amount);
+        if (!refunded.ok) return { ok: false, message: refunded.message };
+        refundId = refunded.refundId;
+        await persistRefundIntent({ ...intentBase, status: "gateway_done", refundId });
+      }
     }
 
     const status = "refunded";
@@ -427,15 +825,12 @@ export const cancelBooking = createServerFn({ method: "POST" })
       refundAmount: amount,
       refundedAt: new Date().toISOString(),
     });
-    target.status = status;
-    target.swaps = meta;
+    memoryUpdateBooking(context.userId, id, { status, swaps: meta });
+    releaseHoldById(target.confirmationCode);
     const roomId = readMeta(meta).roomId ?? "";
-    if (roomId) releaseHold(target.packageId, roomId, target.checkIn, target.nights);
+    if (roomId) releaseHoldById(`${target.packageId}:${roomId}:${target.checkIn}`);
 
-    g.__twMemoryBookings__ = (g.__twMemoryBookings__ ?? []).map((b) =>
-      b.id === id ? { ...b, status, swaps: meta } : b,
-    );
-
+    let statusSaved = true;
     if (isSupabaseConfigured()) {
       try {
         await sbCancelBooking(context.userId, id, { status, swaps: meta });
@@ -447,6 +842,7 @@ export const cancelBooking = createServerFn({ method: "POST" })
           payload: { amount, refundId, confirmation: target.confirmationCode },
         });
       } catch (err) {
+        statusSaved = false;
         if (isDurableDbError(err)) markDurableDbFailed(err);
         console.error("[bookings] supabase cancel failed", err);
       }
@@ -457,13 +853,22 @@ export const cancelBooking = createServerFn({ method: "POST" })
         await sql`
           update bookings
           set status = ${status}, swaps = ${swapsJson}
-          where id = ${id} and user_id = ${context.userId} and status in ('paid', 'held')
+          where id = ${id} and user_id = ${context.userId} and status in ('paid', 'held', 'confirmed')
         `;
       } catch (err) {
+        statusSaved = false;
         markDurableDbFailed(err);
       }
     }
 
+    if (!statusSaved) {
+      return {
+        ok: false,
+        message: `₹${amount.toLocaleString("en-IN")} was sent back, but the stay status did not update. It will show as refund pending. Do not request another refund.`,
+      };
+    }
+
+    await persistRefundIntent({ ...intentBase, status: "applied", refundId });
     return {
       ok: true,
       status,

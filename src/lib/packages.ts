@@ -5,6 +5,7 @@ import { RAW } from "./packages-data.ts";
 import { getOrigin, type ArriveBy, type OriginId } from "./origins.ts";
 
 export type Vibe = "culture" | "beach" | "relax" | "adventure";
+export type StayArea = "konark" | "marine" | "grand-road";
 export type Budget = "value" | "mid" | "premium";
 export type TravelStyle = "solo" | "couple" | "family" | "friends";
 
@@ -65,6 +66,10 @@ export type StayPackage = {
   videos: PropertyVideo[];
   rooms: RoomType[];
   neighborhood: string;
+  /** Explicit place flags. Ranking must not infer these from the hotel name. */
+  area: StayArea;
+  nearStation: boolean;
+  hasAirportTransfer: boolean;
   includes: string[];
   days: DayPlan[];
 };
@@ -132,11 +137,41 @@ const LEISURE_DAY: DayPlan = {
   options: [{ id: "konark", label: "Konark half-day", delta: 1600 }],
 };
 
+/**
+ * Place flags are written here, not guessed from the name.
+ * "Waves" is marine because it sits on Chakratirtha, not because of the word.
+ * "Regenta" is grand-road because it is beside the temple, not because of the brand.
+ */
+const STAY_PLACES: Record<string, { area: StayArea; nearStation: boolean; hasAirportTransfer: boolean }> = {
+  "taj-puri-resort-spa": { area: "marine", nearStation: false, hasAirportTransfer: true },
+  "mayfair-heritage-puri": { area: "marine", nearStation: false, hasAirportTransfer: false },
+  "swosti-premium-beach-resort": { area: "marine", nearStation: false, hasAirportTransfer: false },
+  "regenta-central-puri": { area: "grand-road", nearStation: false, hasAirportTransfer: false },
+  "hans-coco-palms": { area: "marine", nearStation: false, hasAirportTransfer: false },
+  "empires-hotel-puri": { area: "grand-road", nearStation: false, hasAirportTransfer: false },
+  "mayfair-waves-puri": { area: "marine", nearStation: false, hasAirportTransfer: false },
+  "toshali-sands-puri": { area: "konark", nearStation: false, hasAirportTransfer: false },
+  "chariot-resort-puri": { area: "marine", nearStation: false, hasAirportTransfer: false },
+  "chanakya-bnr-puri": { area: "grand-road", nearStation: true, hasAirportTransfer: false },
+  "mahodadhi-palace-puri": { area: "marine", nearStation: false, hasAirportTransfer: false },
+  "holiday-resort-puri": { area: "marine", nearStation: false, hasAirportTransfer: false },
+};
+
+const liveTrustScores = new Map<string, number>();
+
+/** After a YouTube rebuild, list and detail meters share this score for the session. */
+export function rememberLiveTrustScore(packageId: string, score: number) {
+  liveTrustScores.set(packageId, score);
+}
+
 export const PACKAGES: StayPackage[] = RAW.map((p) => {
+  const place = STAY_PLACES[p.id];
+  if (!place) throw new Error(`Missing place flags for ${p.id}`);
   // Media is property-owned and vendored under /stays — not YouTube thumbs.
   const media = attachPropertyMedia(p);
   const base = {
     ...p,
+    ...place,
     ...media,
     pricePerPerson: p.pricePerNight * p.nights,
     priceFrom: p.pricePerNight,
@@ -152,8 +187,11 @@ export const PACKAGES: StayPackage[] = RAW.map((p) => {
 
 function withCatalog(pkg: StayPackage): StayPackage {
   const overlay = overlayFor(pkg.id);
-  if (!overlay) return pkg;
   let next = pkg;
+  if (!overlay) {
+    const liveOnly = liveTrustScores.get(pkg.id);
+    return liveOnly == null ? pkg : { ...pkg, trustScore: liveOnly };
+  }
   if (overlay.pricePerNight && overlay.pricePerNight > 0) {
     next = {
       ...next,
@@ -178,10 +216,8 @@ function withCatalog(pkg: StayPackage): StayPackage {
       })),
     };
   }
-  if (overlay.guestCount && overlay.guestRating) {
-    const guest = (overlay.guestRating / 5) * 100;
-    next = { ...next, trustScore: Math.min(100, Math.round(next.trustScore * 0.7 + guest * 0.3)) };
-  }
+  const live = liveTrustScores.get(pkg.id);
+  if (live != null) next = { ...next, trustScore: live };
   return next;
 }
 
@@ -250,15 +286,12 @@ export function stayTotal(
 }
 
 export function originTraits(pkg: StayPackage) {
-  const blob = `${pkg.id} ${pkg.neighborhood} ${pkg.includes.join(" ")}`.toLowerCase();
   return {
-    temple: /jagannath|grand road|station|railway|chanakya|empires|regenta/.test(blob),
-    beach:
-      /beach|balukhand|marine|baliapanda|chakratirtha|coco|chariot|holiday|mahodadhi|swosti|waves|heritage/.test(
-        blob,
-      ),
-    far: /toshali|konark/.test(blob),
-    airportTransfer: /airport transfer/.test(blob),
+    temple: pkg.area === "grand-road",
+    beach: pkg.area === "marine",
+    far: pkg.area === "konark",
+    airportTransfer: pkg.hasAirportTransfer,
+    nearStation: pkg.nearStation,
   };
 }
 
@@ -342,7 +375,12 @@ export function rankingBlurb(brief: Brief): string {
   return `Ranked for a ${brief.arriveBy} trip from ${city}.`;
 }
 
-export function matchPackages(brief: Brief) {
+/** Below this, the short list still returns three stays but labels them weak. */
+export const WEAK_MATCH_BELOW = 4;
+
+export type MatchedStay = StayPackage & { matchScore: number; weakMatch: boolean };
+
+export function matchPackages(brief: Brief): MatchedStay[] {
   const scored = listPackages().map((p) => {
     let score = 0;
     if (p.vibe === brief.vibe) score += 4;
@@ -360,7 +398,7 @@ export function matchPackages(brief: Brief) {
       }
     }
     score += originFitScore(p, brief);
-    return { ...p, matchScore: score };
+    return { ...p, matchScore: score, weakMatch: score < WEAK_MATCH_BELOW };
   });
   return scored
     .sort((a, b) => b.matchScore - a.matchScore || b.trustScore - a.trustScore)

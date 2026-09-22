@@ -139,7 +139,7 @@ function Home() {
           {
             icon: Wallet,
             title: "All-in rupees",
-            body: "The price you see is the price you pay — extras are optional swaps.",
+            body: "Checkout charges the seasonal rate for your dates. A card with no date shows the catalog rate.",
           },
           {
             icon: Landmark,

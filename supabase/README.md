@@ -18,6 +18,8 @@ Login stays **Better Auth** (Google + email). Do not switch to Supabase Auth.
 
 Dashboard → [SQL Editor](https://supabase.com/dashboard/project/csegihiepvxezuypsvop/sql/new) → paste [`schema.sql`](schema.sql) → Run.
 
+Then paste [`ops_durability.sql`](ops_durability.sql) → Run. That file is safe to re-run. It stores room holds, payment reconcile jobs, and refund intents. Checkout on the live site reserves a room through those functions.
+
 ## 2. Keys on the live site
 
 [API settings](https://supabase.com/dashboard/project/csegihiepvxezuypsvop/settings/api) → copy into **Vercel → tripweave-web → Environment Variables** (Production + Preview):

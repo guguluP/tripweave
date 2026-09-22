@@ -68,7 +68,7 @@ export function RoomPicker({
                   {left
                     ? soldOut
                       ? " · sold out"
-                      : ` · ${left.remaining} left`
+                      : ` · ${left.remaining} left · simulated`
                     : ""}
                 </span>
                 <span

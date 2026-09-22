@@ -11,10 +11,12 @@ import {
   listPackages,
   RANK_LABELS,
   loadBrief,
+  loadPending,
   matchPackages,
   originFitReason,
   rankingBlurb,
   type Brief,
+  type MatchedStay,
   type StayPackage,
 } from "@/lib/packages";
 import { useSavedIds } from "@/lib/saved";
@@ -36,7 +38,8 @@ function headingFor(tab: Tab, count: number) {
 function Matches() {
   const [ready, setReady] = useState(false);
   const [brief, setBrief] = useState<Brief>(DEFAULT_BRIEF);
-  const [matches, setMatches] = useState<StayPackage[]>([]);
+  const [matches, setMatches] = useState<MatchedStay[]>([]);
+  const [checkIn, setCheckIn] = useState<string | undefined>();
   const [tab, setTab] = useState<Tab>("matches");
   const [query, setQuery] = useState("");
   const [plannerOpen, setPlannerOpen] = useState(false);
@@ -47,6 +50,7 @@ function Matches() {
     const b = loadBrief();
     setBrief(b);
     setMatches(matchPackages(b));
+    setCheckIn(loadPending()?.checkIn);
     setLastMileByPackage(loadTravelDraft().lastMileByPackage);
     setReady(true);
   }, []);
@@ -140,8 +144,15 @@ function Matches() {
                 <PackageCard
                   key={pkg.id}
                   pkg={pkg}
-                  rank={tab === "matches" && !query ? RANK_LABELS[i] : undefined}
+                  rank={
+                    tab === "matches" && !query
+                      ? "weakMatch" in pkg && pkg.weakMatch
+                        ? "Weak match"
+                        : RANK_LABELS[i]
+                      : undefined
+                  }
                   nights={brief.nights}
+                  checkIn={checkIn}
                   originWhy={
                     tab === "matches" && !query ? originFitReason(pkg, brief) : undefined
                   }

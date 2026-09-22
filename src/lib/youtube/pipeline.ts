@@ -55,10 +55,8 @@ export async function loadConsensus(packageId: string): Promise<PackageReviewCon
   }
   const cooledUntil = cool.__twConsensusCool__!.get(packageId) ?? 0;
   if (isXaiConfigured() && Date.now() > cooledUntil) {
+    cool.__twConsensusCool__!.set(packageId, Date.now() + COOLDOWN_MS);
     const live = await rebuildConsensus(packageId);
-    if (live.origin !== "live") {
-      cool.__twConsensusCool__!.set(packageId, Date.now() + COOLDOWN_MS);
-    }
     return live;
   }
   if (cached) return attachRoomNotes(packageId, cached);

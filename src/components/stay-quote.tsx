@@ -1,5 +1,5 @@
 import { formatMoney } from "@/lib/packages";
-import { type StayQuote } from "@/lib/inventory";
+import { ALLOTMENT_LABEL, type StayQuote } from "@/lib/inventory";
 import { cn } from "@/lib/utils";
 
 export function StayQuoteCard({
@@ -32,8 +32,8 @@ export function StayQuoteCard({
         <div className="mt-4">
           <p className="text-sm text-muted">
             {quote.available
-              ? `${quote.remaining} of ${quote.units} ${quote.occupancy}-guest rooms left for these nights.`
-              : "Sold out on at least one of these nights. Change the date or room."}
+              ? `${ALLOTMENT_LABEL}: ${quote.remaining} of ${quote.units} ${quote.occupancy}-guest rooms left for these nights.`
+              : `${ALLOTMENT_LABEL}: sold out on at least one of these nights. Change the date or room.`}
           </p>
           <ul className="mt-3 grid gap-1.5">
             {quote.nightsQuoted.map((n) => (

@@ -34,6 +34,7 @@ export function isClosedStay(status: string) {
 
 export function stayStatusLabel(status: string) {
   if (status === "refunded") return "Refunded";
+  if (status === "refund_pending") return "Refund pending";
   if (status === "cancelled") return "Cancelled";
   if (status === "held") return "Held";
   if (status === "completed") return "Completed";
