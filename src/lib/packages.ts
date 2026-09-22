@@ -76,6 +76,8 @@ export type Brief = {
   nights: number;
   flexible: boolean;
   origin: OriginId;
+  /** Free-text city when origin is "other". Listed cities leave this empty. */
+  originCity?: string;
   arriveBy: ArriveBy;
 };
 
@@ -287,7 +289,7 @@ export function originFitScore(pkg: StayPackage, brief: Brief): number {
 
 export function originFitReason(pkg: StayPackage, brief: Brief): string {
   const { temple, beach, far, airportTransfer } = originTraits(pkg);
-  const city = getOrigin(brief.origin).label;
+  const city = originPlace(brief);
   if (brief.arriveBy === "train" || brief.arriveBy === "bus") {
     if (temple) {
       return `Temple / station side — shorter last mile after a ${brief.arriveBy} from ${city}.`;
@@ -309,8 +311,20 @@ export function originFitReason(pkg: StayPackage, brief: Brief): string {
   return `Ranked for a ${brief.arriveBy} trip from ${city}.`;
 }
 
+export function originPlace(brief: Brief) {
+  const typed = brief.origin === "other" ? brief.originCity?.trim() : "";
+  return typed || getOrigin(brief.origin).label;
+}
+
+const RELATED_VIBE: Record<Vibe, Vibe> = {
+  beach: "relax",
+  relax: "beach",
+  culture: "adventure",
+  adventure: "culture",
+};
+
 export function rankingBlurb(brief: Brief): string {
-  const city = getOrigin(brief.origin).label;
+  const city = originPlace(brief);
   if (brief.arriveBy === "train" || brief.arriveBy === "bus") {
     return `Temple-side stays rank higher than Konark for a ${brief.arriveBy} from ${city}.`;
   }
@@ -331,7 +345,8 @@ export function rankingBlurb(brief: Brief): string {
 export function matchPackages(brief: Brief) {
   const scored = listPackages().map((p) => {
     let score = 0;
-    if (p.vibe === brief.vibe) score += 3;
+    if (p.vibe === brief.vibe) score += 4;
+    else if (p.vibe === RELATED_VIBE[brief.vibe]) score += 1.5;
     if (p.budget === brief.budget) score += 2;
     if (p.style.includes(brief.style)) score += 2;
     if (brief.flexible) {
@@ -388,6 +403,7 @@ export function loadBrief(): Brief {
       nights: Number.isFinite(nights) && nights >= 1 ? Math.min(14, nights) : DEFAULT_BRIEF.nights,
       flexible: Boolean(parsed.flexible),
       origin,
+      originCity: typeof parsed.originCity === "string" ? parsed.originCity.slice(0, 60) : undefined,
       arriveBy,
     };
   } catch {

@@ -365,7 +365,7 @@ export const ORIGINS: OriginCity[] = [
   {
     id: "other",
     label: "Somewhere else",
-    hint: "Fly, train, or OSRTC",
+    hint: "Fly, train, bus, or drive",
     defaultArriveBy: "fly",
     inbound: [
       {
@@ -392,6 +392,14 @@ export const ORIGINS: OriginCity[] = [
         why: "If you are already in the state — Cuttack, Berhampur, Rourkela, Sambalpur — OSRTC is the official intercity bus.",
         tips: "Book at osrtc.org. Ama Bus is the city layer once you are in Puri.",
         gateway: "BUS",
+      },
+      {
+        mode: "road",
+        label: "Drive or hire a cab to Puri",
+        duration: "Depends on your city",
+        costHint: "Fuel, tolls, and a driver if you are not at the wheel",
+        why: "Use this when you want the car in Puri for Konark, Chilika, or the beach road.",
+        gateway: "ROAD",
       },
     ],
   },

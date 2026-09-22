@@ -19,11 +19,31 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/plan")({ component: Plan });
 
-const VIBES: { id: Vibe; label: string; hint: string }[] = [
-  { id: "culture", label: "Culture & temple", hint: "Darshan, Konark, old town" },
-  { id: "beach", label: "Beach & coast", hint: "Sand, sunrise, slow walks" },
-  { id: "relax", label: "Slow & spa", hint: "Pool, Ayurveda, quiet" },
-  { id: "adventure", label: "Adventure", hint: "Day trips, extra miles" },
+const VIBES: { id: Vibe; label: string; hint: string; ranks: string }[] = [
+  {
+    id: "culture",
+    label: "Temple first",
+    hint: "Darshan, Grand Road, a short night",
+    ranks: "Station and temple-side hotels lead. Beach stays stay on the list if the nights fit.",
+  },
+  {
+    id: "beach",
+    label: "Beach first",
+    hint: "Sunrise, Marine Drive, slow sand",
+    ranks: "Sea-facing stays lead. A spa hotel can still place if it is on the coast.",
+  },
+  {
+    id: "relax",
+    label: "Slow & spa",
+    hint: "Pool, Ayurveda, fewer outings",
+    ranks: "Quiet resort stays lead. A beach hotel is the close second, not a temple night.",
+  },
+  {
+    id: "adventure",
+    label: "Out toward Konark",
+    hint: "Day trips, Chilika, extra miles",
+    ranks: "Stays built for a drive lead. Temple hotels still score on a one-night darshan.",
+  },
 ];
 
 const BUDGETS: { id: Budget; label: string; hint: string }[] = [
@@ -54,6 +74,7 @@ function Plan() {
         const origin = getOrigin(value as Brief["origin"]);
         const allowed = origin.inbound.map((l) => l.mode);
         if (!allowed.includes(next.arriveBy)) next.arriveBy = origin.defaultArriveBy;
+        if (value !== "other") next.originCity = "";
       }
       return next;
     });
@@ -72,17 +93,30 @@ function Plan() {
 
         <fieldset className="mt-10">
           <legend className="text-sm font-medium">Coming from</legend>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            {ORIGINS.map((v) => (
-              <Choice
-                key={v.id}
-                selected={brief.origin === v.id}
-                title={v.label}
-                hint={v.hint}
-                onClick={() => update("origin", v.id)}
-              />
+          <select
+            className="mt-3 w-full rounded-lg border border-border bg-elevated px-3 py-3 text-sm"
+            value={brief.origin}
+            onChange={(e) => update("origin", e.target.value as Brief["origin"])}
+          >
+            {ORIGINS.filter((city) => city.id !== "other").map((city) => (
+              <option key={city.id} value={city.id}>
+                {city.label} — {city.hint}
+              </option>
             ))}
-          </div>
+            <option value="other">Somewhere else</option>
+          </select>
+          {brief.origin === "other" ? (
+            <label className="mt-3 block text-sm">
+              <span className="text-muted">Your city</span>
+              <input
+                className="mt-1 w-full rounded-lg border border-border bg-elevated px-3 py-3"
+                value={brief.originCity ?? ""}
+                placeholder="Ranchi, Jaipur, Berhampur…"
+                maxLength={60}
+                onChange={(e) => update("originCity", e.target.value)}
+              />
+            </label>
+          ) : null}
         </fieldset>
 
         <fieldset className="mt-8">
@@ -106,13 +140,14 @@ function Plan() {
 
         <fieldset className="mt-8">
           <legend className="text-sm font-medium">Trip vibe</legend>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div className="mt-3 grid gap-2">
             {VIBES.map((v) => (
               <Choice
                 key={v.id}
                 selected={brief.vibe === v.id}
                 title={v.label}
                 hint={v.hint}
+                detail={brief.vibe === v.id ? v.ranks : undefined}
                 onClick={() => update("vibe", v.id)}
               />
             ))}
@@ -216,11 +251,13 @@ function Choice({
   selected,
   title,
   hint,
+  detail,
   onClick,
 }: {
   selected: boolean;
   title: string;
   hint?: string;
+  detail?: string;
   onClick: () => void;
 }) {
   return (
@@ -236,6 +273,7 @@ function Choice({
     >
       <span className="block text-sm font-medium">{title}</span>
       {hint ? <span className="mt-0.5 block text-xs text-muted">{hint}</span> : null}
+      {detail ? <span className="mt-2 block text-xs text-fg/80">{detail}</span> : null}
     </button>
   );
 }
