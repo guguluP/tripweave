@@ -41,9 +41,8 @@ function PayTestInner() {
 
       const order = await createRazorpayOrder({
         data: {
-          amountInr: 1,
+          kind: "test",
           receipt: `test_${Date.now()}`.slice(0, 40),
-          notes: { purpose: "razorpay_activation_test" },
         },
       });
       if (!order.ok) {
@@ -116,7 +115,7 @@ function PayTestInner() {
         <h1 className="mt-2 font-display text-3xl">Test payment</h1>
         <p className="mt-3 text-sm text-muted">
           Charges <strong>₹1</strong> in test mode so Razorpay can detect a completed
-          transaction. Use their test card or test UPI.
+          transaction. Disabled on Vercel unless you run locally with ALLOW_PAY_TEST=true.
         </p>
         <Card className="mt-8 space-y-4 p-5 shadow-none">
           <ul className="space-y-1 text-sm text-muted">

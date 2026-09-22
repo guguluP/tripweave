@@ -69,7 +69,17 @@ function makeRef(prefix: string) {
 }
 
 /** Sandbox processor. Never stores PAN / UPI secret / PIN. */
+function sandboxPaymentsAllowed() {
+  if (process.env.ALLOW_SANDBOX_PAY === "true") return true;
+  if (process.env.VERCEL) return false;
+  if (process.env.NODE_ENV === "production") return false;
+  return true;
+}
+
 export function charge(input: ChargeInput): ChargeOk | ChargeFail {
+  if (!sandboxPaymentsAllowed()) {
+    return { ok: false, message: "Sandbox card / UPI / net-banking is disabled. Use Razorpay." };
+  }
   const name = input.payerName.trim();
   if (name.length < 2) return { ok: false, message: "Enter the payer name.", field: "payerName" };
 
