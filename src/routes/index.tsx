@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Landmark, ShieldCheck, Wallet } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { PackageCard } from "@/components/package-card";
@@ -12,34 +12,74 @@ const COVER_CLIPS = ["/cover/shore.mp4", "/cover/coast.mp4", "/cover/waves.mp4"]
 export const Route = createFileRoute("/")({ component: Home });
 
 function Cover() {
-  const [clip, setClip] = useState(0);
   const [showStill, setShowStill] = useState(true);
+  const [front, setFront] = useState<0 | 1>(0);
+  const first = useRef<HTMLVideoElement>(null);
+  const second = useRef<HTMLVideoElement>(null);
+  const indexRef = useRef(0);
+  const frontRef = useRef<0 | 1>(0);
 
   useEffect(() => {
-    if (!showStill) return;
-    const id = window.setTimeout(() => setShowStill(false), 5000);
+    const id = window.setTimeout(() => {
+      const lead = first.current;
+      const follow = second.current;
+      if (!lead || !follow) return;
+      lead.src = COVER_CLIPS[0];
+      follow.src = COVER_CLIPS[1];
+      follow.load();
+      setShowStill(false);
+      void lead.play();
+    }, 5000);
     return () => window.clearTimeout(id);
-  }, [showStill]);
+  }, []);
+
+  const handoff = (which: 0 | 1) => {
+    if (which !== frontRef.current) return;
+    const nextIndex = (indexRef.current + 1) % COVER_CLIPS.length;
+    const incoming = (which === 0 ? second : first).current;
+    const outgoing = (which === 0 ? first : second).current;
+    if (!incoming) return;
+    const reveal = () => {
+      indexRef.current = nextIndex;
+      frontRef.current = which === 0 ? 1 : 0;
+      setFront(frontRef.current);
+      if (outgoing) {
+        outgoing.src = COVER_CLIPS[(nextIndex + 1) % COVER_CLIPS.length];
+        outgoing.load();
+      }
+    };
+    incoming.currentTime = 0;
+    void incoming.play().then(reveal).catch(reveal);
+  };
+
+  const clipClass = (slot: 0 | 1) =>
+    `absolute inset-0 h-full w-full object-cover ${!showStill && front === slot ? "z-10" : "z-0 opacity-0"}`;
 
   return (
     <>
-      <img
-        src="/cover/puri.jpg"
-        alt="Puri beach"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      {showStill ? null : (
-        <video
-          key={COVER_CLIPS[clip]}
-          src={COVER_CLIPS[clip]}
-          poster="/cover/puri.jpg"
-          autoPlay
-          muted
-          playsInline
+      {showStill ? (
+        <img
+          src="/cover/puri.jpg"
+          alt="Puri beach"
           className="absolute inset-0 h-full w-full object-cover"
-          onEnded={() => setClip((n) => (n + 1) % COVER_CLIPS.length)}
         />
-      )}
+      ) : null}
+      <video
+        ref={first}
+        muted
+        playsInline
+        preload="auto"
+        className={clipClass(0)}
+        onEnded={() => handoff(0)}
+      />
+      <video
+        ref={second}
+        muted
+        playsInline
+        preload="auto"
+        className={clipClass(1)}
+        onEnded={() => handoff(1)}
+      />
     </>
   );
 }
