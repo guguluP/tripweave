@@ -53,7 +53,7 @@ function Cover() {
   };
 
   const clipClass = (slot: 0 | 1) =>
-    `absolute inset-0 h-full w-full object-cover ${!showStill && front === slot ? "z-10" : "z-0 opacity-0"}`;
+    `absolute inset-0 z-0 h-full w-full object-cover ${!showStill && front === slot ? "" : "opacity-0"}`;
 
   return (
     <>
@@ -91,8 +91,8 @@ function Home() {
     <Shell>
       <section className="relative isolate min-h-[32rem] overflow-hidden">
         <Cover />
-        <div className="absolute inset-0 bg-fg/55" />
-        <div className="relative mx-auto flex min-h-[32rem] max-w-6xl flex-col justify-end px-4 py-16">
+        <div className="absolute inset-0 z-10 bg-fg/55" />
+        <div className="relative z-20 mx-auto flex min-h-[32rem] max-w-6xl flex-col justify-end px-4 py-16">
           <Stagger>
             <p className="eyebrow text-primary-fg/80">Puri stays without the tab overload</p>
             <h1 className="mt-3 max-w-xl font-display text-4xl text-primary-fg md:text-5xl">
