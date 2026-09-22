@@ -8,6 +8,7 @@ import { LearnMore, Stagger } from "@/components/motion";
 import { DEFAULT_BRIEF, PACKAGES } from "@/lib/packages";
 
 const COVER_CLIPS = ["/cover/shore.mp4", "/cover/coast.mp4", "/cover/waves.mp4"] as const;
+const COVER_FADE_MS = 1100;
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -20,16 +21,18 @@ function Cover() {
   const frontRef = useRef<0 | 1>(0);
 
   useEffect(() => {
+    const lead = first.current;
+    const follow = second.current;
+    if (!lead || !follow) return;
+    lead.src = COVER_CLIPS[0];
+    follow.src = COVER_CLIPS[1];
+    lead.load();
+    follow.load();
     const id = window.setTimeout(() => {
-      const lead = first.current;
-      const follow = second.current;
-      if (!lead || !follow) return;
-      lead.src = COVER_CLIPS[0];
-      follow.src = COVER_CLIPS[1];
-      follow.load();
-      setShowStill(false);
-      void lead.play();
-    }, 5000);
+      const begin = () => setShowStill(false);
+      lead.addEventListener("playing", begin, { once: true });
+      void lead.play().catch(begin);
+    }, 4200);
     return () => window.clearTimeout(id);
   }, []);
 
@@ -43,27 +46,31 @@ function Cover() {
       indexRef.current = nextIndex;
       frontRef.current = which === 0 ? 1 : 0;
       setFront(frontRef.current);
-      if (outgoing) {
+      window.setTimeout(() => {
+        if (!outgoing) return;
+        outgoing.pause();
         outgoing.src = COVER_CLIPS[(nextIndex + 1) % COVER_CLIPS.length];
         outgoing.load();
-      }
+      }, COVER_FADE_MS);
     };
     incoming.currentTime = 0;
     void incoming.play().then(reveal).catch(reveal);
   };
 
   const clipClass = (slot: 0 | 1) =>
-    `absolute inset-0 z-0 h-full w-full object-cover ${!showStill && front === slot ? "" : "opacity-0"}`;
+    `absolute inset-0 z-0 h-full w-full object-cover transition-opacity duration-[1100ms] ease-in-out ${
+      !showStill && front === slot ? "opacity-100" : "opacity-0"
+    }`;
 
   return (
     <>
-      {showStill ? (
-        <img
-          src="/cover/puri.jpg"
-          alt="Puri beach"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-      ) : null}
+      <img
+        src="/cover/puri.jpg"
+        alt="Puri beach"
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[1100ms] ease-in-out ${
+          showStill ? "opacity-100" : "opacity-0"
+        }`}
+      />
       <video
         ref={first}
         muted
