@@ -12,6 +12,7 @@ import {
 } from "@/lib/apple-wallet";
 import { formatMoney } from "@/lib/packages";
 import { saveWalletPass, listWalletPasses } from "@/lib/wallet-store";
+import { useAppleDevice } from "@/lib/apple-device";
 import { cn } from "@/lib/utils";
 
 function addDays(isoDate: string, days: number): string {
@@ -110,6 +111,7 @@ export function AddToWallet({
   compact?: boolean;
 }) {
   const [busy, setBusy] = useState(false);
+  const apple = useAppleDevice();
   const payload = bookingToWalletPayload(booking as BookingRow);
 
   const persist = () => saveWalletPass(payload);
@@ -223,27 +225,39 @@ export function AddToWallet({
 
   return (
     <div className={className}>
-      {compact ? null : <WalletPassCard payload={payload} />}
+      {compact ? (
+        <div className="mb-2">
+          <p className="font-medium">{payload.packageName}</p>
+          <p className="text-xs text-muted">
+            {payload.confirmationCode} · check-in {payload.checkIn} · {payload.nights}{" "}
+            {payload.nights === 1 ? "night" : "nights"}
+          </p>
+        </div>
+      ) : (
+        <WalletPassCard payload={payload} />
+      )}
       <div className={compact ? "flex flex-wrap gap-2" : "mt-3 grid gap-2 sm:grid-cols-2"}>
-        <Button
-          type="button"
-          size={compact ? "sm" : "lg"}
-          disabled={busy}
-          className="bg-fg text-elevated hover:bg-fg/90"
-          onClick={() => void onAppleWallet()}
-        >
-          <AppleMark />
-          {busy ? "Preparing…" : "Add to Apple Wallet"}
-        </Button>
+        {apple ? (
+          <Button
+            type="button"
+            size={compact ? "sm" : "lg"}
+            disabled={busy}
+            className="bg-fg text-elevated hover:bg-fg/90"
+            onClick={() => void onAppleWallet()}
+          >
+            <AppleMark />
+            {busy ? "Preparing…" : "Add to Apple Wallet"}
+          </Button>
+        ) : null}
         <Button type="button" size={compact ? "sm" : "lg"} variant="outline" onClick={saveCalendar}>
           <CalendarPlus className="size-4" />
           Add to calendar
         </Button>
       </div>
-      {compact ? null : (
+      {compact || !apple ? null : (
         <p className="mt-2 text-xs text-subtle">
-          On iPhone this saves a Wallet-ready pass. Until a signed .pkpass is configured, the
-          card and calendar event work offline and stay in your TripWeave wallet.
+          On this Apple device the pass can go into Wallet. Until a signed .pkpass is configured,
+          the card and calendar event work offline.
         </p>
       )}
     </div>
@@ -251,9 +265,10 @@ export function AddToWallet({
 }
 
 export function SavedWalletList({ className }: { className?: string }) {
+  const apple = useAppleDevice();
   const [passes] = useState(() => (typeof window === "undefined" ? [] : listWalletPasses()));
 
-  if (passes.length === 0) return null;
+  if (!apple || passes.length === 0) return null;
 
   return (
     <div className={cn("grid gap-4", className)}>

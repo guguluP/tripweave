@@ -17,6 +17,7 @@ import { listBookings, type BookingRow } from "@/lib/server/bookings";
 import { AddToWallet } from "@/components/wallet-pass";
 import { bookingToWalletPayload } from "@/lib/apple-wallet";
 import { listWalletPasses } from "@/lib/wallet-store";
+import { useAppleDevice } from "@/lib/apple-device";
 import { getProfile, saveProfile } from "@/lib/server/profile";
 import { PartnerDesk } from "@/components/partner-desk";
 import { loadLocalProfile, saveLocalProfile } from "@/lib/profile-local";
@@ -45,6 +46,7 @@ function Account() {
 
 function AccountInner() {
   const { user } = useCurrentUserState();
+  const apple = useAppleDevice();
   const [bookings, setBookings] = useState<BookingRow[] | null>(null);
   const [signingOut, setSigningOut] = useState(false);
   const [showCancelled, setShowCancelled] = useState(false);
@@ -219,12 +221,14 @@ function AccountInner() {
           </p>
         )}
 
-        {(wallet.length > 0 || paid.length > 0) && !showCancelled ? (
+        {apple && (wallet.length > 0 || paid.length > 0) && !showCancelled ? (
           <div className="mt-10">
             <p className="eyebrow">Apple Wallet</p>
             <h2 className="mt-2 font-display text-2xl">Saved passes</h2>
             <p className="mt-2 text-sm text-muted">
-              Keep a booking on your iPhone for offline check-in.
+              {wallet.length > 0
+                ? "Each pass is tied to one confirmation."
+                : "No pass saved yet. Add one for a paid stay below."}
             </p>
             <div className="mt-4 grid gap-4">
               {(wallet.length > 0
