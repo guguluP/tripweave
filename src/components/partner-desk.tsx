@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { PACKAGES, formatMoney, getPackage } from "@/lib/packages";
+import { partnerStays } from "@/lib/server/partner";
 import { loadCatalog, saveCatalogOverride, listDeskBookings, confirmDeskBooking, sendStayReminder, type DeskBooking } from "@/lib/server/catalog";
 import { setCatalogOverlays } from "@/lib/catalog-store";
 import { Button } from "@/components/ui/button";
 import { pushBanner } from "@/lib/banners";
 
 export function PartnerDesk() {
-  const [packageId, setPackageId] = useState(PACKAGES[0]?.id ?? "");
+  const [allowed, setAllowed] = useState<string[] | null>(null);
+  const stays = PACKAGES.filter((stay) => allowed?.includes(stay.id));
+  const [packageId, setPackageId] = useState("");
   const pkg = getPackage(packageId);
   const [price, setPrice] = useState(pkg?.pricePerNight ?? 0);
   const [keys, setKeys] = useState(2);
@@ -15,6 +18,13 @@ export function PartnerDesk() {
   const [bookings, setBookings] = useState<DeskBooking[]>([]);
   const [note, setNote] = useState("Room held for this confirmation code.");
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    partnerStays().then((ids) => {
+      setAllowed(ids);
+      setPackageId(ids[0] ?? "");
+    }).catch(() => setAllowed([]));
+  }, []);
 
   useEffect(() => {
     const current = getPackage(packageId);
@@ -58,6 +68,8 @@ export function PartnerDesk() {
     setBusy(false);
   };
 
+  if (!allowed?.length) return null;
+
   return (
     <section className="mt-12 border-t border-border pt-8">
       <p className="eyebrow">Partner desk</p>
@@ -66,7 +78,7 @@ export function PartnerDesk() {
       <label className="mt-4 block text-sm font-medium">
         Property
         <select className="mt-1 w-full rounded-md border border-border bg-elevated px-3 py-2" value={packageId} onChange={(e) => setPackageId(e.target.value)}>
-          {PACKAGES.map((stay) => (
+          {stays.map((stay) => (
             <option key={stay.id} value={stay.id}>{stay.name}</option>
           ))}
         </select>
@@ -139,7 +151,7 @@ export function PartnerDesk() {
                 size="sm"
                 onClick={() => {
                   void sendStayReminder({
-                    data: { email: booking.guestEmail!, hotel: booking.packageName, checkIn: booking.checkIn, code: booking.confirmationCode },
+                    data: { email: booking.guestEmail!, hotel: booking.packageName, checkIn: booking.checkIn, code: booking.confirmationCode, packageId },
                   }).then((result) => {
                     pushBanner({
                       title: result.ok ? "Reminder sent" : "Reminder not emailed",

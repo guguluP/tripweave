@@ -5,6 +5,7 @@ import type { CatalogOverlay, ExtraOverride } from "@/lib/catalog-store";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { SUPABASE_WRITE_GATE } from "@/lib/supabase/write-gate";
+import { assertPartnerStay } from "@/lib/server/partner";
 type ReviewAgg = { packageId?: string; rating?: number; count?: number };
 type OverrideRow = {
   package_id?: string;
@@ -53,6 +54,7 @@ export const saveCatalogOverride = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((data: unknown) => saveSchema.parse(data))
   .handler(async ({ context, data }) => {
+    await assertPartnerStay(data.packageId);
     const sb = getSupabaseAdmin();
     if (!sb) return { ok: false as const, message: "Catalog storage is not connected." };
     const { error } = await sb.rpc("tw_save_override", {
@@ -119,6 +121,7 @@ export const listDeskBookings = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((packageId: string) => z.string().min(1).max(80).parse(packageId))
   .handler(async ({ data }): Promise<DeskBooking[]> => {
+    await assertPartnerStay(data);
     const sb = getSupabaseAdmin();
     if (!sb) return [];
     const { data: rows, error } = await sb.rpc("tw_desk_bookings", {
@@ -133,6 +136,7 @@ export const confirmDeskBooking = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((data: unknown) => z.object({ id: z.number().int(), packageId: z.string(), note: z.string().max(400) }).parse(data))
   .handler(async ({ data }) => {
+    await assertPartnerStay(data.packageId);
     const sb = getSupabaseAdmin();
     if (!sb) return { ok: false as const, message: "Desk confirm needs the database." };
     const { error } = await sb.rpc("tw_confirm_booking", {
@@ -145,8 +149,9 @@ export const confirmDeskBooking = createServerFn({ method: "POST" })
 
 export const sendStayReminder = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator((data: unknown) => z.object({ email: z.string().email(), hotel: z.string(), checkIn: z.string(), code: z.string() }).parse(data))
+  .validator((data: unknown) => z.object({ email: z.string().email(), hotel: z.string(), checkIn: z.string(), code: z.string(), packageId: z.string() }).parse(data))
   .handler(async ({ data }) => {
+    await assertPartnerStay(data.packageId);
     const key = process.env.RESEND_API_KEY?.trim();
     const from = process.env.RESEND_FROM?.trim();
     if (!key || !from) {
