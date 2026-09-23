@@ -26,10 +26,9 @@ def best_url(url: str) -> str:
             started = True
             keep.append(b)
         public_id = "/".join(keep) if keep else bits[-1]
-        return f"https://assets.simplotel.com/simplotel/image/upload/q_90,w_2000,f_jpg,fl_progressive,c_limit/{public_id}"
+        return f"https://assets.simplotel.com/simplotel/image/upload/{public_id}"
     if "cdn.sanity.io" in url:
-        base = url.split("?")[0]
-        return base + "?w=2000&auto=format&q=85"
+        return url.split("?")[0]
     return url
 
 def score(a, b):
