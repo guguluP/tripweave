@@ -111,13 +111,12 @@ function Home() {
         <div className="absolute inset-0 z-10 bg-fg/55" />
         <div className="relative z-20 mx-auto flex min-h-[32rem] max-w-6xl flex-col justify-end px-4 py-16">
           <Stagger>
-            <p className="eyebrow text-primary-fg/80">Puri stays without the tab overload</p>
+            <p className="eyebrow text-primary-fg/80">Puri. Twelve hotels.</p>
             <h1 className="mt-3 max-w-xl font-display text-4xl text-primary-fg md:text-5xl">
-              Twelve honest Puri hotels. Ranked to three.
+              We return three. You book one.
             </h1>
             <p className="mt-4 max-w-md text-base text-primary-fg/80">
-              Answer a short brief — including how you get here. We return three curated stays with
-              all-in rupee prices, from a single night to a slow week.
+              Tell us the dates, how you are arriving, and what the trip is for. A night, or a week.
             </p>
           </Stagger>
           <div className="mt-8 flex flex-wrap items-center gap-4">
