@@ -4,7 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { SUPABASE_WRITE_GATE } from "@/lib/supabase/write-gate";
 import { isDurableDbError, markDurableDbFailed, shouldSkipNeon } from "@/lib/server/db-fallback";
 
-export type ReserveResult = "ok" | "sold_out" | "unavailable";
+export type ReserveResult = "ok" | "sold_out" | "unavailable" | "missing";
 
 type HoldInput = {
   holdId: string;
@@ -52,6 +52,11 @@ function isSoldOut(message: string) {
   return /sold_out/i.test(message);
 }
 
+/** Live project has not had supabase/ops_durability.sql applied yet. */
+function isMissingHoldFn(message: string) {
+  return /PGRST202|does not exist|schema cache|42883/i.test(message);
+}
+
 export async function reserveCheckoutHold(input: HoldInput): Promise<ReserveResult> {
   const payload = {
     hold_id: input.holdId,
@@ -71,8 +76,13 @@ export async function reserveCheckoutHold(input: HoldInput): Promise<ReserveResu
       p_payload: payload,
     });
     if (!error) return "ok";
-    if (isSoldOut(error.message || "")) return "sold_out";
-    console.error("[holds] reserve", error.message);
+    const message = error.message || "";
+    if (isSoldOut(message)) return "sold_out";
+    if (isMissingHoldFn(message)) {
+      console.error("[holds] tw_reserve_hold is not on this database. Using this server's hold book.");
+      return "missing";
+    }
+    console.error("[holds] reserve", message);
     return "unavailable";
   }
   if (shouldSkipNeon()) return "unavailable";
@@ -83,6 +93,7 @@ export async function reserveCheckoutHold(input: HoldInput): Promise<ReserveResu
   } catch (err) {
     const message = messageOf(err);
     if (isSoldOut(message)) return "sold_out";
+    if (isMissingHoldFn(message)) return "missing";
     if (isDurableDbError(err)) markDurableDbFailed(err);
     console.error("[holds] reserve", message);
     return "unavailable";

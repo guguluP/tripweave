@@ -241,10 +241,12 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
       }
       if (reserved === "ok") {
         recordHold(holdBody);
-      } else if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+      } else if (reserved === "missing" || !(process.env.VERCEL || process.env.NODE_ENV === "production")) {
+        if (!tryReserveHold(holdBody)) {
+          return { ok: false, message: "Those nights just sold out. Pick another date." };
+        }
+      } else {
         return { ok: false, message: "Could not reserve this room. Try again in a moment." };
-      } else if (!tryReserveHold(holdBody)) {
-        return { ok: false, message: "Those nights just sold out. Pick another date." };
       }
       const amountPaise = Math.round(payable.amountInr * 100);
       if (amountPaise < 100) {
