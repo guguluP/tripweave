@@ -70,7 +70,7 @@ export async function reserveCheckoutHold(input: HoldInput): Promise<ReserveResu
   };
   if (isSupabaseConfigured()) {
     const sb = getSupabaseAdmin();
-    if (!sb) return "unavailable";
+    if (!sb) return "missing";
     const { error } = await sb.rpc("tw_reserve_hold", {
       p_gate: SUPABASE_WRITE_GATE,
       p_payload: payload,
@@ -78,8 +78,8 @@ export async function reserveCheckoutHold(input: HoldInput): Promise<ReserveResu
     if (!error) return "ok";
     const message = error.message || "";
     if (isSoldOut(message)) return "sold_out";
-    if (isMissingHoldFn(message)) {
-      console.error("[holds] tw_reserve_hold is not on this database. Using this server's hold book.");
+    if (isMissingHoldFn(message) || /permission denied|42501|forbidden/i.test(message)) {
+      console.error("[holds] tw_reserve_hold is not callable. Using this server's hold book.");
       return "missing";
     }
     console.error("[holds] reserve", message);
