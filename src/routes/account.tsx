@@ -61,6 +61,7 @@ function AccountInner() {
   );
   const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
+  const [homeCity, setHomeCity] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -74,6 +75,7 @@ function AccountInner() {
     if (local?.displayName) setDisplayName(local.displayName);
     else if (user?.displayName) setDisplayName(user.displayName);
     if (local?.phone) setPhone(local.phone);
+    if (local?.homeCity) setHomeCity(local.homeCity);
     getProfile()
       .then((p) => {
         if (p.displayName) setDisplayName(p.displayName);
@@ -107,7 +109,7 @@ function AccountInner() {
       pushBanner({ title: "Name is too short", tone: "danger" });
       return;
     }
-    const next = { displayName: name, phone: phone.trim(), email };
+    const next = { displayName: name, phone: phone.trim(), email, homeCity: homeCity.trim() };
     saveLocalProfile(next);
     setSaving(true);
     try {
@@ -167,6 +169,15 @@ function AccountInner() {
                 autoComplete="tel"
                 placeholder="10-digit mobile"
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              />
+            </Label>
+            <Label>
+              Home city
+              <Input
+                value={homeCity}
+                autoComplete="address-level2"
+                placeholder="Any city in India or abroad"
+                onChange={(e) => setHomeCity(e.target.value.slice(0, 80))}
               />
             </Label>
             <Label>

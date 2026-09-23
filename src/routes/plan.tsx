@@ -13,6 +13,8 @@ import {
   type Vibe,
 } from "@/lib/packages";
 import { ARRIVE_BY, ORIGINS, arriveOptionsFor, getOrigin, type ArriveBy } from "@/lib/origins";
+import { loadLocalProfile } from "@/lib/profile-local";
+import { searchWorldCities, type WorldCity } from "@/lib/world-cities";
 import { inboundPreview } from "@/lib/travel-plan";
 import { TravelEstimateCard } from "@/components/travel-estimate";
 import { cn } from "@/lib/utils";
@@ -59,11 +61,29 @@ const STYLES: { id: TravelStyle; label: string }[] = [
   { id: "friends", label: "Friends" },
 ];
 
+function cityAsOrigin(name: string): Pick<Brief, "origin" | "originCity" | "arriveBy"> {
+  const trimmed = name.trim().slice(0, 80);
+  const listed = ORIGINS.find(
+    (city) => city.id !== "other" && city.label.toLowerCase() === trimmed.toLowerCase(),
+  );
+  if (listed) {
+    return { origin: listed.id, originCity: "", arriveBy: listed.defaultArriveBy };
+  }
+  return { origin: "other", originCity: trimmed, arriveBy: getOrigin("other").defaultArriveBy };
+}
+
 function Plan() {
   const nav = useNavigate();
-  const [brief, setBrief] = useState<Brief>(() =>
-    typeof window === "undefined" ? DEFAULT_BRIEF : loadBrief(),
-  );
+  const [brief, setBrief] = useState<Brief>(() => {
+    if (typeof window === "undefined") return DEFAULT_BRIEF;
+    const saved = window.localStorage.getItem("tripweave-brief");
+    const loaded = loadBrief();
+    if (saved) return loaded;
+    const home = loadLocalProfile()?.homeCity?.trim();
+    if (!home) return loaded;
+    return { ...loaded, ...cityAsOrigin(home) };
+  });
+  const homeCity = typeof window === "undefined" ? "" : loadLocalProfile()?.homeCity?.trim() ?? "";
   const [busy, setBusy] = useState(false);
   const arriveChoices = arriveOptionsFor(brief.origin);
 
@@ -97,12 +117,16 @@ function Plan() {
             origin={brief.origin}
             originCity={brief.originCity ?? ""}
             onListed={(id) => update("origin", id)}
+            homeCity={homeCity}
             onCustom={(name) => {
               setBrief((b) => {
-                const next = { ...b, origin: "other" as const, originCity: name };
-                const allowed = getOrigin("other").inbound.map((leg) => leg.mode);
-                if (!allowed.includes(next.arriveBy)) next.arriveBy = getOrigin("other").defaultArriveBy;
-                return next;
+                const picked = cityAsOrigin(name);
+                const allowed = getOrigin(picked.origin).inbound.map((leg) => leg.mode);
+                return {
+                  ...b,
+                  ...picked,
+                  arriveBy: allowed.includes(b.arriveBy) ? b.arriveBy : picked.arriveBy,
+                };
               });
             }}
           />
@@ -239,11 +263,13 @@ function Plan() {
 function CityMenu({
   origin,
   originCity,
+  homeCity,
   onListed,
   onCustom,
 }: {
   origin: Brief["origin"];
   originCity: string;
+  homeCity: string;
   onListed: (id: Brief["origin"]) => void;
   onCustom: (name: string) => void;
 }) {
@@ -251,11 +277,28 @@ function CityMenu({
   const [query, setQuery] = useState("");
   const box = useRef<HTMLDivElement>(null);
   const listed = ORIGINS.filter((city) => city.id !== "other");
+  const q = query.trim().toLowerCase();
   const shown = useMemo(() => {
-    const q = query.trim().toLowerCase();
     if (!q) return listed;
     return listed.filter((city) => city.label.toLowerCase().includes(q) || city.hint.toLowerCase().includes(q));
-  }, [listed, query]);
+  }, [listed, q]);
+  const world = useMemo(() => {
+    const hits = searchWorldCities(query);
+    const listedNames = new Set(shown.map((city) => city.label.toLowerCase()));
+    return hits.filter((city) => !listedNames.has(city.name.toLowerCase()));
+  }, [query, shown]);
+  const accountCity = homeCity.trim();
+  const showAccount =
+    accountCity.length > 1 &&
+    (!q || accountCity.toLowerCase().includes(q)) &&
+    !shown.some((city) => city.label.toLowerCase() === accountCity.toLowerCase()) &&
+    !world.some((city) => city.name.toLowerCase() === accountCity.toLowerCase());
+  const typed = query.trim();
+  const typedAlready =
+    !typed ||
+    shown.some((city) => city.label.toLowerCase() === typed.toLowerCase()) ||
+    world.some((city) => city.name.toLowerCase() === typed.toLowerCase()) ||
+    accountCity.toLowerCase() === typed.toLowerCase();
   const label = origin === "other" ? originCity.trim() || "Somewhere else" : getOrigin(origin).label;
 
   useEffect(() => {
@@ -291,11 +334,26 @@ function CityMenu({
           <input
             autoFocus
             className="min-h-12 w-full rounded-md border border-border bg-elevated px-3 text-base"
-            placeholder="Search cities"
+            placeholder="Search any city in India or abroad"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
           <ul className="mt-2 max-h-72 overflow-auto">
+            {showAccount ? (
+              <li>
+                <button
+                  type="button"
+                  className="w-full rounded-md px-3 py-3 text-left hover:bg-surface"
+                  onClick={() => {
+                    onCustom(accountCity);
+                    setOpen(false);
+                  }}
+                >
+                  <span className="block text-base font-medium">{accountCity}</span>
+                  <span className="block text-sm text-muted">From your account</span>
+                </button>
+              </li>
+            ) : null}
             {shown.map((city) => (
               <li key={city.id}>
                 <button
@@ -311,25 +369,46 @@ function CityMenu({
                 </button>
               </li>
             ))}
-            <li>
-              <button
-                type="button"
-                className="w-full rounded-md px-3 py-3 text-left hover:bg-surface"
-                onClick={() => {
-                  onCustom(query.trim());
+            {world.map((city) => (
+              <WorldRow
+                key={`${city.name}-${city.place}`}
+                city={city}
+                onPick={() => {
+                  onCustom(city.name);
                   setOpen(false);
                 }}
-              >
-                <span className="block text-base font-medium">
-                  {query.trim() ? `Use “${query.trim()}”` : "Somewhere else"}
-                </span>
-                <span className="block text-sm text-muted">Type a city, then choose this</span>
-              </button>
-            </li>
+              />
+            ))}
+            {typed && !typedAlready ? (
+              <li>
+                <button
+                  type="button"
+                  className="w-full rounded-md px-3 py-3 text-left hover:bg-surface"
+                  onClick={() => {
+                    onCustom(typed);
+                    setOpen(false);
+                  }}
+                >
+                  <span className="block text-base font-medium">Use “{typed}”</span>
+                  <span className="block text-sm text-muted">Any city in India or abroad</span>
+                </button>
+              </li>
+            ) : null}
           </ul>
         </div>
       ) : null}
     </div>
+  );
+}
+
+function WorldRow({ city, onPick }: { city: WorldCity; onPick: () => void }) {
+  return (
+    <li>
+      <button type="button" className="w-full rounded-md px-3 py-3 text-left hover:bg-surface" onClick={onPick}>
+        <span className="block text-base font-medium">{city.name}</span>
+        <span className="block text-sm text-muted">{city.place}</span>
+      </button>
+    </li>
   );
 }
 

@@ -2,6 +2,8 @@ export type LocalProfile = {
   displayName: string;
   phone: string;
   email: string;
+  /** City the guest travels from. Any name in India or abroad. */
+  homeCity?: string;
 };
 
 const KEY = "tripweave-profile";
@@ -16,6 +18,7 @@ export function loadLocalProfile(): LocalProfile | null {
       displayName: typeof parsed.displayName === "string" ? parsed.displayName : "",
       phone: typeof parsed.phone === "string" ? parsed.phone : "",
       email: typeof parsed.email === "string" ? parsed.email : "",
+      homeCity: typeof parsed.homeCity === "string" ? parsed.homeCity.slice(0, 80) : "",
     };
   } catch {
     return null;
