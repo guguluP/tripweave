@@ -72,9 +72,9 @@ function TripDetail() {
     const briefNow = loadBrief();
     const pending = loadPending();
     setTravel(defaultTravelPlan(pkg.id, briefNow, pending?.packageId === pkg.id ? pending.travel : undefined));
-    // Initial room only — later date changes keep the guest's pick.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pkg]);
+    // Only when the stay changes. Catalog overlays rebuild `pkg` every render,
+    // and depending on that object wiped the room the guest had just picked.
+  }, [pkg?.id]);
 
   if (!pkg) {
     return (
