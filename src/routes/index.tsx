@@ -8,8 +8,15 @@ import { LearnMore, Stagger } from "@/components/motion";
 import { KonarkCarousel, RathCarousel } from "@/components/rath-carousel";
 import { DEFAULT_BRIEF, listPackages } from "@/lib/packages";
 
-const COVER_CLIPS = ["/cover/shore.mp4", "/cover/coast.mp4", "/cover/waves.mp4"] as const;
+const COVER_SDR = ["/cover/shore.mp4", "/cover/coast.mp4", "/cover/waves.mp4"] as const;
+const COVER_HDR = ["/cover/shore-hdr.mp4", "/cover/coast-hdr.mp4", "/cover/waves-hdr.mp4"] as const;
 const COVER_FADE_MS = 1100;
+
+function coverClips() {
+  const screen = window.matchMedia("(dynamic-range: high)").matches;
+  const hevc = document.createElement("video").canPlayType('video/mp4; codecs="hvc1.2.4.L153.B0"');
+  return screen && hevc !== "" ? COVER_HDR : COVER_SDR;
+}
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -25,8 +32,9 @@ function Cover() {
     const lead = first.current;
     const follow = second.current;
     if (!lead || !follow) return;
-    lead.src = COVER_CLIPS[0];
-    follow.src = COVER_CLIPS[1];
+    const clips = coverClips();
+    lead.src = clips[0];
+    follow.src = clips[1];
     lead.load();
     follow.load();
     const id = window.setTimeout(() => {
@@ -39,7 +47,8 @@ function Cover() {
 
   const handoff = (which: 0 | 1) => {
     if (which !== frontRef.current) return;
-    const nextIndex = (indexRef.current + 1) % COVER_CLIPS.length;
+    const clips = coverClips();
+    const nextIndex = (indexRef.current + 1) % clips.length;
     const incoming = (which === 0 ? second : first).current;
     const outgoing = (which === 0 ? first : second).current;
     if (!incoming) return;
@@ -50,7 +59,7 @@ function Cover() {
       window.setTimeout(() => {
         if (!outgoing) return;
         outgoing.pause();
-        outgoing.src = COVER_CLIPS[(nextIndex + 1) % COVER_CLIPS.length];
+        outgoing.src = clips[(nextIndex + 1) % clips.length];
         outgoing.load();
       }, COVER_FADE_MS);
     };
