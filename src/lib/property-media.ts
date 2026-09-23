@@ -11,7 +11,7 @@ export const STAYS_NEEDING_USER_FILES = catalog.STAYS_NEEDING_USER_FILES;
 
 type StayMedia = {
   images: string[];
-  rooms: Record<string, string>;
+  rooms: Record<string, string | string[]>;
 };
 
 export const STAY_MEDIA: Record<string, StayMedia> = catalog.STAY_MEDIA;
@@ -30,10 +30,16 @@ export function attachPropertyMedia(p: { id: string; rooms: RoomInput[] }) {
     throw new Error(`Missing property media for stay ${p.id}`);
   }
   const images = [...new Set(spec.images)];
-  const rooms: RoomType[] = p.rooms.map((room) => ({
-    ...room,
-    image: spec.rooms[room.id] ?? images[0]!,
-  }));
+  const rooms: RoomType[] = p.rooms.map((room) => {
+    const listed = spec.rooms[room.id];
+    const frames = (Array.isArray(listed) ? listed : listed ? [listed] : []).filter(Boolean);
+    const image = frames[0] ?? images[0]!;
+    return {
+      ...room,
+      image,
+      images: frames.length ? frames : [image],
+    };
+  });
   return {
     images,
     rooms,

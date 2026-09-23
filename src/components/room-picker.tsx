@@ -3,9 +3,10 @@ import { formatMoney, type RoomType } from "@/lib/packages";
 import { cn } from "@/lib/utils";
 
 function roomPhotos(room: RoomType, gallery: string[]) {
-  const extra = room.images?.filter(Boolean) ?? [];
-  const around = gallery.filter((src) => src && src !== room.image && !extra.includes(src));
-  return [...new Set([room.image, ...extra, ...around])].slice(0, 6);
+  const own = [...new Set((room.images?.length ? room.images : [room.image]).filter(Boolean))];
+  if (own.length > 1) return own;
+  const around = gallery.filter((src) => src && !own.includes(src));
+  return [...own, ...around].slice(0, 6);
 }
 
 export function RoomPicker({
@@ -140,7 +141,11 @@ function RoomCard({
               ))}
             </div>
             <p className="mt-2 text-xs text-muted">
-              {shot === 0 ? "This room." : "Elsewhere on the property."}
+              {photos.length > 1 && (room.images?.length ?? 0) > 1
+                ? `Photo ${shot + 1} of ${photos.length} from the hotel.`
+                : shot === 0
+                  ? "This room."
+                  : "Elsewhere on the property."}
             </p>
           </div>
         ) : null}
