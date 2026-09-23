@@ -5,7 +5,7 @@ import { Shell } from "@/components/shell";
 import { PackageCard } from "@/components/package-card";
 import { Button } from "@/components/ui/button";
 import { LearnMore, Stagger } from "@/components/motion";
-import { RathCarousel } from "@/components/rath-carousel";
+import { KonarkCarousel, RathCarousel } from "@/components/rath-carousel";
 import { DEFAULT_BRIEF, listPackages } from "@/lib/packages";
 
 const COVER_CLIPS = ["/cover/shore.mp4", "/cover/coast.mp4", "/cover/waves.mp4"] as const;
@@ -131,6 +131,7 @@ function Home() {
       </section>
 
       <RathCarousel />
+      <KonarkCarousel />
 
       <section className="mx-auto grid max-w-6xl gap-4 px-4 py-10 md:grid-cols-3">
         {[
