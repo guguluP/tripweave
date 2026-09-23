@@ -1,28 +1,59 @@
 import { cn } from "@/lib/utils";
 
-/** Night-sea mark. Three shapes only so it stays sharp at header size. */
 export function WeaveMark({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 48 48"
+      viewBox="0 0 64 64"
       className={cn("size-10 shrink-0", className)}
       aria-hidden
     >
-      <rect width="48" height="48" rx="12" fill="#073A42" />
+      <circle cx="32" cy="32" r="32" fill="#0B3D44" />
+
       {/* flag */}
-      <path d="M24 4.5v5" stroke="#F6E7B8" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="M24.7 4.8h6.2l-1.5 2 1.5 2H24.7V4.8z" fill="#F6E7B8" />
-      {/* one solid temple */}
+      <path d="M32 6v7" stroke="#F3E4B6" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M32.8 6.4h8L38.6 9.2 40.8 12H32.8z" fill="#F3E4B6" />
+
+      {/* kalasa */}
+      <circle cx="32" cy="14.2" r="1.6" fill="#E8C56A" />
+      {/* amalaka disc */}
+      <ellipse cx="32" cy="17.2" rx="7" ry="2.1" fill="#E8C56A" />
+
+      {/* rekha deul — stepped waist, not a vase */}
       <path
         fill="#E8C56A"
-        d="M24 10c3.2 0 5.4 1.1 6.6 3.1 1.3 2.1 1.4 3.6.8 5.6-.9 3.2-2.6 4.6-3.4 7.6-.4 1.5-.4 2.6-.2 3.7h-7.6c.2-1.1.2-2.2-.2-3.7-.8-3-2.5-4.4-3.4-7.6-.6-2-.5-3.5.8-5.6C18.6 11.1 20.8 10 24 10z"
+        d="M25 18.6h14
+           l1.6 3.2H23.4z
+           M23.2 21.8h17.6
+           c.4 2.4-.6 4.6-2.2 7.4
+           c-1.4 2.6-2.2 4.8-2.4 7.2H26.2
+           c-.2-2.4-1-4.6-2.4-7.2
+           c-1.6-2.8-2.6-5-2.2-7.4z"
       />
-      <path fill="#E8C56A" d="M18.8 30.2h10.4l1.8 5.2H17z" />
-      <rect x="22.2" y="31.2" width="3.6" height="4" rx=".4" fill="#073A42" />
-      {/* filled cyan wave — not a hairline */}
+
+      {/* jagamohana in front */}
+      <path fill="#F0D48A" d="M26 36.2h12l2.4 8.2H23.6z" />
+      <path fill="#0B3D44" d="M29.6 38.2h4.8v6.2h-4.8z" />
+      <path fill="#E8C56A" d="M28.4 35h7.2l1 1.4H27.4z" />
+
+      {/* gold horizon */}
+      <path
+        d="M10 46c7-3 14-3 22 0s15 3 22 0"
+        fill="none"
+        stroke="#D4A017"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      {/* sea */}
       <path
         fill="#3EE6DA"
-        d="M6 38.2c6.4-4.8 12.4-4.8 18 0 5.6 4.8 11.6 4.8 18 0v4.6c-6.4 4.8-12.4 4.8-18 0-5.6-4.8-11.6-4.8-18 0z"
+        d="M8 50c8-5 16-5 24 0s16 5 24 0v8H8z"
+      />
+      <path
+        d="M8 54c8-4 16-4 24 0s16 4 24 0"
+        fill="none"
+        stroke="#0B3D44"
+        strokeWidth="1.4"
+        opacity="0.25"
       />
     </svg>
   );
