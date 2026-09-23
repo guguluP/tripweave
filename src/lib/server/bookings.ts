@@ -422,11 +422,28 @@ async function runReconcileJob(job: ReconcileJob): Promise<BookingRow | null> {
       });
     }
     await touchJob(job.id, { lastError: undefined, state: "done" });
+    const { sendBookingNotices } = await import("@/lib/server/booking-mail");
+    const meta = readMeta(booking.swaps);
+    void sendBookingNotices({
+      guestEmail: meta.guestEmail,
+      packageId: booking.packageId,
+      packageName: booking.packageName,
+      confirmationCode: booking.confirmationCode,
+      checkIn: booking.checkIn,
+      nights: booking.nights,
+      travelers: booking.travelers,
+      amountInr: booking.amountInr,
+      payerName: booking.payerName,
+    }).catch((err) => console.error("[mail] booking", err));
     return { ...booking, userId: job.userId };
   } catch (err) {
     const message = err instanceof Error ? err.message : "insert failed";
     if (message.includes("sold_out")) {
       await touchJob(job.id, { lastError: "sold_out" });
+      return null;
+    }
+    if (/duplicate|unique|23505/i.test(message)) {
+      await touchJob(job.id, { lastError: undefined, state: "done" });
       return null;
     }
     await touchJob(job.id, { lastError: message, state: attempt >= 5 ? "failed" : "queued" });
@@ -450,6 +467,56 @@ async function drainReconcileJobs(userId: string) {
     if (job.attempts > 0 && now - Date.parse(job.updatedAt) < 60_000) continue;
     await runReconcileJob(job);
   }
+}
+
+export async function bookCapturedFromNotes(input: {
+  userId: string;
+  paymentId: string;
+  orderId: string | null;
+  packageId: string;
+  packageName: string;
+  roomId: string;
+  checkIn: string;
+  nights: number;
+  travelers: number;
+  amountInr: number;
+  payerName: string;
+  guestEmail?: string;
+}): Promise<void> {
+  const pkg = getPackage(input.packageId);
+  const units = pkg ? roomUnits(pkg, input.roomId) : 1;
+  const swaps = writeMeta({}, {
+    roomId: input.roomId,
+    guestEmail: input.guestEmail,
+    hotelEmail: undefined,
+  });
+  await queueCaptureReconcile({
+    userId: input.userId,
+    paymentId: input.paymentId,
+    orderId: input.orderId,
+    roomId: input.roomId,
+    units,
+    exceptHoldIds: input.orderId ? [input.orderId] : [],
+    local: {
+      userId: input.userId,
+      packageId: input.packageId,
+      packageName: input.packageName,
+      nights: input.nights,
+      travelers: input.travelers,
+      checkIn: input.checkIn,
+      amountInr: input.amountInr,
+      swaps,
+      status: "paid",
+      cardLast4: null,
+      cardBrand: null,
+      payerName: input.payerName,
+      confirmationCode: makeCode(),
+      paymentMethod: "razorpay",
+      paymentRef: input.paymentId,
+      upiHandle: null,
+      bankName: null,
+    },
+  });
 }
 
 async function queueCaptureReconcile(input: {

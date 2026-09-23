@@ -158,18 +158,62 @@ export async function fetchRazorpayPayment(paymentId: string): Promise<{
   }
 }
 
-export async function fetchRazorpayOrder(orderId: string): Promise<{ amountPaise: number } | null> {
+export async function fetchRazorpayOrder(orderId: string): Promise<{
+  amountPaise: number;
+  notes: Record<string, string>;
+} | null> {
   try {
     const res = await fetch(`https://api.razorpay.com/v1/orders/${orderId}`, {
       headers: { Authorization: authHeader() },
     });
     if (!res.ok) return null;
-    const json = (await res.json()) as { amount?: number };
+    const json = (await res.json()) as { amount?: number; notes?: Record<string, string> };
     if (!json.amount || !Number.isFinite(json.amount)) return null;
-    return { amountPaise: json.amount };
+    return { amountPaise: json.amount, notes: json.notes ?? {} };
   } catch {
     return null;
   }
+}
+
+export async function settleRazorpayWebhook(rawBody: string, signature: string | null): Promise<Response> {
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET?.trim() || getKeySecret();
+  if (!secret || !signature) return Response.json({ error: "Missing webhook secret or signature." }, { status: 401 });
+  const expected = createHmac("sha256", secret).update(rawBody).digest("hex");
+  const a = Buffer.from(expected, "utf8");
+  const b = Buffer.from(signature, "utf8");
+  if (a.length !== b.length || !timingSafeEqual(a, b)) {
+    return Response.json({ error: "Bad signature." }, { status: 401 });
+  }
+  const event = JSON.parse(rawBody) as {
+    event?: string;
+    payload?: { payment?: { entity?: { id?: string; order_id?: string; email?: string; status?: string; amount?: number } } };
+  };
+  if (event.event !== "payment.captured") return Response.json({ ok: true, ignored: event.event ?? "" });
+  const payment = event.payload?.payment?.entity;
+  if (!payment?.id || !payment.order_id) return Response.json({ ok: true, ignored: "no payment" });
+  const order = await fetchRazorpayOrder(payment.order_id);
+  const notes = order?.notes ?? {};
+  const userId = notes.userId;
+  const packageId = notes.packageId;
+  if (!userId || !packageId) return Response.json({ ok: true, ignored: "no stay notes" });
+  const { bookCapturedFromNotes } = await import("@/lib/server/bookings");
+  const { getPackage } = await import("@/lib/packages");
+  const pkg = getPackage(packageId);
+  await bookCapturedFromNotes({
+    userId,
+    paymentId: payment.id,
+    orderId: payment.order_id,
+    packageId,
+    packageName: pkg?.name ?? packageId,
+    roomId: notes.roomId || pkg?.rooms[0]?.id || "",
+    checkIn: notes.checkIn || new Date().toISOString().slice(0, 10),
+    nights: Number(notes.nights || pkg?.nights || 1),
+    travelers: Number(notes.travelers || 1),
+    amountInr: Math.round((payment.amount || order?.amountPaise || 0) / 100),
+    payerName: payment.email || "Guest",
+    guestEmail: payment.email,
+  });
+  return Response.json({ ok: true });
 }
 
 export const createRazorpayOrder = createServerFn({ method: "POST" })

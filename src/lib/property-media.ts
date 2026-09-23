@@ -29,10 +29,7 @@ export function attachPropertyMedia(p: { id: string; rooms: RoomInput[] }) {
   if (!spec) {
     throw new Error(`Missing property media for stay ${p.id}`);
   }
-  const images = [...spec.images];
-  while (images.length < 4) {
-    images.push(images[images.length % Math.max(images.length, 1)] ?? spec.images[0]!);
-  }
+  const images = [...new Set(spec.images)];
   const rooms: RoomType[] = p.rooms.map((room) => ({
     ...room,
     image: spec.rooms[room.id] ?? images[0]!,

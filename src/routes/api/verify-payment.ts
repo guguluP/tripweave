@@ -1,19 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { settleRazorpayWebhook } from "@/lib/server/razorpay";
 
-/** Public verify endpoint is closed. Signature checks run inside createBooking. */
+/** Razorpay webhook. Browser checkout still verifies inside createBooking. */
 export const Route = createFileRoute("/api/verify-payment")({
   server: {
     handlers: {
-      POST: async () =>
-        Response.json(
-          { error: "Gone. Payment verification is part of authenticated booking." },
-          { status: 410 },
-        ),
+      POST: async ({ request }) => {
+        const raw = await request.text();
+        return settleRazorpayWebhook(raw, request.headers.get("x-razorpay-signature"));
+      },
       GET: async () =>
-        Response.json(
-          { error: "Gone. Payment verification is part of authenticated booking." },
-          { status: 410 },
-        ),
+        Response.json({ ok: true, hook: "POST Razorpay payment.captured here." }),
     },
   },
 });

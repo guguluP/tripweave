@@ -9,6 +9,7 @@
 export const ALLOTMENT_LABEL = "TripWeave allotment (simulated)";
 /** Last night covered by the hardcoded festival list. */
 export const FESTIVAL_CALENDAR_END = "2027-06-25";
+import { overlayFor } from "./catalog-store.ts";
 import { clampNights, getPackage, getRoom, stayTotal, type StayPackage } from "./packages.ts";
 
 export type OccupancyHold = {
@@ -107,10 +108,12 @@ export function seasonFor(iso: string): { multiplier: number; label: string; kin
 }
 
 /**
- * Simulated key count. Suites, villas, and cottages are treated as 2 keys.
- * This is TripWeave allotment (simulated), not a contracted hotel allotment.
+ * Keys TripWeave may sell. A partner override wins. Otherwise suites are 2,
+ * premium rooms 3 or 5, value rooms 6, and the rest 4.
  */
 export function roomUnits(pkg: StayPackage, roomId: string): number {
+  const edited = overlayFor(pkg.id)?.extras?.find((extra) => extra.optionId === `units:${roomId}`);
+  if (edited && edited.delta >= 1) return edited.delta;
   const room = getRoom(pkg, roomId);
   const suite = /suite|villa|cottage/i.test(room.name);
   if (suite) return 2;

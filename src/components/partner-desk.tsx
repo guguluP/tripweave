@@ -9,6 +9,7 @@ export function PartnerDesk() {
   const [packageId, setPackageId] = useState(PACKAGES[0]?.id ?? "");
   const pkg = getPackage(packageId);
   const [price, setPrice] = useState(pkg?.pricePerNight ?? 0);
+  const [keys, setKeys] = useState(2);
   const [image, setImage] = useState("");
   const [extras, setExtras] = useState<{ optionId: string; label: string; delta: number }[]>([]);
   const [bookings, setBookings] = useState<DeskBooking[]>([]);
@@ -19,6 +20,7 @@ export function PartnerDesk() {
     const current = getPackage(packageId);
     if (!current) return;
     setPrice(current.pricePerNight);
+    setKeys(current.rooms[0] ? 2 : 2);
     setImage("");
     const options = current.days.flatMap((day) => day.options.map((option) => ({ optionId: option.id, label: option.label, delta: option.delta })));
     const seen = new Set<string>();
@@ -36,7 +38,15 @@ export function PartnerDesk() {
   const save = async () => {
     setBusy(true);
     const result = await saveCatalogOverride({
-      data: { packageId, pricePerNight: price, image: image.trim() || undefined, extras },
+      data: {
+        packageId,
+        pricePerNight: price,
+        image: image.trim() || undefined,
+        extras: [
+          ...extras.filter((extra) => !extra.optionId.startsWith("units:")),
+          ...(pkg?.rooms ?? []).map((room) => ({ optionId: `units:${room.id}`, delta: keys, label: "keys" })),
+        ],
+      },
     });
     if (!result.ok) {
       pushBanner({ title: "Could not save the stay", body: result.message, tone: "danger" });
@@ -60,6 +70,10 @@ export function PartnerDesk() {
             <option key={stay.id} value={stay.id}>{stay.name}</option>
           ))}
         </select>
+      </label>
+      <label className="mt-3 block text-sm font-medium">
+        Keys we can sell of each room
+        <input className="mt-1 w-full rounded-md border border-border bg-elevated px-3 py-2" type="number" min={1} max={40} value={keys} onChange={(e) => setKeys(Number(e.target.value))} />
       </label>
       <label className="mt-3 block text-sm font-medium">
         Nightly rate, base room (₹)
