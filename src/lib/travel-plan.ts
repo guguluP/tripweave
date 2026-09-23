@@ -11,6 +11,7 @@ import {
   type TransportLeg,
 } from "./transport.ts";
 import { getPackage, originPlace, type Brief } from "./packages.ts";
+import { stayPin } from "./places.ts";
 
 export type TravelPlan = {
   lastMileId: string;
@@ -58,6 +59,7 @@ export type TravelQuote = {
   pickup: PickupQuote;
   bookingLinks: BookingLink[];
   lastMileLinks: BookingLink[];
+  ride: { pickup: RidePoint; drop: RidePoint };
   why: string;
   mapEmbedUrl: string;
   mapDirectionsUrl: string;
@@ -212,12 +214,50 @@ function bestReason(leg: TransportLeg, brief: Brief): string {
   return bits.slice(0, 2).join(" · ");
 }
 
-export function travelBookingLinks(arriveBy: ArriveBy, from = ""): BookingLink[] {
+export type RidePoint = { name: string; lat: number; lng: number };
+
+/** Cab apps opened with the pickup and drop the guest already chose on this page. */
+export function rideLinks(pickup: RidePoint, drop: RidePoint): BookingLink[] {
+  const ola = new URL("https://book.olacabs.com/");
+  ola.searchParams.set("lat", String(pickup.lat));
+  ola.searchParams.set("lng", String(pickup.lng));
+  ola.searchParams.set("drop_lat", String(drop.lat));
+  ola.searchParams.set("drop_lng", String(drop.lng));
+  ola.searchParams.set("drop_name", drop.name);
+  ola.searchParams.set("pickup_name", pickup.name);
+
+  const uber = new URL("https://m.uber.com/ul/");
+  uber.searchParams.set("action", "setPickup");
+  uber.searchParams.set("pickup[latitude]", String(pickup.lat));
+  uber.searchParams.set("pickup[longitude]", String(pickup.lng));
+  uber.searchParams.set("pickup[nickname]", pickup.name);
+  uber.searchParams.set("pickup[formatted_address]", pickup.name);
+  uber.searchParams.set("dropoff[latitude]", String(drop.lat));
+  uber.searchParams.set("dropoff[longitude]", String(drop.lng));
+  uber.searchParams.set("dropoff[nickname]", drop.name);
+  uber.searchParams.set("dropoff[formatted_address]", drop.name);
+
+  const yatri = new URL("https://odishayatri.in/");
+  yatri.searchParams.set("pickup_lat", String(pickup.lat));
+  yatri.searchParams.set("pickup_lng", String(pickup.lng));
+  yatri.searchParams.set("pickup_name", pickup.name);
+  yatri.searchParams.set("drop_lat", String(drop.lat));
+  yatri.searchParams.set("drop_lng", String(drop.lng));
+  yatri.searchParams.set("drop_name", drop.name);
+
+  return [
+    { label: "Odisha Yatri", href: yatri.toString() },
+    { label: "Ola", href: ola.toString() },
+    { label: "Uber", href: uber.toString() },
+  ];
+}
+
+export function travelBookingLinks(arriveBy: ArriveBy, from = "", ride?: { pickup: RidePoint; drop: RidePoint }): BookingLink[] {
   if (arriveBy === "fly") {
     const q = from ? `Flights from ${from} to BBI` : "Flights to BBI";
     return [
       { label: "Google Flights", href: `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}` },
-      { label: "Book cab from BBI", href: "https://www.olacabs.com" },
+      ...(ride ? rideLinks(ride.pickup, ride.drop).map((link) => ({ ...link, label: `${link.label} from BBI` })) : []),
     ];
   }
   if (arriveBy === "train") {
@@ -229,29 +269,20 @@ export function travelBookingLinks(arriveBy: ArriveBy, from = ""): BookingLink[]
       { label: "Ama Bus app", href: BUS_GUIDE.ama.android },
     ];
   }
-  return [
-    { label: "Ola", href: "https://www.olacabs.com" },
-    { label: "Uber", href: "https://m.uber.com/ul/" },
-  ];
+  return ride ? rideLinks(ride.pickup, ride.drop) : [];
 }
 
-export function lastMileBookingLinks(leg: TransportLeg): BookingLink[] {
+export function lastMileBookingLinks(leg: TransportLeg, ride?: { pickup: RidePoint; drop: RidePoint }): BookingLink[] {
   const m = leg.mode.toLowerCase();
   if (bucketOf(leg) === "hotel") return [];
-  if (bucketOf(leg) === "cab") {
-    return [
-      { label: "Book Ola", href: "https://www.olacabs.com" },
-      { label: "Book Uber", href: "https://m.uber.com/ul/" },
-    ];
+  if (bucketOf(leg) === "cab" || /auto/.test(m)) {
+    return ride ? rideLinks(ride.pickup, ride.drop) : [];
   }
   if (/osrtc|ama|bus/.test(m)) {
     return [
       { label: "Book OSRTC", href: BUS_GUIDE.osrtc.book },
       { label: "Ama Bus", href: BUS_GUIDE.ama.android },
     ];
-  }
-  if (/auto/.test(m)) {
-    return [{ label: "Book Ola", href: "https://www.olacabs.com" }];
   }
   return [];
 }
@@ -260,6 +291,25 @@ const PURI = { lat: 19.8135, lon: 85.8312 };
 const BBI = { lat: 20.2538, lon: 85.8173 };
 const STATION = { lat: 19.8076, lon: 85.8375 };
 const BUS = { lat: 19.8139, lon: 85.8319 };
+
+export function rideEnds(packageId: string, hotelName: string, arriveBy: ArriveBy): { pickup: RidePoint; drop: RidePoint } {
+  const gate = gatewayCoords(arriveBy);
+  const pickupName =
+    arriveBy === "fly" || arriveBy === "road"
+      ? "Biju Patnaik Airport, Bhubaneswar"
+      : arriveBy === "train"
+        ? "Puri railway station"
+        : "Puri Bus Stand";
+  const stay = stayPin(packageId, hotelName);
+  return {
+    pickup: { name: pickupName, lat: gate.lat, lng: gate.lon },
+    drop: {
+      name: `${hotelName}, Puri`,
+      lat: stay?.lat ?? PURI.lat,
+      lng: stay?.lng ?? PURI.lon,
+    },
+  };
+}
 
 function gatewayCoords(arriveBy: ArriveBy) {
   if (arriveBy === "fly" || arriveBy === "road") return BBI;
@@ -405,8 +455,9 @@ export function quoteTravel(packageId: string, brief: Brief, plan?: Partial<Trav
     costLine,
     bestLine,
     pickup,
-    bookingLinks: travelBookingLinks(brief.arriveBy, originPlace(brief)),
-    lastMileLinks: lastMileBookingLinks(lastMile),
+    ride: rideEnds(packageId, hotelName, brief.arriveBy),
+    bookingLinks: travelBookingLinks(brief.arriveBy, originPlace(brief), rideEnds(packageId, hotelName, brief.arriveBy)),
+    lastMileLinks: lastMileBookingLinks(lastMile, rideEnds(packageId, hotelName, brief.arriveBy)),
     why: lastMile.why,
     mapEmbedUrl: mapEmbedUrl(brief.arriveBy),
     mapDirectionsUrl: mapDirectionsUrl(hotelName, brief.arriveBy),

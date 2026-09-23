@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { formatInrRange, type LastMileBucket, type RankedLastMile, type TravelQuote } from "@/lib/travel-plan";
+import { Input } from "@/components/ui/input";
+import { formatInrRange, rideLinks, type LastMileBucket, type RankedLastMile, type TravelQuote } from "@/lib/travel-plan";
 import { cn } from "@/lib/utils";
 
 const BUCKET_LABEL: Record<LastMileBucket, string> = {
@@ -34,7 +36,20 @@ export function LastMilePicker({
 }) {
   const choices = bucketChoice(quote.options);
   const selected = quote.options.find((o) => o.id === selectedId) ?? quote.options[0];
+  const [pickupName, setPickupName] = useState(quote.ride.pickup.name);
+  const [dropName, setDropName] = useState(quote.ride.drop.name);
+  useEffect(() => {
+    setPickupName(quote.ride.pickup.name);
+    setDropName(quote.ride.drop.name);
+  }, [quote.ride.pickup.name, quote.ride.drop.name]);
   if (!selected) return null;
+  const cab = selected.bucket === "cab" || /auto/i.test(selected.leg.mode);
+  const links = cab
+    ? rideLinks(
+        { ...quote.ride.pickup, name: pickupName.trim() || quote.ride.pickup.name },
+        { ...quote.ride.drop, name: dropName.trim() || quote.ride.drop.name },
+      )
+    : quote.lastMileLinks;
 
   return (
     <div className={cn("space-y-3", compact && "space-y-2")}>
@@ -70,10 +85,24 @@ export function LastMilePicker({
         </div>
       ) : null}
       {!compact && selected.leg.why ? <p className="text-xs text-subtle">{selected.leg.why}</p> : null}
-      {!compact && quote.lastMileLinks.length > 0 ? (
+      {!compact && cab ? (
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Input
+            aria-label="Cab pickup"
+            value={pickupName}
+            onChange={(e) => setPickupName(e.target.value.slice(0, 80))}
+          />
+          <Input
+            aria-label="Cab drop"
+            value={dropName}
+            onChange={(e) => setDropName(e.target.value.slice(0, 80))}
+          />
+        </div>
+      ) : null}
+      {!compact && links.length > 0 ? (
         <div className="flex flex-wrap gap-2">
-          {quote.lastMileLinks.map((link) => (
-            <Button key={link.href} type="button" size="sm" variant="outline" asChild>
+          {links.map((link) => (
+            <Button key={link.label} type="button" size="sm" variant="outline" asChild>
               <a href={link.href} target="_blank" rel="noreferrer">
                 {link.label}
               </a>
