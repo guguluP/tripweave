@@ -29,6 +29,8 @@ export type RoomType = {
   deltaPerNight: number;
   occupancy: number;
   image: string;
+  /** Extra frames for the open room card. The first photo stays `image`. */
+  images?: string[];
 };
 
 export type PropertyVideo = {

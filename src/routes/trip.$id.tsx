@@ -219,6 +219,7 @@ function TripDetail() {
           onSelect={setRoomId}
           pricePerNight={pkg.pricePerNight}
           leftover={leftoverForRooms(pkg.id, checkIn, nights)}
+          gallery={pkg.images}
         />
 
         <ReviewerConsensus
