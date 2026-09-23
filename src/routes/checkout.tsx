@@ -178,7 +178,7 @@ function CheckoutInner() {
     saveWalletPass(bookingToWalletPayload(booking));
     clearSensitiveTravelers();
     clearPending();
-    pushBanner({ title: `Booked \u00b7 ${booking.confirmationCode}`, body: pkg?.name ?? booking.packageName, tone: "ok" });
+    pushBanner({ title: `Booked · ${booking.confirmationCode}`, body: pkg?.name ?? booking.packageName, tone: "ok" });
     setHeld(booking);
     setConfirmation({
       code: booking.confirmationCode,
@@ -249,7 +249,7 @@ function CheckoutInner() {
           <p className="mt-4 font-display text-3xl tabular-nums tracking-wide"><DigitPop value={confirmation.code} /></p>
           <p className="mt-2 text-sm text-muted">
             Charged <DigitPop value={formatMoney(confirmation.amount)} /> via {methodLabel(confirmation.method).toLowerCase()}
-            {confirmation.line ? ` \u00b7 ${confirmation.line}` : ""}.
+            {confirmation.line ? ` · ${confirmation.line}` : ""}.
           </p>
           {confirmation.ref ? <p className="mt-1 text-xs text-subtle">Ref {confirmation.ref}</p> : null}
           <div className="mt-8 w-full text-left"><AddToWallet booking={held} /></div>
@@ -456,7 +456,7 @@ function CheckoutInner() {
             {errors.form ? <p className="rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">{errors.form}</p> : null}
             <p className="text-xs text-muted">{refundPolicyFor(checkIn).label}. My trips uses this same rule after you pay.</p>
             <Button type="submit" size="lg" disabled={busy || (quote != null && !quote.available)} className="mt-2">
-              <TextSwap shimmer={busy} text={busy ? "Opening Razorpay\u2026" : quote && !quote.available ? "Sold out for these nights" : `Pay ${formatMoney(total)} with Razorpay`} />
+              <TextSwap shimmer={busy} text={busy ? "Opening Razorpay…" : quote && !quote.available ? "Sold out for these nights" : `Pay ${formatMoney(total)} with Razorpay`} />
             </Button>
           </form>
         </div>
@@ -464,7 +464,7 @@ function CheckoutInner() {
           <img src={pkg.image} alt="" className="h-40 w-full object-cover" />
           <div className="p-5">
             <h2 className="font-display text-xl">{pkg.name}</h2>
-            <p className="mt-1 text-sm text-muted">{nightsPhrase(stayNights)} \u00b7 {room?.name ?? "Room"} \u00b7 {pkg.neighborhood}</p>
+            <p className="mt-1 text-sm text-muted">{nightsPhrase(stayNights)} · {room?.name ?? "Room"} · {pkg.neighborhood}</p>
             <dl className="mt-5 grid gap-2 text-sm">
               <div className="flex justify-between"><dt className="text-muted">Stay</dt><dd className="tabular-nums"><DigitPop value={formatMoney(stayDue)} /></dd></div>
               <div className="flex justify-between border-t border-border pt-2 font-medium"><dt>Total</dt><dd className="tabular-nums"><DigitPop value={formatMoney(total)} /></dd></div>
