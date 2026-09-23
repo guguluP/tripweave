@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CalendarPlus, WalletCards } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { pushBanner } from "@/lib/banners";
@@ -13,6 +13,7 @@ import {
 import { formatMoney } from "@/lib/packages";
 import { saveWalletPass, listWalletPasses } from "@/lib/wallet-store";
 import { useAppleDevice } from "@/lib/apple-device";
+import { walletSigningReady } from "@/lib/server/wallet-status";
 import { cn } from "@/lib/utils";
 
 function addDays(isoDate: string, days: number): string {
@@ -112,7 +113,12 @@ export function AddToWallet({
 }) {
   const [busy, setBusy] = useState(false);
   const apple = useAppleDevice();
+  const [walletReady, setWalletReady] = useState(false);
   const payload = bookingToWalletPayload(booking as BookingRow);
+  useEffect(() => {
+    if (!apple) return;
+    walletSigningReady().then(setWalletReady).catch(() => setWalletReady(false));
+  }, [apple]);
 
   const persist = () => saveWalletPass(payload);
 
@@ -237,7 +243,7 @@ export function AddToWallet({
         <WalletPassCard payload={payload} />
       )}
       <div className={compact ? "flex flex-wrap gap-2" : "mt-3 grid gap-2 sm:grid-cols-2"}>
-        {apple ? (
+        {apple && walletReady ? (
           <Button
             type="button"
             size={compact ? "sm" : "lg"}

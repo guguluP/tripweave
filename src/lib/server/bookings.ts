@@ -134,7 +134,7 @@ function failClosedAfterCapture() {
 function makeCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let out = "TW-";
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 10; i++) {
     out += alphabet[Math.floor(Math.random() * alphabet.length)];
   }
   return out;

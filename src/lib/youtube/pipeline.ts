@@ -39,27 +39,16 @@ async function storedConsensus(packageId: string, hash: string) {
   return null;
 }
 
-/**
- * Page load reads a fresh live consensus. When that is missing or older
- * than a day and XAI_API_KEY is set, it rebuilds from YouTube captions.
- */
+/** Page load reads the saved consensus. Rebuild is the explicit button. */
 export async function loadConsensus(packageId: string): Promise<PackageReviewConsensus> {
   const videos = await resolveVideos(packageId);
   const hash = hashVideos(packageId, videos);
   const cached = await readDurableCache(packageId, hash);
-  const age = cached ? Date.now() - new Date(cached.updatedAt).getTime() : Number.POSITIVE_INFINITY;
-  if (cached && cached.origin === "live" && age < STALE_MS) {
+  if (cached) {
     const consensus = attachRoomNotes(packageId, cached);
     logConsensusEvent("hit", packageId, { origin: consensus.origin });
     return consensus;
   }
-  const cooledUntil = cool.__twConsensusCool__!.get(packageId) ?? 0;
-  if (isXaiConfigured() && Date.now() > cooledUntil) {
-    cool.__twConsensusCool__!.set(packageId, Date.now() + COOLDOWN_MS);
-    const live = await rebuildConsensus(packageId);
-    return live;
-  }
-  if (cached) return attachRoomNotes(packageId, cached);
   const seed = getSeededConsensus(packageId);
   if (seed) {
     writeMemoryCache(seed, hash);

@@ -14,6 +14,7 @@ export function PreviewHostBridge() {
   const router = useRouter();
 
   useEffect(() => {
+    if (window.parent === window) return;
     return installPreviewHostBridge({
       navigate: (path) => {
         router.history.push(path);

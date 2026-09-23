@@ -31,7 +31,7 @@ export function RoomPicker({
         Choose a room
       </h2>
       <p className="mt-1 text-sm text-muted">
-        {rooms.length} official types. Select one to open its photos and details.
+        {rooms.length} official types. Leftover rooms are the keys TripWeave can sell until a hotel desk sets its own count.
       </p>
       <div
         className={cn(

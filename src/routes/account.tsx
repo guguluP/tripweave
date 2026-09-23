@@ -18,6 +18,7 @@ import { AddToWallet } from "@/components/wallet-pass";
 import { bookingToWalletPayload } from "@/lib/apple-wallet";
 import { listWalletPasses } from "@/lib/wallet-store";
 import { useAppleDevice } from "@/lib/apple-device";
+import { walletSigningReady } from "@/lib/server/wallet-status";
 import { getProfile, saveProfile } from "@/lib/server/profile";
 import { PartnerDesk } from "@/components/partner-desk";
 import { loadLocalProfile, saveLocalProfile } from "@/lib/profile-local";
@@ -47,6 +48,11 @@ function Account() {
 function AccountInner() {
   const { user } = useCurrentUserState();
   const apple = useAppleDevice();
+  const [walletReady, setWalletReady] = useState(false);
+  useEffect(() => {
+    if (!apple) return;
+    walletSigningReady().then(setWalletReady).catch(() => setWalletReady(false));
+  }, [apple]);
   const [bookings, setBookings] = useState<BookingRow[] | null>(null);
   const [signingOut, setSigningOut] = useState(false);
   const [showCancelled, setShowCancelled] = useState(false);
@@ -221,7 +227,7 @@ function AccountInner() {
           </p>
         )}
 
-        {apple && (wallet.length > 0 || paid.length > 0) && !showCancelled ? (
+        {apple && walletReady && (wallet.length > 0 || paid.length > 0) && !showCancelled ? (
           <div className="mt-10">
             <p className="eyebrow">Apple Wallet</p>
             <h2 className="mt-2 font-display text-2xl">Saved passes</h2>

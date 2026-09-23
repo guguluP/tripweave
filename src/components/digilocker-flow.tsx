@@ -47,11 +47,11 @@ export function DigilockerFlow({
       }
       if (result.mode === "live") {
         window.open(result.authorizeUrl, "_blank", "noopener,noreferrer");
-        setError("Finish consent on DigiLocker, then return. Sandbox is used until partner credentials are live.");
+        setError("Finish consent on DigiLocker, then return here.");
         return;
       }
-      setHint(result.hint);
-      setStep("otp");
+      setError("DigiLocker is not connected yet. Enter the guest’s name and ID on the form.");
+      return;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not start DigiLocker.");
     } finally {
