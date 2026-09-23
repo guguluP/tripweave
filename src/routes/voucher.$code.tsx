@@ -16,7 +16,9 @@ import {
 import { TravelShareButtons } from "@/components/travel-planner";
 import type { OriginId } from "@/lib/origins";
 
-export const Route = createFileRoute("/voucher/$code")({ component: VoucherPage });
+export const Route = createFileRoute("/voucher/$code")({
+  component: VoucherPage,
+});
 
 function VoucherPage() {
   const { code } = Route.useParams();
@@ -53,11 +55,15 @@ function VoucherPage() {
   const meta = readMeta(booking.swaps);
   const brief = typeof window === "undefined" ? DEFAULT_BRIEF : loadBrief();
   const plan = parseTravelPlan(meta.travel);
-  const travelQuote = quoteTravel(booking.packageId, {
-    ...brief,
-    origin: (plan.origin as OriginId) || brief.origin,
-    arriveBy: plan.arriveBy || brief.arriveBy,
-  }, plan);
+  const travelQuote = quoteTravel(
+    booking.packageId,
+    {
+      ...brief,
+      origin: (plan.origin as OriginId) || brief.origin,
+      arriveBy: plan.arriveBy || brief.arriveBy,
+    },
+    plan,
+  );
   const travelBody = travelShareText({
     confirmationCode: booking.confirmationCode,
     hotelName: booking.packageName,
@@ -103,6 +109,18 @@ function VoucherPage() {
             <div className="flex justify-between gap-3">
               <dt className="text-muted">Guest</dt>
               <dd>{booking.payerName}</dd>
+            </div>
+            {desk.legalName ? (
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted">Legal name</dt>
+                <dd className="text-right">{desk.legalName}</dd>
+              </div>
+            ) : null}
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted">GSTIN</dt>
+              <dd className="text-right font-mono text-xs">
+                {desk.gstin ?? "Ask the desk — not published"}
+              </dd>
             </div>
             <div className="flex justify-between gap-3">
               <dt className="text-muted">Desk</dt>
