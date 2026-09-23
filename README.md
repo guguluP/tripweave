@@ -180,34 +180,17 @@ Reviewed against the code on `main` (auth, checkout, Supabase SQL, hotel desk, D
 - **Sandbox card charges.** `sandboxPaymentsAllowed` and `payTestAllowed` stay off when `VERCEL` or `NODE_ENV=production` is set (`src/lib/pay.ts`, `src/lib/server/payable.ts`). `/pay-test` redirects away outside local dev.
 - **Secrets that stay server-side when set in the host.** `RAZORPAY_KEY_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET`, `BETTER_AUTH_SECRET`, `RESEND_API_KEY`, `XAI_API_KEY`, `YOUTUBE_API_KEY`, DigiLocker client secret, and the Apple pass PEM values are read from `process.env` and are not given a `VITE_` name.
 
-### The database gate is not a secret
+### Database functions are server-only
 
-This is the main problem.
+The guest data functions (`tw_apply`, holds, occupancy, reconcile jobs, refunds, catalog, desk, reviews) are `security definer`. They used to be executable by the public `anon` key, and they trusted a shared password that was committed in this repository.
 
-Postgres writes do not use the service role for the guest. They call `security definer` functions that are **granted to `anon` and `authenticated`**:
+That password is gone from the current source. On the live database the functions no longer compare a password. They refuse every caller except the service role (and the database owner). `anon` and `authenticated` have `execute` revoked. A call with the publishable key returns `permission denied for function tw_apply`.
 
-| Function | What a caller can do once the gate matches |
-|----------|-----------------------------------------------|
-| `tw_apply` | List, insert, and cancel bookings; write payment events; read and write travellers and profiles; toggle saved stays; overwrite reviewer consensus |
-| `tw_reserve_insert` | Insert a booking row |
-| `tw_reserve_hold` / `tw_release_hold` | Take or drop a checkout hold |
-| `tw_occupancy` | Read which rooms are held |
-| `tw_save_reconcile_job` / `tw_list_reconcile_jobs` | Write and read payment reconcile jobs |
-| `tw_save_refund_intent` / `tw_list_refund_intents` | Write and read refund intents |
+`getSupabaseAdmin` uses `SUPABASE_SERVICE_ROLE_KEY` only. It does not fall back to the anon key. Set that key on Vercel (Project → Settings → Environment Variables, server only, never `VITE_`). Without it, bookings, holds, and the hotel desk cannot reach Postgres.
 
-The gate is a shared string compared inside the function (`p_gate is distinct from expected`). That same string is the default in `src/lib/supabase/write-gate.ts` and is copied into `supabase/schema.sql`. Both files are in this public repository. The project URL and the publishable anon key are also in `src/lib/supabase/project.ts`, which is normal for a publishable key and is what makes the functions reachable.
+The old password remains in git history. It no longer matches the live functions, and the public key cannot run them. Do not put a new password in the repository.
 
-Row level security does not apply inside these functions. The payload chooses `user_id`. The app’s session check never runs on this path.
-
-`tw_apply` ops `insert_booking` and `cancel_booking` do not check that a Razorpay payment exists. A forged row can look like a paid stay. Traveller rows include name, phone, email, and the last four digits of an ID.
-
-**What to change**
-
-1. Rotate the gate in Postgres and remove the old string from SQL and from `write-gate.ts`. Treat the new value as a server env var only (`SUPABASE_WRITE_GATE`). Do not commit it.
-2. `revoke execute` on these functions from `anon` and `authenticated`. Call them with the service role from the server, or verify a Supabase JWT inside the function and set `user_id` from `auth.uid()` rather than from the JSON body.
-3. Until that ships, assume bookings, traveller contacts, profiles, holds, and refund rows are readable and writable by anyone who has read the repository.
-
-Catalog, desk, and review RPCs (`tw_save_override`, `tw_desk_bookings`, `tw_confirm_booking`, `tw_save_review`, `tw_catalog`) are invoked with the service-role client from server functions. Those server functions check the session and, for desk actions, the hotel email. If the same functions were created `security definer` and granted to `anon` with the same gate, they have the same exposure. Confirm the live grants in the Supabase SQL editor and revoke `anon` there too.
+Inside the functions, `user_id` still comes from the JSON body. The app session check runs before the server calls them. Keep the service role key off the browser.
 
 ### Payments
 
@@ -240,7 +223,7 @@ Catalog, desk, and review RPCs (`tw_save_override`, `tw_desk_bookings`, `tw_conf
 
 ### Order to fix
 
-1. Rotate and un-grant the write gate. Re-issue it only as a server env var, or stop using a shared string and use the service role.
+1. Confirm `SUPABASE_SERVICE_ROLE_KEY` is set on Vercel and redeploy. The public key can no longer run the database functions.
 2. Point Razorpay’s `payment.captured` webhook at `/api/verify-payment` with `RAZORPAY_WEBHOOK_SECRET`.
 3. Put Better Auth users on the same database as bookings.
 4. Remove or auth-gate the DigiLocker sandbox completion handler before any real identity flow.

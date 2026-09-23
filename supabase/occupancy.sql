@@ -11,9 +11,10 @@ security definer
 set search_path = public
 as $$
 declare
-  expected text := 'twg_6fc5976ec6ca8ce5a99ec06cb98d6a98';
+  -- No shared password. The publishable key cannot execute this function.
 begin
-  if p_gate is distinct from expected then
+  if coalesce(auth.role(), '') is distinct from 'service_role'
+     and session_user not in ('postgres', 'supabase_admin') then
     raise exception 'forbidden';
   end if;
   return coalesce((
@@ -33,7 +34,8 @@ end;
 $$;
 
 revoke all on function public.tw_occupancy(text) from public;
-grant execute on function public.tw_occupancy(text) to anon, authenticated, service_role;
+revoke all on function public.tw_occupancy(text) from anon, authenticated;
+grant execute on function public.tw_occupancy(text) to service_role;
 
 create or replace function public.tw_reserve_insert(p_gate text, p_payload jsonb)
 returns jsonb
@@ -42,7 +44,7 @@ security definer
 set search_path = public
 as $$
 declare
-  expected text := 'twg_6fc5976ec6ca8ce5a99ec06cb98d6a98';
+  -- No shared password. The publishable key cannot execute this function.
   units int := greatest(coalesce((p_payload->>'units')::int, 1), 1);
   night_count int := (p_payload->>'nights')::int;
   check_in date := (p_payload->>'check_in')::date;
@@ -53,7 +55,8 @@ declare
   rec jsonb;
   uid text := p_payload->>'user_id';
 begin
-  if p_gate is distinct from expected then
+  if coalesce(auth.role(), '') is distinct from 'service_role'
+     and session_user not in ('postgres', 'supabase_admin') then
     raise exception 'forbidden';
   end if;
   if night_count is null or night_count < 1 or check_in is null or pkg is null or room = '' then
@@ -104,4 +107,5 @@ end;
 $$;
 
 revoke all on function public.tw_reserve_insert(text, jsonb) from public;
-grant execute on function public.tw_reserve_insert(text, jsonb) to anon, authenticated, service_role;
+revoke all on function public.tw_reserve_insert(text, jsonb) from anon, authenticated;
+grant execute on function public.tw_reserve_insert(text, jsonb) to service_role;

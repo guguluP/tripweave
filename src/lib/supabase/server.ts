@@ -1,7 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
   isSupabaseConfigured,
-  supabaseAnonKey,
   supabaseServiceRoleKey,
   supabaseUrl,
 } from "./env";
@@ -15,7 +14,7 @@ export type { SupabaseClient };
 export function getSupabaseAdmin(): SupabaseClient | null {
   if (!isSupabaseConfigured()) return null;
   const url = supabaseUrl();
-  const key = supabaseServiceRoleKey() || supabaseAnonKey();
+  const key = supabaseServiceRoleKey();
   if (!url || !key) return null;
   return createClient(url, key, {
     auth: {

@@ -157,7 +157,8 @@ declare
   v_exp timestamptz := nullif(p_payload->>'expires_at', '')::timestamptz;
   v_day date;
 begin
-  if p_gate is distinct from 'twg_6fc5976ec6ca8ce5a99ec06cb98d6a98' then
+  if coalesce(auth.role(), '') is distinct from 'service_role'
+     and session_user not in ('postgres', 'supabase_admin') then
     raise exception 'forbidden';
   end if;
   if v_hid is null or v_hid = '' or v_uid is null or v_uid = ''
@@ -207,7 +208,8 @@ security definer
 set search_path = public
 as $$
 begin
-  if p_gate is distinct from 'twg_6fc5976ec6ca8ce5a99ec06cb98d6a98' then
+  if coalesce(auth.role(), '') is distinct from 'service_role'
+     and session_user not in ('postgres', 'supabase_admin') then
     raise exception 'forbidden';
   end if;
   update public.room_holds
@@ -237,7 +239,8 @@ declare
   v_day date;
   v_rec jsonb;
 begin
-  if p_gate is distinct from 'twg_6fc5976ec6ca8ce5a99ec06cb98d6a98' then
+  if coalesce(auth.role(), '') is distinct from 'service_role'
+     and session_user not in ('postgres', 'supabase_admin') then
     raise exception 'forbidden';
   end if;
   if v_uid is null or v_uid = '' or v_pkg is null or v_nights is null or v_nights < 1
@@ -333,7 +336,8 @@ security definer
 set search_path = public
 as $$
 begin
-  if p_gate is distinct from 'twg_6fc5976ec6ca8ce5a99ec06cb98d6a98' then
+  if coalesce(auth.role(), '') is distinct from 'service_role'
+     and session_user not in ('postgres', 'supabase_admin') then
     raise exception 'forbidden';
   end if;
   return coalesce((
@@ -380,7 +384,8 @@ declare
   v_pay text := p_payload->>'payment_id';
   v_state text := coalesce(nullif(p_payload->>'state', ''), 'queued');
 begin
-  if p_gate is distinct from 'twg_6fc5976ec6ca8ce5a99ec06cb98d6a98' then
+  if coalesce(auth.role(), '') is distinct from 'service_role'
+     and session_user not in ('postgres', 'supabase_admin') then
     raise exception 'forbidden';
   end if;
   if v_id is null or v_uid is null or v_pay is null or v_pay = '' then
@@ -421,7 +426,8 @@ security definer
 set search_path = public
 as $$
 begin
-  if p_gate is distinct from 'twg_6fc5976ec6ca8ce5a99ec06cb98d6a98' then
+  if coalesce(auth.role(), '') is distinct from 'service_role'
+     and session_user not in ('postgres', 'supabase_admin') then
     raise exception 'forbidden';
   end if;
   return coalesce((
@@ -442,7 +448,8 @@ as $$
 declare
   v_status text := p_payload->>'status';
 begin
-  if p_gate is distinct from 'twg_6fc5976ec6ca8ce5a99ec06cb98d6a98' then
+  if coalesce(auth.role(), '') is distinct from 'service_role'
+     and session_user not in ('postgres', 'supabase_admin') then
     raise exception 'forbidden';
   end if;
   if coalesce(p_payload->>'user_id', '') = '' or p_payload->>'booking_id' is null then
@@ -481,7 +488,8 @@ security definer
 set search_path = public
 as $$
 begin
-  if p_gate is distinct from 'twg_6fc5976ec6ca8ce5a99ec06cb98d6a98' then
+  if coalesce(auth.role(), '') is distinct from 'service_role'
+     and session_user not in ('postgres', 'supabase_admin') then
     raise exception 'forbidden';
   end if;
   return coalesce((
@@ -503,11 +511,20 @@ revoke all on function public.tw_list_reconcile_jobs(text, jsonb) from public;
 revoke all on function public.tw_save_refund_intent(text, jsonb) from public;
 revoke all on function public.tw_list_refund_intents(text, jsonb) from public;
 
-grant execute on function public.tw_reserve_hold(text, jsonb) to anon, authenticated, service_role;
-grant execute on function public.tw_release_hold(text, jsonb) to anon, authenticated, service_role;
-grant execute on function public.tw_reserve_insert(text, jsonb) to anon, authenticated, service_role;
-grant execute on function public.tw_occupancy(text) to anon, authenticated, service_role;
-grant execute on function public.tw_save_reconcile_job(text, jsonb) to anon, authenticated, service_role;
-grant execute on function public.tw_list_reconcile_jobs(text, jsonb) to anon, authenticated, service_role;
-grant execute on function public.tw_save_refund_intent(text, jsonb) to anon, authenticated, service_role;
-grant execute on function public.tw_list_refund_intents(text, jsonb) to anon, authenticated, service_role;
+grant execute on function public.tw_reserve_hold(text, jsonb) to service_role;
+grant execute on function public.tw_release_hold(text, jsonb) to service_role;
+grant execute on function public.tw_reserve_insert(text, jsonb) to service_role;
+grant execute on function public.tw_occupancy(text) to service_role;
+grant execute on function public.tw_save_reconcile_job(text, jsonb) to service_role;
+grant execute on function public.tw_list_reconcile_jobs(text, jsonb) to service_role;
+grant execute on function public.tw_save_refund_intent(text, jsonb) to service_role;
+grant execute on function public.tw_list_refund_intents(text, jsonb) to service_role;
+
+revoke all on function public.tw_reserve_hold(text, jsonb) from anon, authenticated;
+revoke all on function public.tw_release_hold(text, jsonb) from anon, authenticated;
+revoke all on function public.tw_reserve_insert(text, jsonb) from anon, authenticated;
+revoke all on function public.tw_occupancy(text) from anon, authenticated;
+revoke all on function public.tw_save_reconcile_job(text, jsonb) from anon, authenticated;
+revoke all on function public.tw_list_reconcile_jobs(text, jsonb) from anon, authenticated;
+revoke all on function public.tw_save_refund_intent(text, jsonb) from anon, authenticated;
+revoke all on function public.tw_list_refund_intents(text, jsonb) from anon, authenticated;

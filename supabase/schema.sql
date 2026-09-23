@@ -207,12 +207,13 @@ security definer
 set search_path = public
 as $$
 declare
-  expected text := 'twg_6fc5976ec6ca8ce5a99ec06cb98d6a98';
+  -- No shared password. The publishable key cannot execute this function.
   uid text;
   rec jsonb;
   rec_id bigint;
 begin
-  if p_gate is distinct from expected then
+  if coalesce(auth.role(), '') is distinct from 'service_role'
+     and session_user not in ('postgres', 'supabase_admin') then
     raise exception 'forbidden';
   end if;
 
@@ -392,6 +393,7 @@ end;
 $$;
 
 revoke all on function public.tw_apply(text, text, jsonb) from public;
-grant execute on function public.tw_apply(text, text, jsonb) to anon, authenticated, service_role;
+revoke all on function public.tw_apply(text, text, jsonb) from anon, authenticated;
+grant execute on function public.tw_apply(text, text, jsonb) to service_role;
 
 
