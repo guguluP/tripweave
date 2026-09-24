@@ -40,7 +40,9 @@ export async function getSessionUser(
   try {
     const session = await auth.api.getSession({ headers });
     if (!session?.user) return null;
-    return { id: session.user.id, email: session.user.email ?? null };
+    const { claimStableUserId } = await import("@/lib/server/account-subject");
+    const id = await claimStableUserId(session.user.id, session.user.email);
+    return { id, email: session.user.email ?? null };
   } catch (err) {
     console.error("[auth] getSession failed", err);
     return null;

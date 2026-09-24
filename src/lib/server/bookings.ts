@@ -752,6 +752,7 @@ export const createBooking = createServerFn({ method: "POST" })
         hotelEmail: deskFor(pkg.id).email,
         travel,
         pickupInr,
+        accountEmail: context.email?.trim().toLowerCase() || undefined,
       }),
       status: "paid",
       cardLast4: paid.last4,

@@ -12,6 +12,8 @@ export type BookingMeta = {
   travel?: TravelPlan;
   pickupInr?: number;
   guestEmail?: string;
+  /** Sign-in email. Lets a later login find this stay after the cookie user id changes. */
+  accountEmail?: string;
   deskNote?: string;
 };
 

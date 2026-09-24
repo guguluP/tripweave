@@ -113,7 +113,7 @@ Set these on the server. Never prefix a secret with `VITE_`. After a change on V
 | `HOTEL_DESKS`, `PARTNER_EMAILS` | Emails allowed to open a hotel desk |
 | `APPLE_PASS_*` | Optional Wallet certificates. The HTML pass works without them. |
 
-`DATABASE_URL` may be present for other tools. Better Auth on Vercel does not use it. A bad pooler password previously broke Google sign-in.
+`DATABASE_URL` may be present for other tools. Better Auth on Vercel does not use it. A bad pooler password previously broke Google sign-in. The cookie session still mints a new id on each login. `tw_claim_subject` keeps one id per sign-in email and moves that account's stays, saved hotels, and travellers onto it.
 
 Razorpay test cards and UPI ids are documented by Razorpay: [test cards](https://razorpay.com/docs/payments/payments/test-card-upi-details/). Sandbox card charges stay off when `VERCEL` or `NODE_ENV=production` is set.
 
@@ -121,7 +121,7 @@ Razorpay test cards and UPI ids are documented by Razorpay: [test cards](https:/
 
 This is the posture of `main`. It is not a procedure for calling the endpoints.
 
-**Session.** Listing bookings, creating a booking, cancelling, saving travellers, and saving a profile go through `authMiddleware`. The handler uses the session user id. A voucher URL only opens a booking already returned for that user.
+**Session.** Listing bookings, creating a booking, cancelling, saving travellers, and saving a profile go through `authMiddleware`. The handler uses the stable account id for that sign-in email, not a fresh cookie id. A voucher URL only opens a booking already returned for that user.
 
 **Payment.** `verifyRazorpayPayment` checks the Razorpay signature, then reads the payment from Razorpay, before a paid booking is stored. The webhook rejects a body whose `x-razorpay-signature` does not match HMAC-SHA256, compared in fixed time. A matching event is ignored unless it is `payment.captured` and the order notes contain a user and a stay. The amount sent to Razorpay is recomputed on the server.
 
