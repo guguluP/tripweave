@@ -61,7 +61,7 @@ export function Shell({
           <AuthSlot />
         </div>
       </header>
-      <main className="pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+      <main className="min-w-0 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
       <footer className="mt-16 hidden border-t border-border py-10 md:block">
         <div className="mx-auto flex max-w-6xl items-start justify-between px-4">
           <div>
@@ -76,7 +76,7 @@ export function Shell({
           <p className="text-sm text-subtle">Puri, Odisha</p>
         </div>
       </footer>
-      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-border bg-elevated/95 pb-safe backdrop-blur-md md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 grid w-full grid-cols-4 border-t border-border bg-elevated/95 pb-safe backdrop-blur-md md:hidden">
         {LINKS.map((l) => {
           const Icon = l.icon;
           const active = pathname === l.to;

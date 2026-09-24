@@ -30,7 +30,7 @@ export const Route = createFileRoute("/account")({ component: Account });
 function AccountSkeleton() {
   return (
     <Shell>
-      <div className="mx-auto max-w-lg px-4 py-10">
+      <div className="mx-auto w-full min-w-0 max-w-lg overflow-x-clip px-4 py-10">
         <Skeleton className="h-24 w-full rounded-xl" />
       </div>
     </Shell>
@@ -124,7 +124,7 @@ function AccountInner() {
 
   return (
     <Shell>
-      <div className="mx-auto max-w-lg px-4 py-10">
+      <div className="mx-auto w-full min-w-0 max-w-lg overflow-x-clip px-4 py-10">
         <Stagger>
           <p className="eyebrow">Account</p>
         </Stagger>
@@ -218,16 +218,16 @@ function AccountInner() {
         </div>
 
         {visible.length > 0 ? (
-          <ul className="mt-6 grid gap-2">
+          <ul className="mt-6 grid min-w-0 gap-2">
             {visible.slice(0, 4).map((b) => (
               <li
                 key={b.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+                className="flex min-w-0 items-center justify-between gap-3 overflow-hidden rounded-lg border border-border bg-surface px-3 py-2 text-sm"
               >
-                <span className="min-w-0 truncate">{b.packageName}</span>
-                <span className="shrink-0 text-right text-xs text-muted">
-                  <span className="block tabular-nums">{formatMoney(b.amountInr)}</span>
-                  <span className="block">{paymentLine(b)}</span>
+                <span className="min-w-0 flex-1 truncate">{b.packageName}</span>
+                <span className="w-28 shrink-0 text-right text-xs text-muted">
+                  <span className="block truncate tabular-nums">{formatMoney(b.amountInr)}</span>
+                  <span className="block truncate">{paymentLine(b)}</span>
                 </span>
               </li>
             ))}

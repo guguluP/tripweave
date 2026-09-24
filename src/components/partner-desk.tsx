@@ -71,7 +71,7 @@ export function PartnerDesk() {
   if (!allowed?.length) return null;
 
   return (
-    <section className="mt-12 border-t border-border pt-8">
+    <section className="mt-12 min-w-0 border-t border-border pt-8">
       <p className="eyebrow">Partner desk</p>
       <h2 className="mt-2 font-display text-2xl">Rates, photos, and confirmations</h2>
       <p className="mt-2 text-sm text-muted">Changes apply on top of the Puri catalog. Guests see the new nightly rate, cover photo, and extra prices.</p>
@@ -123,7 +123,7 @@ export function PartnerDesk() {
             <p className="text-muted">{booking.checkIn} · {booking.nights} nights · {formatMoney(booking.amountInr)} · {booking.status}</p>
             {booking.status === "paid" ? (
               <div className="mt-2 flex flex-wrap gap-2">
-                <input className="min-w-48 flex-1 rounded-md border border-border px-2 py-1" value={note} onChange={(e) => setNote(e.target.value)} />
+                <input className="w-full min-w-0 flex-1 rounded-md border border-border px-2 py-1 sm:min-w-48" value={note} onChange={(e) => setNote(e.target.value)} />
                 <Button
                   type="button"
                   size="sm"

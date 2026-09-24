@@ -29,6 +29,9 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* A wide child (a nowrap booking row) must not widen the layout
+       viewport. On a phone that shift slides the fixed tab bar sideways. */
+    overflow-x: clip;
   }
 
   body {
