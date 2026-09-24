@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DigitPop, Stagger, TextSwap } from "@/components/motion";
+import { RollingPrice } from "@/components/motion/rolling-price";
 import { PropertyMedia } from "@/components/property-media";
 import { ReviewerConsensus } from "@/components/reviewer-consensus";
 import { StayMap } from "@/components/stay-map";
@@ -286,7 +287,7 @@ function TripDetail() {
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
           <div>
             <p className="font-display text-xl tabular-nums">
-              <DigitPop value={formatMoney(price)} />
+              <RollingPrice value={price} />
             </p>
             <p className="text-xs text-muted">
               {quote?.available

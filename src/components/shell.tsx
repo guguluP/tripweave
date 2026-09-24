@@ -49,18 +49,24 @@ export function Shell({
                 key={l.to}
                 to={l.to}
                 className={cn(
-                  "text-sm font-medium text-muted transition-colors duration-150 hover:text-fg",
+                  "relative text-sm font-medium text-muted transition-colors duration-150 hover:text-fg",
                   pathname === l.to && "text-fg",
                 )}
               >
                 {l.label}
+                <span
+                  className={cn(
+                    "absolute -bottom-1.5 left-0 h-px w-full origin-left bg-current transition-transform duration-300 ease-out",
+                    pathname === l.to ? "scale-x-100" : "scale-x-0",
+                  )}
+                />
               </Link>
             ))}
           </nav>
           <AuthSlot />
         </div>
       </header>
-      <main className="min-w-0 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+      <main key={pathname} className="page-rise min-w-0 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
       <footer className="mt-16 hidden border-t border-border py-10 md:block">
         <div className="mx-auto flex max-w-6xl items-start justify-between px-4">
           <div>

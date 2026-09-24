@@ -2,6 +2,50 @@
 @import "./styles.motion-a.css";
 @import "./styles.motion-b.css";
 
+@keyframes page-rise {
+  from { transform: translateY(8px); }
+  to { transform: none; }
+}
+
+.page-rise {
+  animation: page-rise 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.roll-digit {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  line-height: 1;
+}
+
+.roll-digit-strip {
+  display: block;
+  transition: transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.roll-digit-strip > span {
+  display: block;
+  height: 1em;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-rise,
+  .roll-digit-strip {
+    animation: none;
+    transition: none;
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation: none;
+  }
+}
+
 /* Rath and Konark: the incoming frame eases in from a slight zoom. */
 .story-frame img,
 .story-frame video {

@@ -144,6 +144,7 @@ export function PropertyMedia({
           type="button"
           onClick={() => setOpen(true)}
           className="relative block h-64 w-full md:h-80"
+          style={{ viewTransitionName: `stay-${id}` }}
           aria-label={`View photos of ${name}`}
         >
           <Crossfade

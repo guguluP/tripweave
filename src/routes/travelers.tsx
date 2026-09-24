@@ -8,7 +8,8 @@ import { DigiYatraPanel, TransportPanel } from "@/components/transport-panel";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DigitPop, ShakeField, ShakeSelect, Stagger } from "@/components/motion";
+import { ShakeField, ShakeSelect, Stagger } from "@/components/motion";
+import { RollingPrice } from "@/components/motion/rolling-price";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { pushBanner } from "@/lib/banners";
 import { DIGILOCKER_STATUS } from "@/lib/digilocker";
@@ -489,7 +490,7 @@ function TravelersInner() {
               <p className="mt-3 text-sm">
                 Est. total{" "}
                 <span className="font-medium tabular-nums">
-                  <DigitPop value={formatMoney(total)} />
+                  <RollingPrice value={total} />
                 </span>{" "}
                 · room price · {count} guest{count === 1 ? "" : "s"} fit this room
               </p>
