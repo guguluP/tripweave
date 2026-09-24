@@ -139,7 +139,10 @@ export function PropertyMedia({
     setOpen(true);
   };
 
-  const albumPhotos = album === "rooms" && rooms.length ? rooms : gallery;
+  const headerSrc = gallery[index] ?? gallery[0];
+  const albumPhotos = album === "rooms" && rooms.length
+    ? rooms.filter((src) => src !== headerSrc)
+    : gallery.filter((src) => src !== headerSrc);
 
   return (
     <>
@@ -151,7 +154,7 @@ export function PropertyMedia({
           aria-label={`View photos of ${name}`}
         >
           <Crossfade
-            src={gallery[index] ?? gallery[0]}
+            src={headerSrc}
             alt={name}
             className="h-full w-full"
             mediaClassName="object-cover"
@@ -232,7 +235,15 @@ export function PropertyMedia({
               key={`${album}-${src}-${i}`}
               type="button"
               className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-border"
-              onClick={() => openAt(albumPhotos, i)}
+              onClick={() => {
+                if (album === "rooms") {
+                  openAt(rooms, rooms.indexOf(src));
+                  return;
+                }
+                const at = gallery.indexOf(src);
+                setViewList(null);
+                if (at >= 0) setIndex(at);
+              }}
               aria-label={`Photo ${i + 1} of ${albumPhotos.length}`}
             >
               <img src={src} alt="" className="h-full w-full object-cover" />
