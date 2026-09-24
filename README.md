@@ -31,9 +31,9 @@ TanStack Start server functions
 2. **Match** ranks the twelve stays in `src/lib/packages-data-a.ts` and `packages-data-b.ts` by vibe, budget, nights, and arrival. Trust scores are computed in `src/lib/trust-score.ts`.
 3. **Stay** (`src/routes/trip.$id.tsx`) shows the property gallery, official room types, leftover keys, a travel quote, and reviewer notes. Photos come from `src/lib/stay-media.json` and `public/stays/`.
 4. **Travellers** collects the guest, phone, email, masked identity, and an emergency contact.
-5. **Checkout** creates a Razorpay order for an amount computed on the server (`computePayable`). Before the window opens, `reserveCheckoutHold` asks Postgres for the nights. A sold-out room stops checkout. A missing or rejected service client falls back to the in-process hold book so the window can still open. That fallback hold is not shared across server instances.
+5. **Checkout** creates a Razorpay order for an amount computed on the server (`computePayable`). The amount is the room for those nights, each selected add-on once, and the car once. Guest count does not multiply it. The count still cannot exceed the number of people the room sleeps. “Today” is the calendar day in India (`Asia/Kolkata`). Before the window opens, `reserveCheckoutHold` asks Postgres for the nights. A sold-out room stops checkout. A missing or rejected service client falls back to the in-process hold book so the window can still open. That fallback hold is not shared across server instances.
 6. **Verify.** The browser returns the Razorpay signature. The server checks it, reads the payment from Razorpay, then writes the booking. A confirmation code is `TW-` plus 10 characters.
-7. **After pay.** The guest gets a voucher, an HTML pass, and a calendar file. Apple Wallet is added only when pass certificates are configured. Cancellation follows `src/lib/refund-policy.ts`: full refund at least 48 hours before noon check-in, half inside that window, none after.
+7. **After pay.** The guest gets a voucher, an HTML pass, and a calendar file. Apple Wallet is added only when pass certificates are configured. Cancellation follows `src/lib/refund-policy.ts`: full refund at least 48 hours before noon IST on check-in, half inside that window, none after. A refund that was saved but not finished is tried again when that guest opens My trips. It uses the amount already decided and does not send the money twice.
 
 ### Data
 
@@ -59,9 +59,11 @@ Arrival mode picks the gateway: the airport, Puri railway station, or the bus st
 
 ### Media and motion
 
-Stay photos are local JPEGs under `public/stays/`. The build does not hotlink hotel CDNs. Each gallery and each room strip lists a frame once. The homepage cover plays the beach still, then crossfades between three clips. Screens that report high dynamic range and can play HEVC get the 10-bit HLG files. Every other screen gets the tonemapped H.264 files.
+Stay photos are local JPEGs under `public/stays/`. The build does not hotlink hotel CDNs. Each gallery lists a frame once. A room strip shows only that room’s own photos. Two hotels still share one published file across two room names, because that is the file the hotel published.
 
-`src/components/crossfade.tsx` is the same dissolve for the Rath Yatra and Konark carousels, the stay photo, the full-screen viewer, and room thumbnails. Route changes fade the new page in (`page-fade` in `src/styles.css`). Reduced-motion settings collapse those transitions.
+The homepage cover plays the beach still, then crossfades between three clips. Screens that report high dynamic range and can play HEVC get the 10-bit HLG files. Every other screen gets the tonemapped H.264 files.
+
+Rath Yatra and Konark (`src/components/rath-carousel.tsx`) advance their stills every 7 seconds and return to the first still instead of stopping on a film. Choosing a film plays it and pauses the timer. The incoming frame fades in while easing from a slight zoom. The caption rises with the new frame, and the active chapter fills a 7-second bar. `src/components/crossfade.tsx` is the same dissolve for those carousels, the stay photo, the full-screen viewer, and room thumbnails. Route changes fade the page body in (`page-fade` in `src/styles.css`). The header stays put. Reduced-motion settings collapse those transitions.
 
 Reviewer notes are a curated set of YouTube stay videos. A page load reads the saved consensus or the seed. It does not call a model. Rebuilding the notes needs `XAI_API_KEY`.
 
@@ -125,7 +127,7 @@ This is the posture of `main`. It is not a procedure for calling the endpoints.
 
 **Database.** Direct table policies deny `anon` and `authenticated`. The `tw_*` functions no longer trust a shared password. Execute is revoked from `public`, `anon`, and `authenticated`. A call with the publishable key returns permission denied. The old password remains in git history and does not work against the live functions. Do not commit a replacement, a service-role key, or a `.env`.
 
-**Identity.** Aadhaar is masked before it is kept. The traveller row stores the last four digits. The DigiLocker sandbox completion handler has no session check. Without live DigiLocker credentials it returns a sample traveller for a fixed sandbox OTP. That payload is not an identity.
+**Identity.** Aadhaar, passport, and licence numbers are reduced to the last four characters before they are kept in this browser. The traveller row stores those four characters. The DigiLocker control on the traveller page is a labelled sample. Without live DigiLocker credentials it returns a sample traveller for a fixed sandbox OTP. That payload is not an identity.
 
 **Desk.** Anyone whose sign-in email matches the desk list can change that hotel’s rate, photos, and key count. Protect those inboxes. A value of `email:*` grants every hotel.
 
@@ -133,10 +135,10 @@ This is the posture of `main`. It is not a procedure for calling the endpoints.
 
 - A guest who closes the tab after paying depends on Razorpay calling `https://tripweave-web.vercel.app/api/verify-payment`. This repo does not create that webhook. Until it exists, a captured payment can have no booking.
 - Prefer `RAZORPAY_WEBHOOK_SECRET` over reusing the key secret.
-- A failed refund after a sold-out capture is queued. Nothing in the repo retries that queue on a schedule.
+- A failed refund after a sold-out capture is queued. Opening My trips retries a pending refund for that guest. Nothing in the repo retries the queue on a clock while the guest is away.
 - Better Auth users can live apart from `bookings.user_id` because sign-in is not on the bookings database.
 - There is no Content-Security-Policy. Razorpay and Google load scripts from their own hosts. A policy has to allow those hosts on purpose.
-- `loadOccupancy` and `quoteCab` are public. Occupancy is hold counts. The cab figure is a distance times a fixed rate, not a live operator price.
+- `loadOccupancy` and `quoteCab` are public. Occupancy is which rooms are taken. Hold ids in that response are a hash, not confirmation codes. The cab figure is a distance times a fixed rate, not a live operator price.
 
 ## License
 
