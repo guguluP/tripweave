@@ -56,7 +56,7 @@ Cookie sessions mint a new Better Auth user id on each login. `tw_claim_subject`
 | --- | --- | --- |
 | Catalog in the repo | Twelve hotels, room types, prices, photo index | Anyone with the repository. No guest rows. |
 | Browser storage | Brief, saved stays, account home city | That browser only. |
-| Better Auth | Sign-in session, Google and email | Server. On Vercel it is not pointed at `DATABASE_URL`. |
+| Better Auth | Sign-in session, Google and email | Server. On Vercel, users and reset tokens are the Supabase `ba_*` tables, not `DATABASE_URL`. |
 | Supabase `tw_*` | Bookings, travellers, profiles, room holds, refunds, desk overrides, review cache | Service role only. `anon` and `authenticated` cannot execute the functions. |
 | Razorpay | Orders and captures | Server secret. The browser receives the public key id. |
 
@@ -149,13 +149,13 @@ Set these on the server. Never prefix a secret with `VITE_`. After a change on V
 | `SUPABASE_URL`, `VITE_SUPABASE_URL` | Project URL |
 | `SUPABASE_ANON_KEY` or `SUPABASE_PUBLISHABLE_KEY` | Public key, also as `VITE_` for the browser |
 | `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_SECRET_KEY` | Legacy service-role JWT. Server only. |
-| `RESEND_API_KEY`, `RESEND_FROM` | Booking mail and password reset. Mail does not send until both are set. |
+| `RESEND_API_KEY` | Booking mail and password reset. Mail does not send until this is set. |
 | `XAI_API_KEY` | Rebuild reviewer notes. Not used on ordinary page loads. |
 | `YOUTUBE_API_KEY` | Optional extra stay-review search |
 | `HOTEL_DESKS`, `PARTNER_EMAILS` | Emails allowed to open a hotel desk |
 | `APPLE_PASS_*` | Optional Wallet certificates. The HTML pass works without them. |
 
-`DATABASE_URL` may be present for other tools. Better Auth on Vercel does not use it. A bad pooler password previously broke Google sign-in. The cookie session still mints a new id on each login. `tw_claim_subject` keeps one id per sign-in email and moves that account's stays, saved hotels, and travellers onto it.
+`DATABASE_URL` may be present for other tools. Better Auth on Vercel does not use it. A bad pooler password previously broke Google sign-in. On Vercel, with `SUPABASE_SECRET_KEY` set, sign-in is stored in `ba_user`, `ba_session`, `ba_account`, and `ba_verification` (`supabase/auth_identity.sql`). Apply that file in the Supabase SQL editor before relying on reset links. A password reset email is sent when `RESEND_API_KEY` is set. `RESEND_FROM` is optional; if it is unset, mail uses Resend's test sender `onboarding@resend.dev`, which delivers only to the Resend account address. `tw_claim_subject` keeps one booking id per sign-in email.
 
 Razorpay test cards and UPI ids are documented by Razorpay: [test cards](https://razorpay.com/docs/payments/payments/test-card-upi-details/). Sandbox card charges stay off when `VERCEL` or `NODE_ENV=production` is set.
 
@@ -178,7 +178,7 @@ This is the posture of `main`. It is not a procedure for calling the endpoints.
 - A guest who closes the tab after paying depends on Razorpay calling `https://tripweave-web.vercel.app/api/verify-payment`. This repo does not create that webhook. Until it exists, a captured payment can have no booking.
 - Prefer `RAZORPAY_WEBHOOK_SECRET` over reusing the key secret.
 - A failed refund after a sold-out capture is queued. Opening My trips retries a pending refund for that guest. Nothing in the repo retries the queue on a clock while the guest is away.
-- Better Auth users can live apart from `bookings.user_id` because sign-in is not on the bookings database.
+- Better Auth rows live in Supabase `ba_*` tables. Bookings still attach through `tw_claim_subject` and the sign-in email. Password reset mail stays off until Resend is set.
 - There is no Content-Security-Policy. Razorpay and Google load scripts from their own hosts. A policy has to allow those hosts on purpose.
 - `loadOccupancy` and `quoteCab` are public. Occupancy is which rooms are taken. Hold ids in that response are a hash, not confirmation codes. The cab figure is a distance times a fixed rate, not a live operator price.
 

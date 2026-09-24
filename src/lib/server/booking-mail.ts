@@ -1,4 +1,5 @@
 import { deskFor } from "@/lib/hotel-desk";
+import { resendClient, resendFrom } from "@/lib/mail/resend";
 
 type Notice = {
   guestEmail?: string | null;
@@ -13,19 +14,19 @@ type Notice = {
 };
 
 async function send(to: string, subject: string, text: string) {
-  const key = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.RESEND_FROM?.trim();
-  if (!key || !from || !to) return false;
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to: [to], subject, text }),
+  const resend = resendClient();
+  if (!resend || !to) return false;
+  const { error } = await resend.emails.send({
+    from: resendFrom(),
+    to: [to],
+    subject,
+    text,
   });
-  if (!res.ok) console.error("[mail] booking", res.status, (await res.text()).slice(0, 180));
-  return res.ok;
+  if (error) console.error("[mail] booking", error.message);
+  return !error;
 }
 
-/** Guest and hotel desk. No-ops until RESEND_API_KEY and RESEND_FROM are set. */
+/** Guest and hotel desk. No-ops until RESEND_API_KEY is set. */
 export async function sendBookingNotices(input: Notice) {
   const desk = deskFor(input.packageId);
   const body = [

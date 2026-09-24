@@ -12,6 +12,8 @@ import { Pool } from "pg";
 import { getPglite } from "../db";
 import { emailAndPasswordEnabled } from "./email-password";
 import { sendPasswordResetEmail } from "./password-email";
+import { supabaseAuthAdapter } from "./supabase-adapter";
+import { isSupabaseAdminConfigured } from "../supabase/env";
 import { gateIdentitySessions } from "./gate-session.server";
 import { GROK_PROVIDERS } from "./providers";
 import { pgliteDialect } from "./pglite-dialect";
@@ -123,11 +125,13 @@ export const auth = betterAuth({
     fallback: "http://localhost:8080",
   },
   secret: getSecret(),
-  // Vercel: cookie sessions only (previous working Google path).
-  // Do not attach DATABASE_URL here — a bad pooler password was 500ing
-  // /api/auth/sign-in/social. Bookings still use Supabase JS separately.
+  // Vercel does not use DATABASE_URL. A bad pooler password was 500ing
+  // /api/auth/sign-in/social. Identity lives in Supabase ba_* tables instead,
+  // so a password reset token is still there on the next request.
   ...(onServerless
-    ? {}
+    ? isSupabaseAdminConfigured()
+      ? { database: supabaseAuthAdapter() }
+      : {}
     : hasDb
       ? { database: new Pool({ connectionString: databaseUrl }) }
       : { database: pgliteDialect(() => getPglite()) }),
