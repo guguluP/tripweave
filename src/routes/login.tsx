@@ -454,7 +454,7 @@ function Login() {
                             : "Email reset link"
                           : mode === "in"
                             ? "Sign in with email"
-                            : "Create email account"}
+                            : "Create Account"}
                     </Button>
                   </form>
                 </>
