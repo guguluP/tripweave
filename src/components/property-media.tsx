@@ -67,6 +67,7 @@ export function PropertyMedia({
   videos,
   featured,
   arrivalPin,
+  roomImages = [],
 }: {
   id: string;
   name: string;
@@ -74,6 +75,7 @@ export function PropertyMedia({
   videos: Video[];
   featured?: string;
   arrivalPin?: string;
+  roomImages?: string[];
 }) {
   const gallery = useMemo(() => {
     const list = images.filter(Boolean);
@@ -83,6 +85,8 @@ export function PropertyMedia({
 
   const [index, setIndex] = useState(0);
   const [open, setOpen] = useState(false);
+  const [album, setAlbum] = useState<"property" | "rooms">("property");
+  const [viewList, setViewList] = useState<string[] | null>(null);
   const [viewerHold, setViewerHold] = useState(false);
   const [viewerOn, setViewerOn] = useState(false);
   const thumbRail = useRef<HTMLDivElement>(null);
@@ -130,19 +134,31 @@ export function PropertyMedia({
     active?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
   }, [index]);
 
-  const current = gallery[index] ?? gallery[0];
+  const rooms = roomImages.filter((src) => src && !gallery.includes(src));
+  const activeList = viewList ?? gallery;
+  const current = activeList[index] ?? activeList[0];
   if (!current) return null;
 
   const step = (dir: -1 | 1) => {
-    setIndex((n) => (n + dir + gallery.length) % gallery.length);
+    setIndex((n) => (n + dir + activeList.length) % activeList.length);
   };
+
+  const openAt = (list: string[], i: number) => {
+    setViewList(list);
+    setIndex(i);
+    setOpen(true);
+  };
+
+  const albumPhotos = album === "rooms" && rooms.length ? rooms : gallery;
+  const preview = albumPhotos.slice(0, 6);
+  const extra = Math.max(0, albumPhotos.length - 6);
 
   return (
     <>
       <div className="relative">
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={() => openAt(gallery, index)}
           className="relative block h-64 w-full md:h-80"
           style={{ viewTransitionName: `stay-${id}` }}
           aria-label={`View photos of ${name}`}
@@ -206,6 +222,54 @@ export function PropertyMedia({
         ) : null}
       </div>
 
+      <div className="mx-auto mt-6 max-w-3xl px-4">
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className={cn(
+              "rounded-full border px-3 py-1.5 text-sm",
+              album === "property" ? "border-primary bg-primary text-primary-fg" : "border-border bg-elevated",
+            )}
+            onClick={() => setAlbum("property")}
+          >
+            Property
+          </button>
+          {rooms.length > 0 ? (
+            <button
+              type="button"
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-sm",
+                album === "rooms" ? "border-primary bg-primary text-primary-fg" : "border-border bg-elevated",
+              )}
+              onClick={() => setAlbum("rooms")}
+            >
+              Rooms
+            </button>
+          ) : null}
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {preview.map((src, i) => {
+            const last = i === preview.length - 1 && extra > 0;
+            return (
+              <button
+                key={`${src}-${i}`}
+                type="button"
+                className="relative aspect-[4/3] overflow-hidden rounded-xl bg-border"
+                onClick={() => openAt(albumPhotos, i)}
+                aria-label={last ? `View all ${albumPhotos.length} photos` : `Photo ${i + 1}`}
+              >
+                <img src={src} alt="" className="h-full w-full object-cover" />
+                {last ? (
+                  <span className="absolute inset-0 flex items-center justify-center bg-fg/55 font-display text-2xl text-primary-fg">
+                    +{extra} photos
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {videos.length > 0 ? (
         <div className="mx-auto mt-5 max-w-3xl px-4">
           <p className="eyebrow">Property tours</p>
@@ -255,7 +319,7 @@ export function PropertyMedia({
           >
             <X className="size-5" />
           </button>
-          {gallery.length > 1 ? (
+          {activeList.length > 1 ? (
             <>
               <button
                 type="button"

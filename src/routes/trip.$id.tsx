@@ -147,6 +147,7 @@ function TripDetail() {
         id={pkg.id}
         name={pkg.name}
         images={pkg.images}
+        roomImages={pkg.rooms.flatMap((room) => room.images ?? (room.image ? [room.image] : []))}
         videos={pkg.videos}
         arrivalPin={arrivalPinLabel(brief.arriveBy)}
       />
