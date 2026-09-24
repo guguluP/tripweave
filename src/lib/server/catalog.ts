@@ -152,21 +152,18 @@ export const sendStayReminder = createServerFn({ method: "POST" })
   .validator((data: unknown) => z.object({ email: z.string().email(), hotel: z.string(), checkIn: z.string(), code: z.string(), packageId: z.string() }).parse(data))
   .handler(async ({ data }) => {
     await assertPartnerStay(data.packageId);
-    const key = process.env.RESEND_API_KEY?.trim();
-    const from = process.env.RESEND_FROM?.trim();
-    if (!key || !from) {
-      return { ok: false as const, message: "Reminder email needs RESEND_API_KEY and RESEND_FROM. The guest still sees the reminder in My trips." };
+    const { mailConfigured, sendMail } = await import("@/lib/mail/ses");
+    if (!mailConfigured()) {
+      return { ok: false as const, message: "Reminder email needs Amazon SES. The guest still sees the reminder in My trips." };
     }
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from,
-        to: [data.email],
+    try {
+      await sendMail({
+        to: data.email,
         subject: `Tomorrow: ${data.hotel}`,
         text: `Your TripWeave stay at ${data.hotel} checks in on ${data.checkIn}. Confirmation ${data.code}. Show the desk voucher when you arrive.`,
-      }),
-    });
-    if (!res.ok) return { ok: false as const, message: "Could not send the reminder email." };
+      });
+    } catch {
+      return { ok: false as const, message: "Could not send the reminder email." };
+    }
     return { ok: true as const };
   });
