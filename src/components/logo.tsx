@@ -48,39 +48,17 @@ export function WeaveMark({ className }: { className?: string }) {
   );
 }
 
-/** Concept 2 — woven W in teal + saffron. */
+/** Same font as Trip / eave. Left half teal, right half saffron. */
 function WovenW({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 22 18"
-      className={cn("h-[0.92em] w-[1.15em] translate-y-[0.04em]", className)}
-      aria-hidden
-    >
-      <path
-        d="M1.4 16.2 L6.2 2.4 L11 11.4"
-        fill="none"
-        stroke="#1F8A86"
-        strokeWidth="2.35"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M11 11.4 L15.8 2.4 L20.6 16.2"
-        fill="none"
-        stroke="#D97706"
-        strokeWidth="2.35"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M8.6 7.6 L11 11.4 L13.4 7.6"
-        fill="none"
-        stroke="#1F8A86"
-        strokeWidth="2.35"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <span className={cn("relative inline-grid leading-none", className)} aria-hidden>
+      <span className="col-start-1 row-start-1 text-[#1F8A86]" style={{ clipPath: "inset(0 50% 0 0)" }}>
+        W
+      </span>
+      <span className="col-start-1 row-start-1 text-[#D97706]" style={{ clipPath: "inset(0 0 0 50%)" }}>
+        W
+      </span>
+    </span>
   );
 }
 
