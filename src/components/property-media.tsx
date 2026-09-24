@@ -7,16 +7,6 @@ import { cn } from "@/lib/utils";
 
 type Video = { videoId: string; title: string };
 
-function thumbSrc(src: string, w = 240) {
-  // Shrink Unsplash only if present (e.g. login / discover heroes — not named hotels).
-  if (src.includes("images.unsplash.com")) {
-    const base = src.split("?")[0] ?? src;
-    return `${base}?auto=format&fit=crop&w=${w}&q=60`;
-  }
-  // Local /stays assets and official CDNs need no YouTube mqdefault rewrite.
-  return src;
-}
-
 /** Gallery img — local /stays assets (or stable official URLs). */
 function PropertyImg({
   src,
@@ -150,8 +140,6 @@ export function PropertyMedia({
   };
 
   const albumPhotos = album === "rooms" && rooms.length ? rooms : gallery;
-  const preview = albumPhotos.slice(0, 6);
-  const extra = Math.max(0, albumPhotos.length - 6);
 
   return (
     <>
@@ -159,19 +147,17 @@ export function PropertyMedia({
         <button
           type="button"
           onClick={() => openAt(gallery, index)}
-          className="relative block h-64 w-full md:h-80"
-          style={{ viewTransitionName: `stay-${id}` }}
+          className="relative block h-[70vh] min-h-[28rem] w-full max-h-[42rem]"
           aria-label={`View photos of ${name}`}
         >
           <Crossfade
-            src={current}
+            src={gallery[index] ?? gallery[0]}
             alt={name}
             className="h-full w-full"
             mediaClassName="object-cover"
           />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg via-bg/20 to-transparent" />
           <span className="pointer-events-none absolute left-4 top-4 rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg">
-            Property · {index + 1}/{gallery.length}
+            {index + 1} / {gallery.length}
           </span>
           {arrivalPin ? (
             <span className="pointer-events-none absolute left-4 top-14 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-fg">
@@ -183,90 +169,75 @@ export function PropertyMedia({
         <div className="absolute right-4 top-4 z-10">
           <LikeButton id={id} />
         </div>
-        {gallery.length > 1 ? (
-          <div className="absolute inset-x-0 bottom-0 z-[1] bg-gradient-to-t from-fg/50 to-transparent px-3 pb-3 pt-8">
-            <div
-              ref={thumbRail}
-              className="scrollbar-hide flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain"
-              role="listbox"
-              aria-label={`${name} photo thumbnails`}
-            >
-              {gallery.map((src, i) => (
-                <button
-                  key={`${src}-${i}`}
-                  type="button"
-                  data-active={i === index ? "true" : "false"}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIndex(i);
-                  }}
-                  className={cn(
-                    "size-12 shrink-0 snap-start overflow-hidden rounded-md border-2 transition-[border-color,opacity] duration-300 sm:size-14",
-                    i === index ? "border-primary-fg" : "border-transparent opacity-85",
-                  )}
-                  aria-label={`Photo ${i + 1} of ${gallery.length}`}
-                  aria-selected={i === index}
-                  role="option"
-                >
-                  <img
-                    src={thumbSrc(src)}
-                    alt=""
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : null}
       </div>
 
-      <div className="mx-auto mt-6 max-w-3xl px-4">
-        <div className="flex gap-2">
+      <div className="mx-auto max-w-6xl px-4 pt-4">
+        {gallery.length > 1 ? (
+          <div
+            ref={thumbRail}
+            className="scrollbar-hide flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain"
+            role="listbox"
+            aria-label={`${name} photo thumbnails`}
+          >
+            {gallery.map((src, i) => (
+              <button
+                key={`${src}-${i}`}
+                type="button"
+                data-active={i === index ? "true" : "false"}
+                onClick={() => {
+                  setViewList(null);
+                  setIndex(i);
+                }}
+                className={cn(
+                  "h-20 w-28 shrink-0 snap-start overflow-hidden rounded-lg border-2 sm:h-24 sm:w-36",
+                  i === index ? "border-primary" : "border-transparent opacity-80",
+                )}
+                aria-label={`Photo ${i + 1} of ${gallery.length}`}
+                aria-selected={i === index}
+                role="option"
+              >
+                <img src={src} alt="" className="h-full w-full object-cover" />
+              </button>
+            ))}
+          </div>
+        ) : null}
+
+        <div className="mt-8 flex gap-2">
           <button
             type="button"
             className={cn(
-              "rounded-full border px-3 py-1.5 text-sm",
+              "rounded-full border px-4 py-2 text-sm",
               album === "property" ? "border-primary bg-primary text-primary-fg" : "border-border bg-elevated",
             )}
             onClick={() => setAlbum("property")}
           >
-            Property
+            Property · {gallery.length}
           </button>
           {rooms.length > 0 ? (
             <button
               type="button"
               className={cn(
-                "rounded-full border px-3 py-1.5 text-sm",
+                "rounded-full border px-4 py-2 text-sm",
                 album === "rooms" ? "border-primary bg-primary text-primary-fg" : "border-border bg-elevated",
               )}
               onClick={() => setAlbum("rooms")}
             >
-              Rooms
+              Rooms · {rooms.length}
             </button>
           ) : null}
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {preview.map((src, i) => {
-            const last = i === preview.length - 1 && extra > 0;
-            return (
-              <button
-                key={`${src}-${i}`}
-                type="button"
-                className="relative aspect-[4/3] overflow-hidden rounded-xl bg-border"
-                onClick={() => openAt(albumPhotos, i)}
-                aria-label={last ? `View all ${albumPhotos.length} photos` : `Photo ${i + 1}`}
-              >
-                <img src={src} alt="" className="h-full w-full object-cover" />
-                {last ? (
-                  <span className="absolute inset-0 flex items-center justify-center bg-fg/55 font-display text-2xl text-primary-fg">
-                    +{extra} photos
-                  </span>
-                ) : null}
-              </button>
-            );
-          })}
+        <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
+          {albumPhotos.map((src, i) => (
+            <button
+              key={`${album}-${src}-${i}`}
+              type="button"
+              className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-border"
+              onClick={() => openAt(albumPhotos, i)}
+              aria-label={`Photo ${i + 1} of ${albumPhotos.length}`}
+            >
+              <img src={src} alt="" className="h-full w-full object-cover" />
+            </button>
+          ))}
         </div>
       </div>
 

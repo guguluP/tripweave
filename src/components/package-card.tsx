@@ -60,8 +60,8 @@ export function PackageCard({
       <div className="absolute right-3 top-3 z-10">
         <LikeButton id={pkg.id} />
       </div>
-      <Link to="/trip/$id" params={{ id: pkg.id }} viewTransition className="group block">
-        <div className="overflow-hidden rounded-t-xl" style={{ viewTransitionName: `stay-${pkg.id}` }}>
+      <Link to="/trip/$id" params={{ id: pkg.id }} className="group block">
+        <div className="overflow-hidden rounded-t-xl">
           <div className="relative">
             <img src={pkg.image} alt={pkg.name} className="h-44 w-full object-cover" />
             <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-fg/70 to-transparent" />
