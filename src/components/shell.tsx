@@ -3,7 +3,7 @@ import { Compass, Map, UserRound, WalletCards } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { loadCatalog } from "@/lib/server/catalog";
 import { setCatalogOverlays } from "@/lib/catalog-store";
-import { BrandWord, WeaveMark } from "@/components/logo";
+import { BrandLockup } from "@/components/logo";
 import { AuthSlot } from "@/components/auth-slot";
 import { cn } from "@/lib/utils";
 
@@ -40,9 +40,8 @@ export function Shell({
     <div className="min-h-dvh bg-bg text-fg">
       <header className="sticky top-0 z-30 border-b border-border/80 bg-bg/90 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-2">
-            <WeaveMark className="size-8" />
-            <BrandWord />
+          <Link to="/" className="flex items-center">
+            <BrandLockup markClassName="size-10" />
           </Link>
           <nav className="hidden items-center gap-6 md:flex">
             {LINKS.slice(0, 3).map((l) => (
@@ -65,10 +64,7 @@ export function Shell({
       <footer className="mt-16 hidden border-t border-border py-10 md:block">
         <div className="mx-auto flex max-w-6xl items-start justify-between px-4">
           <div>
-            <div className="flex items-center gap-2">
-              <WeaveMark className="size-7" />
-              <BrandWord />
-            </div>
+            <BrandLockup markClassName="size-9" />
             <p className="mt-3 max-w-sm text-sm text-muted">
               Three honest Puri stays. All-in rupee prices. A Trust Score you can read.
             </p>
