@@ -19,41 +19,53 @@
       ],
       "rooms": {
         "executive-sea-suite": [
-          "/stays/taj-puri-resort-spa/rooms/executive-sea-suite-1.jpg"
+          "/stays/taj-puri-resort-spa/rooms/executive-sea-suite-1.jpg",
+          "/stays/taj-puri-resort-spa/rooms/executive-sea-suite.jpg"
         ],
         "luxury-sea-suite": [
-          "/stays/taj-puri-resort-spa/rooms/luxury-sea-suite-1.jpg"
+          "/stays/taj-puri-resort-spa/rooms/luxury-sea-suite-1.jpg",
+          "/stays/taj-puri-resort-spa/rooms/luxury-sea-suite.jpg"
         ],
         "presidential-sea-pool": [
-          "/stays/taj-puri-resort-spa/rooms/presidential-sea-pool-1.jpg"
+          "/stays/taj-puri-resort-spa/rooms/presidential-sea-pool-1.jpg",
+          "/stays/taj-puri-resort-spa/rooms/presidential-sea-pool.jpg"
         ],
         "superior-king-balcony": [
-          "/stays/taj-puri-resort-spa/rooms/superior-king-balcony-1.jpg"
+          "/stays/taj-puri-resort-spa/rooms/superior-king-balcony-1.jpg",
+          "/stays/taj-puri-resort-spa/rooms/superior-king-balcony.jpg"
         ],
         "superior-twin-balcony": [
-          "/stays/taj-puri-resort-spa/rooms/superior-twin-balcony-1.jpg"
+          "/stays/taj-puri-resort-spa/rooms/superior-twin-balcony-1.jpg",
+          "/stays/taj-puri-resort-spa/rooms/superior-twin-balcony.jpg"
         ],
         "superior-sea-king": [
           "/stays/taj-puri-resort-spa/rooms/superior-sea-king-1.jpg",
-          "/stays/taj-puri-resort-spa/rooms/superior-sea-king-2.jpg"
+          "/stays/taj-puri-resort-spa/rooms/superior-sea-king-2.jpg",
+          "/stays/taj-puri-resort-spa/rooms/superior-sea-king.jpg"
         ],
         "superior-sea-twin": [
-          "/stays/taj-puri-resort-spa/rooms/superior-sea-twin-1.jpg"
+          "/stays/taj-puri-resort-spa/rooms/superior-sea-twin-1.jpg",
+          "/stays/taj-puri-resort-spa/rooms/superior-sea-twin.jpg"
         ],
         "deluxe-sea-king": [
-          "/stays/taj-puri-resort-spa/rooms/deluxe-sea-king-1.jpg"
+          "/stays/taj-puri-resort-spa/rooms/deluxe-sea-king-1.jpg",
+          "/stays/taj-puri-resort-spa/rooms/deluxe-sea-king.jpg"
         ],
         "deluxe-sea-twin": [
-          "/stays/taj-puri-resort-spa/rooms/deluxe-sea-twin-1.jpg"
+          "/stays/taj-puri-resort-spa/rooms/deluxe-sea-twin-1.jpg",
+          "/stays/taj-puri-resort-spa/rooms/deluxe-sea-twin.jpg"
         ],
         "luxury-sea-king": [
-          "/stays/taj-puri-resort-spa/rooms/luxury-sea-king-1.jpg"
+          "/stays/taj-puri-resort-spa/rooms/luxury-sea-king-1.jpg",
+          "/stays/taj-puri-resort-spa/rooms/luxury-sea-king.jpg"
         ],
         "grand-plunge-king": [
-          "/stays/taj-puri-resort-spa/rooms/grand-plunge-king-1.jpg"
+          "/stays/taj-puri-resort-spa/rooms/grand-plunge-king-1.jpg",
+          "/stays/taj-puri-resort-spa/rooms/grand-plunge-king.jpg"
         ],
         "grand-plunge-twin": [
-          "/stays/taj-puri-resort-spa/rooms/grand-plunge-twin-1.jpg"
+          "/stays/taj-puri-resort-spa/rooms/grand-plunge-twin-1.jpg",
+          "/stays/taj-puri-resort-spa/rooms/grand-plunge-twin.jpg"
         ]
       }
     },
@@ -75,22 +87,28 @@
       ],
       "rooms": {
         "deluxe": [
-          "/stays/mayfair-heritage-puri/rooms/deluxe-1.jpg"
+          "/stays/mayfair-heritage-puri/rooms/deluxe-1.jpg",
+          "/stays/mayfair-heritage-puri/rooms/deluxe.jpg"
         ],
         "heritage-premium": [
-          "/stays/mayfair-heritage-puri/rooms/heritage-premium-1.jpg"
+          "/stays/mayfair-heritage-puri/rooms/heritage-premium-1.jpg",
+          "/stays/mayfair-heritage-puri/rooms/heritage-premium.jpg"
         ],
         "deluxe-cottage": [
-          "/stays/mayfair-heritage-puri/rooms/deluxe-cottage-1.jpg"
+          "/stays/mayfair-heritage-puri/rooms/deluxe-cottage-1.jpg",
+          "/stays/mayfair-heritage-puri/rooms/deluxe-cottage.jpg"
         ],
         "sea-view-cottage": [
-          "/stays/mayfair-heritage-puri/rooms/sea-view-cottage-1.jpg"
+          "/stays/mayfair-heritage-puri/rooms/sea-view-cottage-1.jpg",
+          "/stays/mayfair-heritage-puri/rooms/sea-view-cottage.jpg"
         ],
         "deluxe-suite": [
-          "/stays/mayfair-heritage-puri/rooms/deluxe-suite-1.jpg"
+          "/stays/mayfair-heritage-puri/rooms/deluxe-suite-1.jpg",
+          "/stays/mayfair-heritage-puri/rooms/deluxe-suite.jpg"
         ],
         "family-suite": [
-          "/stays/mayfair-heritage-puri/rooms/family-suite-1.jpg"
+          "/stays/mayfair-heritage-puri/rooms/family-suite-1.jpg",
+          "/stays/mayfair-heritage-puri/rooms/family-suite.jpg"
         ]
       }
     },
@@ -113,28 +131,36 @@
       ],
       "rooms": {
         "premium": [
-          "/stays/swosti-premium-beach-resort/rooms/premium-1.jpg"
+          "/stays/swosti-premium-beach-resort/rooms/premium-1.jpg",
+          "/stays/swosti-premium-beach-resort/rooms/premium.jpg"
         ],
         "sea-view-side": [
-          "/stays/swosti-premium-beach-resort/rooms/sea-view-side-1.jpg"
+          "/stays/swosti-premium-beach-resort/rooms/sea-view-side-1.jpg",
+          "/stays/swosti-premium-beach-resort/rooms/sea-view-side.jpg"
         ],
         "sea-view-front": [
-          "/stays/swosti-premium-beach-resort/rooms/sea-view-front-1.jpg"
+          "/stays/swosti-premium-beach-resort/rooms/sea-view-front-1.jpg",
+          "/stays/swosti-premium-beach-resort/rooms/sea-view-front.jpg"
         ],
         "interconnecting": [
-          "/stays/swosti-premium-beach-resort/rooms/interconnecting-1.jpg"
+          "/stays/swosti-premium-beach-resort/rooms/interconnecting-1.jpg",
+          "/stays/swosti-premium-beach-resort/rooms/interconnecting.jpg"
         ],
         "oasis-suite": [
-          "/stays/swosti-premium-beach-resort/rooms/oasis-suite-1.jpg"
+          "/stays/swosti-premium-beach-resort/rooms/oasis-suite-1.jpg",
+          "/stays/swosti-premium-beach-resort/rooms/oasis-suite.jpg"
         ],
         "intimate-escape-suite": [
-          "/stays/swosti-premium-beach-resort/rooms/intimate-escape-suite-1.jpg"
+          "/stays/swosti-premium-beach-resort/rooms/intimate-escape-suite-1.jpg",
+          "/stays/swosti-premium-beach-resort/rooms/intimate-escape-suite.jpg"
         ],
         "imperial-suite": [
-          "/stays/swosti-premium-beach-resort/rooms/imperial-suite-1.jpg"
+          "/stays/swosti-premium-beach-resort/rooms/imperial-suite-1.jpg",
+          "/stays/swosti-premium-beach-resort/rooms/imperial-suite.jpg"
         ],
         "royal-ambassador-suite": [
-          "/stays/swosti-premium-beach-resort/rooms/royal-ambassador-suite-1.jpg"
+          "/stays/swosti-premium-beach-resort/rooms/royal-ambassador-suite-1.jpg",
+          "/stays/swosti-premium-beach-resort/rooms/royal-ambassador-suite.jpg"
         ]
       }
     },
@@ -157,21 +183,26 @@
       "rooms": {
         "deluxe-double-sea": [
           "/stays/regenta-central-puri/rooms/deluxe-double-sea-1.jpg",
-          "/stays/regenta-central-puri/rooms/deluxe-double-sea-2.jpg"
+          "/stays/regenta-central-puri/rooms/deluxe-double-sea-2.jpg",
+          "/stays/regenta-central-puri/rooms/deluxe-double-sea.jpg"
         ],
         "deluxe-twin-sea": [
-          "/stays/regenta-central-puri/rooms/deluxe-twin-sea-1.jpg"
+          "/stays/regenta-central-puri/rooms/deluxe-twin-sea-1.jpg",
+          "/stays/regenta-central-puri/rooms/deluxe-twin-sea.jpg"
         ],
         "executive-double-sea": [
           "/stays/regenta-central-puri/rooms/executive-double-sea-1.jpg",
-          "/stays/regenta-central-puri/rooms/executive-double-sea-2.jpg"
+          "/stays/regenta-central-puri/rooms/executive-double-sea-2.jpg",
+          "/stays/regenta-central-puri/rooms/executive-double-sea.jpg"
         ],
         "executive-twin-sea": [
           "/stays/regenta-central-puri/rooms/executive-twin-sea-1.jpg",
-          "/stays/regenta-central-puri/rooms/executive-twin-sea-2.jpg"
+          "/stays/regenta-central-puri/rooms/executive-twin-sea-2.jpg",
+          "/stays/regenta-central-puri/rooms/executive-twin-sea.jpg"
         ],
         "premium-sea": [
-          "/stays/regenta-central-puri/rooms/premium-sea-1.jpg"
+          "/stays/regenta-central-puri/rooms/premium-sea-1.jpg",
+          "/stays/regenta-central-puri/rooms/premium-sea.jpg"
         ]
       }
     },
@@ -194,20 +225,24 @@
       "rooms": {
         "executive": [
           "/stays/empires-hotel-puri/rooms/executive-1.jpg",
-          "/stays/empires-hotel-puri/rooms/executive-2.jpg"
+          "/stays/empires-hotel-puri/rooms/executive-2.jpg",
+          "/stays/empires-hotel-puri/rooms/executive.jpg"
         ],
         "deluxe": [
           "/stays/empires-hotel-puri/rooms/deluxe-1.jpg",
           "/stays/empires-hotel-puri/rooms/deluxe-2.jpg",
-          "/stays/empires-hotel-puri/rooms/deluxe-3.jpg"
+          "/stays/empires-hotel-puri/rooms/deluxe-3.jpg",
+          "/stays/empires-hotel-puri/rooms/deluxe.jpg"
         ],
         "corporate": [
           "/stays/empires-hotel-puri/rooms/corporate-1.jpg",
-          "/stays/empires-hotel-puri/rooms/corporate-2.jpg"
+          "/stays/empires-hotel-puri/rooms/corporate-2.jpg",
+          "/stays/empires-hotel-puri/rooms/corporate.jpg"
         ],
         "premium": [
           "/stays/empires-hotel-puri/rooms/premium-1.jpg",
-          "/stays/empires-hotel-puri/rooms/premium-2.jpg"
+          "/stays/empires-hotel-puri/rooms/premium-2.jpg",
+          "/stays/empires-hotel-puri/rooms/premium.jpg"
         ]
       }
     },
@@ -230,13 +265,16 @@
       ],
       "rooms": {
         "premium": [
-          "/stays/mayfair-waves-puri/rooms/premium-1.jpg"
+          "/stays/mayfair-waves-puri/rooms/premium-1.jpg",
+          "/stays/mayfair-waves-puri/rooms/premium.jpg"
         ],
         "premium-sea-view": [
-          "/stays/mayfair-waves-puri/rooms/premium-sea-view-1.jpg"
+          "/stays/mayfair-waves-puri/rooms/premium-sea-view-1.jpg",
+          "/stays/mayfair-waves-puri/rooms/premium-sea-view.jpg"
         ],
         "premium-suite": [
-          "/stays/mayfair-waves-puri/rooms/premium-suite-1.jpg"
+          "/stays/mayfair-waves-puri/rooms/premium-suite-1.jpg",
+          "/stays/mayfair-waves-puri/rooms/premium-suite.jpg"
         ]
       }
     },
@@ -258,16 +296,20 @@
       ],
       "rooms": {
         "deluxe": [
-          "/stays/chariot-resort-puri/rooms/deluxe-1.jpg"
+          "/stays/chariot-resort-puri/rooms/deluxe-1.jpg",
+          "/stays/chariot-resort-puri/rooms/deluxe.jpg"
         ],
         "executive": [
-          "/stays/chariot-resort-puri/rooms/executive-1.jpg"
+          "/stays/chariot-resort-puri/rooms/executive-1.jpg",
+          "/stays/chariot-resort-puri/rooms/executive.jpg"
         ],
         "premium": [
-          "/stays/chariot-resort-puri/rooms/premium-1.jpg"
+          "/stays/chariot-resort-puri/rooms/premium-1.jpg",
+          "/stays/chariot-resort-puri/rooms/premium.jpg"
         ],
         "platinum-suite": [
-          "/stays/chariot-resort-puri/rooms/platinum-suite-1.jpg"
+          "/stays/chariot-resort-puri/rooms/platinum-suite-1.jpg",
+          "/stays/chariot-resort-puri/rooms/platinum-suite.jpg"
         ]
       }
     },
@@ -289,17 +331,20 @@
       ],
       "rooms": {
         "deluxe": [
-          "/stays/chanakya-bnr-puri/rooms/deluxe-2.jpg"
+          "/stays/chanakya-bnr-puri/rooms/deluxe-2.jpg",
+          "/stays/chanakya-bnr-puri/rooms/deluxe.jpg"
         ],
         "superior": [
           "/stays/chanakya-bnr-puri/rooms/superior-1.jpg",
           "/stays/chanakya-bnr-puri/rooms/superior-2.jpg",
-          "/stays/chanakya-bnr-puri/rooms/superior-3.jpg"
+          "/stays/chanakya-bnr-puri/rooms/superior-3.jpg",
+          "/stays/chanakya-bnr-puri/rooms/superior.jpg"
         ],
         "heritage-suite": [
           "/stays/chanakya-bnr-puri/rooms/heritage-suite-1.jpg",
           "/stays/chanakya-bnr-puri/rooms/heritage-suite-2.jpg",
-          "/stays/chanakya-bnr-puri/rooms/heritage-suite-3.jpg"
+          "/stays/chanakya-bnr-puri/rooms/heritage-suite-3.jpg",
+          "/stays/chanakya-bnr-puri/rooms/heritage-suite.jpg"
         ]
       }
     },
@@ -323,11 +368,13 @@
       "rooms": {
         "heritage-deluxe-sea": [
           "/stays/mahodadhi-palace-puri/rooms/heritage-deluxe-sea-1.jpg",
-          "/stays/mahodadhi-palace-puri/rooms/heritage-deluxe-sea-2.jpg"
+          "/stays/mahodadhi-palace-puri/rooms/heritage-deluxe-sea-2.jpg",
+          "/stays/mahodadhi-palace-puri/rooms/heritage-deluxe-sea.jpg"
         ],
         "day-use": [
           "/stays/mahodadhi-palace-puri/rooms/day-use-1.jpg",
-          "/stays/mahodadhi-palace-puri/rooms/day-use-2.jpg"
+          "/stays/mahodadhi-palace-puri/rooms/day-use-2.jpg",
+          "/stays/mahodadhi-palace-puri/rooms/day-use.jpg"
         ]
       }
     },
@@ -351,41 +398,50 @@
       "rooms": {
         "standard-double": [
           "/stays/holiday-resort-puri/rooms/standard-double-1.jpg",
-          "/stays/holiday-resort-puri/rooms/standard-double-2.jpg"
+          "/stays/holiday-resort-puri/rooms/standard-double-2.jpg",
+          "/stays/holiday-resort-puri/rooms/standard-double.jpg"
         ],
         "deluxe-double": [
           "/stays/holiday-resort-puri/rooms/deluxe-double-1.jpg",
-          "/stays/holiday-resort-puri/rooms/deluxe-double-2.jpg"
+          "/stays/holiday-resort-puri/rooms/deluxe-double-2.jpg",
+          "/stays/holiday-resort-puri/rooms/deluxe-double.jpg"
         ],
         "deluxe-pool-view": [
           "/stays/holiday-resort-puri/rooms/deluxe-pool-view-1.jpg",
-          "/stays/holiday-resort-puri/rooms/deluxe-pool-view-2.jpg"
+          "/stays/holiday-resort-puri/rooms/deluxe-pool-view-2.jpg",
+          "/stays/holiday-resort-puri/rooms/deluxe-pool-view.jpg"
         ],
         "family": [
           "/stays/holiday-resort-puri/rooms/family-1.jpg",
-          "/stays/holiday-resort-puri/rooms/family-2.jpg"
+          "/stays/holiday-resort-puri/rooms/family-2.jpg",
+          "/stays/holiday-resort-puri/rooms/family.jpg"
         ],
         "standard-family": [
           "/stays/holiday-resort-puri/rooms/standard-family-1.jpg",
-          "/stays/holiday-resort-puri/rooms/standard-family-2.jpg"
+          "/stays/holiday-resort-puri/rooms/standard-family-2.jpg",
+          "/stays/holiday-resort-puri/rooms/standard-family.jpg"
         ],
         "cottage": [
           "/stays/holiday-resort-puri/rooms/cottage-1.jpg",
-          "/stays/holiday-resort-puri/rooms/cottage-2.jpg"
+          "/stays/holiday-resort-puri/rooms/cottage-2.jpg",
+          "/stays/holiday-resort-puri/rooms/cottage.jpg"
         ],
         "standard-cottage": [
           "/stays/holiday-resort-puri/rooms/standard-cottage-1.jpg",
-          "/stays/holiday-resort-puri/rooms/standard-cottage-2.jpg"
+          "/stays/holiday-resort-puri/rooms/standard-cottage-2.jpg",
+          "/stays/holiday-resort-puri/rooms/standard-cottage.jpg"
         ],
         "royal-suite": [
           "/stays/holiday-resort-puri/rooms/royal-suite-1.jpg",
           "/stays/holiday-resort-puri/rooms/royal-suite-2.jpg",
-          "/stays/holiday-resort-puri/rooms/royal-suite-3.jpg"
+          "/stays/holiday-resort-puri/rooms/royal-suite-3.jpg",
+          "/stays/holiday-resort-puri/rooms/royal-suite.jpg"
         ],
         "presidential-suite": [
           "/stays/holiday-resort-puri/rooms/presidential-suite-1.jpg",
           "/stays/holiday-resort-puri/rooms/presidential-suite-2.jpg",
-          "/stays/holiday-resort-puri/rooms/presidential-suite-3.jpg"
+          "/stays/holiday-resort-puri/rooms/presidential-suite-3.jpg",
+          "/stays/holiday-resort-puri/rooms/presidential-suite.jpg"
         ]
       }
     },
@@ -402,14 +458,17 @@
       ],
       "rooms": {
         "pool-garden": [
-          "/stays/hans-coco-palms/rooms/pool-garden-1.jpg"
+          "/stays/hans-coco-palms/rooms/pool-garden-1.jpg",
+          "/stays/hans-coco-palms/rooms/pool-garden.jpg"
         ],
         "partial-ocean": [
-          "/stays/hans-coco-palms/rooms/partial-ocean-1.jpg"
+          "/stays/hans-coco-palms/rooms/partial-ocean-1.jpg",
+          "/stays/hans-coco-palms/rooms/partial-ocean.jpg"
         ],
         "ocean-suite": [
           "/stays/hans-coco-palms/rooms/ocean-suite-1.jpg",
-          "/stays/hans-coco-palms/rooms/ocean-suite-2.jpg"
+          "/stays/hans-coco-palms/rooms/ocean-suite-2.jpg",
+          "/stays/hans-coco-palms/rooms/ocean-suite.jpg"
         ]
       }
     },
@@ -435,18 +494,21 @@
           "/stays/toshali-sands-puri/rooms/standard-deluxe-1.jpg",
           "/stays/toshali-sands-puri/rooms/standard-deluxe-2.jpg",
           "/stays/toshali-sands-puri/rooms/standard-deluxe-3.jpg",
-          "/stays/toshali-sands-puri/rooms/standard-deluxe-4.jpg"
+          "/stays/toshali-sands-puri/rooms/standard-deluxe-4.jpg",
+          "/stays/toshali-sands-puri/rooms/standard-deluxe.jpg"
         ],
         "deluxe-balcony": [
           "/stays/toshali-sands-puri/rooms/deluxe-balcony-1.jpg",
           "/stays/toshali-sands-puri/rooms/deluxe-balcony-2.jpg",
           "/stays/toshali-sands-puri/rooms/deluxe-balcony-3.jpg",
           "/stays/toshali-sands-puri/rooms/deluxe-balcony-4.jpg",
-          "/stays/toshali-sands-puri/rooms/deluxe-balcony-5.jpg"
+          "/stays/toshali-sands-puri/rooms/deluxe-balcony-5.jpg",
+          "/stays/toshali-sands-puri/rooms/deluxe-balcony.jpg"
         ],
         "premium-balcony": [
           "/stays/toshali-sands-puri/rooms/premium-balcony-1.jpg",
-          "/stays/toshali-sands-puri/rooms/premium-balcony-2.jpg"
+          "/stays/toshali-sands-puri/rooms/premium-balcony-2.jpg",
+          "/stays/toshali-sands-puri/rooms/premium-balcony.jpg"
         ],
         "executive-suite": [
           "/stays/toshali-sands-puri/rooms/executive-suite-1.jpg",
@@ -456,7 +518,8 @@
           "/stays/toshali-sands-puri/rooms/executive-suite-5.jpg",
           "/stays/toshali-sands-puri/rooms/executive-suite-6.jpg",
           "/stays/toshali-sands-puri/rooms/executive-suite-7.jpg",
-          "/stays/toshali-sands-puri/rooms/executive-suite-8.jpg"
+          "/stays/toshali-sands-puri/rooms/executive-suite-8.jpg",
+          "/stays/toshali-sands-puri/rooms/executive-suite.jpg"
         ],
         "cottage": [
           "/stays/toshali-sands-puri/rooms/cottage-1.jpg",
@@ -465,7 +528,8 @@
           "/stays/toshali-sands-puri/rooms/cottage-4.jpg",
           "/stays/toshali-sands-puri/rooms/cottage-5.jpg",
           "/stays/toshali-sands-puri/rooms/cottage-6.jpg",
-          "/stays/toshali-sands-puri/rooms/cottage-7.jpg"
+          "/stays/toshali-sands-puri/rooms/cottage-7.jpg",
+          "/stays/toshali-sands-puri/rooms/cottage.jpg"
         ],
         "villa": [
           "/stays/toshali-sands-puri/rooms/villa-1.jpg",
@@ -474,7 +538,8 @@
           "/stays/toshali-sands-puri/rooms/villa-4.jpg",
           "/stays/toshali-sands-puri/rooms/villa-5.jpg",
           "/stays/toshali-sands-puri/rooms/villa-6.jpg",
-          "/stays/toshali-sands-puri/rooms/villa-7.jpg"
+          "/stays/toshali-sands-puri/rooms/villa-7.jpg",
+          "/stays/toshali-sands-puri/rooms/villa.jpg"
         ]
       }
     }

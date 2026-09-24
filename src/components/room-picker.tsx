@@ -140,11 +140,7 @@ function RoomCard({
               ))}
             </div>
             <p className="mt-2 text-xs text-muted">
-              {photos.length > 1 && (room.images?.length ?? 0) > 1
-                ? `Photo ${shot + 1} of ${photos.length} from the hotel.`
-                : shot === 0
-                  ? "This room."
-                  : "Elsewhere on the property."}
+              {photos.length > 1 ? `Photo ${shot + 1} of ${photos.length}` : "This room."}
             </p>
           </div>
         ) : null}
