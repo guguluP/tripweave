@@ -60,13 +60,13 @@ export function Shell({
           <AuthSlot />
         </div>
       </header>
-      <main className="min-w-0 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
+      <main key={pathname} className="page-fade min-w-0 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
       <footer className="mt-16 hidden border-t border-border py-10 md:block">
         <div className="mx-auto flex max-w-6xl items-start justify-between px-4">
           <div>
             <BrandLockup markClassName="size-9" />
             <p className="mt-3 max-w-sm text-sm text-muted">
-              Three honest Puri stays. All-in rupee prices. A Trust Score you can read.
+              Twelve Puri hotels, ranked to three. The price is for the room.
             </p>
           </div>
           <p className="text-sm text-subtle">Puri, Odisha</p>

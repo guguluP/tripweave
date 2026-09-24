@@ -1,5 +1,5 @@
 import { clampNights, getPackage, getRoom } from "@/lib/packages";
-import { quoteStay, travelersFitRoom } from "@/lib/inventory";
+import { quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory";
 import { parseTravelPlan, pickupChargeInr } from "@/lib/travel-plan";
 import { readMeta } from "@/lib/booking-meta";
 import { refreshOccupancy } from "@/lib/server/occupancy";
@@ -30,10 +30,7 @@ export type PayableQuote =
 
 function validCheckIn(iso: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return false;
-  const checkIn = new Date(`${iso}T12:00:00`);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return !Number.isNaN(checkIn.getTime()) && checkIn >= today;
+  return iso >= todayIso();
 }
 
 /** Single source of truth for what the guest must pay. Never trust client totals. */
@@ -72,7 +69,8 @@ export async function computePayable(input: PayableInput): Promise<PayableQuote>
 
   const travel = parseTravelPlan(readMeta(input.swaps ?? {}).travel);
   const pickupInr = pickupChargeInr(pkg.id, travel);
-  const amountInr = quote.perPerson * travelers + pickupInr;
+  // quote.perPerson is the room total for the stay, including add-ons once.
+  const amountInr = quote.perPerson + pickupInr;
   if (!Number.isFinite(amountInr) || amountInr < 1) {
     return { ok: false, message: "Could not price this stay." };
   }

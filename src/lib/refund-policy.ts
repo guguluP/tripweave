@@ -7,7 +7,7 @@ export type RefundPolicy = {
 };
 
 export function hoursUntilCheckIn(checkIn: string, now = new Date()): number {
-  const noon = new Date(`${checkIn}T12:00:00`);
+  const noon = new Date(`${checkIn}T12:00:00+05:30`);
   if (Number.isNaN(noon.getTime())) return 0;
   return (noon.getTime() - now.getTime()) / 36e5;
 }
@@ -20,7 +20,7 @@ export function refundPolicyFor(checkIn: string, now = new Date()): RefundPolicy
   if (hours >= 0) {
     return { fraction: 0.5, label: "50% refund — inside 48 hours of check-in", hoursUntilCheckIn: hours };
   }
-  return { fraction: 0, label: "No refund after check-in noon", hoursUntilCheckIn: hours };
+  return { fraction: 0, label: "No refund after check-in noon IST", hoursUntilCheckIn: hours };
 }
 
 export function refundAmountInr(amountInr: number, checkIn: string, now = new Date()): number {

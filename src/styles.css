@@ -2,6 +2,62 @@
 @import "./styles.motion-a.css";
 @import "./styles.motion-b.css";
 
+@keyframes page-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.page-fade {
+  animation: page-fade 420ms ease-out;
+}
+
+/* Rath and Konark: the incoming frame eases in from a slight zoom. */
+.story-frame img,
+.story-frame video {
+  transition: opacity 1100ms ease-in-out, transform 1400ms ease-out;
+  transform: scale(1.06);
+}
+.story-frame img.opacity-100,
+.story-frame video.opacity-100 {
+  transform: scale(1);
+}
+
+@keyframes story-caption {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.story-caption {
+  animation: story-caption 560ms ease-out;
+}
+
+@keyframes story-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.story-progress {
+  position: absolute;
+  right: 0.85rem;
+  bottom: 0.35rem;
+  left: 0.85rem;
+  height: 2px;
+  transform-origin: left center;
+  animation: story-progress 7s linear;
+}
+
 @theme {
   --color-bg: #f3efe6;
   --color-surface: #fbf8f2;

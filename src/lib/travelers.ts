@@ -64,12 +64,10 @@ function normalizeTraveler(raw: unknown): Traveler | null {
     gender: (t.gender as Gender) || "prefer_not",
     nationality: typeof t.nationality === "string" ? t.nationality : "IN",
     idType: (t.idType as IdType) || "aadhaar",
-    idNumber:
-      (t.idType as IdType) === "aadhaar"
-        ? maskAadhaar(typeof t.idNumber === "string" ? t.idNumber : "")
-        : typeof t.idNumber === "string"
-          ? t.idNumber
-          : "",
+    idNumber: maskStoredId(
+      (t.idType as IdType) || "aadhaar",
+      typeof t.idNumber === "string" ? t.idNumber : "",
+    ),
     specialRequests: typeof t.specialRequests === "string" ? t.specialRequests : "",
     emergencyName: typeof t.emergencyName === "string" ? t.emergencyName : "",
     emergencyPhone: typeof t.emergencyPhone === "string" ? t.emergencyPhone : "",
@@ -86,9 +84,12 @@ export function maskAadhaar(idNumber: string): string {
   return digits.slice(-4);
 }
 
+function maskStoredId(idType: IdType, idNumber: string) {
+  return idType === "aadhaar" ? maskAadhaar(idNumber) : idLast4(idNumber);
+}
+
 export function persistTraveler(t: Traveler): Traveler {
-  if (t.idType !== "aadhaar") return t;
-  const idNumber = maskAadhaar(t.idNumber);
+  const idNumber = maskStoredId(t.idType, t.idNumber);
   return idNumber === t.idNumber ? t : { ...t, idNumber };
 }
 
@@ -149,7 +150,7 @@ export function validateTraveler(t: Traveler): TravelerErrors {
       e.idNumber = "Enter 12-digit Aadhaar or last 4 digits.";
     }
   } else if (t.idType === "passport") {
-    if (id.length < 6) e.idNumber = "Enter passport number.";
+    if (id.length < 6 && id.length !== 4) e.idNumber = "Enter passport number.";
   } else if (!id) {
     e.idNumber = "ID number is required.";
   }

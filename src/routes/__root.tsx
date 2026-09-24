@@ -29,7 +29,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "TripWeave — three honest Puri hotels with all-in rupee prices and a Trust Score.",
+          "TripWeave — twelve Puri hotels, ranked to three. You book one.",
       },
       { name: "theme-color", content: "#1e5853" },
     ],

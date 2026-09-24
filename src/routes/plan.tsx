@@ -168,7 +168,7 @@ function Plan() {
         </fieldset>
 
         <fieldset className="mt-8">
-          <legend className="text-sm font-medium">Budget per person</legend>
+          <legend className="text-sm font-medium">Budget</legend>
           <div className="mt-3 grid gap-2 sm:grid-cols-3">
             {BUDGETS.map((v) => (
               <Choice

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, MapPin, Play, X } from "lucide-react";
+import { Crossfade } from "@/components/crossfade";
 import { LikeButton } from "@/components/motion";
 import { youtubeThumb, youtubeUrl } from "@/lib/youtube/types";
 import { cn } from "@/lib/utils";
@@ -82,6 +83,8 @@ export function PropertyMedia({
 
   const [index, setIndex] = useState(0);
   const [open, setOpen] = useState(false);
+  const [viewerHold, setViewerHold] = useState(false);
+  const [viewerOn, setViewerOn] = useState(false);
   const thumbRail = useRef<HTMLDivElement>(null);
   const videoRail = useRef<HTMLDivElement>(null);
 
@@ -93,6 +96,17 @@ export function PropertyMedia({
     const i = gallery.indexOf(featured);
     setIndex(i >= 0 ? i : 0);
   }, [featured, gallery]);
+
+  useEffect(() => {
+    if (open) {
+      setViewerHold(true);
+      const frame = requestAnimationFrame(() => setViewerOn(true));
+      return () => cancelAnimationFrame(frame);
+    }
+    setViewerOn(false);
+    const hide = window.setTimeout(() => setViewerHold(false), 300);
+    return () => window.clearTimeout(hide);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -132,7 +146,12 @@ export function PropertyMedia({
           className="relative block h-64 w-full md:h-80"
           aria-label={`View photos of ${name}`}
         >
-          <PropertyImg src={current} alt={name} className="h-full w-full object-cover" />
+          <Crossfade
+            src={current}
+            alt={name}
+            className="h-full w-full"
+            mediaClassName="object-cover"
+          />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg via-bg/20 to-transparent" />
           <span className="pointer-events-none absolute left-4 top-4 rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg">
             Property · {index + 1}/{gallery.length}
@@ -165,7 +184,7 @@ export function PropertyMedia({
                     setIndex(i);
                   }}
                   className={cn(
-                    "size-12 shrink-0 snap-start overflow-hidden rounded-md border-2 sm:size-14",
+                    "size-12 shrink-0 snap-start overflow-hidden rounded-md border-2 transition-[border-color,opacity] duration-300 sm:size-14",
                     i === index ? "border-primary-fg" : "border-transparent opacity-85",
                   )}
                   aria-label={`Photo ${i + 1} of ${gallery.length}`}
@@ -216,9 +235,12 @@ export function PropertyMedia({
         </div>
       ) : null}
 
-      {open ? (
+      {viewerHold ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-fg/80 p-4"
+          className={cn(
+            "fixed inset-0 z-50 flex items-center justify-center bg-fg/80 p-4 transition-opacity duration-300",
+            viewerOn ? "opacity-100" : "opacity-0",
+          )}
           role="dialog"
           aria-modal="true"
           aria-label={`${name} photos`}
@@ -258,11 +280,12 @@ export function PropertyMedia({
               </button>
             </>
           ) : null}
-          <span onClick={(e) => e.stopPropagation()}>
-            <PropertyImg
+          <span onClick={(e) => e.stopPropagation()} className="block h-[85vh] w-full max-w-5xl">
+            <Crossfade
               src={current}
               alt={`${name} photo ${index + 1}`}
-              className="max-h-[85vh] max-w-full rounded-lg object-contain"
+              className="h-full w-full"
+              mediaClassName="object-contain"
             />
           </span>
         </div>

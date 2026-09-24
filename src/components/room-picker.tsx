@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
+import { Crossfade } from "@/components/crossfade";
 import { formatMoney, type RoomType } from "@/lib/packages";
 import { cn } from "@/lib/utils";
 
-function roomPhotos(room: RoomType, gallery: string[]) {
-  const own = [...new Set((room.images?.length ? room.images : [room.image]).filter(Boolean))];
-  if (own.length > 1) return own;
-  const around = gallery.filter((src) => src && !own.includes(src));
-  return [...own, ...around].slice(0, 6);
+function roomPhotos(room: RoomType, _gallery: string[]) {
+  return [...new Set((room.images?.length ? room.images : [room.image]).filter(Boolean))];
 }
 
 export function RoomPicker({
@@ -91,13 +89,14 @@ function RoomCard({
       )}
     >
       <button type="button" onClick={onSelect} aria-pressed={open} className="block w-full text-left">
-        <img
+        <Crossfade
           src={photo}
           alt={shot === 0 ? room.name : `${room.name}, photo ${shot + 1}`}
           className={cn(
-            "w-full object-cover transition-all duration-500 ease-out",
+            "w-full transition-all duration-500 ease-out",
             open ? "h-64 sm:h-80" : compact ? "h-20 sm:h-24" : "h-28",
           )}
+          mediaClassName="object-cover"
         />
       </button>
       <div className={cn(open ? "grid gap-4 p-4 sm:grid-cols-[1fr_16rem] sm:p-5" : compact ? "p-2.5 sm:p-3" : "p-4")}>
@@ -131,7 +130,7 @@ function RoomCard({
                   type="button"
                   onClick={() => setShot(index)}
                   className={cn(
-                    "h-16 w-20 shrink-0 overflow-hidden rounded-md border",
+                    "h-16 w-20 shrink-0 overflow-hidden rounded-md border transition-[border-color,opacity] duration-300",
                     index === shot ? "border-primary" : "border-transparent opacity-80",
                   )}
                   aria-label={`Show photo ${index + 1} of ${room.name}`}

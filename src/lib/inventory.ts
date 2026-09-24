@@ -72,8 +72,14 @@ export function eachNight(checkIn: string, nights: number): string[] {
   return out;
 }
 
+/** Calendar day in India. Vercel runs in UTC; check-in "today" follows Puri. */
 export function todayIso(now = new Date()) {
-  return isoDate(now);
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
 }
 
 function inRange(iso: string, start: string, end: string) {
@@ -237,6 +243,7 @@ export function quoteStay(input: {
     units,
     nightsQuoted,
     extras,
+    /** Room total for these nights, including each selected add-on once. */
     perPerson: roomSum + extras,
     remaining,
     available: soldOutNights.length === 0 && remaining > 0,

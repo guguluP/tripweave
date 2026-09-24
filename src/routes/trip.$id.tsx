@@ -149,7 +149,7 @@ function TripDetail() {
         videos={pkg.videos}
         arrivalPin={arrivalPinLabel(brief.arriveBy)}
       />
-      <div className="mx-auto max-w-3xl px-4 pb-28">
+      <div className="mx-auto max-w-3xl px-4 pb-44 md:pb-32">
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <Stagger>
             <p className="eyebrow">{pkg.destination}</p>
@@ -247,7 +247,7 @@ function TripDetail() {
 
         <h2 className="mt-10 font-display text-2xl">Stay plan</h2>
         <p className="mt-1 text-sm text-muted">
-          Swap activities — the all-in rupee price updates live.
+          Swap activities — the room price updates live.
         </p>
         <div className="mt-5 grid gap-3">
           {days.map((day, i) => (
@@ -291,8 +291,8 @@ function TripDetail() {
             <p className="text-xs text-muted">
               {quote?.available
                 ? pickupInr > 0
-                  ? `all-in · per person · ${nightsPhrase(nights)} · ${room.name} · pickup ${formatMoney(pickupInr)} at checkout`
-                  : `all-in · per person · ${nightsPhrase(nights)} · ${room.name} · sleeps ${room.occupancy}`
+                  ? `room price · ${nightsPhrase(nights)} · ${room.name} · pickup ${formatMoney(pickupInr)} at checkout`
+                  : `room price · ${nightsPhrase(nights)} · ${room.name} · sleeps ${room.occupancy}`}
                 : "Sold out — pick another date"}
             </p>
           </div>

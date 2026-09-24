@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Crossfade } from "@/components/crossfade";
 import { cn } from "@/lib/utils";
 
 type Frame = {
@@ -34,11 +35,11 @@ const RATH_FRAMES: Frame[] = [
 ];
 
 const KONARK_FRAMES: Frame[] = [
-  { id: "night", label: "Night show", src: "/konark/night-show.mp4", kind: "video", note: "Konark temple at night" },
   { id: "quote", label: "Sand face", src: "/konark/sand-quote.jpg", kind: "image", note: "Sand art, Chandrabhaga beach" },
   { id: "faces", label: "Three faces", src: "/konark/sand-faces.jpg", kind: "image", note: "Sand art, Chandrabhaga beach" },
   { id: "lotus", label: "Lotus shrine", src: "/konark/sand-lotus.jpg", kind: "image", note: "Sand art, Chandrabhaga beach" },
   { id: "stupa", label: "Stupa", src: "/konark/sand-stupa.jpg", kind: "image", note: "Sand art, Chandrabhaga beach" },
+  { id: "night", label: "Night show", src: "/konark/night-show.mp4", kind: "video", note: "Konark temple at night" },
 ];
 
 function StoryCarousel({
@@ -58,9 +59,16 @@ function StoryCarousel({
 
   useEffect(() => {
     if (frame.kind === "video") return;
-    const id = window.setTimeout(() => setActive((n) => (n + 1) % frames.length), 7000);
+    const id = window.setTimeout(() => {
+      setActive((n) => {
+        const next = (n + 1) % frames.length;
+        if (frames[next]?.kind !== "video") return next;
+        const firstStill = frames.findIndex((item) => item.kind === "image");
+        return firstStill === -1 ? next : firstStill;
+      });
+    }, 7000);
     return () => window.clearTimeout(id);
-  }, [active, frame.kind, frames.length]);
+  }, [active, frame.kind, frames]);
 
   return (
     <section className={dark ? "bg-fg text-primary-fg" : "bg-elevated text-fg"}>
@@ -75,7 +83,7 @@ function StoryCarousel({
                   type="button"
                   onClick={() => setActive(index)}
                   className={cn(
-                    "w-full rounded-full px-4 py-3 text-left text-sm",
+                    "relative w-full overflow-hidden rounded-full px-4 py-3 text-left text-sm transition-colors duration-300",
                     index === active
                       ? dark
                         ? "bg-primary-fg text-fg"
@@ -86,6 +94,9 @@ function StoryCarousel({
                   )}
                 >
                   {item.label}
+                  {index === active && frame.kind !== "video" ? (
+                    <span className={cn("story-progress", dark ? "bg-fg/40" : "bg-primary-fg/50")} />
+                  ) : null}
                 </button>
               </li>
             ))}
@@ -93,13 +104,18 @@ function StoryCarousel({
         </div>
         <figure className="overflow-hidden rounded-[2rem] bg-black">
           <div className="relative">
-            {frame.kind === "video" ? (
-              <video key={frame.src} src={frame.src} className="max-h-[70vh] w-full bg-black object-contain" autoPlay muted playsInline controls />
-            ) : (
-              <img key={frame.src} src={frame.src} alt={frame.note ?? frame.label} className="aspect-[4/3] w-full object-cover" />
-            )}
+            <Crossfade
+              src={frame.src}
+              alt={frame.note ?? frame.label}
+              video={frame.kind === "video"}
+              className="story-frame aspect-[4/3] max-h-[70vh] w-full bg-black"
+              mediaClassName="object-cover"
+            />
             {frame.note ? (
-              <figcaption className="absolute bottom-4 left-4 rounded-full bg-black/70 px-4 py-2 text-sm text-white">
+              <figcaption
+                key={frame.id}
+                className="story-caption absolute bottom-4 left-4 rounded-full bg-black/70 px-4 py-2 text-sm text-white"
+              >
                 {frame.note}
               </figcaption>
             ) : null}

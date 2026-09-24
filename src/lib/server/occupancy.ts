@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { createServerFn } from "@tanstack/react-start";
 import { getSql } from "@/lib/db";
 import { replacePaidHolds, type OccupancyHold } from "@/lib/inventory";
@@ -16,13 +17,18 @@ type HoldRow = {
   expiresAt?: string | null;
 };
 
+/** Stable dedupe key. The raw id can be a confirmation code and must not reach the browser. */
+function publicHoldId(raw: string) {
+  return createHash("sha256").update(raw).digest("hex").slice(0, 24);
+}
+
 function mapHolds(data: unknown): OccupancyHold[] {
   const parsed = typeof data === "string" ? JSON.parse(data) : data;
   if (!Array.isArray(parsed)) return [];
   return (parsed as HoldRow[])
     .filter((row) => row.packageId && row.roomId && row.checkIn && row.nights)
     .map((row, index) => ({
-      holdId: row.holdId || `booking:${index}:${row.checkIn}:${row.nights}`,
+      holdId: publicHoldId(row.holdId || `booking:${index}:${row.checkIn}:${row.nights}`),
       packageId: row.packageId!,
       roomId: row.roomId!,
       checkIn: String(row.checkIn).slice(0, 10),

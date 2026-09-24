@@ -127,7 +127,7 @@ function TravelersInner() {
         })
       : null;
   const perPerson = quote?.perPerson ?? (pkg ? stayTotal(pkg, nights, room?.id, swaps) : 0);
-  const total = perPerson * Math.min(count, maxGuests);
+  const total = perPerson;
 
   const syncCount = (n: number) => {
     const cap = room?.occupancy ?? 8;
@@ -265,7 +265,7 @@ function TravelersInner() {
               onClick={() => setDigiGuest(0)}
             >
               <ShieldCheck className="size-4" />
-              DigiLocker assist
+              Sample DigiLocker
             </Button>
           </div>
           {count >= maxGuests ? (
@@ -491,7 +491,7 @@ function TravelersInner() {
                 <span className="font-medium tabular-nums">
                   <DigitPop value={formatMoney(total)} />
                 </span>{" "}
-                · {count} guest{count === 1 ? "" : "s"}
+                · room price · {count} guest{count === 1 ? "" : "s"} fit this room
               </p>
             </div>
           </Card>

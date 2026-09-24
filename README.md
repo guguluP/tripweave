@@ -1,233 +1,142 @@
 # TripWeave
 
-Book honest Puri hotel stays with all-in INR prices, traveller details, Razorpay payments, and offline booking passes.
+TripWeave is a Puri hotel site. A guest answers a short brief — dates, how they are arriving, and what the trip is for — and the catalog returns three stays out of twelve. The guest books one room, pays in INR with Razorpay, and leaves with a confirmation code, a desk voucher, and an offline pass.
 
-## Features
+Live site: [tripweave-web.vercel.app](https://tripweave-web.vercel.app). Repository: [guguluP/tripweave](https://github.com/guguluP/tripweave).
 
-- **Plan & match** — short preference brief → three package options from a 12-stay Puri catalog, ranked by vibe, budget, nights, **and origin / arrival**
-- **Travel** — live last-mile cost from your origin, style-ranked options (hotel transfer / cab / bus + auto), “Plan my travel” for the three matches, optional hotel pickup on Razorpay, and travel details on the desk voucher / offline pass
-- **Live rates** — dated seasonal tariffs (festival / weekend / high season) and leftover rooms TripWeave still holds
-- **Rooms & occupancy** — official room types; guest count cannot exceed the room’s sleep cap
-- **Property media** — photo galleries and YouTube property tours on every stay
-- **Travellers** — guest name, phone, email, ID, emergency contact (DigiLocker demo autofill available)
-- **Razorpay Standard Checkout** — test cards / UPI; order create + signature verify on the server
-- **Hotel confirmation** — desk voucher + mailto to the hotel reservations desk after pay
-- **Refunds** — full if you cancel ≥48h before noon check-in, 50% inside that window, none after; Razorpay `pay_` refunds
-- **Account profile** — display name and mobile saved to your TripWeave account
-- **My trips** — list, cancel & refund, confirmation codes, desk voucher
-- **Offline pass** — HTML pass card + calendar (`.ics`); Apple Wallet `.pkpass` when certs are configured
-- **Supabase (optional)** — durable `bookings` / `travellers` / `profiles` when env vars are set
-- **Reviewer consensus** — structured notes from curated YouTube stay-review videos on every package page
+## Architecture
 
-## Stack
+The app is one TanStack Start project. Pages and server functions ship together. The browser never holds a service credential. Postgres is reached only from the server, through security-definer functions that accept the Supabase service role.
 
-- TanStack Start + React Router
-- Better Auth (Google and email). Demo guest accounts were removed.
-- Razorpay Web Standard Checkout
-- Optional Supabase (Postgres + RLS schema in `supabase/schema.sql`)
-- Deployed on Vercel
+```
+Browser
+  routes (plan, matches, stay, travellers, checkout, trips, voucher, account)
+  public photos and cover video
+        │
+        ▼
+TanStack Start server functions
+  session (Better Auth)  ·  payable amount  ·  Razorpay order and signature
+        │
+        ├── service role ──► Supabase Postgres
+        │                      tw_* functions (security definer)
+        │                      bookings, travellers, profiles, holds, refunds
+        │
+        └── if that client is missing or rejected
+              in-process hold book for this server only
+```
 
-## Quick start
+### Request path
+
+1. **Plan** (`src/routes/plan.tsx`) stores a brief in the browser. “Coming from” searches the short arrival list, then a wider India and abroad catalog (`src/lib/world-cities.ts`), then any typed city. The first plan with no saved brief starts from the home city on the account page. That city stays in local storage.
+2. **Match** ranks the twelve stays in `src/lib/packages-data-a.ts` and `packages-data-b.ts` by vibe, budget, nights, and arrival. Trust scores are computed in `src/lib/trust-score.ts`.
+3. **Stay** (`src/routes/trip.$id.tsx`) shows the property gallery, official room types, leftover keys, a travel quote, and reviewer notes. Photos come from `src/lib/stay-media.json` and `public/stays/`.
+4. **Travellers** collects the guest, phone, email, masked identity, and an emergency contact.
+5. **Checkout** creates a Razorpay order for an amount computed on the server (`computePayable`). Before the window opens, `reserveCheckoutHold` asks Postgres for the nights. A sold-out room stops checkout. A missing or rejected service client falls back to the in-process hold book so the window can still open. That fallback hold is not shared across server instances.
+6. **Verify.** The browser returns the Razorpay signature. The server checks it, reads the payment from Razorpay, then writes the booking. A confirmation code is `TW-` plus 10 characters.
+7. **After pay.** The guest gets a voucher, an HTML pass, and a calendar file. Apple Wallet is added only when pass certificates are configured. Cancellation follows `src/lib/refund-policy.ts`: full refund at least 48 hours before noon check-in, half inside that window, none after.
+
+### Data
+
+| Store | What it holds | Who can reach it |
+| --- | --- | --- |
+| Catalog in the repo | Twelve hotels, room types, prices, photo index | Anyone with the repository. No guest rows. |
+| Browser storage | Brief, saved stays, account home city | That browser only. |
+| Better Auth | Sign-in session, Google and email | Server. On Vercel it is not pointed at `DATABASE_URL`. |
+| Supabase `tw_*` | Bookings, travellers, profiles, room holds, refunds, desk overrides, review cache | Service role only. `anon` and `authenticated` cannot execute the functions. |
+| Razorpay | Orders and captures | Server secret. The browser receives the public key id. |
+
+`getSupabaseAdmin` (`src/lib/supabase/server.ts`) builds a client only when `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_SECRET_KEY` is set. It does not fall back to the anon key. The value on Vercel must be the legacy service-role JWT (it starts with `eyJ`). The newer `sb_secret_` key is rejected by PostgREST.
+
+Row level security on the tables denies `anon` and `authenticated`. The functions are the write path, and each one refuses a caller whose `auth.role()` is not `service_role` (the database owner can still run them for maintenance). `user_id` inside a payload is whatever the server put there. The session check happens before that call.
+
+### Hotel desk
+
+The desk is the same account system. `assertPartnerStay` allows catalog overrides, booking lists, and confirmation only when the signed-in email matches `HOTEL_DESKS` or `PARTNER_EMAILS`. There is no separate desk role.
+
+### Travel links
+
+Arrival mode picks the gateway: the airport, Puri railway station, or the bus stand. Cab buttons for Ola, Uber, and Odisha Yatri carry the pickup and drop names and coordinates from the page. The guest can edit those names. Train stays on IRCTC. Bus stays on OSRTC and Ama Bus. Odisha Yatri’s public site does not document reading those query parameters into its form, so the app may still ask the guest to confirm the drop.
+
+### Media and motion
+
+Stay photos are local JPEGs under `public/stays/`. The build does not hotlink hotel CDNs. Each gallery and each room strip lists a frame once. The homepage cover plays the beach still, then crossfades between three clips. Screens that report high dynamic range and can play HEVC get the 10-bit HLG files. Every other screen gets the tonemapped H.264 files.
+
+`src/components/crossfade.tsx` is the same dissolve for the Rath Yatra and Konark carousels, the stay photo, the full-screen viewer, and room thumbnails. Route changes fade the new page in (`page-fade` in `src/styles.css`). Reduced-motion settings collapse those transitions.
+
+Reviewer notes are a curated set of YouTube stay videos. A page load reads the saved consensus or the seed. It does not call a model. Rebuilding the notes needs `XAI_API_KEY`.
+
+## Layout
+
+```
+src/routes/              pages and the three public API routes
+src/lib/packages*.ts     the twelve-stay catalog
+src/lib/stay-media.json  photo index for public/stays
+src/lib/server/          bookings, holds, Razorpay, desk, mail
+src/lib/supabase/        service client and RPC adapters
+src/lib/auth/            Better Auth session and route guards
+src/lib/travel-plan.ts   arrival, last mile, cab links
+src/components/          stay gallery, room picker, carousels, motion
+supabase/schema.sql      tables, RLS, and the tw_* functions
+public/stays/            hotel JPEGs
+public/cover/            homepage still and 4K clips
+```
+
+## Run locally
 
 ```bash
 npm install
 cp .env.example .env
-# fill Razorpay (+ optional Supabase) keys
 npm run dev
 ```
 
+Checkout needs Razorpay test keys. Bookings survive a restart only when the Supabase service key is set and `supabase/schema.sql` has been applied. See [`supabase/README.md`](supabase/README.md).
 
-## Environment variables
+## Configuration
 
-### Razorpay (required for real checkout)
+Set these on the server. Never prefix a secret with `VITE_`. After a change on Vercel, redeploy. A saved variable is not visible to the deployment that is already running.
 
-| Variable | Where | Notes |
-|----------|--------|--------|
-| `RAZORPAY_KEY_ID` | Server | Test key from Razorpay Dashboard → API Keys |
-| `RAZORPAY_KEY_SECRET` | Server **only** | Never expose to the browser or commit to git |
-| `VITE_RAZORPAY_KEY_ID` | Client | Same as `KEY_ID` (public) |
+| Variable | Role |
+| --- | --- |
+| `RAZORPAY_KEY_ID`, `VITE_RAZORPAY_KEY_ID` | Public Razorpay key |
+| `RAZORPAY_KEY_SECRET` | Server only |
+| `RAZORPAY_WEBHOOK_SECRET` | HMAC for `POST /api/verify-payment`. If unset, the handler uses the key secret. |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google web client. Redirect: `https://tripweave-web.vercel.app/api/auth/callback/google` |
+| `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` | Auth base URL and signing secret |
+| `SUPABASE_URL`, `VITE_SUPABASE_URL` | Project URL |
+| `SUPABASE_ANON_KEY` or `SUPABASE_PUBLISHABLE_KEY` | Public key, also as `VITE_` for the browser |
+| `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_SECRET_KEY` | Legacy service-role JWT. Server only. |
+| `RESEND_API_KEY`, `RESEND_FROM` | Booking mail and password reset. Mail does not send until both are set. |
+| `XAI_API_KEY` | Rebuild reviewer notes. Not used on ordinary page loads. |
+| `YOUTUBE_API_KEY` | Optional extra stay-review search |
+| `HOTEL_DESKS`, `PARTNER_EMAILS` | Emails allowed to open a hotel desk |
+| `APPLE_PASS_*` | Optional Wallet certificates. The HTML pass works without them. |
 
-On **Vercel**: Project → Settings → Environment Variables → add all three → **Redeploy**.
+`DATABASE_URL` may be present for other tools. Better Auth on Vercel does not use it. A bad pooler password previously broke Google sign-in.
 
-### Google sign-in on Vercel (fixes `Invalid redirect URI`)
-
-The Grok preview Google client **only** allows `*.grok-sandbox.com`. On Vercel you must use **your own Google Cloud OAuth web client**.
-
-1. Open [Google Cloud Console → APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials).
-2. Create **OAuth client ID** → application type **Web application**.
-3. Authorized JavaScript origins:
-   - `https://tripweave-web.vercel.app`
-4. Authorized redirect URIs (exact):
-   - `https://tripweave-web.vercel.app/api/auth/callback/google`
-5. Copy Client ID and Client secret.
-6. Vercel → tripweave-web → Settings → Environment Variables (Production):
-
-| Variable | Notes |
-|----------|--------|
-| `GOOGLE_CLIENT_ID` | Google Cloud client id |
-| `GOOGLE_CLIENT_SECRET` | Google Cloud client secret (server only) |
-| `BETTER_AUTH_URL` | `https://tripweave-web.vercel.app` |
-| `BETTER_AUTH_SECRET` | Random 32+ character string |
-
-7. **Redeploy**. Then **Continue with Google** on the live site.
-
-OAuth consent screen: External is fine; add your Gmail as a test user while the app is in Testing.
-
-### Supabase (recommended for durable bookings + travellers)
-
-Do **not** install `@supabase/server`. Full walkthrough: [`supabase/README.md`](supabase/README.md).
-
-| Variable | Notes |
-|----------|--------|
-| `SUPABASE_URL` | Project URL |
-| `SUPABASE_ANON_KEY` or `SUPABASE_PUBLISHABLE_KEY` | Public key |
-| `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_SECRET_KEY` | Server only — never `VITE_` |
-| `VITE_SUPABASE_URL` | Same URL for the browser |
-| `VITE_SUPABASE_ANON_KEY` or `VITE_SUPABASE_PUBLISHABLE_KEY` | Same public key |
-| `DATABASE_URL` | Supabase **transaction pooler** URI (port **6543**) so Better Auth users persist |
-
-Run `supabase/schema.sql` in the SQL Editor, then redeploy.
-
-### Apple Wallet (optional)
-
-Requires Apple Developer Program + Pass Type certificates. See comments in `src/lib/apple-wallet.ts`. Without certs, **Offline pass + calendar** still works after booking.
-
-## Razorpay test credentials
-
-Use **Test mode** keys from the [Razorpay Dashboard](https://dashboard.razorpay.com/app/keys).
-
-### Test card (success)
-
-| Field | Value |
-|--------|--------|
-| Card number | `4100 2800 0000 1007` |
-| CVV | `123` |
-| Expiry | `12/26` (any future date works in test mode) |
-
-### Test UPI (success)
-
-| Field | Value |
-|--------|--------|
-| UPI ID | `test@razorpay` |
-
-### Other common Razorpay test cards
-
-| Card | Behaviour |
-|------|-----------|
-| `4111 1111 1111 1111` | Success (Visa) |
-| `5104 0600 0000 0008` | Success (Mastercard) |
-
-Full list: [Razorpay test cards](https://razorpay.com/docs/payments/payments/test-card-upi-details/).
-
-### How to verify a test payment
-
-1. Start the app with test keys set
-2. Demo sign-in → choose a stay → fill travellers → **Pay with Razorpay**
-3. Complete the checkout modal with the card or UPI above
-4. Confirm success on the site and under **My trips**
-5. In Razorpay Dashboard → **Transactions** (Test mode), the payment should appear
-
-If the UI says **“Razorpay is not configured”**, the server is missing `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` (or the deploy was not restarted after adding them).
-
-## Reviewer consensus (YouTube)
-
-TripWeave does not scrape the open web for ratings. Each stay has a **manual list of 2–4 stay-review videos**. On the package page we show:
-
-- overall sentiment (positive / mixed / negative)
-- what reviewers praised and flagged
-- caveats (beach is public, book the cottage, skip festival rates)
-- source links back to the videos
-
-**How it runs (v1)**
-
-1. Captions are fetched with `youtube-transcript-api-js` (no API key). Language order: Odia → Hindi → English → Bengali → Tamil → Telugu. Manual captions beat auto-generated.
-2. Each transcript is summarised to JSON with the xAI chat API when `XAI_API_KEY` is present.
-3. Per-video notes are merged into one consensus and cached (memory, then Supabase table `reviewer_consensus` if configured).
-4. **Page load** reads the saved consensus or the curated seed. It does not call the model. A curated seed still shows when YouTube or the model is unavailable.
-5. **Rebuild from videos** on the package page forces a refresh, and that path needs `XAI_API_KEY`.
-6. **Search:** set `YOUTUBE_API_KEY` (Data API v3) and TripWeave adds stay-review videos on top of the hand-picked list in `src/lib/youtube/videos.ts`.
-
-Adding a stay: map video IDs in `src/lib/youtube/videos.ts` and (optionally) a seed entry in `src/lib/youtube/seed.ts`.
-
-## Project layout (selected)
-
-```
-src/routes/checkout.tsx      # Razorpay checkout + confirmation + wallet buttons
-src/routes/travelers.tsx     # Guest details gate
-src/routes/trips.tsx         # Bookings list
-src/routes/api/create-order.ts
-src/routes/api/verify-payment.ts
-src/routes/api/wallet-pass.ts
-src/lib/youtube/            # transcripts, summarizer, seed cache, server fns
-src/components/reviewer-consensus.tsx
-src/lib/server/bookings.ts   # Memory → SQL → Supabase priority
-src/lib/supabase/           # Clients + adapters
-supabase/schema.sql          # Tables + RLS
-```
+Razorpay test cards and UPI ids are documented by Razorpay: [test cards](https://razorpay.com/docs/payments/payments/test-card-upi-details/). Sandbox card charges stay off when `VERCEL` or `NODE_ENV=production` is set.
 
 ## Security
 
-Reviewed against the code on `main` (auth, checkout, Supabase SQL, hotel desk, DigiLocker, Wallet, and the public routes). This is the posture of the app. It is not a procedure for calling those endpoints.
+This is the posture of `main`. It is not a procedure for calling the endpoints.
 
-### What is in good shape
+**Session.** Listing bookings, creating a booking, cancelling, saving travellers, and saving a profile go through `authMiddleware`. The handler uses the session user id. A voucher URL only opens a booking already returned for that user.
 
-- **Session on the guest path.** Listing bookings, creating a booking, cancelling, saving travellers, and saving a profile go through `authMiddleware` in `src/lib/auth/middleware.ts`. The handler uses the session user id. A confirmation code on `/voucher/$code` only matches a booking already returned for that signed-in user (`src/routes/voucher.$code.tsx`).
-- **Payment check before a browser booking.** `verifyRazorpayPayment` checks the Razorpay signature on the server, then reads the payment from Razorpay, before `createBooking` stores a paid stay (`src/lib/server/razorpay.ts`, `src/lib/server/bookings.ts`). The browser only receives the public key id (`getRazorpayKeyId`, `VITE_RAZORPAY_KEY_ID`).
-- **Webhook signature.** `POST /api/verify-payment` rejects a body whose `x-razorpay-signature` does not match HMAC-SHA256 (`settleRazorpayWebhook`). The comparison uses a fixed-time compare. A matching event is ignored unless it is `payment.captured` and the Razorpay order notes contain a user and a stay.
-- **Direct table access.** `supabase/schema.sql` enables row level security and adds deny-all policies for `anon` and `authenticated` on bookings, travellers, payments, profiles, and saved stays. `supabase/ops_durability.sql` revokes those roles from `room_holds`, `payment_reconcile_jobs`, and `refund_intents`.
-- **Hotel desk in the app.** `assertPartnerStay` (`src/lib/server/partner.ts`) runs on catalog saves, desk booking lists, desk confirmation, and the day-before reminder. The signed-in email must match `HOTEL_DESKS` or an entry in `PARTNER_EMAILS`. The Account screen hides the desk when that list is empty.
-- **Identity documents.** Aadhaar is masked before it is kept on the traveller object (`maskAadhaar` in `src/lib/travelers.ts`). The Supabase traveller row stores `id_last4`, not the full number (`tw_apply` op `save_travellers`).
-- **Sandbox card charges.** `sandboxPaymentsAllowed` and `payTestAllowed` stay off when `VERCEL` or `NODE_ENV=production` is set (`src/lib/pay.ts`, `src/lib/server/payable.ts`). `/pay-test` redirects away outside local dev.
-- **Secrets that stay server-side when set in the host.** `RAZORPAY_KEY_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_SECRET`, `BETTER_AUTH_SECRET`, `RESEND_API_KEY`, `XAI_API_KEY`, `YOUTUBE_API_KEY`, DigiLocker client secret, and the Apple pass PEM values are read from `process.env` and are not given a `VITE_` name.
+**Payment.** `verifyRazorpayPayment` checks the Razorpay signature, then reads the payment from Razorpay, before a paid booking is stored. The webhook rejects a body whose `x-razorpay-signature` does not match HMAC-SHA256, compared in fixed time. A matching event is ignored unless it is `payment.captured` and the order notes contain a user and a stay. The amount sent to Razorpay is recomputed on the server.
 
-### Database functions are server-only
+**Database.** Direct table policies deny `anon` and `authenticated`. The `tw_*` functions no longer trust a shared password. Execute is revoked from `public`, `anon`, and `authenticated`. A call with the publishable key returns permission denied. The old password remains in git history and does not work against the live functions. Do not commit a replacement, a service-role key, or a `.env`.
 
-The guest data functions (`tw_apply`, holds, occupancy, reconcile jobs, refunds, catalog, desk, reviews) are `security definer`. They used to be executable by the public `anon` key, and they trusted a shared password that was committed in this repository.
+**Identity.** Aadhaar is masked before it is kept. The traveller row stores the last four digits. The DigiLocker sandbox completion handler has no session check. Without live DigiLocker credentials it returns a sample traveller for a fixed sandbox OTP. That payload is not an identity.
 
-That password is gone from the current source. On the live database the functions no longer compare a password. They refuse every caller except the service role (and the database owner). `anon` and `authenticated` have `execute` revoked. A call with the publishable key returns `permission denied for function tw_apply`.
+**Desk.** Anyone whose sign-in email matches the desk list can change that hotel’s rate, photos, and key count. Protect those inboxes. A value of `email:*` grants every hotel.
 
-`getSupabaseAdmin` uses `SUPABASE_SERVICE_ROLE_KEY` only. It does not fall back to the anon key. Set that key on Vercel (Project → Settings → Environment Variables, server only, never `VITE_`). Without it, bookings, holds, and the hotel desk cannot reach Postgres.
+**Known gaps.**
 
-The old password remains in git history. It no longer matches the live functions, and the public key cannot run them. Do not put a new password in the repository.
-
-Inside the functions, `user_id` still comes from the JSON body. The app session check runs before the server calls them. Keep the service role key off the browser.
-
-### Payments
-
-- Browser checkout can still mark a stay paid after a verified Razorpay return inside `createBooking`.
-- A guest who closes the tab before that return depends on Razorpay calling `https://tripweave-web.vercel.app/api/verify-payment` for `payment.captured`. The dashboard webhook is not created by this repo. Until it is, a captured payment can exist with no booking.
-- If `RAZORPAY_WEBHOOK_SECRET` is unset, the handler signs with `RAZORPAY_KEY_SECRET`. Prefer a separate webhook secret so a leaked key secret is not also the webhook key.
-- Sold-out nights after capture try `refundRazorpayPayment`. A failed refund is queued. Nothing in the repo retries that queue on a schedule.
-- Amounts for a real stay should be recomputed on the server (`computePayable`). Keep that as the amount sent to Razorpay. Do not trust a price posted from the browser.
-
-### Accounts and the hotel desk
-
-- Login is Better Auth with Google and email. On Vercel, Better Auth is intentionally not pointed at `DATABASE_URL` because a bad pooler password broke Google sign-in. Users and reset tokens can therefore live apart from the Supabase booking rows. A later sign-in may not match `bookings.user_id`.
-- Password reset sends through Resend and does nothing until `RESEND_API_KEY` and `RESEND_FROM` are set.
-- The hotel desk is not a separate role. Anyone whose Google or email address equals a `HOTEL_DESKS` address, or a `PARTNER_EMAILS` entry, can change that hotel’s rate, photo override, and key count, list its bookings, and mark one confirmed. Protect those inboxes. A value of `email:*` grants every hotel.
-- Guest and desk mail, and the day-before reminder, use the same Resend keys. Missing keys leave only the on-site voucher.
-
-### DigiLocker, Wallet, and other public server functions
-
-- `startDigilockerSession` and `completeDigilockerSandbox` (`src/lib/server/digilocker.ts`) have no auth middleware. Without live DigiLocker credentials the complete handler still accepts a fixed sandbox OTP and returns a sample traveller. Do not treat that payload as an identity. The live branch only returns an authorize URL.
-- `loadOccupancy` and `quoteCab` are public. Occupancy is room-hold counts. The cab figure is OSRM distance times a fixed rupee rate, not a live operator booking.
-- `walletSigningReady` only reports whether Apple pass certs are present. It does not return the PEMs. A real `.pkpass` still needs `APPLE_PASS_*` on the server.
-- The preview host bridge posts to the parent frame only when the page is embedded (`window.parent !== window`). It is for the app shell, not for guest data.
-
-### Headers, repo, and deploy
-
-- There is no Content-Security-Policy in the app. Razorpay’s checkout script and Google’s OAuth script are loaded from their own hosts. A policy, if added, has to allow those hosts on purpose.
-- This repository is public. Do not commit `.env`, service-role keys, Razorpay secrets, or a new write gate. The publishable Supabase anon key in `project.ts` is not the service role, but it is enough to call any RPC granted to `anon`.
-- GitHub warned that `public/cover/coast.mp4` is over the 50 MB recommendation. The hard limit is 100 MB. That is availability of the repo, not guest data.
-- Dependency review and secret scanning are not configured in this repo. Turn on GitHub secret scanning and Dependabot, and rotate anything already committed (the write gate first).
-
-### Order to fix
-
-1. Confirm `SUPABASE_SERVICE_ROLE_KEY` is set on Vercel and redeploy. The public key can no longer run the database functions.
-2. Point Razorpay’s `payment.captured` webhook at `/api/verify-payment` with `RAZORPAY_WEBHOOK_SECRET`.
-3. Put Better Auth users on the same database as bookings.
-4. Remove or auth-gate the DigiLocker sandbox completion handler before any real identity flow.
-5. Set Resend, then confirm a booking email actually leaves the desk address you intend.
+- A guest who closes the tab after paying depends on Razorpay calling `https://tripweave-web.vercel.app/api/verify-payment`. This repo does not create that webhook. Until it exists, a captured payment can have no booking.
+- Prefer `RAZORPAY_WEBHOOK_SECRET` over reusing the key secret.
+- A failed refund after a sold-out capture is queued. Nothing in the repo retries that queue on a schedule.
+- Better Auth users can live apart from `bookings.user_id` because sign-in is not on the bookings database.
+- There is no Content-Security-Policy. Razorpay and Google load scripts from their own hosts. A policy has to allow those hosts on purpose.
+- `loadOccupancy` and `quoteCab` are public. Occupancy is hold counts. The cab figure is a distance times a fixed rate, not a live operator price.
 
 ## License
 

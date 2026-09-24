@@ -105,7 +105,7 @@ export function PackageCard({
                 <span className="font-semibold tabular-nums">
                   <DigitPop value={formatMoney(nightly)} />
                 </span>
-                <span className="text-muted"> / night / person</span>
+                <span className="text-muted"> / night for the room</span>
               </p>
               {!dated ? (
                 <p className="mt-0.5 text-xs text-subtle">Seasonal price is set at checkout.</p>

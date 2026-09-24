@@ -165,7 +165,7 @@ function CheckoutInner() {
   const plan = { ...travel, arriveBy: brief.arriveBy, origin: brief.origin };
   const travelQuote = pkg ? quoteTravel(pkg.id, brief, plan) : null;
   const pickupInr = pkg ? pickupChargeInr(pkg.id, plan) : 0;
-  const stayDue = perPerson * travelers;
+  const stayDue = perPerson;
   const total = stayDue + pickupInr;
   const swapsForPay = writeMeta(swaps, {
     travel: plan,
@@ -466,7 +466,8 @@ function CheckoutInner() {
             <h2 className="font-display text-xl">{pkg.name}</h2>
             <p className="mt-1 text-sm text-muted">{nightsPhrase(stayNights)} · {room?.name ?? "Room"} · {pkg.neighborhood}</p>
             <dl className="mt-5 grid gap-2 text-sm">
-              <div className="flex justify-between"><dt className="text-muted">Stay</dt><dd className="tabular-nums"><DigitPop value={formatMoney(stayDue)} /></dd></div>
+              <div className="flex justify-between"><dt className="text-muted">Room</dt><dd className="tabular-nums"><DigitPop value={formatMoney(stayDue)} /></dd></div>
+              <p className="text-xs text-muted">One room price. Guest count does not multiply it. Add-ons are charged once.</p>
               <div className="flex justify-between border-t border-border pt-2 font-medium"><dt>Total</dt><dd className="tabular-nums"><DigitPop value={formatMoney(total)} /></dd></div>
             </dl>
           </div>
