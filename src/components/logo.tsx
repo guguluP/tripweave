@@ -6,7 +6,7 @@ export function WeaveMark({ className }: { className?: string }) {
     <img
       src={MARK_SRC}
       alt=""
-      className={cn("size-10 shrink-0 rounded-full object-cover", className)}
+      className={cn("size-10 shrink-0 rounded-full object-cover bg-transparent", className)}
     />
   );
 }
@@ -30,7 +30,7 @@ export function BrandLockup({
       src={LOCKUP_SRC}
       alt="TripWeave"
       className={cn(
-        "h-10 w-auto max-w-[min(72vw,280px)] object-contain object-left",
+        "h-10 w-auto max-w-[min(72vw,280px)] bg-transparent object-contain object-left mix-blend-multiply",
         className,
       )}
     />
