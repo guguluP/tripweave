@@ -4,6 +4,19 @@ TripWeave is a Puri hotel site. A guest answers a short brief — dates, how the
 
 Live site: [tripweave-web.vercel.app](https://tripweave-web.vercel.app). Repository: [guguluP/tripweave](https://github.com/guguluP/tripweave).
 
+## Brand
+
+The header and footer use a two-part lockup, not a single pasted image.
+
+| Piece | File | What it is |
+| --- | --- | --- |
+| Circle mark | `src/components/brand-assets.ts` (`MARK_SRC`) | Transparent WebP of the Jagannath deul on a dark-sea disk with one cyan wave. Full circle — the wave is not cropped. |
+| Wordmark | `src/components/logo.tsx` (`BrandWord`) | Live text: `Trip` in navy, `W` in teal, `eave` in saffron. |
+| Lockup | `src/components/logo.tsx` (`BrandLockup`) | Mark + wordmark in a row. Used by `src/components/shell.tsx`. |
+| Tab icon | `public/favicon.svg` | Same night-sea disk for the browser tab. |
+
+Do not swap the lockup back to one raster JPEG. A cropped photo sat on the cream header as a box and sliced the bottom of the circle.
+
 ## Architecture
 
 The app is one TanStack Start project. Pages and server functions ship together. The browser never holds a service credential. Postgres is reached only from the server, through security-definer functions that accept the Supabase service role.
@@ -35,6 +48,8 @@ TanStack Start server functions
 6. **Verify.** The browser returns the Razorpay signature. The server checks it, reads the payment from Razorpay, then writes the booking. A confirmation code is `TW-` plus 10 characters.
 7. **After pay.** The guest gets a voucher, an HTML pass, and a calendar file. Apple Wallet is added only when pass certificates are configured. Cancellation follows `src/lib/refund-policy.ts`: full refund at least 48 hours before noon IST on check-in, half inside that window, none after. A refund that was saved but not finished is tried again when that guest opens My trips. It uses the amount already decided and does not send the money twice.
 
+Cookie sessions mint a new Better Auth user id on each login. `tw_claim_subject` maps the sign-in email back to the id that already owns that guest’s bookings, saved stays, and travellers.
+
 ### Data
 
 | Store | What it holds | Who can reach it |
@@ -65,23 +80,50 @@ The homepage cover plays the beach still, then crossfades between three clips. S
 
 Rath Yatra and Konark (`src/components/rath-carousel.tsx`) advance every frame. Stills hold for 7 seconds. A film plays through, muted, then the next frame starts. Choosing a chapter jumps there. The incoming frame fades in while easing from a slight zoom. The caption rises with the new frame, and the active chapter fills a 7-second bar. `src/components/crossfade.tsx` is the same dissolve for those carousels, the stay photo, the full-screen viewer, and room thumbnails. Route changes fade the page body in (`page-fade` in `src/styles.css`). The header stays put. Reduced-motion settings collapse those transitions.
 
+Chandrabhaga sand stills in the Konark set are stored right-side up (`Sand Face`, `Three Faces`, `Lotus Shrine`).
+
 Reviewer notes are a curated set of YouTube stay videos. A page load reads the saved consensus or the seed. It does not call a model. Rebuilding the notes needs `XAI_API_KEY`.
+
+The mobile tab bar (`Discover`, `Plan`, `Trips`, `Account`) is `position: fixed`. Long stay names and Razorpay lines must not widen the page or the bar slides sideways.
 
 ## Layout
 
 ```
-src/routes/              pages and the three public API routes
-src/lib/packages*.ts     the twelve-stay catalog
-src/lib/stay-media.json  photo index for public/stays
-src/lib/server/          bookings, holds, Razorpay, desk, mail
-src/lib/supabase/        service client and RPC adapters
-src/lib/auth/            Better Auth session and route guards
-src/lib/travel-plan.ts   arrival, last mile, cab links
-src/components/          stay gallery, room picker, carousels, motion
-supabase/schema.sql      tables, RLS, and the tw_* functions
-public/stays/            hotel JPEGs
-public/cover/            homepage still and 4K clips
+src/routes/                 pages and the three public API routes
+src/components/shell.tsx    header, footer, mobile tab bar
+src/components/logo.tsx     WeaveMark, BrandWord, BrandLockup
+src/components/brand-assets.ts
+                            MARK_SRC data URI (transparent circle)
+src/components/rath-carousel.tsx
+src/lib/packages*.ts        the twelve-stay catalog
+src/lib/stay-media.json     photo index for public/stays
+src/lib/server/             bookings, holds, Razorpay, desk, mail
+src/lib/supabase/           service client and RPC adapters
+src/lib/auth/               Better Auth session and route guards
+src/lib/travel-plan.ts      arrival, last mile, cab links
+src/lib/refund-policy.ts    IST refund windows
+src/lib/world-cities.ts     plan-page city search
+supabase/schema.sql         tables, RLS, and the tw_* functions
+public/favicon.svg          tab icon
+public/stays/               hotel JPEGs
+public/cover/               homepage still and 4K clips
 ```
+
+## Updated files (Sep 2026)
+
+These are the files that changed for the current lockup, session fix, and carousels.
+
+| File | Change |
+| --- | --- |
+| `src/components/logo.tsx` | Lockup is circle mark + live wordmark. No single cropped JPEG. |
+| `src/components/brand-assets.ts` | Transparent WebP of the full night-sea circle (`MARK_SRC`). |
+| `src/components/shell.tsx` | Header and footer render `BrandLockup`. |
+| `public/favicon.svg` | Night-sea temple disk for the tab. |
+| `src/components/rath-carousel.tsx` | Stills hold 7s; films play through muted, then the next frame. |
+| `src/routes/trip.$id.tsx` | Stay price caption stays in one JSX expression so production build succeeds. |
+| Session / bookings path | Sign-in email maps back to the account that already owns those trips. |
+| Konark stills | Chandrabhaga sand photos rotated right-side up. |
+| `src/styles.css` / account layout | Mobile tab bar no longer shifts when a line is too wide. |
 
 ## Run locally
 
