@@ -2,19 +2,6 @@
 @import "./styles.motion-a.css";
 @import "./styles.motion-b.css";
 
-@keyframes page-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.page-fade {
-  animation: page-fade 420ms ease-out;
-}
-
 /* Rath and Konark: the incoming frame eases in from a slight zoom. */
 .story-frame img,
 .story-frame video {
