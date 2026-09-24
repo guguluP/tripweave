@@ -292,7 +292,7 @@ function TripDetail() {
               {quote?.available
                 ? pickupInr > 0
                   ? `room price · ${nightsPhrase(nights)} · ${room.name} · pickup ${formatMoney(pickupInr)} at checkout`
-                  : `room price · ${nightsPhrase(nights)} · ${room.name} · sleeps ${room.occupancy}`}
+                  : `room price · ${nightsPhrase(nights)} · ${room.name} · sleeps ${room.occupancy}`
                 : "Sold out — pick another date"}
             </p>
           </div>
