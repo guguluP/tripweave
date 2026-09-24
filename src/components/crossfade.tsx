@@ -13,12 +13,16 @@ export function Crossfade({
   video = false,
   className,
   mediaClassName,
+  onVideoEnded,
+  onVideoProgress,
 }: {
   src: string;
   alt: string;
   video?: boolean;
   className?: string;
   mediaClassName?: string;
+  onVideoEnded?: () => void;
+  onVideoProgress?: (ratio: number) => void;
 }) {
   const [back, setBack] = useState<Slot>({ src, video });
   const [front, setFront] = useState<Slot>({ src, video });
@@ -54,6 +58,20 @@ export function Crossfade({
           playsInline
           controls
           className={fade}
+          ref={(node) => {
+            if (!node) return;
+            if (on) void node.play().catch(() => {});
+            else node.pause();
+          }}
+          onTimeUpdate={(event) => {
+            if (!on) return;
+            const node = event.currentTarget;
+            if (!Number.isFinite(node.duration) || node.duration <= 0) return;
+            onVideoProgress?.(node.currentTime / node.duration);
+          }}
+          onEnded={() => {
+            if (on) onVideoEnded?.();
+          }}
         />
       );
     }

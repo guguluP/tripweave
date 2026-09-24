@@ -54,21 +54,18 @@ function StoryCarousel({
   tone: "dark" | "sand";
 }) {
   const [active, setActive] = useState(0);
+  const [videoProgress, setVideoProgress] = useState(0);
   const frame = frames[active]!;
   const dark = tone === "dark";
 
+  const advance = () => setActive((n) => (n + 1) % frames.length);
+
   useEffect(() => {
+    setVideoProgress(0);
     if (frame.kind === "video") return;
-    const id = window.setTimeout(() => {
-      setActive((n) => {
-        const next = (n + 1) % frames.length;
-        if (frames[next]?.kind !== "video") return next;
-        const firstStill = frames.findIndex((item) => item.kind === "image");
-        return firstStill === -1 ? next : firstStill;
-      });
-    }, 7000);
+    const id = window.setTimeout(advance, 7000);
     return () => window.clearTimeout(id);
-  }, [active, frame.kind, frames]);
+  }, [active, frame.kind, frames.length]);
 
   return (
     <section className={dark ? "bg-fg text-primary-fg" : "bg-elevated text-fg"}>
@@ -94,8 +91,15 @@ function StoryCarousel({
                   )}
                 >
                   {item.label}
-                  {index === active && frame.kind !== "video" ? (
-                    <span className={cn("story-progress", dark ? "bg-fg/40" : "bg-primary-fg/50")} />
+                  {index === active ? (
+                    <span
+                      className={cn(
+                        "story-progress",
+                        frame.kind === "video" && "is-film",
+                        dark ? "bg-fg/40" : "bg-primary-fg/50",
+                      )}
+                      style={frame.kind === "video" ? { transform: `scaleX(${videoProgress})` } : undefined}
+                    />
                   ) : null}
                 </button>
               </li>
@@ -108,6 +112,8 @@ function StoryCarousel({
               src={frame.src}
               alt={frame.note ?? frame.label}
               video={frame.kind === "video"}
+              onVideoEnded={advance}
+              onVideoProgress={setVideoProgress}
               className="story-frame aspect-[4/3] max-h-[70vh] w-full bg-black"
               mediaClassName="object-cover"
             />

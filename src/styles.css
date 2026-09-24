@@ -57,6 +57,9 @@
   transform-origin: left center;
   animation: story-progress 7s linear;
 }
+.story-progress.is-film {
+  animation: none;
+}
 
 @theme {
   --color-bg: #f3efe6;

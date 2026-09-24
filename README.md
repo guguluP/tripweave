@@ -63,7 +63,7 @@ Stay photos are local JPEGs under `public/stays/`. The build does not hotlink ho
 
 The homepage cover plays the beach still, then crossfades between three clips. Screens that report high dynamic range and can play HEVC get the 10-bit HLG files. Every other screen gets the tonemapped H.264 files.
 
-Rath Yatra and Konark (`src/components/rath-carousel.tsx`) advance their stills every 7 seconds and return to the first still instead of stopping on a film. Choosing a film plays it and pauses the timer. The incoming frame fades in while easing from a slight zoom. The caption rises with the new frame, and the active chapter fills a 7-second bar. `src/components/crossfade.tsx` is the same dissolve for those carousels, the stay photo, the full-screen viewer, and room thumbnails. Route changes fade the page body in (`page-fade` in `src/styles.css`). The header stays put. Reduced-motion settings collapse those transitions.
+Rath Yatra and Konark (`src/components/rath-carousel.tsx`) advance every frame. Stills hold for 7 seconds. A film plays through, muted, then the next frame starts. Choosing a chapter jumps there. The incoming frame fades in while easing from a slight zoom. The caption rises with the new frame, and the active chapter fills a 7-second bar. `src/components/crossfade.tsx` is the same dissolve for those carousels, the stay photo, the full-screen viewer, and room thumbnails. Route changes fade the page body in (`page-fade` in `src/styles.css`). The header stays put. Reduced-motion settings collapse those transitions.
 
 Reviewer notes are a curated set of YouTube stay videos. A page load reads the saved consensus or the seed. It does not call a model. Rebuilding the notes needs `XAI_API_KEY`.
 
