@@ -23,8 +23,11 @@ export function RequireAuth({
 }
 
 function SaveAndRedirect({ next }: { next: string }) {
+  // Save before navigate so email and OAuth return to travelers / trips / account / checkout.
+  saveNext(next);
   useEffect(() => {
     saveNext(next);
   }, [next]);
-  return <RedirectToSignIn />;
+  const search = next && next !== "/" ? { next } : undefined;
+  return <RedirectToSignIn search={search} />;
 }

@@ -1,4 +1,4 @@
-/** Free-cancel window: 48 hours before noon check-in. Inside that, 50%. After check-in, none. */
+/** Free-cancel window: 48 hours before noon IST check-in. Inside that, 50%. After check-in noon IST, none. */
 
 export type RefundPolicy = {
   fraction: number;
@@ -15,10 +15,18 @@ export function hoursUntilCheckIn(checkIn: string, now = new Date()): number {
 export function refundPolicyFor(checkIn: string, now = new Date()): RefundPolicy {
   const hours = hoursUntilCheckIn(checkIn, now);
   if (hours >= 48) {
-    return { fraction: 1, label: "Full refund — more than 48 hours before check-in", hoursUntilCheckIn: hours };
+    return {
+      fraction: 1,
+      label: "Full refund — more than 48 hours before check-in noon IST",
+      hoursUntilCheckIn: hours,
+    };
   }
   if (hours >= 0) {
-    return { fraction: 0.5, label: "50% refund — inside 48 hours of check-in", hoursUntilCheckIn: hours };
+    return {
+      fraction: 0.5,
+      label: "50% refund — inside 48 hours of check-in noon IST",
+      hoursUntilCheckIn: hours,
+    };
   }
   return { fraction: 0, label: "No refund after check-in noon IST", hoursUntilCheckIn: hours };
 }
