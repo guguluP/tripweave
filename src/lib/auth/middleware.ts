@@ -44,5 +44,11 @@ export const authMiddleware = createMiddleware({ type: "function" })
     assertSameSiteRequest();
     const user = await getSessionUser(context.bearerToken);
     if (!user) throw new UnauthorizedError();
-    return next({ context: { userId: user.id, email: user.email } });
+    return next({
+      context: {
+        userId: user.id,
+        email: user.email,
+        claimFailed: Boolean(user.claimFailed),
+      },
+    });
   });
