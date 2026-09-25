@@ -45,11 +45,26 @@ describe("supabase env", () => {
     }
   });
 
-  it("treats a service role key as admin-ready", () => {
+  it("rejects sb_secret_ keys as admin (legacy JWT only)", () => {
     const prev = process.env.SUPABASE_SERVICE_ROLE_KEY;
     process.env.SUPABASE_SERVICE_ROLE_KEY = "sb_secret_test";
     try {
       assert.equal(isSupabaseConfigured(), true);
+      assert.equal(supabaseServiceRoleKey(), "");
+      assert.equal(isSupabaseAdminConfigured(), false);
+    } finally {
+      if (prev === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+      else process.env.SUPABASE_SERVICE_ROLE_KEY = prev;
+    }
+  });
+
+  it("treats a legacy service_role JWT as admin-ready", () => {
+    const prev = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    process.env.SUPABASE_SERVICE_ROLE_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIn0.test";
+    try {
+      assert.equal(isSupabaseConfigured(), true);
+      assert.ok(supabaseServiceRoleKey().startsWith("eyJ"));
       assert.equal(isSupabaseAdminConfigured(), true);
     } finally {
       if (prev === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY;

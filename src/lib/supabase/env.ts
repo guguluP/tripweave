@@ -45,12 +45,28 @@ export function supabaseAnonKey(): string {
  * Service role / secret — server only. Bypasses RLS; always filter by user_id.
  * Never read VITE_ here.
  */
+/**
+ * Legacy service-role JWT only (starts with `eyJ`). Newer `sb_secret_` keys are
+ * rejected — PostgREST does not accept them as the service role.
+ */
 export function supabaseServiceRoleKey(): string {
-  return pick(
+  const key = pick(
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     process.env.SUPABASE_SECRET_KEY,
     fromNamedJson(process.env.SUPABASE_SECRET_KEYS),
   );
+  if (!key) return "";
+  if (key.startsWith("eyJ")) return key;
+  if (key.startsWith("sb_secret_")) {
+    console.error(
+      "[supabase] SUPABASE_SERVICE_ROLE_KEY looks like sb_secret_… — use the legacy service_role JWT (starts with eyJ).",
+    );
+    return "";
+  }
+  console.error(
+    "[supabase] SUPABASE_SERVICE_ROLE_KEY is not a legacy JWT (expected to start with eyJ).",
+  );
+  return "";
 }
 
 /**
