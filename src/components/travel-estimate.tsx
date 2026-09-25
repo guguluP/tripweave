@@ -37,15 +37,21 @@ export function TravelEstimateCard({
         {quote.inbound.label} · {quote.inbound.duration} · {quote.inbound.costHint}
       </p>
       {quote.bookingLinks.length > 0 ? (
-        <div className="flex flex-wrap gap-2">
-          {quote.bookingLinks.map((link) => (
-            <Button key={link.href} type="button" size="sm" variant="outline" asChild>
-              <a href={link.href} target="_blank" rel="noreferrer">
-                {link.label}
-                <ArrowUpRight className="size-3.5" />
-              </a>
-            </Button>
-          ))}
+        <div className="space-y-2">
+          <div className="flex flex-wrap gap-2">
+            {quote.bookingLinks.map((link) => (
+              <Button key={link.href} type="button" size="sm" variant="outline" asChild>
+                <a href={link.href} target="_blank" rel="noreferrer">
+                  {link.label}
+                  <ArrowUpRight className="size-3.5" />
+                </a>
+              </Button>
+            ))}
+          </div>
+          <p className="text-xs text-subtle">
+            Train and bus booking sites open without your TripWeave dates filled in — enter travel
+            dates there yourself.
+          </p>
         </div>
       ) : null}
     </Card>

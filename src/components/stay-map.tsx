@@ -37,7 +37,7 @@ export function StayMap({ packageId, name }: { packageId: string; name: string }
   const osm = `https://www.openstreetmap.org/?mlat=${stay.lat}&mlon=${stay.lng}#map=14/${stay.lat}/${stay.lng}`;
 
   return (
-    <section className="mt-10" aria-labelledby="stay-map-title">
+    <section className="mt-10 scroll-mt-24" aria-labelledby="stay-map-title">
       <h2 id="stay-map-title" className="font-display text-2xl">Where it sits</h2>
       <p className="mt-1 text-sm text-muted">The stay against the temple, the station, and the beach. Cab prices use live road distance.</p>
       <div className="relative mt-4 h-72 overflow-hidden rounded-xl border border-border bg-[#d7e4d4]">

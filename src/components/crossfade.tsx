@@ -44,7 +44,8 @@ export function Crossfade({
   const layer = (slot: Slot, on: boolean) => {
     const fade = cn(
       "absolute inset-0 h-full w-full transition-opacity duration-[1100ms] ease-in-out",
-      slot.video ? "object-contain" : mediaClassName,
+      // Prefer caller fit (story carousels use cover to reduce letterbox bars).
+      slot.video ? (mediaClassName || "object-contain") : mediaClassName,
       on ? "opacity-100" : "pointer-events-none opacity-0",
     );
     if (slot.video) {
