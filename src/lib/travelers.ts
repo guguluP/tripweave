@@ -242,7 +242,7 @@ export const GENDER_LABELS: Record<Gender, string> = {
 };
 
 export const DIGIYATRA_LABELS: Record<DigiYatraStatus, string> = {
-  not_started: "Not started",
-  enrolled: "Enrolled",
-  shared: "Shared with BBI",
+  not_started: "Not started (guest note)",
+  enrolled: "Enrolled (guest note only)",
+  shared: "Shared with BBI (guest note only)",
 };
