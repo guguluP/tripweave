@@ -448,7 +448,8 @@ function CheckoutInner() {
             {travelQuote?.pickup.available ? (
               <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-elevated px-4 py-3">
                 <div>
-                  <p className="text-sm font-medium">{travelQuote.pickup.included ? "Ask hotel to send the included transfer" : `Add hotel pickup`}</p>
+                  <p className="text-sm font-medium">{travelQuote.pickup.included ? "Hotel car, already in the room price" : "Add the hotel-pickup estimate"}</p>
+                  <p className="text-xs text-muted">{travelQuote.pickup.included ? "No extra charge. The hotel lists this transfer." : "One estimate, not a car the hotel has confirmed."}</p>
                 </div>
                 <MotionToggle on={plan.includePickup} onChange={(v) => setTravel({ ...plan, includePickup: v })} label="Hotel pickup" />
               </div>

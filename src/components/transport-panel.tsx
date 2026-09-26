@@ -157,13 +157,13 @@ export function TransportPanel({
           <div>
             <p className="text-sm font-medium">
               {quote.pickup.included
-                ? "Ask hotel to send the included transfer"
-                : `Add hotel pickup · ${formatInrRange(quote.pickup.price, quote.pickup.price)}`}
+                ? "Hotel car, already in the stay price"
+                : `Add a hotel-pickup estimate · ${formatInrRange(quote.pickup.price, quote.pickup.price)}`}
             </p>
             <p className="text-xs text-muted">
               {quote.pickup.included
-                ? "Already in the stay price. We’ll email the desk your flight or train number."
-                : "Charged with the stay on Razorpay. One car, not per guest."}
+                ? "This hotel lists an airport transfer with the room. Turning this on asks the desk to send that car. It does not add rupees."
+                : "This hotel does not include a car. The amount is TripWeave’s road estimate, charged once at checkout. It is not a confirmed booking with the hotel or with Ola."}
             </p>
           </div>
           <MotionToggle

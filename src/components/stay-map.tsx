@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react";
 import { quoteCab, type CabLeg } from "@/lib/server/cab";
-import { LANDMARKS, mapFrame, pinPosition, stayPin } from "@/lib/places";
+import { LANDMARKS, mapFrame, stayPin } from "@/lib/places";
 import { formatMoney } from "@/lib/packages";
-
-const KIND_CLASS: Record<string, string> = {
-  stay: "bg-primary",
-  temple: "bg-fg",
-  station: "bg-muted-fg",
-  beach: "bg-sky-700",
-};
 
 export function StayMap({ packageId, name }: { packageId: string; name: string }) {
   const stay = stayPin(packageId, name);
@@ -40,25 +33,12 @@ export function StayMap({ packageId, name }: { packageId: string; name: string }
     <section className="mt-10 scroll-mt-24" aria-labelledby="stay-map-title">
       <h2 id="stay-map-title" className="font-display text-2xl">Where it sits</h2>
       <p className="mt-1 text-sm text-muted">The stay against the temple, the station, and the beach. Cab prices use live road distance.</p>
-      <div className="relative mt-4 h-72 overflow-hidden rounded-xl border border-border bg-[#d7e4d4]">
-        <div
-          className="absolute inset-0 opacity-70"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(30,60,40,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(30,60,40,0.08) 1px, transparent 1px)",
-            backgroundSize: "28px 28px",
-          }}
+      <div className="relative mt-4 h-72 overflow-hidden rounded-xl border border-border">
+        <iframe
+          title={`Map of ${name} in Puri`}
+          className="h-full w-full"
+          src={`https://www.openstreetmap.org/export/embed.html?bbox=${frame.minLng}%2C${frame.minLat}%2C${frame.maxLng}%2C${frame.maxLat}&layer=mapnik&marker=${stay.lat}%2C${stay.lng}`}
         />
-        {pins.map((pin) => (
-          <span
-            key={pin.id}
-            className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={pinPosition(pin, frame)}
-          >
-            <span className={`block size-3 rounded-full ring-2 ring-white ${KIND_CLASS[pin.kind]}`} />
-            <span className="mt-1 block max-w-28 text-[10px] font-medium leading-tight text-fg">{pin.label}</span>
-          </span>
-        ))}
       </div>
       <a href={osm} target="_blank" rel="noreferrer" className="mt-2 inline-block text-sm text-primary underline-offset-4 hover:underline">
         Open this pin on OpenStreetMap

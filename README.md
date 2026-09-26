@@ -72,9 +72,11 @@ The desk is the same account system. `assertPartnerStay` allows catalog override
 
 Arrival mode picks the gateway: the airport, Puri railway station, or the bus stand. Cab buttons for Ola, Uber, and Odisha Yatri carry the pickup and drop names and coordinates from the page. The guest can edit those names. Train stays on IRCTC. Bus stays on OSRTC and Ama Bus. Odisha Yatri’s public site does not document reading those query parameters into its form, so the app may still ask the guest to confirm the drop.
 
+Hotel pickup is separate from those links. Only a stay whose catalog line includes an airport or hotel transfer (Taj, when the guest flies or comes by road) treats the hotel car as part of the room price. Turning it on records a request for that included car and adds ₹0. Every other hotel’s pickup is an optional estimate: one car, added once at checkout, not multiplied by guests. TripWeave does not book that car with the hotel, Ola, or Uber. The stay map is an OpenStreetMap frame of the hotel against the temple, the station, and the beach. The rupee cab lines under it are ₹50 plus ₹25 per kilometre of driving distance, not a live cab fare.
+
 ### Media and motion
 
-Stay photos are local JPEGs under `public/stays/`. The build does not hotlink hotel CDNs. Each gallery lists a frame once. A room strip shows only that room’s own photos. Two hotels still share one published file across two room names, because that is the file the hotel published.
+Stay photos are local JPEGs under `public/stays/`. The build does not hotlink hotel CDNs. The stay page opens with a large header photo. Property and Rooms underneath list the other saved frames at the file’s own size. A room strip shows only that room’s own photos. Some room files are the same JPEG the hotel published for a gallery frame.
 
 The homepage cover plays the beach still, then crossfades between three clips. Screens that report high dynamic range and can play HEVC get the 10-bit HLG files. Every other screen gets the tonemapped H.264 files.
 
