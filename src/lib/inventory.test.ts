@@ -145,6 +145,16 @@ describe("origin ranking", () => {
     assert.equal(getPackage("taj-puri-resort-spa")!.hasAirportTransfer, true);
   });
 
+  it("lifts nearStation stays for train and bus arrivals", () => {
+    const brief = { ...DEFAULT_BRIEF, origin: "kolkata" as const, arriveBy: "train" as const };
+    const near = getPackage("chanakya-bnr-puri")!;
+    const farMarine = getPackage("mayfair-heritage-puri")!;
+    assert.equal(near.nearStation, true);
+    assert.equal(farMarine.nearStation, false);
+    assert.ok(originFitScore(near, brief) > originFitScore(farMarine, brief));
+    assert.match(originFitReason(near, brief), /Near the station/i);
+  });
+
   it("marks a low score as a weak match", () => {
     const brief = {
       ...DEFAULT_BRIEF,

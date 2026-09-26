@@ -36,7 +36,7 @@ describe("travel plan", () => {
     assert.equal(bucketOf(best!.leg), "hotel");
     const quote = quoteTravel("taj-puri-resort-spa", familyFly);
     assert.match(quote.costLine, /BBI/);
-    assert.match(quote.bestLine, /recommended/i);
+    assert.match(quote.bestLine, /Last mile: hotel transfer suggested after your fly/i);
   });
 
   it("ranks cheap auto / walk first for a solo temple train arrival", () => {

@@ -22,7 +22,12 @@ export class UnauthorizedError extends Error {
   }
 }
 
-export type VerifiedUser = { id: string; email: string | null };
+export type VerifiedUser = {
+  id: string;
+  email: string | null;
+  /** Set when tw_claim_subject failed after retry — booking lists must not pretend the account is empty. */
+  claimFailed?: boolean;
+};
 
 export async function getSessionUser(
   bearerToken?: string,
@@ -40,9 +45,25 @@ export async function getSessionUser(
   try {
     const session = await auth.api.getSession({ headers });
     if (!session?.user) return null;
-    const { claimStableUserId } = await import("@/lib/server/account-subject");
-    const id = await claimStableUserId(session.user.id, session.user.email);
-    return { id, email: session.user.email ?? null };
+    const { claimStableUserId, ClaimSubjectError } = await import(
+      "@/lib/server/account-subject"
+    );
+    try {
+      const id = await claimStableUserId(session.user.id, session.user.email);
+      return { id, email: session.user.email ?? null };
+    } catch (err) {
+      if (err instanceof ClaimSubjectError) {
+        // Stay signed in, but flag booking-read paths so My trips shows an error
+        // instead of an empty list under a fresh session id.
+        console.error("[auth] claim subject failed closed", err.message);
+        return {
+          id: session.user.id,
+          email: session.user.email ?? null,
+          claimFailed: true,
+        };
+      }
+      throw err;
+    }
   } catch (err) {
     console.error("[auth] getSession failed", err);
     return null;

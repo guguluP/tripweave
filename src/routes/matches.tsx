@@ -93,11 +93,18 @@ function Matches() {
 
         {/* Primary CTA early on mobile so it is not buried under the bottom nav */}
         {ready && tab === "matches" && !query && matches[0] ? (
-          <TravelEstimateCard
-            className="mt-8"
-            arriveBy={brief.arriveBy}
-            quote={quoteTravel(matches[0].id, brief, { lastMileId: lastMileByPackage[matches[0].id] })}
-          />
+          <div className="mt-8 space-y-2">
+            <TravelEstimateCard
+              arriveBy={brief.arriveBy}
+              quote={quoteTravel(matches[0].id, brief, { lastMileId: lastMileByPackage[matches[0].id] })}
+            />
+            {brief.arriveBy === "train" || brief.arriveBy === "bus" ? (
+              <p className="text-xs text-subtle">
+                Stays are ranked for a {brief.arriveBy} arrival. The line above suggests a last-mile
+                option from the station or bus stand — it does not replace your {brief.arriveBy} choice.
+              </p>
+            ) : null}
+          </div>
         ) : null}
 
         <div className="mt-6 flex flex-wrap items-center gap-3">

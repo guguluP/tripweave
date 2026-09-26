@@ -298,7 +298,7 @@ export function originTraits(pkg: StayPackage) {
 }
 
 export function originFitScore(pkg: StayPackage, brief: Brief): number {
-  const { temple, beach, far, airportTransfer } = originTraits(pkg);
+  const { temple, beach, far, airportTransfer, nearStation } = originTraits(pkg);
   const local =
     brief.origin === "bhubaneswar" ||
     brief.origin === "cuttack" ||
@@ -307,6 +307,7 @@ export function originFitScore(pkg: StayPackage, brief: Brief): number {
   let score = 0;
   if (brief.arriveBy === "train" || brief.arriveBy === "bus") {
     if (temple) score += 2.2;
+    if (nearStation) score += 0.8;
     if (far) score -= 1.6;
     if (beach && !temple) score += 0.4;
   }
@@ -323,9 +324,12 @@ export function originFitScore(pkg: StayPackage, brief: Brief): number {
 }
 
 export function originFitReason(pkg: StayPackage, brief: Brief): string {
-  const { temple, beach, far, airportTransfer } = originTraits(pkg);
+  const { temple, beach, far, airportTransfer, nearStation } = originTraits(pkg);
   const city = originPlace(brief);
   if (brief.arriveBy === "train" || brief.arriveBy === "bus") {
+    if (nearStation) {
+      return `Near the station — shorter last mile after a ${brief.arriveBy} from ${city}.`;
+    }
     if (temple) {
       return `Temple / station side — shorter last mile after a ${brief.arriveBy} from ${city}.`;
     }
