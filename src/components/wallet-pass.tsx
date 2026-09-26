@@ -231,15 +231,7 @@ export function AddToWallet({
 
   return (
     <div className={className}>
-      {compact ? (
-        <div className="mb-2">
-          <p className="font-medium">{payload.packageName}</p>
-          <p className="text-xs text-muted">
-            {payload.confirmationCode} · check-in {payload.checkIn} · {payload.nights}{" "}
-            {payload.nights === 1 ? "night" : "nights"}
-          </p>
-        </div>
-      ) : (
+      {compact ? null : (
         <WalletPassCard payload={payload} />
       )}
       <div className={compact ? "flex flex-wrap gap-2" : "mt-3 grid gap-2 sm:grid-cols-2"}>

@@ -172,7 +172,7 @@ export function paymentLine(row: {
   bankName: string | null;
 }) {
   if (row.paymentMethod === "razorpay") {
-    return row.cardLast4 ? `Razorpay · ${row.cardLast4}` : "Razorpay";
+    return row.cardLast4 && /^\d{4}$/.test(row.cardLast4) ? `Razorpay · ${row.cardLast4}` : "Paid with Razorpay";
   }
   if (row.paymentMethod === "upi") {
     return row.upiHandle ? `UPI · ${row.upiHandle}` : "UPI";

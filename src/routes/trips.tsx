@@ -44,10 +44,16 @@ function ReviewStay({ booking }: { booking: BookingRow }) {
   const [rating, setRating] = useState(5);
   const [body, setBody] = useState("");
   const [sent, setSent] = useState(false);
-  if (sent) return <p className="text-sm text-muted">Your review is part of this stay’s Trust Score.</p>;
+  if (sent) {
+    return (
+      <p className="rounded-lg bg-primary/10 px-3 py-2 text-sm">
+        Saved. {rating} of 5 is now part of this stay’s Trust Score.
+      </p>
+    );
+  }
   return (
     <form
-      className="grid gap-2"
+      className="grid gap-3 rounded-lg border border-border bg-surface p-3"
       onSubmit={(e) => {
         e.preventDefault();
         void saveStayReview({ data: { packageId: booking.packageId, bookingId: booking.id, rating, body } }).then(async (result) => {
@@ -60,14 +66,35 @@ function ReviewStay({ booking }: { booking: BookingRow }) {
         });
       }}
     >
-      <p className="text-sm font-medium">How was the stay?</p>
-      <select className="rounded-md border border-border bg-elevated px-2 py-1 text-sm" value={rating} onChange={(e) => setRating(Number(e.target.value))}>
-        {[5, 4, 3, 2, 1].map((n) => (
-          <option key={n} value={n}>{n} / 5</option>
+      <div>
+        <p className="text-sm font-medium">How was the stay?</p>
+        <p className="mt-0.5 text-xs text-muted">One note for the next guest. It updates the Trust Score.</p>
+      </div>
+      <div className="flex gap-1" role="radiogroup" aria-label="Rating out of 5">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            role="radio"
+            aria-checked={rating === n}
+            onClick={() => setRating(n)}
+            className={`min-h-11 min-w-11 rounded-md border text-sm font-medium ${
+              n <= rating ? "border-primary bg-primary text-primary-fg" : "border-border bg-elevated text-muted"
+            }`}
+          >
+            {n}
+          </button>
         ))}
-      </select>
-      <textarea className="min-h-20 rounded-md border border-border bg-elevated px-2 py-1 text-sm" value={body} onChange={(e) => setBody(e.target.value)} placeholder="What should the next guest know?" required minLength={8} />
-      <Button type="submit" size="sm" variant="outline">Save review</Button>
+      </div>
+      <textarea
+        className="min-h-24 rounded-md border border-border bg-elevated px-3 py-2 text-sm"
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+        placeholder="The room, the beach, and anything the next guest should know."
+        required
+        minLength={8}
+      />
+      <Button type="submit" size="sm">Save review</Button>
     </form>
   );
 }
@@ -187,9 +214,6 @@ function TripsInner() {
                           · {b.confirmationCode} · {paymentLine(b)}
                         </span>
                       </p>
-                      {b.paymentRef ? (
-                        <p className="text-xs text-subtle">Ref {b.paymentRef}</p>
-                      ) : null}
                       {travelLine ? <p className="text-xs text-muted">{travelLine}</p> : null}
                       {daysUntilCheckIn(b.checkIn) === 1 && !closed ? (
                         <p className="rounded-md bg-primary/10 px-3 py-2 text-sm">Check-in is tomorrow. Keep {b.confirmationCode} ready for the desk.</p>
@@ -211,7 +235,7 @@ function TripsInner() {
                       {!closed ? (
                         <div className="grid gap-3">
                           <p className="text-xs text-subtle">{policy.label}.</p>
-                          <AddToWallet booking={b} compact />
+                          <AddToWallet booking={b} compact className="contents" />
                           <div className="flex flex-wrap gap-2">
                             <Button asChild size="sm">
                               <a
