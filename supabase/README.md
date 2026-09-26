@@ -46,7 +46,7 @@ Without keys the app still confirms the stay on this device so a captured paymen
 
 ## MCP (Grok / Cursor)
 
-`.mcp.json` and `.cursor/mcp.json` already point at this project.
+`.mcp.json` points at this project.
 
 ```bash
 grok mcp add supabase "https://mcp.supabase.com/mcp?project_ref=csegihiepvxezuypsvop&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching" --transport http

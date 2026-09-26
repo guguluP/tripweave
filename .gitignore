@@ -8,4 +8,11 @@ node_modules/
 .grok/status
 .grok/preview.log
 scripts/e2e-auth-pay.mjs
-screenshots/e2e-*.png
+screenshots/
+.agents/
+.cursor/
+skills-lock.json
+startup.sh
+.grok/preview.log
+.grok/favicon-candidates.html
+.grok/favicon-candidates.png
