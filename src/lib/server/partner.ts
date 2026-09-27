@@ -1,26 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
-import { HOTEL_DESKS } from "@/lib/hotel-desk";
+import { packageIdsForPartner } from "@/lib/partner-access";
 
-/** Hotel desk emails, plus PARTNER_EMAILS (email or email:packageId). */
-export function packageIdsForPartner(email: string): string[] {
-  const normalized = email.trim().toLowerCase();
-  const fromDesks = Object.values(HOTEL_DESKS)
-    .filter((desk) => desk.email.toLowerCase() === normalized)
-    .map((desk) => desk.packageId);
-  const extra = (process.env.PARTNER_EMAILS ?? "")
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean);
-  const granted: string[] = [];
-  for (const entry of extra) {
-    const [addr, stay] = entry.split(":").map((bit) => bit.trim());
-    if (addr.toLowerCase() !== normalized) continue;
-    if (!stay || stay === "*") return Object.keys(HOTEL_DESKS);
-    granted.push(stay);
-  }
-  return [...new Set([...fromDesks, ...granted])];
-}
+export { packageIdsForPartner };
 
 export const partnerStays = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
