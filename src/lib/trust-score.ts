@@ -1,1 +1,1 @@
-PLACEHOLDER
+@file:///tmp/trust-commit/src/lib/trust-score.ts
