@@ -260,6 +260,7 @@ function CheckoutInner() {
           </Card>
           <div className="mt-6 flex w-full flex-col gap-3">
             <Button asChild variant="outline"><Link to="/voucher/$code" params={{ code: confirmation.code }}>Open desk voucher</Link></Button>
+            <Button asChild variant="outline"><a href={`/api/invoice/${encodeURIComponent(confirmation.code)}`}>GST invoice PDF</a></Button>
             <Button asChild variant="outline"><Link to="/trips">View trips</Link></Button>
           </div>
         </div>
