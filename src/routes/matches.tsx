@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Shell } from "@/components/shell";
 import { PackageCard } from "@/components/package-card";
@@ -12,9 +12,10 @@ import {
   RANK_LABELS,
   loadBrief,
   loadPending,
-  matchPackages,
-  originFitReason,
   rankingBlurb,
+  rankEyebrow,
+  saveBrief,
+  scorePackages,
   type Brief,
   type MatchedStay,
   type StayPackage,
@@ -24,8 +25,24 @@ import { getOrigin } from "@/lib/origins";
 import { loadTravelDraft, patchTravelDraft, quoteTravel } from "@/lib/travel-plan";
 import { TravelEstimateCard } from "@/components/travel-estimate";
 import { TravelPlanner } from "@/components/travel-planner";
+import {
+  briefToSearch,
+  mergeBriefUrl,
+  searchHasBrief,
+  searchToBrief,
+  type BriefUrlState,
+} from "@/lib/brief-url";
+import { formatCheckInLabel } from "@/components/stay-quote";
 
-export const Route = createFileRoute("/matches")({ component: Matches });
+type MatchesSearch = Record<string, string | undefined>;
+
+export const Route = createFileRoute("/matches")({
+  component: Matches,
+  validateSearch: (s: Record<string, unknown>): MatchesSearch => {
+    if (!searchHasBrief(s)) return {};
+    return briefToSearch(mergeBriefUrl(DEFAULT_BRIEF, searchToBrief(s)));
+  },
+});
 
 type Tab = "matches" | "saved" | "all";
 
@@ -36,9 +53,12 @@ function headingFor(tab: Tab, count: number) {
 }
 
 function Matches() {
+  const search = Route.useSearch();
+  const nav = useNavigate();
   const [ready, setReady] = useState(false);
   const [brief, setBrief] = useState<Brief>(DEFAULT_BRIEF);
   const [matches, setMatches] = useState<MatchedStay[]>([]);
+  const [rest, setRest] = useState<MatchedStay[]>([]);
   const [checkIn, setCheckIn] = useState<string | undefined>();
   const [tab, setTab] = useState<Tab>("matches");
   const [query, setQuery] = useState("");
@@ -47,12 +67,28 @@ function Matches() {
   const savedIds = useSavedIds();
 
   useEffect(() => {
-    const b = loadBrief();
-    setBrief(b);
-    setMatches(matchPackages(b));
-    setCheckIn(loadPending()?.checkIn);
+    const stored = loadBrief();
+    const fromUrl = searchHasBrief(search);
+    const next: BriefUrlState = fromUrl
+      ? mergeBriefUrl(stored, searchToBrief(search))
+      : { ...stored };
+    if (!next.checkIn) {
+      const pendingIn = loadPending()?.checkIn;
+      if (pendingIn) next.checkIn = pendingIn;
+    }
+    saveBrief(next);
+    setBrief(next);
+    const scored = scorePackages(next);
+    setMatches(scored.slice(0, 3));
+    setRest(scored.slice(3));
+    setCheckIn(next.checkIn ?? loadPending()?.checkIn);
     setLastMileByPackage(loadTravelDraft().lastMileByPackage);
     setReady(true);
+    // Persist into the URL so a shared matches link is reproducible.
+    if (!fromUrl) {
+      void nav({ to: "/matches", search: briefToSearch(next), replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- hydrate once from URL + storage
   }, []);
 
   const list = useMemo(() => {
@@ -76,6 +112,7 @@ function Matches() {
 
   const title = headingFor(tab, tab === "all" ? listPackages().length : list.length);
   const topMatch = tab === "matches" && !query ? matches[0] : undefined;
+  const planSearch = briefToSearch({ ...brief, checkIn });
 
   return (
     <Shell>
@@ -86,12 +123,12 @@ function Matches() {
           <p className="mt-3 max-w-xl text-muted">
             Ranked for a {brief.nights}-night {brief.style} trip from {getOrigin(brief.origin).label},{" "}
             {brief.budget} budget, {brief.vibe} vibe
-            {brief.flexible ? ", with flexible dates" : ""}. {rankingBlurb(brief)} Twelve stays in
-            the catalog; three on the short list.
+            {brief.flexible ? ", with flexible dates" : ""}
+            {checkIn ? `, check-in ${formatCheckInLabel(checkIn)}` : ""}. {rankingBlurb(brief)} Three
+            on the short list; the other nine stay visible below.
           </p>
         </Stagger>
 
-        {/* Primary CTA early on mobile so it is not buried under the bottom nav */}
         {ready && tab === "matches" && !query && matches[0] ? (
           <div className="mt-8 space-y-2">
             <TravelEstimateCard
@@ -121,7 +158,9 @@ function Matches() {
             </Button>
           ) : null}
           <Button asChild variant="outline" size="lg" className={topMatch ? "hidden md:inline-flex" : "flex-1"}>
-            <Link to="/plan">Edit brief</Link>
+            <Link to="/plan" search={planSearch}>
+              Edit brief
+            </Link>
           </Button>
         </div>
 
@@ -158,11 +197,12 @@ function Matches() {
                         : RANK_LABELS[i]
                       : undefined
                   }
+                  rankWhy={
+                    tab === "matches" && !query ? rankEyebrow(pkg, brief, i) : undefined
+                  }
                   nights={brief.nights}
                   checkIn={checkIn}
-                  originWhy={
-                    tab === "matches" && !query ? originFitReason(pkg, brief) : undefined
-                  }
+                  originWhy={undefined}
                   brief={brief}
                   lastMileId={lastMileByPackage[pkg.id]}
                   onLastMile={
@@ -191,6 +231,40 @@ function Matches() {
           </p>
         ) : null}
 
+        {ready && tab === "matches" && !query && rest.length > 0 ? (
+          <details className="mt-10 rounded-xl border border-border bg-elevated open:pb-4">
+            <summary className="cursor-pointer list-none px-4 py-4 text-sm font-medium marker:content-none [&::-webkit-details-marker]:hidden">
+              <span className="flex items-center justify-between gap-3">
+                <span>
+                  See the other {rest.length}
+                  <span className="mt-1 block text-xs font-normal text-muted">
+                    Three-rule short list stays on top — the rest of the catalog is still here.
+                  </span>
+                </span>
+                <span className="text-muted" aria-hidden>
+                  ▾
+                </span>
+              </span>
+            </summary>
+            <div className="grid gap-3 border-t border-border px-4 pt-4 sm:grid-cols-2 lg:grid-cols-3">
+              {rest.map((pkg, i) => (
+                <Link
+                  key={pkg.id}
+                  to="/trip/$id"
+                  params={{ id: pkg.id }}
+                  className="rounded-lg border border-border bg-bg px-3 py-3 transition-colors hover:bg-surface"
+                >
+                  <p className="text-xs text-subtle">#{i + 4} in this ranking</p>
+                  <p className="mt-0.5 font-display text-base leading-snug">{pkg.name}</p>
+                  <p className="mt-1 text-xs text-muted">
+                    {pkg.neighborhood} · {pkg.budget}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </details>
+        ) : null}
+
         {ready && tab === "matches" && !query && matches.length >= 2 ? (
           <ReviewerCompare items={matches.map((p) => ({ id: p.id, name: p.name }))} />
         ) : null}
@@ -205,7 +279,7 @@ function Matches() {
           packages={matches.slice(0, 3)}
           lastMileByPackage={lastMileByPackage}
           onSelectLastMile={(packageId, lastMileId) => {
-            patchTravelDraft(packageId, { lastMileId });
+            patchTravelDraft(packageId, { lastMileId: lastMileId });
             setLastMileByPackage((prev) => ({ ...prev, [packageId]: lastMileId }));
           }}
           onClose={() => setPlannerOpen(false)}
