@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/refund-retry",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/reconcile-unbooked",
+      "schedule": "15 6 * * *"
+    }
+  ]
+}
