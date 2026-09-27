@@ -69,7 +69,8 @@ describe("brief URL", () => {
   });
 });
 
-import { matchPackages, rankEyebrow, DEFAULT_BRIEF as BRIEF } from "./packages.ts";
+import { matchPackages, DEFAULT_BRIEF as BRIEF } from "./packages.ts";
+import { rankEyebrow } from "./match-score.ts";
 
 describe("rankEyebrow", () => {
   it("leads with flew-into-BBI for fly arrivals", () => {
