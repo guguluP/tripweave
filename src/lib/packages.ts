@@ -47,9 +47,9 @@ export type StayPackage = {
   nights: number;
   nightsMin: number;
   nightsMax: number;
-  /** Per person, per night, for the base room. */
+  /** Nightly rate for the base room (room price — not multiplied by guests). */
   pricePerNight: number;
-  /** Recommended-stay total for the base room (compat). */
+  /** Recommended-stay total for the base room (compat alias of nights × nightly). */
   pricePerPerson: number;
   /** From-price: one night in the base room. */
   priceFrom: number;
@@ -216,6 +216,20 @@ function withCatalog(pkg: StayPackage): StayPackage {
           return edited ? { ...option, delta: edited.delta, label: edited.label || option.label } : option;
         }),
       })),
+    };
+  }
+  // Recompute Trust Score when TripWeave guest notes exist on the overlay.
+  if (
+    (overlay.guestCount ?? 0) > 0 &&
+    overlay.guestRating != null &&
+    Number.isFinite(overlay.guestRating)
+  ) {
+    next = {
+      ...next,
+      trustScore: trustScoreForPackage(next, {
+        guestRating: overlay.guestRating,
+        guestCount: overlay.guestCount,
+      }),
     };
   }
   const live = liveTrustScores.get(pkg.id);
