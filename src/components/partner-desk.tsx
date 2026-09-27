@@ -74,7 +74,13 @@ export function PartnerDesk() {
     <section className="mt-12 min-w-0 border-t border-border pt-8">
       <p className="eyebrow">Partner desk</p>
       <h2 className="mt-2 font-display text-2xl">Rates, photos, and confirmations</h2>
-      <p className="mt-2 text-sm text-muted">Changes apply on top of the Puri catalog. Guests see the new nightly rate, cover photo, and extra prices.</p>
+      <p className="mt-2 text-sm text-muted">
+        Changes apply on top of the Puri catalog. For per-night units and stop-sell, use the{" "}
+        <a className="underline" href="/desk">
+          desk portal
+        </a>{" "}
+        with a TW_DESK_TOKENS secret.
+      </p>
       <label className="mt-4 block text-sm font-medium">
         Property
         <select className="mt-1 w-full rounded-md border border-border bg-elevated px-3 py-2" value={packageId} onChange={(e) => setPackageId(e.target.value)}>
@@ -140,8 +146,10 @@ export function PartnerDesk() {
                   Confirm room
                 </Button>
               </div>
+            ) : booking.status === "desk_confirmed" || booking.status === "confirmed" ? (
+              <p className="mt-1 text-muted">Hotel confirmed for the guest.</p>
             ) : (
-              <p className="mt-1 text-muted">Confirmed for the guest.</p>
+              <p className="mt-1 text-muted">{booking.status}</p>
             )}
             {booking.guestEmail ? (
               <Button
