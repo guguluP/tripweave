@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { quoteCab, type CabLeg } from "@/lib/server/cab";
 import { LANDMARKS, mapFrame, stayPin } from "@/lib/places";
 import { formatMoney } from "@/lib/packages";
+import { stayWalkTimes } from "@/lib/walk-estimate";
 
 export function StayMap({ packageId, name }: { packageId: string; name: string }) {
   const stay = stayPin(packageId, name);
   const [legs, setLegs] = useState<CabLeg[] | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const walks = stay ? stayWalkTimes(packageId, name) : null;
 
   useEffect(() => {
     let cancel = false;
@@ -32,7 +34,10 @@ export function StayMap({ packageId, name }: { packageId: string; name: string }
   return (
     <section className="mt-10 scroll-mt-24" aria-labelledby="stay-map-title">
       <h2 id="stay-map-title" className="font-display text-2xl">Where it sits</h2>
-      <p className="mt-1 text-sm text-muted">The stay against the temple, the station, and the beach. Cab prices use live road distance.</p>
+      <p className="mt-1 text-sm text-muted">
+        The stay against the temple, the station, and the beach. Cab prices use live road distance;
+        walking times below are straight-line estimates at ~5 km/h.
+      </p>
       <div className="relative mt-4 h-72 overflow-hidden rounded-xl border border-border">
         <iframe
           title={`Map of ${name} in Puri`}
@@ -43,6 +48,22 @@ export function StayMap({ packageId, name }: { packageId: string; name: string }
       <a href={osm} target="_blank" rel="noreferrer" className="mt-2 inline-block text-sm text-primary underline-offset-4 hover:underline">
         Open this pin on OpenStreetMap
       </a>
+      {walks && (walks.templeMinutes != null || walks.stationMinutes != null) ? (
+        <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+          {walks.templeMinutes != null ? (
+            <li className="rounded-lg border border-border bg-elevated px-3 py-2 text-sm">
+              <p className="font-medium">Walk to Jagannath Temple</p>
+              <p className="text-muted">~{walks.templeMinutes} min · estimate</p>
+            </li>
+          ) : null}
+          {walks.stationMinutes != null ? (
+            <li className="rounded-lg border border-border bg-elevated px-3 py-2 text-sm">
+              <p className="font-medium">Walk to Puri station</p>
+              <p className="text-muted">~{walks.stationMinutes} min · estimate</p>
+            </li>
+          ) : null}
+        </ul>
+      ) : null}
       <ul className="mt-4 grid gap-2 sm:grid-cols-3">
         {(legs ?? []).map((leg) => (
           <li key={leg.id} className="rounded-lg border border-border bg-elevated px-3 py-2 text-sm">
