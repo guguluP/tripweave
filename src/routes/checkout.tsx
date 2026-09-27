@@ -35,7 +35,7 @@ import { hotelMailto } from "@/lib/hotel-desk";
 import { refundPolicyFor } from "@/lib/refund-policy";
 import { loadLocalProfile } from "@/lib/profile-local";
 import { methodLabel, paymentLine } from "@/lib/pay";
-import { createBooking, type BookingRow } from "@/lib/server/bookings";
+import { createBooking, type BookingRow } from "@/lib/server/bookings-browser";
 import { bookingToWalletPayload } from "@/lib/apple-wallet";
 import { saveWalletPass } from "@/lib/wallet-store";
 import { createRazorpayOrder } from "@/lib/server/razorpay";
