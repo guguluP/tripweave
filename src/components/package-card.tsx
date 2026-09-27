@@ -22,6 +22,7 @@ export function PackageCard({
   rank,
   nights,
   originWhy,
+  rankWhy,
   brief,
   checkIn,
   lastMileId,
@@ -34,6 +35,8 @@ export function PackageCard({
   /** When set, the card uses the seasonal quote instead of the flat nightly rate. */
   checkIn?: string;
   originWhy?: string;
+  /** One-sentence rank eyebrow from rankEyebrow / originFitReason. */
+  rankWhy?: string;
   brief?: Brief;
   lastMileId?: string;
   onLastMile?: (id: string) => void;
@@ -89,11 +92,12 @@ export function PackageCard({
         </div>
         <div className="flex flex-col gap-3 p-4 pb-0">
           <div>
-            <h3 className="font-display text-lg leading-snug">{pkg.name}</h3>
+            {rankWhy ? <p className="eyebrow text-[11px] leading-snug">{rankWhy}</p> : null}
+            <h3 className={`font-display text-lg leading-snug${rankWhy ? " mt-1" : ""}`}>{pkg.name}</h3>
             <p className="mt-1 text-sm text-muted">
               {pkg.destination} · {pkg.nightsMin}–{pkg.nightsMax} nights
             </p>
-            {originWhy ? <p className="mt-1 text-xs text-subtle">{originWhy}</p> : null}
+            {originWhy && !rankWhy ? <p className="mt-1 text-xs text-subtle">{originWhy}</p> : null}
             <div className="mt-2">
               <ReviewerChip packageId={pkg.id} />
             </div>

@@ -161,6 +161,7 @@ export function PropertyMedia({
           />
           <span className="pointer-events-none absolute left-4 top-4 rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg">
             {index + 1} / {gallery.length}
+            {gallery.length > 0 && gallery.length < 4 ? " · hotel-published, limited set" : ""}
           </span>
           {arrivalPin ? (
             <span className="pointer-events-none absolute left-4 top-14 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-fg">
@@ -215,6 +216,7 @@ export function PropertyMedia({
             onClick={() => setAlbum("property")}
           >
             Property · {gallery.length}
+            {gallery.length > 0 && gallery.length < 4 ? " · limited set" : ""}
           </button>
           {rooms.length > 0 ? (
             <button
