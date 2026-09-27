@@ -15,6 +15,10 @@ export type BookingMeta = {
   /** Sign-in email. Lets a later login find this stay after the cookie user id changes. */
   accountEmail?: string;
   deskNote?: string;
+  /** Razorpay order id — used for double-submit / webhook idempotency. */
+  razorpayOrderId?: string;
+  /** Set when a GST invoice PDF can be generated for this stay. */
+  invoiceReady?: boolean;
 };
 
 const KEY = "__tw";
