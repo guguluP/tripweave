@@ -10,12 +10,13 @@ import { DigitPop, Stagger, TextSwap } from "@/components/motion";
 import { RollingPrice } from "@/components/motion/rolling-price";
 import { PropertyMedia } from "@/components/property-media";
 import { ReviewerConsensus } from "@/components/reviewer-consensus";
+import { TrustHonestyStrip } from "@/components/trust-honesty";
 import { StayMap } from "@/components/stay-map";
 import { RoomPicker } from "@/components/room-picker";
 import { StayQuoteCard } from "@/components/stay-quote";
 import { DigiYatraPanel, TransportPanel, BusGuidePanel } from "@/components/transport-panel";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
-import { computeTrustScore, youtubeSourceCount } from "@/lib/trust-score";
+import { computeTrustScore, youtubeSourceCount, type TrustScoreBreakdown } from "@/lib/trust-score";
 import {
   clampNights,
   daysForStay,
@@ -30,6 +31,9 @@ import {
   savePending,
 } from "@/lib/packages";
 import { addDays, leftoverForRooms, quoteStay, todayIso } from "@/lib/inventory";
+import { refundPolicyFor } from "@/lib/refund-policy";
+import { deskFor } from "@/lib/hotel-desk";
+import { getSeededConsensus } from "@/lib/youtube/get-seeded";
 import { usePaidHolds } from "@/lib/use-occupancy";
 import { cn } from "@/lib/utils";
 import { getJourney } from "@/lib/transport";
@@ -57,6 +61,7 @@ function TripDetail() {
   const [roomId, setRoomId] = useState(pkg?.rooms[0]?.id ?? "");
   const [checkIn, setCheckIn] = useState(() => addDays(todayIso(), 1));
   const [liveTrust, setLiveTrust] = useState<number | null>(null);
+  const [liveBreakdown, setLiveBreakdown] = useState<TrustScoreBreakdown | null>(null);
   const [travel, setTravel] = useState<TravelPlan>(EMPTY_TRAVEL);
   usePaidHolds();
 
@@ -104,6 +109,14 @@ function TripDetail() {
   const journey = getJourney(pkg.id, brief.origin, brief.arriveBy);
   const travelQuote = quoteTravel(pkg.id, brief, travel);
   const pickupInr = pickupChargeInr(pkg.id, { ...travel, arriveBy: brief.arriveBy, origin: brief.origin });
+  const trust = computeTrustScore(pkg);
+  const seedConsensus = getSeededConsensus(pkg.id);
+  const nightlyRate = quote && quote.nights > 0 ? Math.round(quote.perPerson / quote.nights) : pkg.pricePerNight + (room.deltaPerNight || 0);
+  const desk = deskFor(pkg.id);
+  const gstLine = desk.gstin
+    ? `GSTIN ${desk.gstin} · taxes included at checkout`
+    : "GST as billed by the hotel at checkout";
+  const refundLabel = refundPolicyFor(checkIn).label;
 
   const setTravelAndDraft = (next: TravelPlan) => {
     const merged = { ...next, arriveBy: brief.arriveBy, origin: brief.origin };
@@ -161,8 +174,18 @@ function TripDetail() {
               {pkg.neighborhood} · {pkg.nightsMin}–{pkg.nightsMax} nights
             </p>
           </Stagger>
-          <TrustMeter score={liveTrust ?? pkg.trustScore} youtubeSources={youtubeSourceCount(pkg)} />
+          <TrustMeter
+            score={liveTrust ?? trust.total}
+            youtubeSources={youtubeSourceCount(pkg)}
+            breakdown={liveBreakdown ?? trust}
+          />
         </div>
+
+        <TrustHonestyStrip
+          packageId={pkg.id}
+          consensus={liveBreakdown ? undefined : seedConsensus}
+          honestyBonus={(liveBreakdown ?? trust).honestyBonus}
+        />
 
         <p className="mt-6 text-muted">{pkg.summary}</p>
         <StayMap packageId={pkg.id} name={pkg.name} />
@@ -229,9 +252,10 @@ function TripDetail() {
           roomId={room.id}
           roomName={room.name}
           onConsensus={(consensus) => {
-            const score = computeTrustScore(pkg, consensus).total;
-            rememberLiveTrustScore(pkg.id, score);
-            setLiveTrust(score);
+            const next = computeTrustScore(pkg, consensus);
+            rememberLiveTrustScore(pkg.id, next.total);
+            setLiveTrust(next.total);
+            setLiveBreakdown(next);
           }}
         />
 
@@ -286,17 +310,25 @@ function TripDetail() {
       </div>
       <div className="fixed inset-x-0 bottom-14 z-20 border-t border-border bg-elevated/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-md md:bottom-0 md:pb-3">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <p className="font-display text-xl tabular-nums">
               <RollingPrice value={price} />
             </p>
             <p className="text-xs text-muted">
               {quote?.available
-                ? pickupInr > 0
-                  ? `room price · ${nightsPhrase(nights)} · ${room.name} · pickup ${formatMoney(pickupInr)} at checkout`
-                  : `room price · ${nightsPhrase(nights)} · ${room.name} · sleeps ${room.occupancy}`
+                ? `${formatMoney(nightlyRate)} / night · ${room.name} · ${nightsPhrase(nights)} · sleeps ${room.occupancy}`
                 : "Sold out — pick another date"}
             </p>
+            {quote?.available ? (
+              <p className="mt-0.5 text-[0.65rem] leading-snug text-subtle">
+                Stay total {formatMoney(price)}
+                {pickupInr > 0 ? ` · pickup ${formatMoney(pickupInr)} at checkout` : ""}
+                {" · "}
+                {gstLine}
+                {" · "}
+                {refundLabel}
+              </p>
+            ) : null}
           </div>
           <Button size="lg" onClick={goBook} disabled={isPending || !quote?.available}>
             <TextSwap text={booking ? "Traveller details…" : "Book this stay"} shimmer={booking} />
