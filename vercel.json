@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/flag-unconfirmed",
+      "schedule": "*/10 * * * *"
+    }
+  ]
+}
