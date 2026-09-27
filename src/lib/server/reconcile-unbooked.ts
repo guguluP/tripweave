@@ -1,6 +1,6 @@
 import { opsAlertEmail } from "@/lib/server/cron-auth";
 import { sbFindBookingByPaymentRef } from "@/lib/server/booking-lookup";
-import { listRecentCapturedPayments } from "@/lib/server/razorpay-payments-list";
+import { listRecentCapturedPayments } from "@/lib/server/razorpay";
 import { memoryFindByPaymentRef } from "@/lib/booking-memory";
 import { sendMail, mailConfigured } from "@/lib/mail/ses";
 import { sbInsertPaymentEvent } from "@/lib/supabase/payments";
