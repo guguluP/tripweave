@@ -177,6 +177,11 @@ function VoucherPage() {
               Print pass
             </Button>
             <Button asChild variant="outline">
+              <a href={`/api/invoice/${encodeURIComponent(booking.confirmationCode)}`}>
+                Download GST invoice
+              </a>
+            </Button>
+            <Button asChild variant="outline">
               <Link to="/trips">Back to trips</Link>
             </Button>
           </div>
