@@ -1,122 +1,75 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Minus, Plus, ShieldCheck } from "lucide-react";
 import { Shell } from "@/components/shell";
-import { RequireAuth } from "@/components/require-auth";
-import { DigilockerFlow } from "@/components/digilocker-flow";
-import { DigiYatraPanel, TransportPanel } from "@/components/transport-panel";
+import { DigiLockerFlow } from "@/components/digilocker-flow";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ShakeField, ShakeSelect, Stagger } from "@/components/motion";
-import { RollingPrice } from "@/components/motion/rolling-price";
-import { useCurrentUserState } from "@/lib/auth/use-current-user";
-import { pushBanner } from "@/lib/banners";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { DigiLockerStatusBanner } from "@/components/digilocker-status";
+import { DigitPop, Stagger, TextSwap } from "@/components/motion";
 import { DIGILOCKER_STATUS } from "@/lib/digilocker";
-import { getJourney } from "@/lib/transport";
-import { defaultTravelPlan, quoteTravel } from "@/lib/travel-plan";
 import {
   DIGIYATRA_LABELS,
-  GENDER_LABELS,
-  ID_LABELS,
   emptyTraveler,
   loadTravelers,
-  maskAadhaar,
   saveTravelers,
-  travelerInitials,
   validateTravelers,
   type DigiYatraStatus,
-  type Gender,
-  type IdType,
   type Traveler,
-  type TravelerErrors,
 } from "@/lib/travelers";
-import { formatMoney, getPackage, getRoom, loadBrief, loadPending, nightsPhrase, stayTotal } from "@/lib/packages";
+import {
+  clampNights,
+  formatMoney,
+  getPackage,
+  getRoom,
+  loadBrief,
+  loadPending,
+  nightsPhrase,
+  stayTotal,
+} from "@/lib/packages";
 import { quoteStay } from "@/lib/inventory";
-import { usePaidHolds } from "@/lib/use-occupancy";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/travelers")({ component: TravelersPage });
 
-function TravelersPage() {
-  return (
-    <RequireAuth next="/travelers" fallback={<Shell><Skeleton className="m-10 h-40" /></Shell>}>
-      <TravelersInner />
-    </RequireAuth>
-  );
-}
-
 function Stepper() {
+  const steps = ["Stay", "Travellers", "Pay"] as const;
   return (
-    <ol className="flex items-center gap-2 text-xs font-medium text-subtle">
-      <li className="text-muted">Stay</li>
-      <li aria-hidden className="h-px w-6 bg-border" />
-      <li className="text-primary">Travellers</li>
-      <li aria-hidden className="h-px w-6 bg-border" />
-      <li>Pay</li>
+    <ol className="flex flex-wrap items-center gap-2 text-xs text-muted">
+      {steps.map((label, i) => (
+        <li key={label} className="flex items-center gap-2">
+          <span
+            className={cn(
+              "grid size-6 place-items-center rounded-full border text-[0.65rem] font-semibold",
+              i === 1
+                ? "border-primary bg-primary text-primary-fg"
+                : "border-border bg-elevated",
+            )}
+          >
+            {i + 1}
+          </span>
+          <span className={i === 1 ? "font-medium text-fg" : undefined}>{label}</span>
+          {i < steps.length - 1 ? <span className="text-subtle">/</span> : null}
+        </li>
+      ))}
     </ol>
   );
 }
 
-function FieldGroup({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <fieldset className="mt-5 min-w-0">
-      <legend className="text-xs font-medium uppercase tracking-[0.14em] text-subtle">{title}</legend>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">{children}</div>
-    </fieldset>
-  );
+function TravelersPage() {
+  return <TravelersInner />;
 }
 
 function TravelersInner() {
-  const navigate = useNavigate();
-  const { user } = useCurrentUserState();
-  usePaidHolds();
-  const [ready, setReady] = useState(false);
-  const [packageId, setPackageId] = useState<string | null>(null);
-  const [swaps, setSwaps] = useState<Record<string, string>>({});
-  const [nights, setNights] = useState(1);
-  const [roomId, setRoomId] = useState("");
-  const [checkIn, setCheckIn] = useState("");
-  const [count, setCount] = useState(2);
-  const [list, setList] = useState<Traveler[]>([emptyTraveler(), emptyTraveler()]);
-  const [errors, setErrors] = useState<TravelerErrors[]>([]);
-  const [shakeKey, setShakeKey] = useState(0);
-  const [digiGuest, setDigiGuest] = useState<number | null>(null);
-
-  useEffect(() => {
-    const pending = loadPending();
-    setPackageId(pending?.packageId ?? null);
-    setSwaps(pending?.swaps ?? {});
-    setNights(pending?.nights ?? 1);
-    setRoomId(pending?.roomId ?? "");
-    setCheckIn(pending?.checkIn ?? "");
-    const saved = loadTravelers();
-    const pendingPkg = pending?.packageId ? getPackage(pending.packageId) : undefined;
-    const pendingRoom = pendingPkg ? getRoom(pendingPkg, pending?.roomId) : undefined;
-    const cap = pendingRoom?.occupancy ?? 8;
-    if (saved.length > 0) {
-      const sliced = saved.slice(0, cap);
-      setList(sliced);
-      setCount(sliced.length);
-    } else if (user?.primaryEmail || user?.displayName) {
-      setList([
-        emptyTraveler({
-          fullName: user.displayName ?? "",
-          email: user.primaryEmail ?? "",
-        }),
-      ]);
-      setCount(1);
-    }
-    setReady(true);
-  }, [user?.displayName, user?.primaryEmail]);
-
-  const pkg = packageId ? getPackage(packageId) : undefined;
-  const brief = loadBrief();
-  const journey = packageId ? getJourney(packageId, brief.origin, brief.arriveBy) : null;
-  const travelPlan = packageId ? defaultTravelPlan(packageId, brief, loadPending()?.travel) : null;
-  const travelQuote = packageId && travelPlan ? quoteTravel(packageId, brief, travelPlan) : null;
-  const room = pkg ? getRoom(pkg, roomId) : undefined;
-  const maxGuests = room?.occupancy ?? 8;
+  const nav = useNavigate();
+  const pending = loadPending();
+  const pkg = pending ? getPackage(pending.packageId) : undefined;
+  const room = pkg ? getRoom(pkg, pending?.roomId) : undefined;
+  const nights = pkg && pending ? clampNights(pkg, pending.nights) : 1;
+  const swaps = pending?.swaps ?? {};
+  const checkIn = pending?.checkIn;
   const quote =
     pkg && checkIn
       ? quoteStay({
@@ -127,88 +80,60 @@ function TravelersInner() {
           swaps,
         })
       : null;
-  const perPerson = quote?.perPerson ?? (pkg ? stayTotal(pkg, nights, room?.id, swaps) : 0);
-  const total = perPerson;
+  const price = quote?.perPerson ?? (pkg ? stayTotal(pkg, nights, room?.id, swaps) : 0);
+  const maxGuests = room?.occupancy ?? 8;
 
-  const syncCount = (n: number) => {
-    const cap = room?.occupancy ?? 8;
-    const next = Math.min(cap, Math.max(1, n));
-    setCount(next);
-    setList((prev) => {
-      if (prev.length === next) return prev;
-      if (prev.length < next) {
-        return [...prev, ...Array.from({ length: next - prev.length }, () => emptyTraveler())];
-      }
-      return prev.slice(0, next);
-    });
-  };
+  const [guests, setGuests] = useState<Traveler[]>(() => {
+    const loaded = loadTravelers();
+    if (loaded.length) return loaded.slice(0, maxGuests);
+    return [emptyTraveler()];
+  });
+  const [errors, setErrors] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [digiGuest, setDigiGuest] = useState<number | null>(null);
 
-  const update = (index: number, patch: Partial<Traveler>) => {
-    setList((prev) => prev.map((t, i) => (i === index ? { ...t, ...patch } : t)));
-  };
+  const count = guests.length;
 
-  const onContinue = () => {
-    if (room && count > room.occupancy) {
-      pushBanner({
-        title: `This room sleeps ${room.occupancy}`,
-        body: "Remove extra guests or pick a larger room.",
-        tone: "danger",
-      });
-      return;
-    }
-    const result = validateTravelers(list.slice(0, count));
-    setErrors(result.errors);
-    if (!result.ok) {
-      setShakeKey((k) => k + 1);
-      pushBanner({ title: "Check traveller details", body: "Fill required fields for each guest.", tone: "danger" });
-      return;
-    }
-    saveTravelers(list.slice(0, count));
+  useEffect(() => {
+    saveTravelers(guests);
     try {
-      window.localStorage.setItem("tripweave-traveler-count", String(count));
+      window.localStorage.setItem("tripweave-traveler-count", String(guests.length));
     } catch {
       /* ignore */
     }
-    pushBanner({ title: "Travellers saved", tone: "ok" });
-    void navigate({ to: "/checkout" });
-  };
+  }, [guests]);
 
-  const applyDigi = (index: number, filled: Traveler) => {
-    setList((prev) =>
-      prev.map((t, i) =>
-        i === index
-          ? {
-              ...t,
-              ...filled,
-              specialRequests: t.specialRequests,
-              emergencyName: t.emergencyName,
-              emergencyPhone: t.emergencyPhone,
-              digiYatra: t.digiYatra,
-            }
-          : t,
-      ),
-    );
-    pushBanner({
-      title: "DigiLocker details applied",
-      body: `${filled.fullName} filled from issued documents.`,
-      tone: "ok",
+  const syncCount = (n: number) => {
+    const next = Math.min(maxGuests, Math.max(1, n));
+    setGuests((g) => {
+      if (next === g.length) return g;
+      if (next < g.length) return g.slice(0, next);
+      return [...g, ...Array.from({ length: next - g.length }, () => emptyTraveler())];
     });
   };
 
-  if (!ready) {
-    return (
-      <Shell>
-        <Skeleton className="mx-auto mt-16 h-48 max-w-3xl" />
-      </Shell>
-    );
-  }
+  const update = (idx: number, patch: Partial<Traveler>) => {
+    setGuests((g) => g.map((t, i) => (i === idx ? { ...t, ...patch } : t)));
+  };
 
-  if (!pkg) {
+  const onContinue = () => {
+    const v = validateTravelers(guests);
+    if (!v.ok) {
+      setErrors(v.message);
+      return;
+    }
+    setErrors(null);
+    setBusy(true);
+    saveTravelers(guests);
+    void nav({ to: "/checkout" });
+  };
+
+  if (!pkg || !pending) {
     return (
       <Shell>
         <div className="mx-auto max-w-lg px-4 py-16">
-          <h1 className="font-display text-3xl">No stay selected</h1>
-          <p className="mt-3 text-muted">Choose a hotel first, then add traveller details.</p>
+          <h1 className="font-display text-3xl">Nothing to book</h1>
+          <p className="mt-3 text-muted">Pick a stay first, then add traveller details.</p>
           <Button asChild className="mt-6">
             <Link to="/plan">Find a hotel</Link>
           </Button>
@@ -226,9 +151,10 @@ function TravelersInner() {
             <p className="eyebrow mt-6">Before payment</p>
             <h1 className="mt-2 font-display text-4xl">Traveller details</h1>
             <p className="mt-3 max-w-xl text-sm text-muted">
-              Names must match government ID. DigiLocker fills the form only — we do not keep
-              documents. After you pay, we store last 4 digits of ID until 14 days after checkout,
-              then delete guest details. DigiYatra is only for Bhubaneswar airport.
+              Names must match government ID. Sample DigiLocker fills the form only — documents are
+              not submitted to TripWeave. After you pay, we store last 4 digits of ID until 14 days
+              after checkout, then delete guest details. DigiYatra status here is a guest note for
+              Bhubaneswar airport, not an enrolment.
             </p>
             <p className="mt-3 max-w-xl rounded-md border border-border bg-elevated px-3 py-2 text-xs text-muted">
               Sandbox only — live DigiLocker is off. {DIGILOCKER_STATUS.reason}
@@ -269,248 +195,165 @@ function TravelersInner() {
               Sample DigiLocker
             </Button>
           </div>
-          {count >= maxGuests ? (
-            <p className="mt-3 text-xs text-muted">
-              This room sleeps {maxGuests}. Extra guests need a larger room — occupancy is a hard cap.
-            </p>
-          ) : null}
 
-          <div className="mt-8 grid gap-5">
-            {list.slice(0, count).map((t, i) => {
-              const err = errors[i] ?? {};
-              const filled = t.identitySource !== "manual";
-              return (
-                <Card key={i} className="p-5 shadow-none">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-fg">
-                        {travelerInitials(t, i)}
-                      </span>
-                      <div className="min-w-0">
-                        <h2 className="font-display text-xl">
-                          Guest {i + 1}
-                          {i === 0 ? " · primary" : ""}
-                        </h2>
-                        {filled ? (
-                          <p className="text-xs text-ok">
-                            {t.identitySource === "digilocker_demo" ? "Sandbox DigiLocker" : "DigiLocker"}
-                            {t.issuedDocs[0] ? ` · ${t.issuedDocs[0].label}` : ""}
-                          </p>
-                        ) : (
-                          <p className="text-xs text-subtle">Manual entry</p>
-                        )}
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="shrink-0"
-                      onClick={() => setDigiGuest(i)}
-                    >
+          <DigiLockerStatusBanner className="mt-4" />
+
+          <div className="mt-6 grid gap-4">
+            {guests.map((g, idx) => (
+              <Card key={g.id} className="p-4 shadow-none">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-medium">Guest {idx + 1}</p>
+                  {idx === 0 ? (
+                    <Button type="button" size="sm" variant="outline" onClick={() => setDigiGuest(idx)}>
                       Fill from DigiLocker
                     </Button>
+                  ) : null}
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-1.5 sm:col-span-2">
+                    <Label htmlFor={`name-${g.id}`}>Full name</Label>
+                    <Input
+                      id={`name-${g.id}`}
+                      value={g.fullName}
+                      autoComplete="name"
+                      onChange={(e) => update(idx, { fullName: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-1.5">
+                    <Label htmlFor={`phone-${g.id}`}>Phone</Label>
+                    <Input
+                      id={`phone-${g.id}`}
+                      value={g.phone}
+                      inputMode="tel"
+                      autoComplete="tel"
+                      onChange={(e) => update(idx, { phone: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-1.5">
+                    <Label htmlFor={`email-${g.id}`}>Email</Label>
+                    <Input
+                      id={`email-${g.id}`}
+                      type="email"
+                      value={g.email}
+                      autoComplete="email"
+                      onChange={(e) => update(idx, { email: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-1.5">
+                    <Label htmlFor={`nat-${g.id}`}>Nationality</Label>
+                    <Input
+                      id={`nat-${g.id}`}
+                      value={g.nationality}
+                      onChange={(e) => update(idx, { nationality: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-1.5">
+                    <Label htmlFor={`idtype-${g.id}`}>ID type</Label>
+                    <select
+                      id={`idtype-${g.id}`}
+                      className="h-11 rounded-md border border-border bg-elevated px-3 text-sm"
+                      value={g.idType}
+                      onChange={(e) => update(idx, { idType: e.target.value as Traveler["idType"] })}
+                    >
+                      <option value="aadhaar">Aadhaar</option>
+                      <option value="passport">Passport</option>
+                      <option value="dl">Driving licence</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div className="grid gap-1.5 sm:col-span-2">
+                    <Label htmlFor={`idnum-${g.id}`}>ID number</Label>
+                    <Input
+                      id={`idnum-${g.id}`}
+                      value={g.idNumber}
+                      autoComplete="off"
+                      onChange={(e) => update(idx, { idNumber: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-1.5">
+                    <Label htmlFor={`emname-${g.id}`}>Emergency contact</Label>
+                    <Input
+                      id={`emname-${g.id}`}
+                      value={g.emergencyName}
+                      onChange={(e) => update(idx, { emergencyName: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-1.5">
+                    <Label htmlFor={`emph-${g.id}`}>Emergency phone</Label>
+                    <Input
+                      id={`emph-${g.id}`}
+                      value={g.emergencyPhone}
+                      inputMode="tel"
+                      onChange={(e) => update(idx, { emergencyPhone: e.target.value })}
+                    />
                   </div>
 
-                  <FieldGroup title="Identity">
-                    <ShakeField
-                      className="sm:col-span-2"
-                      label="Full name (as on ID)"
-                      value={t.fullName}
-                      error={err.fullName}
-                      shakeKey={shakeKey}
-                      autoComplete="name"
-                      onChange={(e) => update(i, { fullName: e.target.value, identitySource: "manual" })}
-                    />
-                    <ShakeField
-                      label="Date of birth"
-                      type="date"
-                      value={t.dateOfBirth}
-                      error={err.dateOfBirth}
-                      shakeKey={shakeKey}
-                      onChange={(e) => update(i, { dateOfBirth: e.target.value })}
-                    />
-                    <ShakeSelect
-                      label="Gender"
-                      value={t.gender}
-                      onChange={(e) => update(i, { gender: e.target.value as Gender })}
-                    >
-                      {(Object.keys(GENDER_LABELS) as Gender[]).map((g) => (
-                        <option key={g} value={g}>
-                          {GENDER_LABELS[g]}
-                        </option>
-                      ))}
-                    </ShakeSelect>
-                    <ShakeField
-                      label="Nationality"
-                      value={t.nationality}
-                      error={err.nationality}
-                      shakeKey={shakeKey}
-                      onChange={(e) =>
-                        update(i, { nationality: e.target.value.toUpperCase().slice(0, 2) })
-                      }
-                    />
-                    <ShakeSelect
-                      label="ID type"
-                      value={t.idType}
-                      onChange={(e) => update(i, { idType: e.target.value as IdType })}
-                    >
-                      {(Object.keys(ID_LABELS) as IdType[]).map((id) => (
-                        <option key={id} value={id}>
-                          {ID_LABELS[id]}
-                        </option>
-                      ))}
-                    </ShakeSelect>
-                    <ShakeField
-                      className="sm:col-span-2"
-                      label="ID number"
-                      value={t.idNumber}
-                      error={err.idNumber}
-                      shakeKey={shakeKey}
-                      onChange={(e) => update(i, { idNumber: e.target.value, identitySource: "manual" })}
-                      onBlur={() => {
-                        if (t.idType === "aadhaar") update(i, { idNumber: maskAadhaar(t.idNumber) });
-                      }}
-                    />
-                  </FieldGroup>
-
-                  <FieldGroup title="Contact">
-                    <ShakeField
-                      label="Mobile"
-                      inputMode="tel"
-                      placeholder="10-digit mobile"
-                      value={t.phone}
-                      error={err.phone}
-                      shakeKey={shakeKey}
-                      autoComplete="tel"
-                      onChange={(e) =>
-                        update(i, { phone: e.target.value.replace(/\D/g, "").slice(0, 10) })
-                      }
-                    />
-                    <ShakeField
-                      label="Email"
-                      type="email"
-                      value={t.email}
-                      error={err.email}
-                      shakeKey={shakeKey}
-                      autoComplete="email"
-                      onChange={(e) => update(i, { email: e.target.value })}
-                    />
-                  </FieldGroup>
-
-                  <FieldGroup title="Emergency">
-                    <ShakeField
-                      label="Contact name"
-                      value={t.emergencyName}
-                      autoComplete="off"
-                      onChange={(e) => update(i, { emergencyName: e.target.value })}
-                    />
-                    <ShakeField
-                      label="Mobile"
-                      inputMode="tel"
-                      value={t.emergencyPhone}
-                      error={err.emergencyPhone}
-                      shakeKey={shakeKey}
-                      onChange={(e) =>
-                        update(i, {
-                          emergencyPhone: e.target.value.replace(/\D/g, "").slice(0, 10),
-                        })
-                      }
-                    />
-                    <ShakeField
-                      className="sm:col-span-2"
-                      label="Special requests (optional)"
-                      value={t.specialRequests}
-                      placeholder="Diet, accessibility, room preference"
-                      onChange={(e) => update(i, { specialRequests: e.target.value })}
-                    />
-                  </FieldGroup>
-
-                  {t.issuedDocs.length > 0 ? (
-                    <ul className="mt-4 flex flex-wrap gap-2">
-                      {t.issuedDocs.map((d) => (
-                        <li
-                          key={`${d.label}-${d.idMasked}`}
-                          className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted"
-                        >
-                          {d.label} · {d.idMasked}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-
-                  <div className="mt-5 border-t border-border pt-4">
-                    <p className="text-sm font-medium">DigiYatra for BBI</p>
+                  <div className="mt-5 border-t border-border pt-4 sm:col-span-2">
+                    <p className="text-sm font-medium">DigiYatra for BBI (guest note only)</p>
                     <p className="mt-1 text-xs text-subtle">
-                      Optional. Airport e-gates only — does not replace hotel ID.
+                      Optional personal reminder — not submitted to TripWeave, DigiYatra, or the hotel.
+                      Airport e-gates only; does not replace hotel ID.
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {(Object.keys(DIGIYATRA_LABELS) as DigiYatraStatus[]).map((status) => (
                         <button
                           key={status}
                           type="button"
+                          onClick={() => update(idx, { digiYatra: status })}
                           className={cn(
-                            "min-h-11 min-w-[7.5rem] flex-1 rounded-md border px-3 text-center text-xs font-medium",
-                            t.digiYatra === status
-                              ? "border-primary/40 bg-primary/5 text-fg"
-                              : "border-border bg-elevated text-muted",
+                            "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                            g.digiYatra === status
+                              ? "border-primary bg-primary text-primary-fg"
+                              : "border-border bg-surface text-muted hover:text-fg",
                           )}
-                          onClick={() => update(i, { digiYatra: status })}
                         >
                           {DIGIYATRA_LABELS[status]}
                         </button>
                       ))}
                     </div>
                   </div>
-                </Card>
-              );
-            })}
+                </div>
+              </Card>
+            ))}
           </div>
 
-          <div className="sticky bottom-0 z-10 mt-8 -mx-4 border-t border-border bg-bg/95 px-4 py-4 backdrop-blur lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:backdrop-blur-none">
-            <div className="flex flex-wrap gap-3">
-              <Button type="button" size="lg" onClick={onContinue}>
-                Continue to payment
-              </Button>
-              <Button type="button" variant="outline" asChild>
-                <Link to="/trip/$id" params={{ id: pkg.id }}>Back to stay</Link>
-              </Button>
-            </div>
+          {errors ? (
+            <p className="mt-4 rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">
+              {errors}
+            </p>
+          ) : null}
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button type="button" size="lg" onClick={onContinue} disabled={busy}>
+              <TextSwap text={busy ? "Opening checkout…" : "Continue to payment"} shimmer={busy} />
+            </Button>
+            <Button type="button" size="lg" variant="outline" asChild>
+              <Link to={`/trip/${pkg.id}`}>Back to stay</Link>
+            </Button>
           </div>
         </div>
 
-        <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
-          <Card className="overflow-hidden shadow-none">
-            <img src={pkg.image} alt="" className="h-36 w-full object-cover" />
-            <div className="p-5">
-              <h2 className="font-display text-xl">{pkg.name}</h2>
-              <p className="mt-1 text-sm text-muted">
-                {nightsPhrase(nights)} · {room?.name ?? "Room"} · {pkg.neighborhood}
-              </p>
-              <p className="mt-3 text-sm">
-                Est. total{" "}
-                <span className="font-medium tabular-nums">
-                  <RollingPrice value={total} />
-                </span>{" "}
-                · room price · {count} guest{count === 1 ? "" : "s"} fit this room
-              </p>
-            </div>
-          </Card>
-
-          {journey ? (
-            <TransportPanel journey={journey} quote={travelQuote ?? undefined} plan={travelPlan ?? undefined} />
-          ) : null}
-          <DigiYatraPanel />
-        </aside>
+        <Card className="h-fit overflow-hidden shadow-none">
+          <img src={pkg.image} alt="" className="h-36 w-full object-cover" />
+          <div className="p-5">
+            <h2 className="font-display text-xl">{pkg.name}</h2>
+            <p className="mt-1 text-sm text-muted">
+              {nightsPhrase(nights)} · {room?.name ?? "Room"} · {pkg.neighborhood}
+            </p>
+            <p className="mt-4 font-display text-2xl tabular-nums">
+              <DigitPop value={formatMoney(price)} />
+            </p>
+            <p className="mt-1 text-xs text-muted">Room price for this stay — guest count does not multiply it.</p>
+          </div>
+        </Card>
       </div>
 
-      {digiGuest !== null ? (
-        <DigilockerFlow
-          guestIndex={digiGuest}
-          guestLabel={`guest ${digiGuest + 1}`}
+      {digiGuest != null ? (
+        <DigiLockerFlow
+          open
           onClose={() => setDigiGuest(null)}
-          onApply={(filled) => {
-            applyDigi(digiGuest, filled);
+          onFilled={(data) => {
+            update(digiGuest, data);
             setDigiGuest(null);
           }}
         />
