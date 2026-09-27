@@ -10,16 +10,14 @@ import {
   DEFAULT_BRIEF,
   listPackages,
   RANK_LABELS,
-  loadBrief,
   loadPending,
   rankingBlurb,
-  rankEyebrow,
-  saveBrief,
-  scorePackages,
   type Brief,
   type MatchedStay,
   type StayPackage,
 } from "@/lib/packages";
+import { rankEyebrow, scorePackages } from "@/lib/match-score";
+import { loadBriefWithDates, saveBriefWithDates } from "@/lib/brief-persist";
 import { useSavedIds } from "@/lib/saved";
 import { getOrigin } from "@/lib/origins";
 import { loadTravelDraft, patchTravelDraft, quoteTravel } from "@/lib/travel-plan";
@@ -67,7 +65,7 @@ function Matches() {
   const savedIds = useSavedIds();
 
   useEffect(() => {
-    const stored = loadBrief();
+    const stored = loadBriefWithDates();
     const fromUrl = searchHasBrief(search);
     const next: BriefUrlState = fromUrl
       ? mergeBriefUrl(stored, searchToBrief(search))
@@ -76,7 +74,7 @@ function Matches() {
       const pendingIn = loadPending()?.checkIn;
       if (pendingIn) next.checkIn = pendingIn;
     }
-    saveBrief(next);
+    saveBriefWithDates(next);
     setBrief(next);
     const scored = scorePackages(next);
     setMatches(scored.slice(0, 3));
@@ -279,7 +277,7 @@ function Matches() {
           packages={matches.slice(0, 3)}
           lastMileByPackage={lastMileByPackage}
           onSelectLastMile={(packageId, lastMileId) => {
-            patchTravelDraft(packageId, { lastMileId: lastMileId });
+            patchTravelDraft(packageId, { lastMileId });
             setLastMileByPackage((prev) => ({ ...prev, [packageId]: lastMileId }));
           }}
           onClose={() => setPlannerOpen(false)}
