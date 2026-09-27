@@ -15,6 +15,10 @@ export type BookingMeta = {
   /** Sign-in email. Lets a later login find this stay after the cookie user id changes. */
   accountEmail?: string;
   deskNote?: string;
+  /** SES guest/desk notice outcome. */
+  mailStatus?: "sent" | "failed" | "skipped" | "partial";
+  mailSentAt?: string;
+  mailError?: string;
 };
 
 const KEY = "__tw";
