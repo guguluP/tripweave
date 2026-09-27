@@ -11,6 +11,10 @@ import { RollingPrice } from "@/components/motion/rolling-price";
 import { PropertyMedia } from "@/components/property-media";
 import { ReviewerConsensus } from "@/components/reviewer-consensus";
 import { StayMap } from "@/components/stay-map";
+import { stayAmenityFacts, isLimitedPhotoSet } from "@/lib/stay-amenities";
+import { recommendRooms } from "@/lib/recommend-rooms";
+import { refundPolicyFor } from "@/lib/refund-policy";
+import { loadBriefWithDates } from "@/lib/brief-persist";
 import { RoomPicker } from "@/components/room-picker";
 import { StayQuoteCard } from "@/components/stay-quote";
 import { DigiYatraPanel, TransportPanel, BusGuidePanel } from "@/components/transport-panel";
@@ -22,7 +26,6 @@ import {
   formatMoney,
   getPackage,
   getRoom,
-  loadBrief,
   loadPending,
   nightsPhrase,
   rememberLiveTrustScore,
@@ -62,16 +65,24 @@ function TripDetail() {
 
   useEffect(() => {
     if (!pkg) return;
-    const briefNights = typeof window === "undefined" ? pkg.nights : loadBrief().nights;
+    const briefNights = typeof window === "undefined" ? pkg.nights : loadBriefWithDates().nights;
     const nextNights = clampNights(pkg, briefNights);
     setNights(nextNights);
     const leftover = leftoverForRooms(pkg.id, checkIn, nextNights);
-    const firstOpen = pkg.rooms.find((r) => leftover[r.id]?.available) ?? pkg.rooms[0]!;
+    const briefStyle = loadBriefWithDates().style;
+    const recommended = recommendRooms(pkg.rooms, briefStyle);
+    const firstOpen =
+      recommended.find((r) => leftover[r.id]?.available) ??
+      pkg.rooms.find((r) => leftover[r.id]?.available) ??
+      recommended[0] ??
+      pkg.rooms[0]!;
     setRoomId(firstOpen.id);
     setSwaps({});
     setBooking(false);
-    const briefNow = loadBrief();
+    const briefNow = loadBriefWithDates();
     const pending = loadPending();
+    if (briefNow.checkIn) setCheckIn(briefNow.checkIn);
+    else if (pending?.checkIn) setCheckIn(pending.checkIn);
     setTravel(defaultTravelPlan(pkg.id, briefNow, pending?.packageId === pkg.id ? pending.travel : undefined));
     // Only when the stay changes. Catalog overlays rebuild `pkg` every render,
     // and depending on that object wiped the room the guest had just picked.
@@ -100,7 +111,8 @@ function TripDetail() {
     swaps,
   });
   const price = quote?.perPerson ?? 0;
-  const brief = loadBrief();
+  const brief = loadBriefWithDates();
+  const amenities = stayAmenityFacts(pkg);
   const journey = getJourney(pkg.id, brief.origin, brief.arriveBy);
   const travelQuote = quoteTravel(pkg.id, brief, travel);
   const pickupInr = pickupChargeInr(pkg.id, { ...travel, arriveBy: brief.arriveBy, origin: brief.origin });
@@ -176,6 +188,31 @@ function TripDetail() {
           ))}
         </div>
 
+        {amenities.length > 0 ? (
+          <section className="mt-8" aria-labelledby="stay-amenities-title">
+            <h2 id="stay-amenities-title" className="font-display text-2xl">
+              At a glance
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              Only facts we already have — walking times are straight-line estimates.
+              {isLimitedPhotoSet(pkg.images.length)
+                ? " Photos are hotel-published, limited set."
+                : ""}
+            </p>
+            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+              {amenities.map((fact) => (
+                <li
+                  key={fact.id}
+                  className="rounded-lg border border-border bg-elevated px-3 py-2 text-sm"
+                >
+                  <p className="font-medium">{fact.label}</p>
+                  <p className="text-muted">{fact.value}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
         <div className="mt-8">
           <p className="text-sm font-medium">Nights</p>
           <div className="mt-3 flex items-center gap-3">
@@ -222,6 +259,7 @@ function TripDetail() {
           pricePerNight={pkg.pricePerNight}
           leftover={leftoverForRooms(pkg.id, checkIn, nights)}
           gallery={pkg.images}
+          style={brief.style}
         />
 
         <ReviewerConsensus
@@ -297,6 +335,11 @@ function TripDetail() {
                   : `room price · ${nightsPhrase(nights)} · ${room.name} · sleeps ${room.occupancy}`
                 : "Sold out — pick another date"}
             </p>
+            {quote?.available ? (
+              <p className="mt-0.5 text-xs text-subtle">
+                Refund window: {refundPolicyFor(checkIn).label}
+              </p>
+            ) : null}
           </div>
           <Button size="lg" onClick={goBook} disabled={isPending || !quote?.available}>
             <TextSwap text={booking ? "Traveller details…" : "Book this stay"} shimmer={booking} />
