@@ -1,0 +1,319 @@
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Minus, Plus, ShieldCheck } from "lucide-react";
+import { Shell } from "@/components/shell";
+import { DigilockerFlow } from "@/components/digilocker-flow";
+import { DigiYatraPanel, TransportPanel } from "@/components/transport-panel";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Stagger } from "@/components/motion";
+import { RollingPrice } from "@/components/motion/rolling-price";
+import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { pushBanner } from "@/lib/banners";
+import { DIGILOCKER_STATUS } from "@/lib/digilocker";
+import { getJourney } from "@/lib/transport";
+import { defaultTravelPlan, quoteTravel } from "@/lib/travel-plan";
+import {
+  emptyTraveler,
+  loadTravelers,
+  saveTravelers,
+  validateTravelers,
+  type Traveler,
+  type TravelerErrors,
+} from "@/lib/travelers";
+import { getPackage, getRoom, loadBrief, loadPending, nightsPhrase, stayTotal } from "@/lib/packages";
+import { quoteStay } from "@/lib/inventory";
+import { usePaidHolds } from "@/lib/use-occupancy";
+
+import { TravelerGuestCard } from "./travelers-guest-card";
+
+function Stepper() {
+  return (
+    <ol className="flex items-center gap-2 text-xs font-medium text-subtle">
+      <li className="text-muted">Stay</li>
+      <li aria-hidden className="h-px w-6 bg-border" />
+      <li className="text-primary">Travellers</li>
+      <li aria-hidden className="h-px w-6 bg-border" />
+      <li>Pay</li>
+    </ol>
+  );
+}
+
+export function TravelersInner() {
+  const navigate = useNavigate();
+  const { user } = useCurrentUserState();
+  usePaidHolds();
+  const [ready, setReady] = useState(false);
+  const [packageId, setPackageId] = useState<string | null>(null);
+  const [swaps, setSwaps] = useState<Record<string, string>>({});
+  const [nights, setNights] = useState(1);
+  const [roomId, setRoomId] = useState("");
+  const [checkIn, setCheckIn] = useState("");
+  const [count, setCount] = useState(2);
+  const [list, setList] = useState<Traveler[]>([emptyTraveler(), emptyTraveler()]);
+  const [errors, setErrors] = useState<TravelerErrors[]>([]);
+  const [shakeKey, setShakeKey] = useState(0);
+  const [digiGuest, setDigiGuest] = useState<number | null>(null);
+
+  useEffect(() => {
+    const pending = loadPending();
+    setPackageId(pending?.packageId ?? null);
+    setSwaps(pending?.swaps ?? {});
+    setNights(pending?.nights ?? 1);
+    setRoomId(pending?.roomId ?? "");
+    setCheckIn(pending?.checkIn ?? "");
+    const saved = loadTravelers();
+    const pendingPkg = pending?.packageId ? getPackage(pending.packageId) : undefined;
+    const pendingRoom = pendingPkg ? getRoom(pendingPkg, pending?.roomId) : undefined;
+    const cap = pendingRoom?.occupancy ?? 8;
+    if (saved.length > 0) {
+      const sliced = saved.slice(0, cap);
+      setList(sliced);
+      setCount(sliced.length);
+    } else if (user?.primaryEmail || user?.displayName) {
+      setList([
+        emptyTraveler({
+          fullName: user.displayName ?? "",
+          email: user.primaryEmail ?? "",
+        }),
+      ]);
+      setCount(1);
+    }
+    setReady(true);
+  }, [user?.displayName, user?.primaryEmail]);
+
+  const pkg = packageId ? getPackage(packageId) : undefined;
+  const brief = loadBrief();
+  const journey = packageId ? getJourney(packageId, brief.origin, brief.arriveBy) : null;
+  const travelPlan = packageId ? defaultTravelPlan(packageId, brief, loadPending()?.travel) : null;
+  const travelQuote = packageId && travelPlan ? quoteTravel(packageId, brief, travelPlan) : null;
+  const room = pkg ? getRoom(pkg, roomId) : undefined;
+  const maxGuests = room?.occupancy ?? 8;
+  const quote =
+    pkg && checkIn
+      ? quoteStay({
+          packageId: pkg.id,
+          roomId: room?.id,
+          checkIn,
+          nights,
+          swaps,
+        })
+      : null;
+  const perPerson = quote?.perPerson ?? (pkg ? stayTotal(pkg, nights, room?.id, swaps) : 0);
+  const total = perPerson;
+
+  const syncCount = (n: number) => {
+    const cap = room?.occupancy ?? 8;
+    const next = Math.min(cap, Math.max(1, n));
+    setCount(next);
+    setList((prev) => {
+      if (prev.length === next) return prev;
+      if (prev.length < next) {
+        return [...prev, ...Array.from({ length: next - prev.length }, () => emptyTraveler())];
+      }
+      return prev.slice(0, next);
+    });
+  };
+
+  const update = (index: number, patch: Partial<Traveler>) => {
+    setList((prev) => prev.map((t, i) => (i === index ? { ...t, ...patch } : t)));
+  };
+
+  const onContinue = () => {
+    if (room && count > room.occupancy) {
+      pushBanner({
+        title: `This room sleeps ${room.occupancy}`,
+        body: "Remove extra guests or pick a larger room.",
+        tone: "danger",
+      });
+      return;
+    }
+    const result = validateTravelers(list.slice(0, count));
+    setErrors(result.errors);
+    if (!result.ok) {
+      setShakeKey((k) => k + 1);
+      pushBanner({ title: "Check traveller details", body: "Fill required fields for each guest.", tone: "danger" });
+      return;
+    }
+    saveTravelers(list.slice(0, count));
+    try {
+      window.localStorage.setItem("tripweave-traveler-count", String(count));
+    } catch {
+      /* ignore */
+    }
+    pushBanner({ title: "Travellers saved", tone: "ok" });
+    void navigate({ to: "/checkout" });
+  };
+
+  const applyDigi = (index: number, filled: Traveler) => {
+    setList((prev) =>
+      prev.map((t, i) =>
+        i === index
+          ? {
+              ...t,
+              ...filled,
+              specialRequests: t.specialRequests,
+              emergencyName: t.emergencyName,
+              emergencyPhone: t.emergencyPhone,
+              digiYatra: t.digiYatra,
+            }
+          : t,
+      ),
+    );
+    pushBanner({
+      title: "DigiLocker details applied",
+      body: `${filled.fullName} filled from issued documents.`,
+      tone: "ok",
+    });
+  };
+
+  if (!ready) {
+    return (
+      <Shell>
+        <Skeleton className="mx-auto mt-16 h-48 max-w-3xl" />
+      </Shell>
+    );
+  }
+
+  if (!pkg) {
+    return (
+      <Shell>
+        <div className="mx-auto max-w-lg px-4 py-16">
+          <h1 className="font-display text-3xl">No stay selected</h1>
+          <p className="mt-3 text-muted">Choose a hotel first, then add traveller details.</p>
+          <Button asChild className="mt-6">
+            <Link to="/plan">Find a hotel</Link>
+          </Button>
+        </div>
+      </Shell>
+    );
+  }
+
+  return (
+    <Shell>
+      <div className="mx-auto grid max-w-5xl gap-8 px-4 py-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(16rem,0.85fr)]">
+        <div className="min-w-0">
+          <Stagger>
+            <Stepper />
+            <p className="eyebrow mt-6">Before payment</p>
+            <h1 className="mt-2 font-display text-4xl">Traveller details</h1>
+            <p className="mt-3 max-w-xl text-sm text-muted">
+              Names must match government ID. Sample DigiLocker fills the form only — documents are
+              not submitted to TripWeave. After you pay, we store last 4 digits of ID until 14 days
+              after checkout, then delete guest details. DigiYatra status here is a guest note for
+              Bhubaneswar airport, not an enrolment.
+            </p>
+            <p className="mt-3 max-w-xl rounded-md border border-border bg-elevated px-3 py-2 text-xs text-muted">
+              Sandbox only — live DigiLocker is off. {DIGILOCKER_STATUS.reason}
+            </p>
+          </Stagger>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <p className="text-sm font-medium">Guests · sleeps {maxGuests}</p>
+              <div className="inline-flex h-11 items-center rounded-md border border-border bg-elevated">
+                <button
+                  type="button"
+                  className="grid size-11 place-items-center text-muted hover:text-fg"
+                  aria-label="Fewer guests"
+                  onClick={() => syncCount(count - 1)}
+                >
+                  <Minus className="size-4" />
+                </button>
+                <span className="min-w-10 text-center text-sm tabular-nums">{count}</span>
+                <button
+                  type="button"
+                  className="grid size-11 place-items-center text-muted hover:text-fg disabled:opacity-40"
+                  aria-label="More guests"
+                  disabled={count >= maxGuests}
+                  onClick={() => syncCount(count + 1)}
+                >
+                  <Plus className="size-4" />
+                </button>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11 w-full sm:w-auto"
+              onClick={() => setDigiGuest(0)}
+            >
+              <ShieldCheck className="size-4" />
+              Sample DigiLocker
+            </Button>
+          </div>
+          {count >= maxGuests ? (
+            <p className="mt-3 text-xs text-muted">
+              This room sleeps {maxGuests}. Extra guests need a larger room — occupancy is a hard cap.
+            </p>
+          ) : null}
+
+          <div className="mt-8 grid gap-5">
+            {list.slice(0, count).map((t, i) => {
+              const err = errors[i] ?? {};
+              return (
+                <TravelerGuestCard
+                  key={i}
+                  index={i}
+                  traveler={t}
+                  err={err}
+                  shakeKey={shakeKey}
+                  onUpdate={update}
+                  onOpenDigi={setDigiGuest}
+                />
+              );
+            })}
+          </div>
+
+          <div className="sticky bottom-0 z-10 mt-8 -mx-4 border-t border-border bg-bg/95 px-4 py-4 backdrop-blur lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:px-0 lg:backdrop-blur-none">
+            <div className="flex flex-wrap gap-3">
+              <Button type="button" size="lg" onClick={onContinue}>
+                Continue to payment
+              </Button>
+              <Button type="button" variant="outline" asChild>
+                <Link to="/trip/$id" params={{ id: pkg.id }}>Back to stay</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+          <Card className="overflow-hidden shadow-none">
+            <img src={pkg.image} alt="" className="h-36 w-full object-cover" />
+            <div className="p-5">
+              <h2 className="font-display text-xl">{pkg.name}</h2>
+              <p className="mt-1 text-sm text-muted">
+                {nightsPhrase(nights)} · {room?.name ?? "Room"} · {pkg.neighborhood}
+              </p>
+              <p className="mt-3 text-sm">
+                Est. total{" "}
+                <span className="font-medium tabular-nums">
+                  <RollingPrice value={total} />
+                </span>{" "}
+                · room price · {count} guest{count === 1 ? "" : "s"} fit this room
+              </p>
+            </div>
+          </Card>
+
+          {journey ? (
+            <TransportPanel journey={journey} quote={travelQuote ?? undefined} plan={travelPlan ?? undefined} />
+          ) : null}
+          <DigiYatraPanel />
+        </aside>
+      </div>
+
+      {digiGuest !== null ? (
+        <DigilockerFlow
+          guestIndex={digiGuest}
+          guestLabel={`guest ${digiGuest + 1}`}
+          onClose={() => setDigiGuest(null)}
+          onApply={(filled) => {
+            applyDigi(digiGuest, filled);
+            setDigiGuest(null);
+          }}
+        />
+      ) : null}
+    </Shell>
+  );
+}
