@@ -14,16 +14,19 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesRouteImport } from './routes/matches'
-import { Route as PlanRouteImport } from './routes/plan'
-import { Route as TripsRouteImport } from './routes/trips'
-import { Route as TripIdRouteImport } from './routes/trip.$id'
-import { Route as VoucherCodeRouteImport } from './routes/voucher.$code'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as PayTestRouteImport } from './routes/pay-test'
+import { Route as PlanRouteImport } from './routes/plan'
 import { Route as TravelersRouteImport } from './routes/travelers'
+import { Route as TripsRouteImport } from './routes/trips'
 import { Route as ApiCreateOrderRouteImport } from './routes/api/create-order'
 import { Route as ApiVerifyPaymentRouteImport } from './routes/api/verify-payment'
 import { Route as ApiWalletPassRouteImport } from './routes/api/wallet-pass'
+import { Route as TripIdRouteImport } from './routes/trip.$id'
+import { Route as VoucherCodeRouteImport } from './routes/voucher.$code'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiCronReconcileUnbookedRouteImport } from './routes/api/cron/reconcile-unbooked'
+import { Route as ApiCronRefundRetryRouteImport } from './routes/api/cron/refund-retry'
+import { Route as ApiInvoiceCodeRouteImport } from './routes/api/invoice.$code'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -50,14 +53,39 @@ const MatchesRoute = MatchesRouteImport.update({
   path: '/matches',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PayTestRoute = PayTestRouteImport.update({
+  id: '/pay-test',
+  path: '/pay-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlanRoute = PlanRouteImport.update({
   id: '/plan',
   path: '/plan',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TravelersRoute = TravelersRouteImport.update({
+  id: '/travelers',
+  path: '/travelers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TripsRoute = TripsRouteImport.update({
   id: '/trips',
   path: '/trips',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCreateOrderRoute = ApiCreateOrderRouteImport.update({
+  id: '/api/create-order',
+  path: '/api/create-order',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVerifyPaymentRoute = ApiVerifyPaymentRouteImport.update({
+  id: '/api/verify-payment',
+  path: '/api/verify-payment',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWalletPassRoute = ApiWalletPassRouteImport.update({
+  id: '/api/wallet-pass',
+  path: '/api/wallet-pass',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TripIdRoute = TripIdRouteImport.update({
@@ -70,34 +98,25 @@ const VoucherCodeRoute = VoucherCodeRouteImport.update({
   path: '/voucher/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TravelersRoute = TravelersRouteImport.update({
-  id: '/travelers',
-  path: '/travelers',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PayTestRoute = PayTestRouteImport.update({
-  id: '/pay-test',
-  path: '/pay-test',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiCreateOrderRoute = ApiCreateOrderRouteImport.update({
-  id: '/api/create-order',
-  path: '/api/create-order',
+const ApiCronReconcileUnbookedRoute =
+  ApiCronReconcileUnbookedRouteImport.update({
+    id: '/api/cron/reconcile-unbooked',
+    path: '/api/cron/reconcile-unbooked',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiCronRefundRetryRoute = ApiCronRefundRetryRouteImport.update({
+  id: '/api/cron/refund-retry',
+  path: '/api/cron/refund-retry',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiWalletPassRoute = ApiWalletPassRouteImport.update({
-  id: '/api/wallet-pass',
-  path: '/api/wallet-pass',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiVerifyPaymentRoute = ApiVerifyPaymentRouteImport.update({
-  id: '/api/verify-payment',
-  path: '/api/verify-payment',
+const ApiInvoiceCodeRoute = ApiInvoiceCodeRouteImport.update({
+  id: '/api/invoice/$code',
+  path: '/api/invoice/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -107,16 +126,19 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
-  '/plan': typeof PlanRoute
-  '/trips': typeof TripsRoute
-  '/trip/$id': typeof TripIdRoute
-  '/voucher/$code': typeof VoucherCodeRoute
   '/pay-test': typeof PayTestRoute
+  '/plan': typeof PlanRoute
   '/travelers': typeof TravelersRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/trips': typeof TripsRoute
   '/api/create-order': typeof ApiCreateOrderRoute
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/api/wallet-pass': typeof ApiWalletPassRoute
+  '/trip/$id': typeof TripIdRoute
+  '/voucher/$code': typeof VoucherCodeRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
+  '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
+  '/api/invoice/$code': typeof ApiInvoiceCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -124,16 +146,19 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
-  '/plan': typeof PlanRoute
-  '/trips': typeof TripsRoute
-  '/trip/$id': typeof TripIdRoute
-  '/voucher/$code': typeof VoucherCodeRoute
   '/pay-test': typeof PayTestRoute
+  '/plan': typeof PlanRoute
   '/travelers': typeof TravelersRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/trips': typeof TripsRoute
   '/api/create-order': typeof ApiCreateOrderRoute
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/api/wallet-pass': typeof ApiWalletPassRoute
+  '/trip/$id': typeof TripIdRoute
+  '/voucher/$code': typeof VoucherCodeRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
+  '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
+  '/api/invoice/$code': typeof ApiInvoiceCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -142,16 +167,19 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
-  '/plan': typeof PlanRoute
-  '/trips': typeof TripsRoute
-  '/trip/$id': typeof TripIdRoute
-  '/voucher/$code': typeof VoucherCodeRoute
   '/pay-test': typeof PayTestRoute
+  '/plan': typeof PlanRoute
   '/travelers': typeof TravelersRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/trips': typeof TripsRoute
   '/api/create-order': typeof ApiCreateOrderRoute
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/api/wallet-pass': typeof ApiWalletPassRoute
+  '/trip/$id': typeof TripIdRoute
+  '/voucher/$code': typeof VoucherCodeRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
+  '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
+  '/api/invoice/$code': typeof ApiInvoiceCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,16 +189,19 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/login'
     | '/matches'
-    | '/plan'
-    | '/trips'
-    | '/trip/$id'
-    | '/voucher/$code'
     | '/pay-test'
+    | '/plan'
     | '/travelers'
-    | '/api/auth/$'
+    | '/trips'
     | '/api/create-order'
     | '/api/verify-payment'
     | '/api/wallet-pass'
+    | '/trip/$id'
+    | '/voucher/$code'
+    | '/api/auth/$'
+    | '/api/cron/reconcile-unbooked'
+    | '/api/cron/refund-retry'
+    | '/api/invoice/$code'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -178,16 +209,19 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/login'
     | '/matches'
-    | '/plan'
-    | '/trips'
-    | '/trip/$id'
-    | '/voucher/$code'
     | '/pay-test'
+    | '/plan'
     | '/travelers'
-    | '/api/auth/$'
+    | '/trips'
     | '/api/create-order'
     | '/api/verify-payment'
     | '/api/wallet-pass'
+    | '/trip/$id'
+    | '/voucher/$code'
+    | '/api/auth/$'
+    | '/api/cron/reconcile-unbooked'
+    | '/api/cron/refund-retry'
+    | '/api/invoice/$code'
   id:
     | '__root__'
     | '/'
@@ -195,16 +229,19 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/login'
     | '/matches'
-    | '/plan'
-    | '/trips'
-    | '/trip/$id'
-    | '/voucher/$code'
     | '/pay-test'
+    | '/plan'
     | '/travelers'
-    | '/api/auth/$'
+    | '/trips'
     | '/api/create-order'
     | '/api/verify-payment'
     | '/api/wallet-pass'
+    | '/trip/$id'
+    | '/voucher/$code'
+    | '/api/auth/$'
+    | '/api/cron/reconcile-unbooked'
+    | '/api/cron/refund-retry'
+    | '/api/invoice/$code'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -213,16 +250,19 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   LoginRoute: typeof LoginRoute
   MatchesRoute: typeof MatchesRoute
-  PlanRoute: typeof PlanRoute
-  TripsRoute: typeof TripsRoute
-  TripIdRoute: typeof TripIdRoute
-  VoucherCodeRoute: typeof VoucherCodeRoute
   PayTestRoute: typeof PayTestRoute
+  PlanRoute: typeof PlanRoute
   TravelersRoute: typeof TravelersRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  TripsRoute: typeof TripsRoute
   ApiCreateOrderRoute: typeof ApiCreateOrderRoute
   ApiVerifyPaymentRoute: typeof ApiVerifyPaymentRoute
   ApiWalletPassRoute: typeof ApiWalletPassRoute
+  TripIdRoute: typeof TripIdRoute
+  VoucherCodeRoute: typeof VoucherCodeRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiCronReconcileUnbookedRoute: typeof ApiCronReconcileUnbookedRoute
+  ApiCronRefundRetryRoute: typeof ApiCronRefundRetryRoute
+  ApiInvoiceCodeRoute: typeof ApiInvoiceCodeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -262,39 +302,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatchesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/plan': {
-      id: '/plan'
-      path: '/plan'
-      fullPath: '/plan'
-      preLoaderRoute: typeof PlanRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/trips': {
-      id: '/trips'
-      path: '/trips'
-      fullPath: '/trips'
-      preLoaderRoute: typeof TripsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/trip/$id': {
-      id: '/trip/$id'
-      path: '/trip/$id'
-      fullPath: '/trip/$id'
-      preLoaderRoute: typeof TripIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/voucher/$code': {
-      id: '/voucher/$code'
-      path: '/voucher/$code'
-      fullPath: '/voucher/$code'
-      preLoaderRoute: typeof VoucherCodeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/pay-test': {
       id: '/pay-test'
       path: '/pay-test'
       fullPath: '/pay-test'
       preLoaderRoute: typeof PayTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plan': {
+      id: '/plan'
+      path: '/plan'
+      fullPath: '/plan'
+      preLoaderRoute: typeof PlanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/travelers': {
@@ -304,11 +323,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TravelersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
+    '/trips': {
+      id: '/trips'
+      path: '/trips'
+      fullPath: '/trips'
+      preLoaderRoute: typeof TripsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/create-order': {
@@ -332,6 +351,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWalletPassRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/trip/$id': {
+      id: '/trip/$id'
+      path: '/trip/$id'
+      fullPath: '/trip/$id'
+      preLoaderRoute: typeof TripIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/voucher/$code': {
+      id: '/voucher/$code'
+      path: '/voucher/$code'
+      fullPath: '/voucher/$code'
+      preLoaderRoute: typeof VoucherCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cron/reconcile-unbooked': {
+      id: '/api/cron/reconcile-unbooked'
+      path: '/api/cron/reconcile-unbooked'
+      fullPath: '/api/cron/reconcile-unbooked'
+      preLoaderRoute: typeof ApiCronReconcileUnbookedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cron/refund-retry': {
+      id: '/api/cron/refund-retry'
+      path: '/api/cron/refund-retry'
+      fullPath: '/api/cron/refund-retry'
+      preLoaderRoute: typeof ApiCronRefundRetryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/invoice/$code': {
+      id: '/api/invoice/$code'
+      path: '/api/invoice/$code'
+      fullPath: '/api/invoice/$code'
+      preLoaderRoute: typeof ApiInvoiceCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -341,26 +402,20 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   LoginRoute: LoginRoute,
   MatchesRoute: MatchesRoute,
-  PlanRoute: PlanRoute,
-  TripsRoute: TripsRoute,
-  TripIdRoute: TripIdRoute,
-  VoucherCodeRoute: VoucherCodeRoute,
   PayTestRoute: PayTestRoute,
+  PlanRoute: PlanRoute,
   TravelersRoute: TravelersRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
+  TripsRoute: TripsRoute,
   ApiCreateOrderRoute: ApiCreateOrderRoute,
   ApiVerifyPaymentRoute: ApiVerifyPaymentRoute,
   ApiWalletPassRoute: ApiWalletPassRoute,
+  TripIdRoute: TripIdRoute,
+  VoucherCodeRoute: VoucherCodeRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiCronReconcileUnbookedRoute: ApiCronReconcileUnbookedRoute,
+  ApiCronRefundRetryRoute: ApiCronRefundRetryRoute,
+  ApiInvoiceCodeRoute: ApiInvoiceCodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

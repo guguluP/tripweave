@@ -1,5 +1,5 @@
 import type { BookingRow } from "@/lib/server/bookings";
-import { readMeta } from "@/lib/booking-meta";
+import { readMeta } from "./booking-meta.ts";
 
 /**
  * Process-local cache. Bookings are keyed by user id.

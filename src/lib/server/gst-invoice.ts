@@ -1,5 +1,5 @@
-import { deskFor } from "@/lib/hotel-desk";
-import { readMeta } from "@/lib/booking-meta";
+import { deskFor } from "../hotel-desk.ts";
+import { readMeta } from "../booking-meta.ts";
 import type { BookingRow } from "@/lib/server/bookings";
 
 export type InvoiceSeller = {
