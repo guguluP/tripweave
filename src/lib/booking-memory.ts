@@ -1,4 +1,5 @@
 import type { BookingRow } from "@/lib/server/bookings";
+import { readMeta } from "@/lib/booking-meta";
 
 /**
  * Process-local cache. Bookings are keyed by user id.
@@ -76,9 +77,37 @@ export function memoryBookingsFor(userId: string): BookingRow[] {
   return [...(state().byUser.get(userId) ?? [])];
 }
 
+export function memoryFindByPaymentRef(paymentRef: string): BookingRow | undefined {
+  if (!paymentRef) return undefined;
+  for (const bucket of state().byUser.values()) {
+    const hit = bucket.find((row) => row.paymentRef === paymentRef);
+    if (hit) return hit;
+  }
+  return undefined;
+}
+
+export function memoryFindByOrderId(userId: string, orderId: string): BookingRow | undefined {
+  if (!orderId) return undefined;
+  return memoryBookingsFor(userId).find((row) => readMeta(row.swaps).razorpayOrderId === orderId);
+}
+
+export function memoryFindByConfirmation(userId: string, code: string): BookingRow | undefined {
+  return memoryBookingsFor(userId).find((row) => row.confirmationCode === code);
+}
+
+/** Insert, or return the existing row when payment_ref / order id already booked. */
 export function memoryInsertBooking(
   input: Omit<BookingRow, "id" | "createdAt"> & { createdAt?: string },
 ): BookingRow {
+  if (input.paymentRef) {
+    const byPay = memoryFindByPaymentRef(input.paymentRef);
+    if (byPay) return byPay;
+  }
+  const orderId = readMeta(input.swaps).razorpayOrderId;
+  if (orderId && input.userId) {
+    const byOrder = memoryFindByOrderId(input.userId, orderId);
+    if (byOrder) return byOrder;
+  }
   const mem = state();
   const booking: BookingRow = {
     ...input,
@@ -136,6 +165,14 @@ export function refundIntentFor(userId: string, bookingId: number): RefundIntent
 
 export function listRefundIntents(userId: string): RefundIntent[] {
   return [...intents().values()].filter((row) => row.userId === userId);
+}
+
+export function listAllRefundIntents(): RefundIntent[] {
+  return [...intents().values()];
+}
+
+export function listOpenRefundIntents(): RefundIntent[] {
+  return listAllRefundIntents().filter((row) => row.status !== "applied");
 }
 
 function jobs(): ReconcileJob[] {

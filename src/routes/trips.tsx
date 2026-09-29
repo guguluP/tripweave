@@ -152,7 +152,7 @@ function TripsInner() {
         </Stagger>
         {bookings === null ? (
           <Skeleton className="mt-8 h-32 w-full rounded-xl" />
-        ) : bookings.length === 0 ? (
+          ) : bookings.length === 0 ? (
           <div className="mt-8 rounded-xl border border-border bg-elevated p-8">
             <p className="text-muted">No bookings yet. Find a Puri hotel and pay to hold it.</p>
             <LearnMore to="/plan" className="mt-5 text-sm font-medium text-primary">
@@ -263,6 +263,11 @@ function TripsInner() {
                               <Link to="/voucher/$code" params={{ code: b.confirmationCode }}>
                                 Desk voucher
                               </Link>
+                            </Button>
+                            <Button asChild variant="outline" size="sm">
+                              <a href={`/api/invoice/${encodeURIComponent(b.confirmationCode)}`}>
+                                GST invoice
+                              </a>
                             </Button>
                             <Button
                               variant="outline"

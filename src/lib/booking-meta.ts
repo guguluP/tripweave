@@ -19,6 +19,10 @@ export type BookingMeta = {
   mailStatus?: "sent" | "failed" | "skipped" | "partial";
   mailSentAt?: string;
   mailError?: string;
+  /** Razorpay order id — used for double-submit / webhook idempotency. */
+  razorpayOrderId?: string;
+  /** Set when a GST invoice PDF can be generated for this stay. */
+  invoiceReady?: boolean;
 };
 
 const KEY = "__tw";

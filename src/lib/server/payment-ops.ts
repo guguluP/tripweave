@@ -1,5 +1,5 @@
 import type { ReconcileJob, RefundIntent } from "@/lib/booking-memory";
-import { mergeRefundIntents, putRefundIntent, upsertReconcileMemory } from "@/lib/booking-memory";
+import { listOpenRefundIntents, mergeRefundIntents, putRefundIntent, upsertReconcileMemory } from "@/lib/booking-memory";
 import { getSql } from "@/lib/db";
 import { isDurableDbError, markDurableDbFailed, shouldSkipNeon } from "@/lib/server/db-fallback";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
@@ -103,6 +103,7 @@ const SQL_FNS = new Set([
   "tw_list_reconcile_jobs",
   "tw_save_refund_intent",
   "tw_list_refund_intents",
+  "tw_list_pending_refund_intents",
 ]);
 
 async function callSql(fn: string, payload: Record<string, unknown>): Promise<unknown> {
@@ -194,4 +195,42 @@ export async function loadRefundIntents(userId: string): Promise<RefundIntent[] 
 export async function hydrateRefundIntents(userId: string): Promise<void> {
   const rows = await loadRefundIntents(userId);
   if (rows) mergeRefundIntents(rows);
+}
+
+/** Pending / gateway_done intents across all guests (cron). */
+export async function loadAllOpenRefundIntents(): Promise<RefundIntent[]> {
+  const local = listOpenRefundIntents();
+  if (isSupabaseConfigured()) {
+    try {
+      const sb = getSupabaseAdmin();
+      if (sb) {
+        const { data, error } = await sb
+          .from("refund_intents")
+          .select("*")
+          .in("status", ["pending", "gateway_done"])
+          .order("created_at", { ascending: true })
+          .limit(200);
+        if (!error && Array.isArray(data)) {
+          const rows = data.map((row) => mapIntent(row as Record<string, unknown>));
+          mergeRefundIntents(rows);
+          return listOpenRefundIntents();
+        }
+      }
+    } catch (err) {
+      console.error("[payment-ops] list all refunds", messageOf(err));
+    }
+  }
+  if (!shouldSkipNeon()) {
+    try {
+      const data = await readOp("tw_list_pending_refund_intents", {});
+      if (data != null) {
+        const rows = asArray(data).map(mapIntent);
+        mergeRefundIntents(rows);
+        return listOpenRefundIntents();
+      }
+    } catch (err) {
+      console.error("[payment-ops] list pending sql", messageOf(err));
+    }
+  }
+  return local;
 }

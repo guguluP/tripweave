@@ -35,7 +35,7 @@ import { deskFor, hotelMailto } from "@/lib/hotel-desk";
 import { refundPolicyFor } from "@/lib/refund-policy";
 import { loadLocalProfile } from "@/lib/profile-local";
 import { methodLabel, paymentLine } from "@/lib/pay";
-import { createBooking, type BookingRow } from "@/lib/server/bookings";
+import { createBooking, type BookingRow } from "@/lib/server/bookings-browser";
 import { bookingToWalletPayload } from "@/lib/apple-wallet";
 import { saveWalletPass } from "@/lib/wallet-store";
 import { createRazorpayOrder } from "@/lib/server/razorpay";
@@ -260,6 +260,7 @@ function CheckoutInner() {
           </Card>
           <div className="mt-6 flex w-full flex-col gap-3">
             <Button asChild variant="outline"><Link to="/voucher/$code" params={{ code: confirmation.code }}>Open desk voucher</Link></Button>
+            <Button asChild variant="outline"><a href={`/api/invoice/${encodeURIComponent(confirmation.code)}`}>GST invoice PDF</a></Button>
             <Button asChild variant="outline"><Link to="/trips">View trips</Link></Button>
           </div>
         </div>

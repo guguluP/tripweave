@@ -196,7 +196,7 @@ export async function settleRazorpayWebhook(rawBody: string, signature: string |
   const userId = notes.userId;
   const packageId = notes.packageId;
   if (!userId || !packageId) return Response.json({ ok: true, ignored: "no stay notes" });
-  const { bookCapturedFromNotes } = await import("@/lib/server/bookings");
+  const { bookCapturedIdempotent: bookCapturedFromNotes } = await import("@/lib/server/booking-idempotent");
   const { getPackage } = await import("@/lib/packages");
   const pkg = getPackage(packageId);
   await bookCapturedFromNotes({
@@ -286,7 +286,6 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
       if (reserved === "ok") {
         recordHold(holdBody);
       } else if (process.env.VERCEL || process.env.NODE_ENV === "production") {
-        // Multi-instance hosts must not fall back to the in-process hold book.
         return {
           ok: false,
           message:
@@ -295,7 +294,6 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
               : "Could not reserve this room. Try again in a moment.",
         };
       } else if (!tryReserveHold(holdBody)) {
-        // Local/dev only: single-process hold book.
         return { ok: false, message: "Those nights just sold out. Pick another date." };
       }
       const amountPaise = Math.round(payable.amountInr * 100);

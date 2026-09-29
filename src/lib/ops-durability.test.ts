@@ -14,7 +14,7 @@ function message(err: unknown) {
 async function boot() {
   const pg = new PGlite();
   await pg.waitReady;
-  for (const name of ["0002_bookings.sql", "0003_payments.sql", "0005_payment_ops.sql"]) {
+  for (const name of ["0002_bookings.sql", "0003_payments.sql", "0005_payment_ops.sql", "0006_pending_refund_list.sql"]) {
     await pg.exec(readFileSync(join(root, "migrations", name), "utf8"));
   }
   return pg;
@@ -148,5 +148,30 @@ describe("durable holds and payment ops", () => {
     );
     assert.equal(Number(intents.rows[0]?.n), 1);
     assert.equal(intents.rows[0]?.status, "gateway_done");
+  });
+
+  it("lists open refund intents for the cron without a user filter", async () => {
+    const pg = await boot();
+    await call(pg, "tw_save_refund_intent", {
+      id: "refund_cron_1",
+      user_id: "user-cron",
+      booking_id: 9,
+      payment_ref: "pay_cron",
+      amount_inr: 500,
+      status: "pending",
+      created_at: "2026-09-22T00:00:00.000Z",
+    });
+    await call(pg, "tw_save_refund_intent", {
+      id: "refund_cron_2",
+      user_id: "user-cron-2",
+      booking_id: 10,
+      payment_ref: "pay_cron_2",
+      amount_inr: 100,
+      status: "applied",
+      created_at: "2026-09-22T00:00:00.000Z",
+    });
+    const open = await call(pg, "tw_list_pending_refund_intents", {});
+    assert.equal(open.length, 1);
+    assert.equal(open[0].payment_ref, "pay_cron");
   });
 });

@@ -11,7 +11,7 @@
  *   DIGILOCKER_CLIENT_SECRET
  *   DIGILOCKER_REDIRECT_URI
  */
-import type { Gender, IdType, Issued Doc, Traveler } from "@/lib/travelers";
+import type { Gender, IdType, IssuedDoc, Traveler } from "@/lib/travelers";
 import { emptyTraveler } from "@/lib/travelers";
 
 export const DIGILOCKER_STATUS = {
