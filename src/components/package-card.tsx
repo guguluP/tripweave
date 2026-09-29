@@ -14,7 +14,7 @@ import { Card } from "@/components/ui/card";
 import { DigitPop, LearnMore, LikeButton } from "@/components/motion";
 import { ReviewerChip } from "@/components/reviewer-consensus";
 import { LastMilePicker } from "@/components/last-mile-picker";
-import { youtubeSourceCount } from "@/lib/trust-score";
+import { computeTrustScore, youtubeSourceCount } from "@/lib/trust-score";
 import { quoteTravel } from "@/lib/travel-plan";
 
 export function PackageCard({
@@ -30,9 +30,7 @@ export function PackageCard({
 }: {
   pkg: StayPackage;
   rank?: string;
-  /** When known from the brief, show an N-night total alongside the nightly rate. */
   nights?: number;
-  /** When set, the card uses the seasonal quote instead of the flat nightly rate. */
   checkIn?: string;
   originWhy?: string;
   /** One-sentence rank eyebrow from rankEyebrow / originFitReason. */
@@ -42,6 +40,8 @@ export function PackageCard({
   onLastMile?: (id: string) => void;
 }) {
   const sources = youtubeSourceCount(pkg);
+  const trust = computeTrustScore(pkg);
+  const baseOccupancy = pkg.rooms[0]?.occupancy ?? 2;
   const stayNights =
     typeof nights === "number" && Number.isFinite(nights) && nights >= 1
       ? Math.min(pkg.nightsMax, Math.max(pkg.nightsMin, Math.round(nights)))
@@ -105,15 +105,19 @@ export function PackageCard({
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 text-sm">
               <p>
-                <span className="text-muted">{dated ? "" : "catalog "}</span>
+                <span className="text-muted">{dated ? "" : "From "}</span>
                 <span className="font-semibold tabular-nums">
                   <DigitPop value={formatMoney(nightly)} />
                 </span>
-                <span className="text-muted"> / night for the room</span>
+                <span className="text-muted">
+                  {" "}
+                  / night for the base room (sleeps {baseOccupancy})
+                </span>
               </p>
-              {!dated ? (
-                <p className="mt-0.5 text-xs text-subtle">Seasonal price is set at checkout.</p>
-              ) : null}
+              <p className="mt-0.5 text-xs text-subtle">
+                Taxes included at checkout.
+                {!dated ? " Seasonal price is set when you pick dates." : ""}
+              </p>
               {multiTotal != null && stayNights != null && stayNights > 1 ? (
                 <p className="mt-0.5 text-xs text-subtle">
                   <span className="tabular-nums">
@@ -122,10 +126,16 @@ export function PackageCard({
                   {" "}
                   for {nightsPhrase(stayNights)}
                   {dated ? " · seasonal rate" : ""}
+                  {" · room price, not per person"}
                 </p>
               ) : null}
             </div>
-            <TrustMeter score={pkg.trustScore} youtubeSources={sources} compact />
+            <TrustMeter
+              score={pkg.trustScore}
+              youtubeSources={sources}
+              breakdown={trust}
+              compact
+            />
           </div>
           <p className="text-xs text-subtle">
             Typical stay {nightsPhrase(pkg.nights)} · {pkg.rooms.length} room types

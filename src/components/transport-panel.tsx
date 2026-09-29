@@ -215,8 +215,12 @@ export function TransportPanel({
 export function DigiYatraPanel() {
   return (
     <Card className="space-y-3 p-5 shadow-none">
-      <p className="eyebrow">DigiYatra · {DIGIYATRA_GUIDE.airportCode}</p>
+      <p className="eyebrow">DigiYatra guide · guest note only</p>
       <h3 className="font-display text-lg">Airport e-gates at BBI</h3>
+      <p className="rounded-md border border-border bg-bg px-3 py-2 text-xs text-muted">
+        TripWeave does not enrol you in DigiYatra and does not collect Aadhaar for it. This is a
+        public airport guide — use the official DigiYatra app if you want e-gates at {DIGIYATRA_GUIDE.airportCode}.
+      </p>
       <p className="text-sm text-muted">{DIGIYATRA_GUIDE.summary}</p>
       <ol className="list-decimal space-y-1.5 pl-4 text-xs text-subtle">
         {DIGIYATRA_GUIDE.steps.map((s) => (

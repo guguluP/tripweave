@@ -31,7 +31,7 @@ import {
 } from "@/lib/packages";
 import { quoteStay, travelersFitRoom } from "@/lib/inventory";
 import { usePaidHolds } from "@/lib/use-occupancy";
-import { hotelMailto } from "@/lib/hotel-desk";
+import { deskFor, hotelMailto } from "@/lib/hotel-desk";
 import { refundPolicyFor } from "@/lib/refund-policy";
 import { loadLocalProfile } from "@/lib/profile-local";
 import { methodLabel, paymentLine } from "@/lib/pay";
@@ -455,7 +455,9 @@ function CheckoutInner() {
               </div>
             ) : null}
             {errors.form ? <p className="rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">{errors.form}</p> : null}
-            <p className="text-xs text-muted">{refundPolicyFor(checkIn).label}. My trips uses this same rule after you pay.</p>
+            <p className="rounded-md border border-border bg-elevated px-3 py-2 text-xs text-muted">
+              Refund window before you pay: {refundPolicyFor(checkIn).label}. My trips uses this same rule after you pay.
+            </p>
             <Button type="submit" size="lg" disabled={busy || (quote != null && !quote.available)} className="mt-2">
               <TextSwap shimmer={busy} text={busy ? "Opening Razorpay…" : quote && !quote.available ? "Sold out for these nights" : `Pay ${formatMoney(total)} with Razorpay`} />
             </Button>
@@ -467,8 +469,15 @@ function CheckoutInner() {
             <h2 className="font-display text-xl">{pkg.name}</h2>
             <p className="mt-1 text-sm text-muted">{nightsPhrase(stayNights)} · {room?.name ?? "Room"} · {pkg.neighborhood}</p>
             <dl className="mt-5 grid gap-2 text-sm">
-              <div className="flex justify-between"><dt className="text-muted">Room</dt><dd className="tabular-nums"><DigitPop value={formatMoney(stayDue)} /></dd></div>
-              <p className="text-xs text-muted">One room price. Guest count does not multiply it. Add-ons are charged once.</p>
+              <div className="flex justify-between"><dt className="text-muted">Room · {nightsPhrase(stayNights)}</dt><dd className="tabular-nums"><DigitPop value={formatMoney(stayDue)} /></dd></div>
+              <p className="text-xs text-muted">
+                {room ? `${formatMoney(Math.round(stayDue / Math.max(stayNights, 1)))} / night for ${room.name} (sleeps ${room.occupancy}). ` : ""}
+                One room price — guest count does not multiply it. Taxes included at checkout
+                {deskFor(pkg.id).gstin ? ` · GSTIN ${deskFor(pkg.id).gstin}` : " · GST as billed by the hotel"}.
+              </p>
+              {pickupInr > 0 ? (
+                <div className="flex justify-between"><dt className="text-muted">Hotel pickup estimate</dt><dd className="tabular-nums"><DigitPop value={formatMoney(pickupInr)} /></dd></div>
+              ) : null}
               <div className="flex justify-between border-t border-border pt-2 font-medium"><dt>Total</dt><dd className="tabular-nums"><DigitPop value={formatMoney(total)} /></dd></div>
             </dl>
           </div>

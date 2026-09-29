@@ -90,7 +90,7 @@ export function DigilockerFlow({
       <Card className="relative z-10 w-full max-w-md rounded-2xl p-5 shadow-soft sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="eyebrow">DigiLocker</p>
+            <p className="eyebrow">Sample DigiLocker · not submitted to TripWeave</p>
             <h2 className="mt-1 font-display text-2xl">Fill {guestLabel}</h2>
           </div>
           <button
@@ -106,8 +106,9 @@ export function DigilockerFlow({
         {step === "consent" ? (
           <div className="mt-4 space-y-4">
             <p className="text-sm text-muted">
-              TripWeave requests issued documents with your consent. Live pull needs API Setu
-              requester credentials. This sandbox returns sample identity for product testing.
+              Sample only — nothing here is a real Aadhaar or DigiLocker submission to TripWeave.
+              Live pull needs API Setu requester credentials. This sandbox returns labelled sample
+              identity for product testing, then you still enter guest details on the form.
             </p>
             <ul className="grid gap-2">
               {DIGILOCKER_DOC_OPTIONS.map((doc) => {
@@ -159,7 +160,8 @@ export function DigilockerFlow({
           <div className="mt-4 space-y-4">
             <p className="text-sm text-muted">
               Sandbox OTP for this session is <span className="font-medium tabular-nums text-fg">{hint}</span>.
-              Live DigiLocker would send this to the Aadhaar-linked mobile.
+              This is not sent to UIDAI or DigiLocker. Live DigiLocker would SMS the Aadhaar-linked
+              mobile — TripWeave still would not store full Aadhaar.
             </p>
             <ShakeField
               label="6-digit OTP"
@@ -180,7 +182,7 @@ export function DigilockerFlow({
           <div className="mt-4 space-y-4">
             <p className="flex items-center gap-2 text-sm text-ok">
               <FileCheck className="size-4" />
-              Issued documents applied to {guestLabel}.
+              Sample fields applied to {guestLabel}. Not submitted to TripWeave as ID proof.
             </p>
             <Button type="button" className="w-full" onClick={onClose}>
               Done

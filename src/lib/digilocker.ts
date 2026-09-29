@@ -11,14 +11,13 @@
  *   DIGILOCKER_CLIENT_SECRET
  *   DIGILOCKER_REDIRECT_URI
  */
-
-import type { Gender, IdType, IssuedDoc, Traveler } from "@/lib/travelers";
+import type { Gender, IdType, Issued Doc, Traveler } from "@/lib/travelers";
 import { emptyTraveler } from "@/lib/travelers";
 
 export const DIGILOCKER_STATUS = {
   live: false,
   reason:
-    "Live DigiLocker pull needs Requester credentials from API Setu / MeitY partner onboarding.",
+    "Sample / sandbox only - DigiLocker identity is not submitted to TripWeave. Live pull needs Requester credentials from API Setu / MeitY partner onboarding.",
   portal: "https://apisetu.gov.in/digilocker",
   citizenApp: "https://www.digilocker.gov.in/",
   authorizeHint: "https://api.digitallocker.gov.in/public/oauth2/1/authorize",
