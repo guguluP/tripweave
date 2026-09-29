@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
-import { packageIdsForPartner } from "@/lib/partner-access";
+import { isBannedPartnerWildcard, packageIdsForPartner } from "@/lib/partner-access";
 
-export { packageIdsForPartner };
+export { isBannedPartnerWildcard, packageIdsForPartner };
 
 export const partnerStays = createServerFn({ method: "GET" })
   .middleware([authMiddleware])

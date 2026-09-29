@@ -21,9 +21,12 @@ import { Route as TripsRouteImport } from './routes/trips'
 import { Route as ApiCreateOrderRouteImport } from './routes/api/create-order'
 import { Route as ApiVerifyPaymentRouteImport } from './routes/api/verify-payment'
 import { Route as ApiWalletPassRouteImport } from './routes/api/wallet-pass'
+import { Route as DeskIndexRouteImport } from './routes/desk/index'
+import { Route as DeskActionRouteImport } from './routes/desk/action'
 import { Route as TripIdRouteImport } from './routes/trip.$id'
 import { Route as VoucherCodeRouteImport } from './routes/voucher.$code'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiCronFlagUnconfirmedRouteImport } from './routes/api/cron/flag-unconfirmed'
 import { Route as ApiCronReconcileUnbookedRouteImport } from './routes/api/cron/reconcile-unbooked'
 import { Route as ApiCronRefundRetryRouteImport } from './routes/api/cron/refund-retry'
 import { Route as ApiInvoiceCodeRouteImport } from './routes/api/invoice.$code'
@@ -88,6 +91,16 @@ const ApiWalletPassRoute = ApiWalletPassRouteImport.update({
   path: '/api/wallet-pass',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeskIndexRoute = DeskIndexRouteImport.update({
+  id: '/desk/',
+  path: '/desk/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeskActionRoute = DeskActionRouteImport.update({
+  id: '/desk/action',
+  path: '/desk/action',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TripIdRoute = TripIdRouteImport.update({
   id: '/trip/$id',
   path: '/trip/$id',
@@ -101,6 +114,11 @@ const VoucherCodeRoute = VoucherCodeRouteImport.update({
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCronFlagUnconfirmedRoute = ApiCronFlagUnconfirmedRouteImport.update({
+  id: '/api/cron/flag-unconfirmed',
+  path: '/api/cron/flag-unconfirmed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCronReconcileUnbookedRoute =
@@ -133,9 +151,12 @@ export interface FileRoutesByFullPath {
   '/api/create-order': typeof ApiCreateOrderRoute
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/api/wallet-pass': typeof ApiWalletPassRoute
+  '/desk/action': typeof DeskActionRoute
   '/trip/$id': typeof TripIdRoute
   '/voucher/$code': typeof VoucherCodeRoute
+  '/desk/': typeof DeskIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/flag-unconfirmed': typeof ApiCronFlagUnconfirmedRoute
   '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
   '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
   '/api/invoice/$code': typeof ApiInvoiceCodeRoute
@@ -153,9 +174,12 @@ export interface FileRoutesByTo {
   '/api/create-order': typeof ApiCreateOrderRoute
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/api/wallet-pass': typeof ApiWalletPassRoute
+  '/desk/action': typeof DeskActionRoute
   '/trip/$id': typeof TripIdRoute
   '/voucher/$code': typeof VoucherCodeRoute
+  '/desk': typeof DeskIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/flag-unconfirmed': typeof ApiCronFlagUnconfirmedRoute
   '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
   '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
   '/api/invoice/$code': typeof ApiInvoiceCodeRoute
@@ -174,9 +198,12 @@ export interface FileRoutesById {
   '/api/create-order': typeof ApiCreateOrderRoute
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/api/wallet-pass': typeof ApiWalletPassRoute
+  '/desk/action': typeof DeskActionRoute
   '/trip/$id': typeof TripIdRoute
   '/voucher/$code': typeof VoucherCodeRoute
+  '/desk/': typeof DeskIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/flag-unconfirmed': typeof ApiCronFlagUnconfirmedRoute
   '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
   '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
   '/api/invoice/$code': typeof ApiInvoiceCodeRoute
@@ -196,9 +223,12 @@ export interface FileRouteTypes {
     | '/api/create-order'
     | '/api/verify-payment'
     | '/api/wallet-pass'
+    | '/desk/action'
     | '/trip/$id'
     | '/voucher/$code'
+    | '/desk/'
     | '/api/auth/$'
+    | '/api/cron/flag-unconfirmed'
     | '/api/cron/reconcile-unbooked'
     | '/api/cron/refund-retry'
     | '/api/invoice/$code'
@@ -216,9 +246,12 @@ export interface FileRouteTypes {
     | '/api/create-order'
     | '/api/verify-payment'
     | '/api/wallet-pass'
+    | '/desk/action'
     | '/trip/$id'
     | '/voucher/$code'
+    | '/desk'
     | '/api/auth/$'
+    | '/api/cron/flag-unconfirmed'
     | '/api/cron/reconcile-unbooked'
     | '/api/cron/refund-retry'
     | '/api/invoice/$code'
@@ -236,9 +269,12 @@ export interface FileRouteTypes {
     | '/api/create-order'
     | '/api/verify-payment'
     | '/api/wallet-pass'
+    | '/desk/action'
     | '/trip/$id'
     | '/voucher/$code'
+    | '/desk/'
     | '/api/auth/$'
+    | '/api/cron/flag-unconfirmed'
     | '/api/cron/reconcile-unbooked'
     | '/api/cron/refund-retry'
     | '/api/invoice/$code'
@@ -257,9 +293,12 @@ export interface RootRouteChildren {
   ApiCreateOrderRoute: typeof ApiCreateOrderRoute
   ApiVerifyPaymentRoute: typeof ApiVerifyPaymentRoute
   ApiWalletPassRoute: typeof ApiWalletPassRoute
+  DeskActionRoute: typeof DeskActionRoute
   TripIdRoute: typeof TripIdRoute
   VoucherCodeRoute: typeof VoucherCodeRoute
+  DeskIndexRoute: typeof DeskIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiCronFlagUnconfirmedRoute: typeof ApiCronFlagUnconfirmedRoute
   ApiCronReconcileUnbookedRoute: typeof ApiCronReconcileUnbookedRoute
   ApiCronRefundRetryRoute: typeof ApiCronRefundRetryRoute
   ApiInvoiceCodeRoute: typeof ApiInvoiceCodeRoute
@@ -351,6 +390,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWalletPassRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/desk/': {
+      id: '/desk/'
+      path: '/desk'
+      fullPath: '/desk/'
+      preLoaderRoute: typeof DeskIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/desk/action': {
+      id: '/desk/action'
+      path: '/desk/action'
+      fullPath: '/desk/action'
+      preLoaderRoute: typeof DeskActionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trip/$id': {
       id: '/trip/$id'
       path: '/trip/$id'
@@ -370,6 +423,13 @@ declare module '@tanstack/react-router' {
       path: '/api/auth/$'
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cron/flag-unconfirmed': {
+      id: '/api/cron/flag-unconfirmed'
+      path: '/api/cron/flag-unconfirmed'
+      fullPath: '/api/cron/flag-unconfirmed'
+      preLoaderRoute: typeof ApiCronFlagUnconfirmedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/cron/reconcile-unbooked': {
@@ -409,9 +469,12 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCreateOrderRoute: ApiCreateOrderRoute,
   ApiVerifyPaymentRoute: ApiVerifyPaymentRoute,
   ApiWalletPassRoute: ApiWalletPassRoute,
+  DeskActionRoute: DeskActionRoute,
   TripIdRoute: TripIdRoute,
   VoucherCodeRoute: VoucherCodeRoute,
+  DeskIndexRoute: DeskIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiCronFlagUnconfirmedRoute: ApiCronFlagUnconfirmedRoute,
   ApiCronReconcileUnbookedRoute: ApiCronReconcileUnbookedRoute,
   ApiCronRefundRetryRoute: ApiCronRefundRetryRoute,
   ApiInvoiceCodeRoute: ApiInvoiceCodeRoute,
@@ -419,3 +482,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

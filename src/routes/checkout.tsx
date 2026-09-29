@@ -47,7 +47,6 @@ import {
   loadRazorpayScript,
   openRazorpayCheckout,
 } from "@/lib/razorpay-client";
-import { getJourney } from "@/lib/transport";
 import { getOrigin } from "@/lib/origins";
 import { writeMeta, readMeta } from "@/lib/booking-meta";
 import {
@@ -161,7 +160,6 @@ function CheckoutInner() {
   const perPerson = quote?.perPerson ?? (pkg ? stayTotal(pkg, stayNights, room?.id, swaps) : 0);
   const occupancy = room?.occupancy ?? 8;
   const brief = loadBrief();
-  const journey = pkg ? getJourney(pkg.id, brief.origin, brief.arriveBy) : null;
   const plan = { ...travel, arriveBy: brief.arriveBy, origin: brief.origin };
   const travelQuote = pkg ? quoteTravel(pkg.id, brief, plan) : null;
   const pickupInr = pkg ? pickupChargeInr(pkg.id, plan) : 0;
@@ -482,7 +480,6 @@ function CheckoutInner() {
               <div className="flex justify-between border-t border-border pt-2 font-medium"><dt>Total</dt><dd className="tabular-nums"><DigitPop value={formatMoney(total)} /></dd></div>
             </dl>
             {quote && !quote.available ? <p className="mt-3 text-sm text-danger">Sold out for these nights.</p> : null}
-            {journey ? <p className="mt-3 text-xs text-muted">{journey.summary}</p> : null}
             <p className="mt-2 text-xs text-subtle">From {getOrigin(brief.origin)?.label ?? brief.origin}</p>
           </div>
         </Card>

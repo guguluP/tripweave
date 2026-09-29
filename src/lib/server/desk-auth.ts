@@ -2,7 +2,7 @@
  * Per-property desk tokens and signed accept/decline links.
  * Do NOT use PARTNER_EMAILS email:* wildcards for desk access.
  */
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 export type DeskTokenGrant = { packageId: string; token: string };
 
@@ -35,14 +35,12 @@ export function assertDeskTokenForPackage(token: string, packageId: string): boo
   return packageIdsForDeskToken(token).includes(packageId);
 }
 
-const safe = {
-  equal(a: string, b: string) {
-    const left = Buffer.from(a);
-    const right = Buffer.from(b);
-    if (left.length !== right.length) return false;
-    return timingSafeEqual(left, right);
-  },
-};
+/** Constant-time string compare. Hashing first keeps the compare length-independent. */
+function safeEqual(a: string, b: string): boolean {
+  const left = createHash("sha256").update(a).digest();
+  const right = createHash("sha256").update(b).digest();
+  return timingSafeEqual(left, right);
+}
 
 function actionSecret(): string {
   return (
@@ -96,7 +94,7 @@ export function verifyDeskAction(token: string): DeskActionPayload | null {
   const [body, sig] = token.split(".");
   if (!body || !sig) return null;
   const expected = b64url(createHmac("sha256", secret).update(body).digest());
-  if (!safe.equal(sig, expected)) return null;
+  if (!safeEqual(sig, expected)) return null;
   try {
     const payload = JSON.parse(fromB64url(body).toString("utf8")) as DeskActionPayload;
     if (!payload?.bookingId || !payload.packageId || !payload.action) return null;

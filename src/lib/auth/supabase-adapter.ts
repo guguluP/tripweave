@@ -4,7 +4,7 @@
  * Does not use DATABASE_URL.
  */
 import { createAdapterFactory, type CleanedWhere, type JoinConfig } from "better-auth/adapters";
-import { memoryAdapter } from "better-auth/adapters/memory";
+import { memoryAdapter, type MemoryDB } from "better-auth/adapters/memory";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "../supabase/server";
 
@@ -109,6 +109,9 @@ function missingTable(err: unknown): boolean {
   return /ba_|schema cache|Could not find the table|relation .* does not exist/i.test(msg);
 }
 
+/** Backing store for the fallback used when the ba_* tables are missing. */
+const memoryStore: MemoryDB = {};
+
 export const supabaseAuthAdapter = () =>
   createAdapterFactory({
     config: {
@@ -120,7 +123,7 @@ export const supabaseAuthAdapter = () =>
       supportsArrays: false,
     },
     adapter: (ctx) => {
-      const memory = memoryAdapter()(ctx.options);
+      const memory = memoryAdapter(memoryStore)(ctx.options);
       let memoryOnly = false;
       const run = async <T>(op: keyof typeof memory, args: unknown): Promise<T> => {
         if (memoryOnly) return (memory[op] as (value: unknown) => Promise<T>)(args);

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { isBannedPartnerWildcard, packageIdsForPartner } from "./server/partner.ts";
+import { isBannedPartnerWildcard, packageIdsForPartner } from "./partner-access.ts";
 
 describe("PARTNER_EMAILS wildcard ban", () => {
   it("flags email:* and bare email as banned", () => {

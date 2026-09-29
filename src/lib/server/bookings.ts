@@ -347,8 +347,10 @@ async function insertCapturedBooking(job: ReconcileJob, payload: StoredPayload):
   }
   if (shouldSkipNeon()) throw new Error("no durable store");
   const neon = await insertNeonBooking(neonWire(payload, job.userId, roomId, units, exceptHoldIds));
-  if (neon.soldOut) throw new Error("sold_out");
-  if (!neon.ok) throw new Error(neon.missing ? "no durable store" : "insert returned empty");
+  if (!neon.ok) {
+    if (neon.soldOut) throw new Error("sold_out");
+    throw new Error(neon.missing ? "no durable store" : "insert returned empty");
+  }
   return neon.booking;
 }
 
@@ -816,8 +818,8 @@ export const createBooking = createServerFn({ method: "POST" })
     if (isSupabaseConfigured()) {
       try {
         const booking = await sbInsertBooking({
-          userId: context.userId,
           ...local,
+          userId: context.userId,
           roomId: room.id,
           units: roomUnits(pkg, room.id),
           exceptHoldIds: checkoutHoldIds,
