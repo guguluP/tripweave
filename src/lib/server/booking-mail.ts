@@ -1,7 +1,9 @@
-import { deskFor } from "@/lib/hotel-desk";
-import { sendMail } from "@/lib/mail/ses";
+import { notifyDesk, notifyGuestPaid, type DeskNotice } from "@/lib/server/desk-notify";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 type Notice = {
+  bookingId?: number;
   guestEmail?: string | null;
   packageId: string;
   packageName: string;
@@ -11,31 +13,35 @@ type Notice = {
   travelers: number;
   amountInr: number;
   payerName: string;
+  roomName?: string;
 };
 
-async function send(to: string, subject: string, text: string) {
-  try {
-    return await sendMail({ to, subject, text });
-  } catch (err) {
-    console.error("[mail] booking", err instanceof Error ? err.message : err);
-    return false;
-  }
-}
-
-/** Guest and hotel desk. No-ops until Amazon SES is configured. */
+/** Guest and hotel desk. SES when configured; WhatsApp stub otherwise. */
 export async function sendBookingNotices(input: Notice) {
-  const desk = deskFor(input.packageId);
-  const body = [
-    `${input.payerName} · ${input.packageName}`,
-    `Confirmation ${input.confirmationCode}`,
-    `Check-in ${input.checkIn} · ${input.nights} nights · ${input.travelers} guests`,
-    `Amount ₹${input.amountInr}`,
-    "TripWeave recorded this payment. The desk still confirms the room.",
-  ].join("\n");
-  if (input.guestEmail) {
-    await send(input.guestEmail, `TripWeave booking ${input.confirmationCode}`, body);
+  const notice: DeskNotice = {
+    bookingId: input.bookingId ?? 0,
+    guestEmail: input.guestEmail,
+    packageId: input.packageId,
+    packageName: input.packageName,
+    confirmationCode: input.confirmationCode,
+    checkIn: input.checkIn,
+    nights: input.nights,
+    travelers: input.travelers,
+    amountInr: input.amountInr,
+    payerName: input.payerName,
+    roomName: input.roomName,
+  };
+  await notifyGuestPaid(notice);
+  const desk = await notifyDesk(notice);
+  if (desk.email && input.bookingId && isSupabaseConfigured()) {
+    const sb = getSupabaseAdmin();
+    if (sb) {
+      try {
+        await sb.from("bookings").update({ desk_notified_at: new Date().toISOString() }).eq("id", input.bookingId);
+      } catch {
+        /* column may not exist until partner_desk_ops.sql is applied */
+      }
+    }
   }
-  if (desk.email) {
-    await send(desk.email, `New TripWeave stay ${input.confirmationCode}`, body);
-  }
+  return desk;
 }

@@ -46,6 +46,8 @@ export function stayStatusLabel(status: string) {
   if (status === "cancelled") return "Cancelled";
   if (status === "held") return "Held";
   if (status === "completed") return "Completed";
-  if (status === "confirmed") return "Desk confirmed";
+  if (status === "checked_in") return "Checked in";
+  if (status === "desk_confirmed" || status === "confirmed") return "Hotel confirmed";
+  if (status === "paid") return "Awaiting hotel confirmation";
   return "Paid";
 }

@@ -244,12 +244,12 @@ function CheckoutInner() {
       <Shell>
         <div className="mx-auto flex max-w-md flex-col items-center px-4 py-16 text-center">
           <SuccessCheck />
-          <h1 className="mt-6 font-display text-4xl">Booking confirmed</h1>
-          <p className="mt-3 text-muted">{confirmation.name} is booked. Your confirmation code is</p>
+          <h1 className="mt-6 font-display text-4xl">Payment received</h1>
+          <p className="mt-3 text-muted">{confirmation.name} — awaiting hotel confirmation. Your code is</p>
           <p className="mt-4 font-display text-3xl tabular-nums tracking-wide"><DigitPop value={confirmation.code} /></p>
           <p className="mt-2 text-sm text-muted">
             Charged <DigitPop value={formatMoney(confirmation.amount)} /> via {methodLabel(confirmation.method).toLowerCase()}
-            {confirmation.line ? ` · ${confirmation.line}` : ""}.
+            {confirmation.line ? ` · ${confirmation.line}` : ""}. The hotel desk still confirms the room.
           </p>
           {confirmation.ref ? <p className="mt-1 text-xs text-subtle">Ref {confirmation.ref}</p> : null}
           <div className="mt-8 w-full text-left"><AddToWallet booking={held} /></div>
@@ -481,6 +481,9 @@ function CheckoutInner() {
               ) : null}
               <div className="flex justify-between border-t border-border pt-2 font-medium"><dt>Total</dt><dd className="tabular-nums"><DigitPop value={formatMoney(total)} /></dd></div>
             </dl>
+            {quote && !quote.available ? <p className="mt-3 text-sm text-danger">Sold out for these nights.</p> : null}
+            {journey ? <p className="mt-3 text-xs text-muted">{journey.summary}</p> : null}
+            <p className="mt-2 text-xs text-subtle">From {getOrigin(brief.origin)?.label ?? brief.origin}</p>
           </div>
         </Card>
       </div>

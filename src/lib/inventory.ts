@@ -1,16 +1,19 @@
 /**
- * TripWeave allotment (simulated).
- * Room counts are a catalog estimate from the room name, not a hotel contract.
- * A night is taken only when a paid or held booking covers it.
+ * TripWeave allotment.
+ * Default room counts are a catalog estimate from the room name.
+ * Desk can override units per room type per night and close dates (stop-sell).
+ * A night is taken when a held / paid / desk_confirmed / checked_in booking covers it.
  * Festival and weekend prices are the published tariff (Rath Yatra, Diwali,
  * year-end, high season), not a demand simulation.
  * Published festival windows run through 25 Jun 2027. Later dates say so.
  */
-export const ALLOTMENT_LABEL = "TripWeave allotment (simulated)";
+export const ALLOTMENT_LABEL = "TripWeave allotment";
 /** Last night covered by the hardcoded festival list. */
 export const FESTIVAL_CALENDAR_END = "2027-06-25";
 import { overlayFor } from "./catalog-store.ts";
 import { clampNights, getPackage, getRoom, stayTotal, type StayPackage } from "./packages.ts";
+import { isDateStopSell, unitsOverride } from "./allotment-store.ts";
+import { consumesInventory } from "./booking-status.ts";
 
 export type OccupancyHold = {
   /** Booking id, confirmation code, or Razorpay order id. Two guests on the same dates stay two holds. */
@@ -129,6 +132,17 @@ export function roomUnits(pkg: StayPackage, roomId: string): number {
   return 4;
 }
 
+/** Per-night units: desk allotment wins over static partner overlay / catalog estimate. */
+export function unitsForNight(pkg: StayPackage, roomId: string, night: string): number {
+  const override = unitsOverride(pkg.id, roomId, night);
+  if (override !== null) return override;
+  return roomUnits(pkg, roomId);
+}
+
+export function nightIsStopSell(packageId: string, roomId: string, night: string): boolean {
+  return isDateStopSell(packageId, roomId, night);
+}
+
 const g = globalThis as typeof globalThis & { __twHolds__?: OccupancyHold[] };
 if (!g.__twHolds__) g.__twHolds__ = [];
 
@@ -159,7 +173,7 @@ export function tryReserveHold(hold: OccupancyHold): boolean {
 
 /** Replace in-memory holds with the paid rows stored in Supabase. */
 export function replacePaidHolds(holds: OccupancyHold[]) {
-  g.__twHolds__ = holds.filter((h) => h.status === "paid" || h.status === "held");
+  g.__twHolds__ = holds.filter((h) => consumesInventory(h.status));
 }
 
 export function releaseHold(packageId: string, roomId: string, checkIn: string, nights: number, holdId?: string) {
@@ -178,7 +192,7 @@ export function releaseHoldById(holdId: string) {
 }
 
 function holdIsLive(hold: OccupancyHold, now = Date.now()) {
-  if (hold.status !== "paid" && hold.status !== "held") return false;
+  if (!consumesInventory(hold.status)) return false;
   if (hold.expiresAt && Date.parse(hold.expiresAt) <= now) return false;
   return true;
 }
@@ -197,7 +211,7 @@ export function takenOnNight(
 ): number {
   const pkg = getPackage(packageId);
   if (!pkg) return 0;
-  const units = roomUnits(pkg, roomId);
+  const units = unitsForNight(pkg, roomId, date);
   const seen = new Set<string>();
   let held = 0;
   for (const [index, h] of [...listHolds(), ...extraHolds].entries()) {
@@ -222,11 +236,18 @@ export function quoteStay(input: {
   if (!pkg) return null;
   const room = getRoom(pkg, input.roomId);
   const nights = clampNights(pkg, input.nights);
-  const units = roomUnits(pkg, room.id);
   const dates = eachNight(input.checkIn, nights);
+  const units = dates.length
+    ? Math.min(...dates.map((date) => unitsForNight(pkg, room.id, date)))
+    : roomUnits(pkg, room.id);
   const nightsQuoted: NightQuote[] = dates.map((date) => {
     const season = seasonFor(date);
-    const remaining = Math.max(0, units - takenOnNight(pkg.id, room.id, date, input.extraHolds));
+    if (nightIsStopSell(pkg.id, room.id, date)) {
+      const rate = Math.round((pkg.pricePerNight + room.deltaPerNight) * season.multiplier);
+      return { date, rate, label: `${season.label} · stop-sell`, remaining: 0 };
+    }
+    const nightUnits = unitsForNight(pkg, room.id, date);
+    const remaining = Math.max(0, nightUnits - takenOnNight(pkg.id, room.id, date, input.extraHolds));
     const rate = Math.round((pkg.pricePerNight + room.deltaPerNight) * season.multiplier);
     return { date, rate, label: season.label, remaining };
   });

@@ -158,8 +158,12 @@ function VoucherPage() {
             loading="lazy"
           />
           <p className="mt-4 text-xs text-subtle">
-            Show this at the hotel. Email the desk so they hold the room against this code.
-            {meta.hotelNotifiedAt ? " Desk copy already sent from this device." : ""}
+            {booking.status === "paid"
+              ? "Payment received. The hotel has not confirmed the room yet — show this code once the desk confirms."
+              : booking.status === "desk_confirmed" || booking.status === "confirmed" || booking.status === "checked_in"
+                ? "Hotel confirmed. Show this at the desk on arrival."
+                : "Show this at the hotel."}
+            {meta.hotelNotifiedAt ? " Desk was notified from this device." : ""}
           </p>
         </Card>
         <div className="mt-6 grid gap-3">

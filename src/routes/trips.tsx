@@ -218,8 +218,16 @@ function TripsInner() {
                       {daysUntilCheckIn(b.checkIn) === 1 && !closed ? (
                         <p className="rounded-md bg-primary/10 px-3 py-2 text-sm">Check-in is tomorrow. Keep {b.confirmationCode} ready for the desk.</p>
                       ) : null}
-                      {b.status === "confirmed" ? (
+                      {b.status === "paid" ? (
+                        <p className="rounded-md bg-amber-500/10 px-3 py-2 text-sm">
+                          Payment received. Awaiting hotel confirmation — the room is not fully confirmed yet.
+                        </p>
+                      ) : null}
+                      {b.status === "desk_confirmed" || b.status === "confirmed" ? (
                         <p className="text-sm">The hotel desk confirmed this room.</p>
+                      ) : null}
+                      {b.status === "checked_in" ? (
+                        <p className="text-sm">Checked in at the hotel.</p>
                       ) : null}
                       {typeof b.swaps.deskNote === "string" && b.swaps.deskNote ? (
                         <p className="text-sm text-muted">{b.swaps.deskNote}</p>

@@ -20,6 +20,8 @@ Dashboard → [SQL Editor](https://supabase.com/dashboard/project/csegihiepvxezu
 
 Then paste [`ops_durability.sql`](ops_durability.sql) → Run. That file is safe to re-run. It stores room holds, payment reconcile jobs, and refund intents. Checkout on the live site reserves a room through those functions.
 
+Then paste [`partner_desk_ops.sql`](partner_desk_ops.sql) → Run. Adds per-night allotment, stop-sell, `desk_confirmed` / `checked_in`, desk RPCs, and catalog helpers. Safe to re-run.
+
 ## 2. Keys on the live site
 
 [API settings](https://supabase.com/dashboard/project/csegihiepvxezuypsvop/settings/api) → copy into **Vercel → tripweave-web → Environment Variables** (Production + Preview):
