@@ -79,14 +79,15 @@ describe("dated rates", () => {
     const pkg = getPackage("chanakya-bnr-puri")!;
     const units = roomUnits(pkg, pkg.rooms[0]!.id);
     assert.ok(units >= 2 && units <= 8);
-    const unreleased = quoteStay({
+    const catalog = quoteStay({
       packageId: pkg.id,
       roomId: pkg.rooms[0]!.id,
       checkIn: "2026-08-12",
       nights: 2,
     });
-    assert.equal(unreleased!.released, false);
-    assert.equal(unreleased!.available, false);
+    assert.equal(catalog!.released, true);
+    assert.equal(catalog!.available, true);
+    assert.ok(catalog!.remaining <= units);
     setNightUnits({ packageId: pkg.id, roomId: pkg.rooms[0]!.id, night: "2026-08-12", units });
     setNightUnits({ packageId: pkg.id, roomId: pkg.rooms[0]!.id, night: "2026-08-13", units });
     const q = quoteStay({

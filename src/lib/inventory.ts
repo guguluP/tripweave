@@ -277,17 +277,12 @@ export function quoteStay(input: {
     if (nightIsStopSell(pkg.id, room.id, date)) {
       return { date, rate, label: `${season.label} · stop-sell`, remaining: 0, released: true };
     }
-    const nightUnits = publishedNightUnits(pkg, room.id, date);
-    if (nightUnits === null) {
-      return { date, rate, label: season.label, remaining: 0, released: false };
-    }
+    const published = publishedNightUnits(pkg, room.id, date);
+    const nightUnits = published ?? roomUnits(pkg, room.id);
     const remaining = Math.max(0, nightUnits - takenOnNight(pkg.id, room.id, date, input.extraHolds));
     return { date, rate, label: season.label, remaining, released: true };
   });
-  const published = nightsQuoted.filter((n) => n.released).map((n) => {
-    const units = publishedNightUnits(pkg, room.id, n.date);
-    return units ?? 0;
-  });
+  const published = dates.map((date) => publishedNightUnits(pkg, room.id, date) ?? roomUnits(pkg, room.id));
   const units = published.length ? Math.min(...published) : 0;
   const extras = stayTotal(pkg, nights, room.id, input.swaps ?? {}) - (pkg.pricePerNight + room.deltaPerNight) * nights;
   const roomSum = nightsQuoted.reduce((s, n) => s + n.rate, 0);

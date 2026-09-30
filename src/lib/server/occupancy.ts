@@ -102,21 +102,28 @@ export async function refreshStayInventory(
     sb.rpc("tw_list_allotment", { p_gate: SUPABASE_WRITE_GATE, p_payload: payload }),
     sb.rpc("tw_list_stop_sell", { p_gate: SUPABASE_WRITE_GATE, p_payload: payload }),
   ]);
-  if (holdsResult.error || allotmentResult.error || stopResult.error) {
-    console.warn(
-      "[inventory] stay",
-      holdsResult.error?.message ?? allotmentResult.error?.message ?? stopResult.error?.message,
-    );
+  if (holdsResult.error) {
+    console.warn("[inventory] stay", holdsResult.error.message);
     return { ok: false, holds: [] };
+  }
+  if (allotmentResult.error || stopResult.error) {
+    console.warn(
+      "[inventory] allotment",
+      allotmentResult.error?.message ?? stopResult.error?.message,
+    );
   }
   const holds = mapHolds(holdsResult.data);
   replacePaidHolds(holds);
-  const allotment: NightAllotment[] = asRows(allotmentResult.data).flatMap((row) => {
+  const allotment: NightAllotment[] = allotmentResult.error
+    ? []
+    : asRows(allotmentResult.data).flatMap((row) => {
     const rec = row as { packageId?: string; roomId?: string; night?: string; units?: number };
     if (!rec.roomId || !rec.night || rec.units == null) return [];
     return [{ packageId, roomId: rec.roomId, night: nightOf(rec.night), units: Number(rec.units) }];
   });
-  const stops: StopSellRow[] = asRows(stopResult.data).flatMap((row) => {
+  const stops: StopSellRow[] = stopResult.error
+    ? []
+    : asRows(stopResult.data).flatMap((row) => {
     const rec = row as { roomId?: string; night?: string; reason?: string };
     if (rec.night == null) return [];
     return [{ packageId, roomId: rec.roomId ?? "", night: nightOf(rec.night), reason: rec.reason }];
