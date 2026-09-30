@@ -17,14 +17,5 @@
       "path": "stays/mahodadhi-palace-puri/gallery-8.jpg"
     }
   ],
-  "rooms": {
-    "heritage-deluxe-sea": {
-      "url": "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Details/Heritage-Deluxe-Rooms/1.webp",
-      "path": "stays/mahodadhi-palace-puri/rooms/heritage-deluxe-sea.jpg"
-    },
-    "day-use": {
-      "url": "https://www.orchidhotel.com/static/website/img/hotels/mahodadhi/Room-Details/Day-Use-Room-Non-AC/1.webp",
-      "path": "stays/mahodadhi-palace-puri/rooms/day-use.jpg"
-    }
-  }
+  "rooms": {}
 }

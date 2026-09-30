@@ -7,7 +7,6 @@
         "/stays/taj-puri-resort-spa/property-2.jpg",
         "/stays/taj-puri-resort-spa/property-3.jpg",
         "/stays/taj-puri-resort-spa/property-4.jpg",
-        "/stays/taj-puri-resort-spa/property-5.jpg",
         "/stays/taj-puri-resort-spa/gallery-1.jpg",
         "/stays/taj-puri-resort-spa/gallery-2.jpg",
         "/stays/taj-puri-resort-spa/gallery-9.jpg",
@@ -122,12 +121,8 @@
     "mayfair-heritage-puri": {
       "images": [
         "/stays/mayfair-heritage-puri/property-1.jpg",
-        "/stays/mayfair-heritage-puri/property-2.jpg",
         "/stays/mayfair-heritage-puri/property-3.jpg",
-        "/stays/mayfair-heritage-puri/property-4.jpg",
-        "/stays/mayfair-heritage-puri/property-5.jpg",
         "/stays/mayfair-heritage-puri/gallery-7.jpg",
-        "/stays/mayfair-heritage-puri/gallery-8.jpg",
         "/stays/mayfair-heritage-puri/gallery-9.jpg",
         "/stays/mayfair-heritage-puri/gallery-10.jpg",
         "/stays/mayfair-heritage-puri/gallery-11.jpg",
@@ -137,7 +132,6 @@
         "/stays/mayfair-heritage-puri/gallery-15.jpg",
         "/stays/mayfair-heritage-puri/gallery-16.jpg",
         "/stays/mayfair-heritage-puri/gallery-17.jpg",
-        "/stays/mayfair-heritage-puri/gallery-18.jpg",
         "/stays/mayfair-heritage-puri/gallery-19.jpg",
         "/stays/mayfair-heritage-puri/gallery-20.jpg",
         "/stays/mayfair-heritage-puri/gallery-21.jpg",
@@ -161,7 +155,6 @@
           "/stays/mayfair-heritage-puri/rooms/heritage-premium.jpg"
         ],
         "deluxe-cottage": [
-          "/stays/mayfair-heritage-puri/rooms/deluxe-cottage-1.jpg",
           "/stays/mayfair-heritage-puri/rooms/deluxe-cottage.jpg"
         ],
         "sea-view-cottage": [
@@ -178,7 +171,6 @@
     "swosti-premium-beach-resort": {
       "images": [
         "/stays/swosti-premium-beach-resort/property-1.jpg",
-        "/stays/swosti-premium-beach-resort/property-2.jpg",
         "/stays/swosti-premium-beach-resort/property-3.jpg",
         "/stays/swosti-premium-beach-resort/property-4.jpg",
         "/stays/swosti-premium-beach-resort/property-5.jpg",
@@ -195,7 +187,6 @@
           "/stays/swosti-premium-beach-resort/rooms/sea-view-front.jpg"
         ],
         "interconnecting": [
-          "/stays/swosti-premium-beach-resort/rooms/interconnecting-1.jpg",
           "/stays/swosti-premium-beach-resort/rooms/interconnecting.jpg"
         ],
         "oasis-suite": [
@@ -216,8 +207,6 @@
       "images": [
         "/stays/regenta-central-puri/property-1.jpg",
         "/stays/regenta-central-puri/property-2.jpg",
-        "/stays/regenta-central-puri/property-3.jpg",
-        "/stays/regenta-central-puri/property-4.jpg",
         "/stays/regenta-central-puri/property-5.jpg",
         "/stays/regenta-central-puri/gallery-9.jpg",
         "/stays/regenta-central-puri/gallery-10.jpg",
@@ -278,15 +267,11 @@
       "images": [
         "/stays/mayfair-waves-puri/property-1.jpg",
         "/stays/mayfair-waves-puri/property-2.jpg",
-        "/stays/mayfair-waves-puri/property-3.jpg",
-        "/stays/mayfair-waves-puri/property-4.jpg",
         "/stays/mayfair-waves-puri/property-5.jpg",
         "/stays/mayfair-waves-puri/property-6.jpg",
         "/stays/mayfair-waves-puri/property-7.jpg",
-        "/stays/mayfair-waves-puri/gallery-4.jpg",
         "/stays/mayfair-waves-puri/gallery-5.jpg",
         "/stays/mayfair-waves-puri/gallery-6.jpg",
-        "/stays/mayfair-waves-puri/gallery-7.jpg",
         "/stays/mayfair-waves-puri/gallery-8.jpg",
         "/stays/mayfair-waves-puri/gallery-9.jpg"
       ],
@@ -307,9 +292,7 @@
         "/stays/chariot-resort-puri/property-1.jpg",
         "/stays/chariot-resort-puri/property-2.jpg",
         "/stays/chariot-resort-puri/property-3.jpg",
-        "/stays/chariot-resort-puri/property-4.jpg",
         "/stays/chariot-resort-puri/property-5.jpg",
-        "/stays/chariot-resort-puri/gallery-5.jpg",
         "/stays/chariot-resort-puri/gallery-6.jpg",
         "/stays/chariot-resort-puri/gallery-7.jpg",
         "/stays/chariot-resort-puri/gallery-8.jpg"
@@ -347,7 +330,6 @@
           "/stays/chanakya-bnr-puri/rooms/superior-3.jpg"
         ],
         "heritage-suite": [
-          "/stays/chanakya-bnr-puri/rooms/heritage-suite.jpg",
           "/stays/chanakya-bnr-puri/rooms/heritage-suite-2.jpg",
           "/stays/chanakya-bnr-puri/rooms/heritage-suite-3.jpg"
         ]
@@ -368,11 +350,9 @@
       ],
       "rooms": {
         "heritage-deluxe-sea": [
-          "/stays/mahodadhi-palace-puri/rooms/heritage-deluxe-sea.jpg",
           "/stays/mahodadhi-palace-puri/rooms/heritage-deluxe-sea-2.jpg"
         ],
         "day-use": [
-          "/stays/mahodadhi-palace-puri/rooms/day-use.jpg",
           "/stays/mahodadhi-palace-puri/rooms/day-use-2.jpg"
         ]
       }
