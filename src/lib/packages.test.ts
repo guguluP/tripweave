@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, it } from "node:test";
 import {
   PACKAGES,
@@ -46,6 +49,26 @@ describe("catalog", () => {
       }
       assert.equal(roomImages.size, pkg.rooms.length, `${pkg.id} unique room images`);
       assert.ok(STAY_MEDIA[pkg.id], `media map ${pkg.id}`);
+    }
+  });
+
+  it("does not repeat the same photograph in property or room galleries", () => {
+    const photoHash = (src: string) => {
+      const file = path.join(process.cwd(), "public", src.replace(/^\//, ""));
+      return createHash("md5").update(readFileSync(file)).digest("hex");
+    };
+    for (const [id, spec] of Object.entries(STAY_MEDIA)) {
+      const property = spec.images.map(photoHash);
+      assert.equal(new Set(property).size, property.length, `${id} property photos`);
+      const roomHashes: string[] = [];
+      for (const [roomId, listed] of Object.entries(spec.rooms)) {
+        const frames = (Array.isArray(listed) ? listed : [listed]).map(photoHash);
+        assert.equal(new Set(frames).size, frames.length, `${id}:${roomId}`);
+        roomHashes.push(...frames);
+      }
+      assert.equal(new Set(roomHashes).size, roomHashes.length, `${id} room photos`);
+      const overlap = property.filter((hash) => roomHashes.includes(hash));
+      assert.deepEqual(overlap, [], `${id} shared property and room photo`);
     }
   });
 

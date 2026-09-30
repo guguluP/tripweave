@@ -1,38 +1,5 @@
 {
-  "images": [
-    {
-      "url": "https://puriholidayresort.com/uploads/gallery/standarddoublebedroom/1.jpg",
-      "path": "stays/holiday-resort-puri/gallery-1.jpg"
-    },
-    {
-      "url": "https://puriholidayresort.com/uploads/gallery/standarddoublebedroom/2.jpg",
-      "path": "stays/holiday-resort-puri/gallery-2.jpg"
-    },
-    {
-      "url": "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/1%20150%20cc.jpg",
-      "path": "stays/holiday-resort-puri/gallery-3.jpg"
-    },
-    {
-      "url": "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/2%20150%20cc.jpg",
-      "path": "stays/holiday-resort-puri/gallery-4.jpg"
-    },
-    {
-      "url": "https://puriholidayresort.com/uploads/gallery/deluxefamilyroom/1.jpg",
-      "path": "stays/holiday-resort-puri/gallery-5.jpg"
-    },
-    {
-      "url": "https://puriholidayresort.com/uploads/gallery/deluxefamilyroom/2.jpg",
-      "path": "stays/holiday-resort-puri/gallery-6.jpg"
-    },
-    {
-      "url": "https://puriholidayresort.com/uploads/gallery/standardfamilyroom/1%20150%20cc.jpg",
-      "path": "stays/holiday-resort-puri/gallery-7.jpg"
-    },
-    {
-      "url": "https://puriholidayresort.com/uploads/gallery/standardfamilyroom/2%20150%20cc.jpg",
-      "path": "stays/holiday-resort-puri/gallery-8.jpg"
-    }
-  ],
+  "images": [],
   "rooms": {
     "standard-double": {
       "url": "https://puriholidayresort.com/uploads/gallery/standarddoublebedroom/1.jpg",
