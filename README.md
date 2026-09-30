@@ -151,13 +151,14 @@ Set these on the server. Never prefix a secret with `VITE_`. After a change on V
 | `SUPABASE_URL`, `VITE_SUPABASE_URL` | Project URL |
 | `SUPABASE_ANON_KEY` or `SUPABASE_PUBLISHABLE_KEY` | Public key, also as `VITE_` for the browser |
 | `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_SECRET_KEY` | Legacy service-role JWT. Server only. |
-| `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `SES_FROM` | Amazon SES for booking mail, stay reminders, and password reset. `SES_FROM` must be a verified SES identity. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Password reset through a mailbox you already have (Gmail: host `smtp.gmail.com`, port `465`). `SMTP_FROM` is that same address. No site domain. |
+| `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `SES_FROM` | Amazon SES for booking mail, stay reminders, and password reset when SMTP is unset. `SES_FROM` must be a verified SES identity. |
 | `XAI_API_KEY` | Rebuild reviewer notes. Not used on ordinary page loads. |
 | `YOUTUBE_API_KEY` | Optional extra stay-review search |
 | `HOTEL_DESKS`, `PARTNER_EMAILS` | Emails allowed to open a hotel desk |
 | `APPLE_PASS_*` | Optional Wallet certificates. The HTML pass works without them. |
 
-`DATABASE_URL` may be present for other tools. Better Auth on Vercel does not use it. A bad pooler password previously broke Google sign-in. On Vercel, with `SUPABASE_SECRET_KEY` set, sign-in is stored in `ba_user`, `ba_session`, `ba_account`, and `ba_verification` (`supabase/auth_identity.sql`). Apply that file in the Supabase SQL editor before relying on reset links. A password reset email is sent through Amazon SES when `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `SES_FROM` are set. `SES_FROM` must be an identity verified in that region. In the SES sandbox, the recipient address must be verified too. Out of the sandbox, any guest address can receive the link. `tw_claim_subject` keeps one booking id per sign-in email.
+`DATABASE_URL` may be present for other tools. Better Auth on Vercel does not use it. A bad pooler password previously broke Google sign-in. On Vercel, with `SUPABASE_SECRET_KEY` set, sign-in is stored in `ba_user`, `ba_session`, `ba_account`, and `ba_verification` (`supabase/auth_identity.sql`). Apply that file in the Supabase SQL editor before relying on reset links. A password reset email is a link, sent through SMTP when `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, and `SMTP_FROM` are set. That mailbox can be a Gmail address; the site does not need its own domain. Amazon SES is used for the reset only when those SMTP values are unset. `tw_claim_subject` keeps one booking id per sign-in email.
 
 Razorpay test cards and UPI ids are documented by Razorpay: [test cards](https://razorpay.com/docs/payments/payments/test-card-upi-details/). Sandbox card charges stay off when `VERCEL` or `NODE_ENV=production` is set.
 
