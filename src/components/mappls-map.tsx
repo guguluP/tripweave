@@ -21,6 +21,22 @@ declare global {
   }
 }
 
+/** One frame for every pin. Per-marker fitbounds ends on the last pin, which is the beach. */
+function frameFor(markers: MapPoint[]): { center: { lat: number; lng: number }; zoom: number } {
+  const lats = markers.map((m) => m.lat);
+  const lngs = markers.map((m) => m.lng);
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs);
+  const maxLng = Math.max(...lngs);
+  const latSpan = Math.max(maxLat - minLat, 0.008);
+  const lngSpan = Math.max(maxLng - minLng, 0.008);
+  const zLat = Math.log2((288 * 0.7 * 360) / (latSpan * 256));
+  const zLng = Math.log2((640 * 0.7 * 360) / (lngSpan * 256));
+  const zoom = Math.max(9, Math.min(15, Math.round(Math.min(zLat, zLng))));
+  return { center: { lat: (minLat + maxLat) / 2, lng: (minLng + maxLng) / 2 }, zoom };
+}
+
 let loading: Promise<void> | null = null;
 
 function mapplsKey(): string {
@@ -71,10 +87,10 @@ export function MapplsMap({
     loadMappls(key)
       .then(() => {
         if (cancel || !window.mappls?.Map) return;
-        const first = markers[0]!;
+        const frame = frameFor(markers);
         map = new window.mappls.Map(mapId, {
-          center: { lat: first.lat, lng: first.lng },
-          zoom: markers.length > 1 ? 11 : 14,
+          center: frame.center,
+          zoom: frame.zoom,
           zoomControl: true,
         });
         const place = () => {
@@ -84,7 +100,7 @@ export function MapplsMap({
               map: map!,
               position: { lat: pin.lat, lng: pin.lng },
               popupHtml: pin.label,
-              fitbounds: true,
+              fitbounds: false,
             });
           }
         };
