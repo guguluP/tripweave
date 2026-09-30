@@ -15,24 +15,86 @@
         "/stays/taj-puri-resort-spa/gallery-5.jpg",
         "/stays/taj-puri-resort-spa/gallery-6.jpg",
         "/stays/taj-puri-resort-spa/gallery-7.jpg",
-        "/stays/taj-puri-resort-spa/gallery-8.jpg"
+        "/stays/taj-puri-resort-spa/gallery-8.jpg",
+        "/stays/taj-puri-resort-spa/gallery-9.jpg",
+        "/stays/taj-puri-resort-spa/gallery-10.jpg",
+        "/stays/taj-puri-resort-spa/gallery-11.jpg",
+        "/stays/taj-puri-resort-spa/gallery-12.jpg",
+        "/stays/taj-puri-resort-spa/gallery-13.jpg",
+        "/stays/taj-puri-resort-spa/gallery-14.jpg",
+        "/stays/taj-puri-resort-spa/gallery-15.jpg",
+        "/stays/taj-puri-resort-spa/gallery-16.jpg",
+        "/stays/taj-puri-resort-spa/gallery-17.jpg",
+        "/stays/taj-puri-resort-spa/gallery-18.jpg",
+        "/stays/taj-puri-resort-spa/gallery-19.jpg",
+        "/stays/taj-puri-resort-spa/gallery-20.jpg",
+        "/stays/taj-puri-resort-spa/gallery-21.jpg",
+        "/stays/taj-puri-resort-spa/gallery-22.jpg",
+        "/stays/taj-puri-resort-spa/gallery-23.jpg",
+        "/stays/taj-puri-resort-spa/gallery-24.jpg",
+        "/stays/taj-puri-resort-spa/gallery-25.jpg",
+        "/stays/taj-puri-resort-spa/gallery-26.jpg",
+        "/stays/taj-puri-resort-spa/gallery-27.jpg",
+        "/stays/taj-puri-resort-spa/gallery-28.jpg",
+        "/stays/taj-puri-resort-spa/gallery-29.jpg",
+        "/stays/taj-puri-resort-spa/gallery-30.jpg",
+        "/stays/taj-puri-resort-spa/gallery-31.jpg",
+        "/stays/taj-puri-resort-spa/gallery-32.jpg",
+        "/stays/taj-puri-resort-spa/gallery-33.jpg",
+        "/stays/taj-puri-resort-spa/gallery-34.jpg",
+        "/stays/taj-puri-resort-spa/gallery-35.jpg",
+        "/stays/taj-puri-resort-spa/gallery-36.jpg",
+        "/stays/taj-puri-resort-spa/gallery-37.jpg",
+        "/stays/taj-puri-resort-spa/gallery-38.jpg",
+        "/stays/taj-puri-resort-spa/gallery-39.jpg",
+        "/stays/taj-puri-resort-spa/gallery-40.jpg",
+        "/stays/taj-puri-resort-spa/gallery-41.jpg",
+        "/stays/taj-puri-resort-spa/gallery-42.jpg",
+        "/stays/taj-puri-resort-spa/gallery-43.jpg",
+        "/stays/taj-puri-resort-spa/gallery-44.jpg",
+        "/stays/taj-puri-resort-spa/gallery-45.jpg",
+        "/stays/taj-puri-resort-spa/gallery-46.jpg",
+        "/stays/taj-puri-resort-spa/gallery-47.jpg",
+        "/stays/taj-puri-resort-spa/gallery-48.jpg",
+        "/stays/taj-puri-resort-spa/gallery-49.jpg",
+        "/stays/taj-puri-resort-spa/gallery-50.jpg",
+        "/stays/taj-puri-resort-spa/gallery-51.jpg",
+        "/stays/taj-puri-resort-spa/gallery-52.jpg",
+        "/stays/taj-puri-resort-spa/gallery-53.jpg",
+        "/stays/taj-puri-resort-spa/gallery-54.jpg",
+        "/stays/taj-puri-resort-spa/gallery-55.jpg",
+        "/stays/taj-puri-resort-spa/gallery-56.jpg",
+        "/stays/taj-puri-resort-spa/gallery-57.jpg",
+        "/stays/taj-puri-resort-spa/gallery-58.jpg",
+        "/stays/taj-puri-resort-spa/gallery-59.jpg",
+        "/stays/taj-puri-resort-spa/gallery-60.jpg",
+        "/stays/taj-puri-resort-spa/gallery-61.jpg",
+        "/stays/taj-puri-resort-spa/gallery-62.jpg",
+        "/stays/taj-puri-resort-spa/gallery-63.jpg",
+        "/stays/taj-puri-resort-spa/gallery-64.jpg"
       ],
       "rooms": {
         "executive-sea-suite": [
           "/stays/taj-puri-resort-spa/rooms/executive-sea-suite-1.jpg",
-          "/stays/taj-puri-resort-spa/rooms/executive-sea-suite.jpg"
+          "/stays/taj-puri-resort-spa/rooms/executive-sea-suite.jpg",
+          "/stays/taj-puri-resort-spa/rooms/executive-sea-suite-2.jpg",
+          "/stays/taj-puri-resort-spa/rooms/executive-sea-suite-3.jpg",
+          "/stays/taj-puri-resort-spa/rooms/executive-sea-suite-4.jpg"
         ],
         "luxury-sea-suite": [
           "/stays/taj-puri-resort-spa/rooms/luxury-sea-suite-1.jpg",
-          "/stays/taj-puri-resort-spa/rooms/luxury-sea-suite.jpg"
+          "/stays/taj-puri-resort-spa/rooms/luxury-sea-suite.jpg",
+          "/stays/taj-puri-resort-spa/rooms/luxury-sea-suite-2.jpg"
         ],
         "presidential-sea-pool": [
           "/stays/taj-puri-resort-spa/rooms/presidential-sea-pool-1.jpg",
-          "/stays/taj-puri-resort-spa/rooms/presidential-sea-pool.jpg"
+          "/stays/taj-puri-resort-spa/rooms/presidential-sea-pool.jpg",
+          "/stays/taj-puri-resort-spa/rooms/presidential-sea-pool-2.jpg"
         ],
         "superior-king-balcony": [
           "/stays/taj-puri-resort-spa/rooms/superior-king-balcony-1.jpg",
-          "/stays/taj-puri-resort-spa/rooms/superior-king-balcony.jpg"
+          "/stays/taj-puri-resort-spa/rooms/superior-king-balcony.jpg",
+          "/stays/taj-puri-resort-spa/rooms/superior-king-balcony-2.jpg"
         ],
         "superior-twin-balcony": [
           "/stays/taj-puri-resort-spa/rooms/superior-twin-balcony-1.jpg",
@@ -41,15 +103,19 @@
         "superior-sea-king": [
           "/stays/taj-puri-resort-spa/rooms/superior-sea-king-1.jpg",
           "/stays/taj-puri-resort-spa/rooms/superior-sea-king-2.jpg",
-          "/stays/taj-puri-resort-spa/rooms/superior-sea-king.jpg"
+          "/stays/taj-puri-resort-spa/rooms/superior-sea-king.jpg",
+          "/stays/taj-puri-resort-spa/rooms/superior-sea-king-3.jpg"
         ],
         "superior-sea-twin": [
           "/stays/taj-puri-resort-spa/rooms/superior-sea-twin-1.jpg",
-          "/stays/taj-puri-resort-spa/rooms/superior-sea-twin.jpg"
+          "/stays/taj-puri-resort-spa/rooms/superior-sea-twin.jpg",
+          "/stays/taj-puri-resort-spa/rooms/superior-sea-twin-2.jpg"
         ],
         "deluxe-sea-king": [
           "/stays/taj-puri-resort-spa/rooms/deluxe-sea-king-1.jpg",
-          "/stays/taj-puri-resort-spa/rooms/deluxe-sea-king.jpg"
+          "/stays/taj-puri-resort-spa/rooms/deluxe-sea-king.jpg",
+          "/stays/taj-puri-resort-spa/rooms/deluxe-sea-king-2.jpg",
+          "/stays/taj-puri-resort-spa/rooms/deluxe-sea-king-3.jpg"
         ],
         "deluxe-sea-twin": [
           "/stays/taj-puri-resort-spa/rooms/deluxe-sea-twin-1.jpg",
@@ -57,11 +123,13 @@
         ],
         "luxury-sea-king": [
           "/stays/taj-puri-resort-spa/rooms/luxury-sea-king-1.jpg",
-          "/stays/taj-puri-resort-spa/rooms/luxury-sea-king.jpg"
+          "/stays/taj-puri-resort-spa/rooms/luxury-sea-king.jpg",
+          "/stays/taj-puri-resort-spa/rooms/luxury-sea-king-2.jpg"
         ],
         "grand-plunge-king": [
           "/stays/taj-puri-resort-spa/rooms/grand-plunge-king-1.jpg",
-          "/stays/taj-puri-resort-spa/rooms/grand-plunge-king.jpg"
+          "/stays/taj-puri-resort-spa/rooms/grand-plunge-king.jpg",
+          "/stays/taj-puri-resort-spa/rooms/grand-plunge-king-2.jpg"
         ],
         "grand-plunge-twin": [
           "/stays/taj-puri-resort-spa/rooms/grand-plunge-twin-1.jpg",
@@ -83,7 +151,31 @@
         "/stays/mayfair-heritage-puri/gallery-5.jpg",
         "/stays/mayfair-heritage-puri/gallery-6.jpg",
         "/stays/mayfair-heritage-puri/gallery-7.jpg",
-        "/stays/mayfair-heritage-puri/gallery-8.jpg"
+        "/stays/mayfair-heritage-puri/gallery-8.jpg",
+        "/stays/mayfair-heritage-puri/gallery-9.jpg",
+        "/stays/mayfair-heritage-puri/gallery-10.jpg",
+        "/stays/mayfair-heritage-puri/gallery-11.jpg",
+        "/stays/mayfair-heritage-puri/gallery-12.jpg",
+        "/stays/mayfair-heritage-puri/gallery-13.jpg",
+        "/stays/mayfair-heritage-puri/gallery-14.jpg",
+        "/stays/mayfair-heritage-puri/gallery-15.jpg",
+        "/stays/mayfair-heritage-puri/gallery-16.jpg",
+        "/stays/mayfair-heritage-puri/gallery-17.jpg",
+        "/stays/mayfair-heritage-puri/gallery-18.jpg",
+        "/stays/mayfair-heritage-puri/gallery-19.jpg",
+        "/stays/mayfair-heritage-puri/gallery-20.jpg",
+        "/stays/mayfair-heritage-puri/gallery-21.jpg",
+        "/stays/mayfair-heritage-puri/gallery-22.jpg",
+        "/stays/mayfair-heritage-puri/gallery-23.jpg",
+        "/stays/mayfair-heritage-puri/gallery-24.jpg",
+        "/stays/mayfair-heritage-puri/gallery-25.jpg",
+        "/stays/mayfair-heritage-puri/gallery-26.jpg",
+        "/stays/mayfair-heritage-puri/gallery-27.jpg",
+        "/stays/mayfair-heritage-puri/gallery-28.jpg",
+        "/stays/mayfair-heritage-puri/gallery-29.jpg",
+        "/stays/mayfair-heritage-puri/gallery-30.jpg",
+        "/stays/mayfair-heritage-puri/gallery-31.jpg",
+        "/stays/mayfair-heritage-puri/gallery-32.jpg"
       ],
       "rooms": {
         "deluxe": [
@@ -178,7 +270,12 @@
         "/stays/regenta-central-puri/gallery-5.jpg",
         "/stays/regenta-central-puri/gallery-6.jpg",
         "/stays/regenta-central-puri/gallery-7.jpg",
-        "/stays/regenta-central-puri/gallery-8.jpg"
+        "/stays/regenta-central-puri/gallery-8.jpg",
+        "/stays/regenta-central-puri/gallery-9.jpg",
+        "/stays/regenta-central-puri/gallery-10.jpg",
+        "/stays/regenta-central-puri/gallery-11.jpg",
+        "/stays/regenta-central-puri/gallery-12.jpg",
+        "/stays/regenta-central-puri/gallery-13.jpg"
       ],
       "rooms": {
         "deluxe-double-sea": [
@@ -261,7 +358,9 @@
         "/stays/mayfair-waves-puri/gallery-4.jpg",
         "/stays/mayfair-waves-puri/gallery-5.jpg",
         "/stays/mayfair-waves-puri/gallery-6.jpg",
-        "/stays/mayfair-waves-puri/gallery-7.jpg"
+        "/stays/mayfair-waves-puri/gallery-7.jpg",
+        "/stays/mayfair-waves-puri/gallery-8.jpg",
+        "/stays/mayfair-waves-puri/gallery-9.jpg"
       ],
       "rooms": {
         "premium": [
@@ -454,7 +553,18 @@
         "/stays/hans-coco-palms/gallery-1.jpg",
         "/stays/hans-coco-palms/gallery-2.jpg",
         "/stays/hans-coco-palms/gallery-3.jpg",
-        "/stays/hans-coco-palms/gallery-4.jpg"
+        "/stays/hans-coco-palms/gallery-4.jpg",
+        "/stays/hans-coco-palms/gallery-5.jpg",
+        "/stays/hans-coco-palms/gallery-6.jpg",
+        "/stays/hans-coco-palms/gallery-7.jpg",
+        "/stays/hans-coco-palms/gallery-8.jpg",
+        "/stays/hans-coco-palms/gallery-9.jpg",
+        "/stays/hans-coco-palms/gallery-10.jpg",
+        "/stays/hans-coco-palms/gallery-11.jpg",
+        "/stays/hans-coco-palms/gallery-12.jpg",
+        "/stays/hans-coco-palms/gallery-13.jpg",
+        "/stays/hans-coco-palms/gallery-14.jpg",
+        "/stays/hans-coco-palms/gallery-15.jpg"
       ],
       "rooms": {
         "pool-garden": [
