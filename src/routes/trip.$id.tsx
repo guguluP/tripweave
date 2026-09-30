@@ -38,7 +38,7 @@ import {
 import { addDays, leftoverForRooms, quoteStay, todayIso } from "@/lib/inventory";
 import { deskFor } from "@/lib/hotel-desk";
 import { getSeededConsensus } from "@/lib/youtube/get-seeded";
-import { usePaidHolds } from "@/lib/use-occupancy";
+import { useStayInventory } from "@/lib/use-occupancy";
 import { cn } from "@/lib/utils";
 import { getJourney } from "@/lib/transport";
 import { writeMeta } from "@/lib/booking-meta";
@@ -67,22 +67,17 @@ function TripDetail() {
   const [liveTrust, setLiveTrust] = useState<number | null>(null);
   const [liveBreakdown, setLiveBreakdown] = useState<TrustScoreBreakdown | null>(null);
   const [travel, setTravel] = useState<TravelPlan>(EMPTY_TRAVEL);
-  usePaidHolds();
+  const inventory = useStayInventory(pkg?.id, checkIn, nights);
+  const inventoryKnown = inventory === "ready";
 
   useEffect(() => {
     if (!pkg) return;
     const briefNights = typeof window === "undefined" ? pkg.nights : loadBriefWithDates().nights;
     const nextNights = clampNights(pkg, briefNights);
     setNights(nextNights);
-    const leftover = leftoverForRooms(pkg.id, checkIn, nextNights);
     const briefStyle = loadBriefWithDates().style;
     const recommended = recommendRooms(pkg.rooms, briefStyle);
-    const firstOpen =
-      recommended.find((r) => leftover[r.id]?.available) ??
-      pkg.rooms.find((r) => leftover[r.id]?.available) ??
-      recommended[0] ??
-      pkg.rooms[0]!;
-    setRoomId(firstOpen.id);
+    setRoomId(recommended[0]?.id ?? pkg.rooms[0]!.id);
     setSwaps({});
     setBooking(false);
     const briefNow = loadBriefWithDates();
@@ -93,6 +88,20 @@ function TripDetail() {
     // Only when the stay changes. Catalog overlays rebuild `pkg` every render,
     // and depending on that object wiped the room the guest had just picked.
   }, [pkg?.id]);
+
+  useEffect(() => {
+    if (!pkg || !inventoryKnown) return;
+    const leftover = leftoverForRooms(pkg.id, checkIn, nights, [], true);
+    setRoomId((current) => {
+      if (leftover[current] && !leftover[current].soldOut) return current;
+      const briefStyle = loadBriefWithDates().style;
+      const recommended = recommendRooms(pkg.rooms, briefStyle);
+      const next =
+        recommended.find((r) => leftover[r.id] && !leftover[r.id]!.soldOut) ??
+        pkg.rooms.find((r) => leftover[r.id] && !leftover[r.id]!.soldOut);
+      return next?.id ?? current;
+    });
+  }, [pkg, inventoryKnown, checkIn, nights]);
 
   if (!pkg) {
     return (
@@ -115,6 +124,7 @@ function TripDetail() {
     checkIn,
     nights,
     swaps,
+    inventoryKnown,
   });
   const price = quote?.perPerson ?? 0;
   const brief = loadBriefWithDates();
@@ -319,7 +329,7 @@ function TripDetail() {
           selectedId={room.id}
           onSelect={setRoomId}
           pricePerNight={pkg.pricePerNight}
-          leftover={leftoverForRooms(pkg.id, checkIn, nights)}
+          leftover={leftoverForRooms(pkg.id, checkIn, nights, [], inventoryKnown)}
           gallery={pkg.images}
           style={brief.style}
         />
@@ -392,9 +402,15 @@ function TripDetail() {
               <RollingPrice value={price} />
             </p>
             <p className="text-xs text-muted">
-              {quote?.available
-                ? `${formatMoney(nightlyRate)} / night · ${room.name} · ${nightsPhrase(nights)} · sleeps ${room.occupancy}`
-                : "Sold out — pick another date"}
+              {inventory === "loading"
+                ? "Checking rooms for these dates"
+                : inventory === "failed" || quote?.unknown
+                  ? "Couldn't check rooms for these dates"
+                  : !quote?.released
+                    ? "On request — the hotel has not released these nights"
+                    : quote.available
+                      ? `${formatMoney(nightlyRate)} / night · ${room.name} · ${nightsPhrase(nights)} · sleeps ${room.occupancy}`
+                      : "Sold out — pick another date"}
             </p>
             {quote?.available ? (
               <p className="mt-0.5 text-[0.65rem] leading-snug text-subtle">

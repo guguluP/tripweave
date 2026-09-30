@@ -22,7 +22,7 @@ export function RoomPicker({
   selectedId: string;
   onSelect: (id: string) => void;
   pricePerNight: number;
-  leftover?: Record<string, { remaining: number; available: boolean }>;
+  leftover?: Record<string, { remaining: number; available: boolean; released?: boolean; soldOut?: boolean }>;
   gallery?: string[];
   /** Brief travel style biases family into the recommended set. */
   style?: TravelStyle;
@@ -103,14 +103,14 @@ function RoomCard({
   open: boolean;
   compact: boolean;
   pricePerNight: number;
-  left?: { remaining: number; available: boolean };
+  left?: { remaining: number; available: boolean; released?: boolean; soldOut?: boolean };
   photos: string[];
   onSelect: () => void;
   badge?: string;
 }) {
   const [shot, setShot] = useState(0);
   const night = pricePerNight + room.deltaPerNight;
-  const soldOut = left ? !left.available : false;
+  const soldOut = left?.soldOut ?? (left ? !left.available && left.released !== false : false);
   const photo = photos[shot] ?? room.image;
 
   useEffect(() => {
@@ -150,7 +150,7 @@ function RoomCard({
           </span>
           <span className="mt-1 block text-xs text-muted">
             Sleeps {room.occupancy}
-            {left ? (soldOut ? " · sold out" : ` · ${left.remaining} left`) : ""}
+            {left ? (soldOut ? " · sold out" : left.released === false ? " · on request" : ` · ${left.remaining} left`) : ""}
           </span>
           <span className={cn("mt-2 block text-muted", open ? "text-sm" : compact ? "line-clamp-2 text-[11px] leading-snug sm:text-xs" : "text-sm")}>
             {room.summary}

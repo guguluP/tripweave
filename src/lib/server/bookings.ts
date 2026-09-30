@@ -3,8 +3,9 @@ import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { charge, methodLabel, type PayMethod } from "@/lib/pay";
-import { getPackage, getRoom } from "@/lib/packages";
-import { recordHold, releaseHoldById, roomUnits } from "@/lib/inventory";
+import { getPackage, getRoom, type StayPackage } from "@/lib/packages";
+import { addDays, quoteStay, recordHold, releaseHoldById, roomUnits } from "@/lib/inventory";
+import { refreshStayInventory } from "@/lib/server/occupancy";
 import {
   listReconcileJobs,
   listRefundIntents,
@@ -551,6 +552,17 @@ async function drainReconcileJobs(userId: string) {
   }
 }
 
+/** Cap stored on a paid booking. Uses the published night count when the read succeeds. */
+async function publishedHoldUnits(pkg: StayPackage, roomId: string, checkIn: string, nights: number) {
+  const end = addDays(checkIn, Math.max(nights, 1) - 1);
+  const loaded = await refreshStayInventory(pkg.id, checkIn, end).catch(() => ({ ok: false as const, holds: [] }));
+  if (loaded.ok) {
+    const quote = quoteStay({ packageId: pkg.id, roomId, checkIn, nights });
+    if (quote?.released && quote.units >= 1) return quote.units;
+  }
+  return roomUnits(pkg, roomId);
+}
+
 export async function bookCapturedFromNotes(input: {
   userId: string;
   paymentId: string;
@@ -566,7 +578,7 @@ export async function bookCapturedFromNotes(input: {
   guestEmail?: string;
 }): Promise<void> {
   const pkg = getPackage(input.packageId);
-  const units = pkg ? roomUnits(pkg, input.roomId) : 1;
+  const units = pkg ? await publishedHoldUnits(pkg, input.roomId, input.checkIn, input.nights) : 1;
   const swaps = writeMeta({}, {
     roomId: input.roomId,
     guestEmail: input.guestEmail,
@@ -795,7 +807,7 @@ export const createBooking = createServerFn({ method: "POST" })
         orderId: data.razorpayOrderId ?? null,
         local,
         roomId: room.id,
-        units: roomUnits(pkg, room.id),
+        units: await publishedHoldUnits(pkg, room.id, data.checkIn, nights),
         exceptHoldIds: checkoutHoldIds,
       });
 
@@ -821,7 +833,7 @@ export const createBooking = createServerFn({ method: "POST" })
           ...local,
           userId: context.userId,
           roomId: room.id,
-          units: roomUnits(pkg, room.id),
+          units: await publishedHoldUnits(pkg, room.id, data.checkIn, nights),
           exceptHoldIds: checkoutHoldIds,
         });
         if (booking) return await finishStored({ ...booking, userId: context.userId }, "supabase");
@@ -847,7 +859,7 @@ export const createBooking = createServerFn({ method: "POST" })
 
     try {
       const neon = await insertNeonBooking(
-        neonWire(local, context.userId, room.id, roomUnits(pkg, room.id), checkoutHoldIds),
+        neonWire(local, context.userId, room.id, await publishedHoldUnits(pkg, room.id, data.checkIn, nights), checkoutHoldIds),
       );
       if (neon.ok) return await finishStored(neon.booking, "local");
       if (neon.soldOut) {

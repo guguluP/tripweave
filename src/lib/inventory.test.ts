@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { DEFAULT_BRIEF, getPackage, matchPackages, originFitReason, originFitScore } from "./packages.ts";
+import { setNightUnits, replaceAllotment } from "./allotment-store.ts";
 import { leftoverForRooms, quoteStay, recordHold, releaseHoldById, roomUnits, seasonFor, travelersFitRoom } from "./inventory.ts";
 import { refundAmountInr, refundPolicyFor } from "./refund-policy.ts";
 
@@ -15,6 +16,7 @@ describe("dated rates", () => {
     const pkg = getPackage("taj-puri-resort-spa")!;
     const roomId = "superior-king-balcony";
     const units = roomUnits(pkg, roomId);
+    setNightUnits({ packageId: pkg.id, roomId, night: "2026-08-12", units });
     const before = quoteStay({ packageId: pkg.id, roomId, checkIn: "2026-08-12", nights: 1 });
     recordHold({
       holdId: "guest-a",
@@ -38,6 +40,7 @@ describe("dated rates", () => {
     assert.ok(after!.remaining <= units - 2 || before!.remaining < 2);
     releaseHoldById("guest-a");
     releaseHoldById("guest-b");
+    replaceAllotment([]);
   });
 
   it("marks Rath Yatra nights as festival", () => {
@@ -68,6 +71,16 @@ describe("dated rates", () => {
     const pkg = getPackage("chanakya-bnr-puri")!;
     const units = roomUnits(pkg, pkg.rooms[0]!.id);
     assert.ok(units >= 2 && units <= 8);
+    const unreleased = quoteStay({
+      packageId: pkg.id,
+      roomId: pkg.rooms[0]!.id,
+      checkIn: "2026-08-12",
+      nights: 2,
+    });
+    assert.equal(unreleased!.released, false);
+    assert.equal(unreleased!.available, false);
+    setNightUnits({ packageId: pkg.id, roomId: pkg.rooms[0]!.id, night: "2026-08-12", units });
+    setNightUnits({ packageId: pkg.id, roomId: pkg.rooms[0]!.id, night: "2026-08-13", units });
     const q = quoteStay({
       packageId: pkg.id,
       roomId: pkg.rooms[0]!.id,
@@ -75,10 +88,21 @@ describe("dated rates", () => {
       nights: 2,
     });
     assert.ok(q);
+    assert.equal(q!.released, true);
     assert.ok(q!.remaining <= units);
     const leftover = leftoverForRooms(pkg.id, "2026-08-12", 2);
     assert.ok(leftover[pkg.rooms[0]!.id]);
     assert.equal(leftover[pkg.rooms[0]!.id]!.occupancy, pkg.rooms[0]!.occupancy);
+    const hidden = quoteStay({
+      packageId: pkg.id,
+      roomId: pkg.rooms[0]!.id,
+      checkIn: "2026-08-12",
+      nights: 2,
+      inventoryKnown: false,
+    });
+    assert.equal(hidden!.unknown, true);
+    assert.equal(hidden!.available, false);
+    replaceAllotment([]);
   });
 });
 

@@ -1,8 +1,8 @@
 import { clampNights, getPackage, getRoom } from "@/lib/packages";
-import { quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory";
+import { addDays, quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory";
 import { parseTravelPlan, pickupChargeInr } from "@/lib/travel-plan";
 import { readMeta } from "@/lib/booking-meta";
-import { refreshOccupancy } from "@/lib/server/occupancy";
+import { refreshStayInventory } from "@/lib/server/occupancy";
 
 export type PayableInput = {
   packageId: string;
@@ -25,6 +25,8 @@ export type PayableQuote =
       amountInr: number;
       pickupInr: number;
       perPerson: number;
+      /** Tightest published key count for the stay. The hold uses this, not the catalog guess. */
+      units: number;
     }
   | { ok: false; message: string; field?: string };
 
@@ -55,7 +57,11 @@ export async function computePayable(input: PayableInput): Promise<PayableQuote>
     };
   }
 
-  await refreshOccupancy().catch(() => []);
+  const end = addDays(input.checkIn, nights - 1);
+  const loaded = await refreshStayInventory(pkg.id, input.checkIn, end).catch(() => ({ ok: false as const, holds: [] }));
+  if (!loaded.ok) {
+    return { ok: false, message: "Couldn't check rooms for these dates. Try again in a moment." };
+  }
   const quote = quoteStay({
     packageId: pkg.id,
     roomId: room.id,
@@ -63,6 +69,9 @@ export async function computePayable(input: PayableInput): Promise<PayableQuote>
     nights,
     swaps: input.swaps ?? {},
   });
+  if (quote && !quote.released) {
+    return { ok: false, message: "The hotel has not released these nights yet." };
+  }
   if (!quote?.available) {
     return { ok: false, message: "Those nights are sold out for this room. Pick another date." };
   }
@@ -86,6 +95,7 @@ export async function computePayable(input: PayableInput): Promise<PayableQuote>
     amountInr,
     pickupInr,
     perPerson: quote.perPerson,
+    units: quote.units,
   };
 }
 

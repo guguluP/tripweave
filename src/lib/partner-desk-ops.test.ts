@@ -41,6 +41,7 @@ describe("partner desk ops", () => {
     const pkg = getPackage("taj-puri-resort-spa")!;
     const roomId = pkg.rooms[0]!.id;
     const night = "2026-09-15";
+    setNightUnits({ packageId: pkg.id, roomId, night, units: 4 });
     const before = quoteStay({ packageId: pkg.id, roomId, checkIn: night, nights: 1 });
     assert.ok(before?.available);
     setStopSell({ packageId: pkg.id, roomId: "", night, reason: "maintenance" }, true);

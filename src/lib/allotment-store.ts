@@ -59,6 +59,21 @@ export function replaceStopSell(rows: StopSellRow[]) {
   g.__twStopSell__ = rows;
 }
 
+/** Replace one property's rows inside a date window. Other hotels stay put. */
+export function mergeAllotment(packageId: string, from: string, to: string, rows: NightAllotment[]) {
+  const kept = (g.__twAllotment__ ?? []).filter(
+    (r) => !(r.packageId === packageId && r.night >= from && r.night <= to),
+  );
+  g.__twAllotment__ = [...kept, ...rows];
+}
+
+export function mergeStopSell(packageId: string, from: string, to: string, rows: StopSellRow[]) {
+  const kept = (g.__twStopSell__ ?? []).filter(
+    (r) => !(r.packageId === packageId && r.night >= from && r.night <= to),
+  );
+  g.__twStopSell__ = [...kept, ...rows];
+}
+
 export function unitsOverride(packageId: string, roomId: string, night: string): number | null {
   const hit = (g.__twAllotment__ ?? []).find(
     (r) => r.packageId === packageId && r.roomId === roomId && r.night === night,

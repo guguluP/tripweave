@@ -129,9 +129,13 @@ export function StayQuoteCard({
       {quote ? (
         <div className="mt-4">
           <p className="text-sm text-muted">
-            {quote.available
-              ? `${ALLOTMENT_LABEL}: ${quote.remaining} of ${quote.units} ${quote.occupancy}-guest rooms left for these nights.`
-              : `${ALLOTMENT_LABEL}: sold out on at least one of these nights. Change the date or room.`}
+            {quote.unknown
+              ? "Couldn't check rooms for these dates."
+              : quote.available
+                ? `${ALLOTMENT_LABEL}: ${quote.remaining} of ${quote.units} ${quote.occupancy}-guest rooms left for these nights.`
+                : quote.released
+                  ? `${ALLOTMENT_LABEL}: sold out on at least one of these nights. Change the date or room.`
+                  : "On request. The hotel has not released a key count for these nights."}
           </p>
           <ul className="mt-3 grid gap-1.5">
             {quote.nightsQuoted.map((n) => (
@@ -139,7 +143,7 @@ export function StayQuoteCard({
                 key={n.date}
                 className={cn(
                   "flex items-center justify-between rounded-md border px-3 py-2 text-sm",
-                  n.remaining <= 0 ? "border-danger/30 bg-danger/5 text-danger" : "border-border bg-surface",
+                  n.released && n.remaining <= 0 ? "border-danger/30 bg-danger/5 text-danger" : "border-border bg-surface",
                 )}
               >
                 <span>
@@ -147,7 +151,7 @@ export function StayQuoteCard({
                   <span className="ml-2 text-xs text-muted">{n.label}</span>
                 </span>
                 <span className="tabular-nums">
-                  {n.remaining <= 0 ? "Sold out" : `${formatMoney(n.rate)} · ${n.remaining} left`}
+                  {!n.released ? "On request" : n.remaining <= 0 ? "Sold out" : `${formatMoney(n.rate)} · ${n.remaining} left`}
                 </span>
               </li>
             ))}

@@ -32,6 +32,8 @@ export type NightQuote = {
   rate: number;
   label: string;
   remaining: number;
+  /** False when no desk allotment or partner unit overlay exists for this night. */
+  released: boolean;
 };
 
 export type StayQuote = {
@@ -40,12 +42,18 @@ export type StayQuote = {
   checkIn: string;
   nights: number;
   occupancy: number;
+  /** Tightest published key count. Zero when a night has no allotment. */
   units: number;
   nightsQuoted: NightQuote[];
   extras: number;
   perPerson: number;
   remaining: number;
+  /** Every night has a published key count and at least one key is free. */
   available: boolean;
+  /** Every night has a published key count or a stop-sell. */
+  released: boolean;
+  /** The occupancy read failed, so leftover must not be shown. */
+  unknown: boolean;
   soldOutNights: string[];
 };
 
@@ -132,10 +140,23 @@ export function roomUnits(pkg: StayPackage, roomId: string): number {
   return 4;
 }
 
-/** Per-night units: desk allotment wins over static partner overlay / catalog estimate. */
-export function unitsForNight(pkg: StayPackage, roomId: string, night: string): number {
+/**
+ * Keys the hotel has actually published for one night.
+ * Desk allotment wins. A partner overlay `units:{roomId}` also counts.
+ * The catalog guess from roomUnits is not stock.
+ */
+export function publishedNightUnits(pkg: StayPackage, roomId: string, night: string): number | null {
   const override = unitsOverride(pkg.id, roomId, night);
   if (override !== null) return override;
+  const edited = overlayFor(pkg.id)?.extras?.find((extra) => extra.optionId === `units:${roomId}`);
+  if (edited && edited.delta >= 1) return edited.delta;
+  return null;
+}
+
+/** Per-night units: published allotment, otherwise the catalog estimate. Selling uses publishedNightUnits. */
+export function unitsForNight(pkg: StayPackage, roomId: string, night: string): number {
+  const published = publishedNightUnits(pkg, roomId, night);
+  if (published !== null) return published;
   return roomUnits(pkg, roomId);
 }
 
@@ -231,30 +252,40 @@ export function quoteStay(input: {
   nights: number;
   swaps?: Record<string, string>;
   extraHolds?: OccupancyHold[];
+  /** False after a failed occupancy read. Prices still calculate; leftover does not. */
+  inventoryKnown?: boolean;
 }): StayQuote | null {
   const pkg = getPackage(input.packageId);
   if (!pkg) return null;
   const room = getRoom(pkg, input.roomId);
   const nights = clampNights(pkg, input.nights);
   const dates = eachNight(input.checkIn, nights);
-  const units = dates.length
-    ? Math.min(...dates.map((date) => unitsForNight(pkg, room.id, date)))
-    : roomUnits(pkg, room.id);
+  const known = input.inventoryKnown !== false;
   const nightsQuoted: NightQuote[] = dates.map((date) => {
     const season = seasonFor(date);
-    if (nightIsStopSell(pkg.id, room.id, date)) {
-      const rate = Math.round((pkg.pricePerNight + room.deltaPerNight) * season.multiplier);
-      return { date, rate, label: `${season.label} · stop-sell`, remaining: 0 };
-    }
-    const nightUnits = unitsForNight(pkg, room.id, date);
-    const remaining = Math.max(0, nightUnits - takenOnNight(pkg.id, room.id, date, input.extraHolds));
     const rate = Math.round((pkg.pricePerNight + room.deltaPerNight) * season.multiplier);
-    return { date, rate, label: season.label, remaining };
+    if (!known) return { date, rate, label: season.label, remaining: 0, released: false };
+    if (nightIsStopSell(pkg.id, room.id, date)) {
+      return { date, rate, label: `${season.label} · stop-sell`, remaining: 0, released: true };
+    }
+    const nightUnits = publishedNightUnits(pkg, room.id, date);
+    if (nightUnits === null) {
+      return { date, rate, label: season.label, remaining: 0, released: false };
+    }
+    const remaining = Math.max(0, nightUnits - takenOnNight(pkg.id, room.id, date, input.extraHolds));
+    return { date, rate, label: season.label, remaining, released: true };
   });
+  const published = nightsQuoted.filter((n) => n.released).map((n) => {
+    const units = publishedNightUnits(pkg, room.id, n.date);
+    return units ?? 0;
+  });
+  const units = published.length ? Math.min(...published) : 0;
   const extras = stayTotal(pkg, nights, room.id, input.swaps ?? {}) - (pkg.pricePerNight + room.deltaPerNight) * nights;
   const roomSum = nightsQuoted.reduce((s, n) => s + n.rate, 0);
-  const remaining = nightsQuoted.length ? Math.min(...nightsQuoted.map((n) => n.remaining)) : 0;
-  const soldOutNights = nightsQuoted.filter((n) => n.remaining <= 0).map((n) => n.date);
+  const releasedNights = nightsQuoted.filter((n) => n.released);
+  const remaining = releasedNights.length ? Math.min(...releasedNights.map((n) => n.remaining)) : 0;
+  const soldOutNights = releasedNights.filter((n) => n.remaining <= 0).map((n) => n.date);
+  const released = known && nightsQuoted.length > 0 && nightsQuoted.every((n) => n.released);
   return {
     packageId: pkg.id,
     roomId: room.id,
@@ -267,19 +298,30 @@ export function quoteStay(input: {
     /** Room total for these nights, including each selected add-on once. */
     perPerson: roomSum + extras,
     remaining,
-    available: soldOutNights.length === 0 && remaining > 0,
+    available: released && soldOutNights.length === 0 && remaining > 0,
+    released,
+    unknown: !known,
     soldOutNights,
   };
 }
+
+export type RoomLeftover = {
+  remaining: number;
+  available: boolean;
+  occupancy: number;
+  released: boolean;
+  soldOut: boolean;
+};
 
 export function leftoverForRooms(
   packageId: string,
   checkIn: string,
   nights: number,
   extraHolds: OccupancyHold[] = [],
-): Record<string, { remaining: number; available: boolean; occupancy: number }> {
+  inventoryKnown = true,
+): Record<string, RoomLeftover> {
   const pkg = getPackage(packageId);
-  const out: Record<string, { remaining: number; available: boolean; occupancy: number }> = {};
+  const out: Record<string, RoomLeftover> = {};
   if (!pkg) return out;
   for (const room of pkg.rooms) {
     const q = quoteStay({
@@ -288,11 +330,16 @@ export function leftoverForRooms(
       checkIn,
       nights,
       extraHolds,
+      inventoryKnown,
     });
+    const released = q?.released ?? false;
+    const available = q?.available ?? false;
     out[room.id] = {
       remaining: q?.remaining ?? 0,
-      available: q?.available ?? false,
+      available,
       occupancy: room.occupancy,
+      released,
+      soldOut: released && !available,
     };
   }
   return out;

@@ -30,7 +30,7 @@ import {
   loadBrief,
 } from "@/lib/packages";
 import { quoteStay, travelersFitRoom } from "@/lib/inventory";
-import { usePaidHolds } from "@/lib/use-occupancy";
+import { useStayInventory } from "@/lib/use-occupancy";
 import { deskFor, hotelMailto } from "@/lib/hotel-desk";
 import { refundPolicyFor } from "@/lib/refund-policy";
 import { loadLocalProfile } from "@/lib/profile-local";
@@ -93,7 +93,6 @@ function Checkout() {
 
 function CheckoutInner() {
   const { user } = useCurrentUserState();
-  usePaidHolds();
   const [ready, setReady] = useState(false);
   const [packageId, setPackageId] = useState<string | null>(null);
   const [swaps, setSwaps] = useState<Record<string, string>>({});
@@ -107,6 +106,7 @@ function CheckoutInner() {
   const [busy, setBusy] = useState(false);
   const [travelersOk, setTravelersOk] = useState(false);
   const [travel, setTravel] = useState<TravelPlan>(EMPTY_TRAVEL);
+  const inventory = useStayInventory(packageId ?? undefined, checkIn, nights);
   const [held, setHeld] = useState<BookingRow | null>(null);
   const [confirmation, setConfirmation] = useState<{
     code: string;
@@ -155,8 +155,16 @@ function CheckoutInner() {
   const pkg = packageId ? getPackage(packageId) : undefined;
   const room = pkg ? getRoom(pkg, roomId) : undefined;
   const stayNights = pkg ? clampNights(pkg, nights) : nights;
+  const inventoryKnown = inventory === "ready";
   const quote = pkg
-    ? quoteStay({ packageId: pkg.id, roomId: room?.id, checkIn, nights: stayNights, swaps })
+    ? quoteStay({
+        packageId: pkg.id,
+        roomId: room?.id,
+        checkIn,
+        nights: stayNights,
+        swaps,
+        inventoryKnown,
+      })
     : null;
   const perPerson = quote?.perPerson ?? (pkg ? stayTotal(pkg, stayNights, room?.id, swaps) : 0);
   const occupancy = room?.occupancy ?? 8;
@@ -282,6 +290,16 @@ function CheckoutInner() {
     }
     if (room && !travelersFitRoom(room.occupancy, travelers)) {
       setErrors({ form: `This room sleeps ${room.occupancy}.` });
+      setShakeKey((k) => k + 1);
+      return;
+    }
+    if (inventory === "failed" || quote?.unknown) {
+      setErrors({ checkIn: "Couldn't check rooms for these dates. Try again." });
+      setShakeKey((k) => k + 1);
+      return;
+    }
+    if (quote && !quote.released) {
+      setErrors({ checkIn: "The hotel has not released these nights yet." });
       setShakeKey((k) => k + 1);
       return;
     }
@@ -464,8 +482,8 @@ function CheckoutInner() {
             <p className="rounded-md border border-border bg-elevated px-3 py-2 text-xs text-muted">
               Refund window before you pay: {refundPolicyFor(checkIn).label}. My trips uses this same rule after you pay.
             </p>
-            <Button type="submit" size="lg" disabled={busy || (quote != null && !quote.available)} className="mt-2">
-              <TextSwap shimmer={busy} text={busy ? "Opening Razorpay…" : quote && !quote.available ? "Sold out for these nights" : `Pay ${formatMoney(total)} with Razorpay`} />
+            <Button type="submit" size="lg" disabled={busy || inventory !== "ready" || (quote != null && !quote.available)} className="mt-2">
+              <TextSwap shimmer={busy} text={busy ? "Opening Razorpay…" : inventory === "loading" ? "Checking rooms…" : inventory === "failed" || quote?.unknown ? "Couldn't check rooms" : quote && !quote.released ? "Nights not released" : quote && !quote.available ? "Sold out for these nights" : `Pay ${formatMoney(total)} with Razorpay`} />
             </Button>
           </form>
         </div>
@@ -486,7 +504,13 @@ function CheckoutInner() {
               ) : null}
               <div className="flex justify-between border-t border-border pt-2 font-medium"><dt>Total</dt><dd className="tabular-nums"><DigitPop value={formatMoney(total)} /></dd></div>
             </dl>
-            {quote && !quote.available ? <p className="mt-3 text-sm text-danger">Sold out for these nights.</p> : null}
+            {inventory === "failed" || quote?.unknown ? (
+              <p className="mt-3 text-sm text-danger">Couldn't check rooms for these dates.</p>
+            ) : quote && !quote.released ? (
+              <p className="mt-3 text-sm text-muted">The hotel has not released these nights yet.</p>
+            ) : quote && !quote.available ? (
+              <p className="mt-3 text-sm text-danger">Sold out for these nights.</p>
+            ) : null}
             <p className="mt-2 text-xs text-subtle">From {getOrigin(brief.origin)?.label ?? brief.origin}</p>
           </div>
         </Card>

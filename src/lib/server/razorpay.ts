@@ -2,8 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createHmac } from "node:crypto";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
-import { recordHold, releaseHoldById, roomUnits } from "@/lib/inventory";
-import { getPackage } from "@/lib/packages";
+import { recordHold, releaseHoldById } from "@/lib/inventory";
 import { computePayable, payTestAllowed } from "@/lib/server/payable";
 import { pendingHoldId as checkoutPendingId, releaseCheckoutHold, reserveCheckoutHold } from "@/lib/server/room-holds";
 
@@ -263,8 +262,7 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
 
       const payable = await computePayable(data);
       if (!payable.ok) return { ok: false, message: payable.message };
-      const pkgForHold = getPackage(payable.packageId);
-      const units = pkgForHold ? roomUnits(pkgForHold, payable.roomId) : 1;
+      const units = payable.units;
       pendingHoldId = checkoutPendingId({
         userId: context.userId,
         packageId: payable.packageId,
