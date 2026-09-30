@@ -5,10 +5,31 @@ import { clearDemoMode, isDemoMode, useCurrentUserState } from "@/lib/auth/use-c
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TextSwap } from "@/components/motion";
-import { saveNext } from "@/lib/packages";
 import { isRealUser } from "@/lib/session-guard";
-import { mergeSaved } from "@/lib/saved";
-import { listSavedStays } from "@/lib/supabase/saved";
+import { loadBriefWithDates, PLAN_EVENT, PLAN_STAMP_KEY, saveBriefWithDates } from "@/lib/brief-persist";
+import { checkInOnOrAfterToday } from "@/lib/inventory";
+import { clearPending, loadPending, saveNext, savePending, type PendingBooking } from "@/lib/packages";
+import { readSaved, replaceSaved } from "@/lib/saved";
+import { loadGuestPlan, saveGuestPlan } from "@/lib/supabase/plan";
+import { listSavedStays, syncSavedStay } from "@/lib/supabase/saved";
+
+function applyDocument(document: Record<string, unknown>, updatedAt: string) {
+  const brief = document.brief;
+  if (brief && typeof brief === "object") {
+    const row = brief as { checkIn?: string };
+    saveBriefWithDates({
+      ...(brief as object),
+      checkIn: checkInOnOrAfterToday(row.checkIn),
+    } as Parameters<typeof saveBriefWithDates>[0]);
+  }
+  const pending = document.pending;
+  if (pending && typeof pending === "object" && typeof (pending as PendingBooking).packageId === "string") {
+    savePending(pending as PendingBooking);
+  } else {
+    clearPending();
+  }
+  if (updatedAt) window.localStorage.setItem(PLAN_STAMP_KEY, updatedAt);
+}
 
 export function AuthSlot() {
   const { user, isPending } = useCurrentUserState();
@@ -16,9 +37,73 @@ export function AuthSlot() {
 
   useEffect(() => {
     if (!isRealUser(user) || isDemoMode()) return;
-    listSavedStays()
-      .then((ids) => mergeSaved(ids))
-      .catch(() => {});
+    let cancelled = false;
+    let timer = 0;
+    const applying = { current: false };
+
+    const pushPlan = () => {
+      if (applying.current || !window.localStorage.getItem("tripweave-brief")) return;
+      const updatedAt = window.localStorage.getItem(PLAN_STAMP_KEY) || new Date().toISOString();
+      void saveGuestPlan({
+        data: {
+          brief: loadBriefWithDates() as unknown as Record<string, unknown>,
+          pending: (loadPending() as unknown as Record<string, unknown> | null) ?? null,
+          updatedAt,
+        },
+      })
+        .then((result) => {
+          if (cancelled || !result?.stale || !result.document) return;
+          applying.current = true;
+          applyDocument(result.document, result.updatedAt || updatedAt);
+          applying.current = false;
+        })
+        .catch(() => {});
+    };
+
+    const onPlan = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(pushPlan, 500);
+    };
+
+    void (async () => {
+      try {
+        const [remote, remoteLikes] = await Promise.all([
+          loadGuestPlan().catch(() => null),
+          listSavedStays().catch(() => [] as string[]),
+        ]);
+        if (cancelled) return;
+        const localAt = Date.parse(window.localStorage.getItem(PLAN_STAMP_KEY) || "") || 0;
+        const remoteAt = remote?.updatedAt ? Date.parse(remote.updatedAt) : 0;
+        const hasLocal = window.localStorage.getItem("tripweave-brief") != null;
+        if (remote && (!hasLocal || remoteAt > localAt)) {
+          applying.current = true;
+          applyDocument(remote.document, remote.updatedAt);
+          applying.current = false;
+        } else if (hasLocal) {
+          pushPlan();
+        }
+        const likeKey = `tripweave-likes-synced:${user.id}`;
+        let likes = remoteLikes;
+        if (window.localStorage.getItem(likeKey) !== "1") {
+          const localLikes = readSaved();
+          const remoteSet = new Set(remoteLikes);
+          const missing = localLikes.filter((id) => !remoteSet.has(id));
+          await Promise.all(missing.map((packageId) => syncSavedStay({ data: { packageId, on: true } }).catch(() => {})));
+          likes = [...new Set([...remoteLikes, ...localLikes])];
+          window.localStorage.setItem(likeKey, "1");
+        }
+        if (!cancelled) replaceSaved(likes);
+      } catch {
+        /* this browser keeps the plan */
+      }
+    })();
+
+    window.addEventListener(PLAN_EVENT, onPlan);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+      window.removeEventListener(PLAN_EVENT, onPlan);
+    };
   }, [user]);
 
   if (isPending) {

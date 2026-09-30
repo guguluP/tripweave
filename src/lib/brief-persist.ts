@@ -28,6 +28,12 @@ export function loadBriefWithDates(): BriefDates {
   }
 }
 
+export const PLAN_STAMP_KEY = "tripweave-plan-at";
+export const PLAN_EVENT = "tripweave-plan";
+
 export function saveBriefWithDates(brief: BriefDates) {
   saveBriefBase(brief);
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(PLAN_STAMP_KEY, new Date().toISOString());
+  window.dispatchEvent(new Event(PLAN_EVENT));
 }

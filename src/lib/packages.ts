@@ -495,6 +495,8 @@ function asPendingTravel(raw: unknown): PendingTravel | undefined {
 export function savePending(pending: PendingBooking) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(PENDING_KEY, JSON.stringify(pending));
+  window.localStorage.setItem("tripweave-plan-at", new Date().toISOString());
+  window.dispatchEvent(new Event("tripweave-plan"));
 }
 
 export function loadPending(): PendingBooking | null {
@@ -525,6 +527,8 @@ export function loadPending(): PendingBooking | null {
 export function clearPending() {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(PENDING_KEY);
+  window.localStorage.setItem("tripweave-plan-at", new Date().toISOString());
+  window.dispatchEvent(new Event("tripweave-plan"));
 }
 
 export function saveNext(path: string) {

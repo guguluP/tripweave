@@ -42,6 +42,15 @@ export function toggleSaved(id: string): boolean {
   return on;
 }
 
+export function readSaved(): string[] {
+  return read();
+}
+
+export function replaceSaved(ids: string[]) {
+  if (typeof window === "undefined") return;
+  write([...new Set(ids)]);
+}
+
 export function mergeSaved(ids: string[]) {
   if (typeof window === "undefined" || !ids.length) return;
   const cur = new Set(read());
