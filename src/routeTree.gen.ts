@@ -20,6 +20,7 @@ import { Route as RathYatraRouteImport } from './routes/rath-yatra'
 import { Route as TravelersRouteImport } from './routes/travelers'
 import { Route as TripsRouteImport } from './routes/trips'
 import { Route as ApiCreateOrderRouteImport } from './routes/api/create-order'
+import { Route as ApiFunnelRouteImport } from './routes/api/funnel'
 import { Route as ApiVerifyPaymentRouteImport } from './routes/api/verify-payment'
 import { Route as ApiWalletPassRouteImport } from './routes/api/wallet-pass'
 import { Route as DeskIndexRouteImport } from './routes/desk/index'
@@ -31,7 +32,6 @@ import { Route as ApiCronFlagUnconfirmedRouteImport } from './routes/api/cron/fl
 import { Route as ApiCronReconcileUnbookedRouteImport } from './routes/api/cron/reconcile-unbooked'
 import { Route as ApiCronRefundRetryRouteImport } from './routes/api/cron/refund-retry'
 import { Route as ApiInvoiceCodeRouteImport } from './routes/api/invoice.$code'
-import { Route as ApiFunnelRouteImport } from './routes/api/funnel'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -86,6 +86,11 @@ const TripsRoute = TripsRouteImport.update({
 const ApiCreateOrderRoute = ApiCreateOrderRouteImport.update({
   id: '/api/create-order',
   path: '/api/create-order',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiFunnelRoute = ApiFunnelRouteImport.update({
+  id: '/api/funnel',
+  path: '/api/funnel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiVerifyPaymentRoute = ApiVerifyPaymentRouteImport.update({
@@ -144,11 +149,6 @@ const ApiInvoiceCodeRoute = ApiInvoiceCodeRouteImport.update({
   path: '/api/invoice/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiFunnelRoute = ApiFunnelRouteImport.update({
-  id: '/api/funnel',
-  path: '/api/funnel',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -162,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/travelers': typeof TravelersRoute
   '/trips': typeof TripsRoute
   '/api/create-order': typeof ApiCreateOrderRoute
+  '/api/funnel': typeof ApiFunnelRoute
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/api/wallet-pass': typeof ApiWalletPassRoute
   '/desk/action': typeof DeskActionRoute
@@ -173,7 +174,6 @@ export interface FileRoutesByFullPath {
   '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
   '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
   '/api/invoice/$code': typeof ApiInvoiceCodeRoute
-  '/api/funnel': typeof ApiFunnelRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -187,6 +187,7 @@ export interface FileRoutesByTo {
   '/travelers': typeof TravelersRoute
   '/trips': typeof TripsRoute
   '/api/create-order': typeof ApiCreateOrderRoute
+  '/api/funnel': typeof ApiFunnelRoute
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/api/wallet-pass': typeof ApiWalletPassRoute
   '/desk/action': typeof DeskActionRoute
@@ -198,7 +199,6 @@ export interface FileRoutesByTo {
   '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
   '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
   '/api/invoice/$code': typeof ApiInvoiceCodeRoute
-  '/api/funnel': typeof ApiFunnelRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -213,6 +213,7 @@ export interface FileRoutesById {
   '/travelers': typeof TravelersRoute
   '/trips': typeof TripsRoute
   '/api/create-order': typeof ApiCreateOrderRoute
+  '/api/funnel': typeof ApiFunnelRoute
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/api/wallet-pass': typeof ApiWalletPassRoute
   '/desk/action': typeof DeskActionRoute
@@ -224,7 +225,6 @@ export interface FileRoutesById {
   '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
   '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
   '/api/invoice/$code': typeof ApiInvoiceCodeRoute
-  '/api/funnel': typeof ApiFunnelRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -240,6 +240,7 @@ export interface FileRouteTypes {
     | '/travelers'
     | '/trips'
     | '/api/create-order'
+    | '/api/funnel'
     | '/api/verify-payment'
     | '/api/wallet-pass'
     | '/desk/action'
@@ -251,7 +252,6 @@ export interface FileRouteTypes {
     | '/api/cron/reconcile-unbooked'
     | '/api/cron/refund-retry'
     | '/api/invoice/$code'
-    | '/api/funnel'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -265,6 +265,7 @@ export interface FileRouteTypes {
     | '/travelers'
     | '/trips'
     | '/api/create-order'
+    | '/api/funnel'
     | '/api/verify-payment'
     | '/api/wallet-pass'
     | '/desk/action'
@@ -276,7 +277,6 @@ export interface FileRouteTypes {
     | '/api/cron/reconcile-unbooked'
     | '/api/cron/refund-retry'
     | '/api/invoice/$code'
-    | '/api/funnel'
   id:
     | '__root__'
     | '/'
@@ -290,6 +290,7 @@ export interface FileRouteTypes {
     | '/travelers'
     | '/trips'
     | '/api/create-order'
+    | '/api/funnel'
     | '/api/verify-payment'
     | '/api/wallet-pass'
     | '/desk/action'
@@ -301,7 +302,6 @@ export interface FileRouteTypes {
     | '/api/cron/reconcile-unbooked'
     | '/api/cron/refund-retry'
     | '/api/invoice/$code'
-    | '/api/funnel'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -316,6 +316,7 @@ export interface RootRouteChildren {
   TravelersRoute: typeof TravelersRoute
   TripsRoute: typeof TripsRoute
   ApiCreateOrderRoute: typeof ApiCreateOrderRoute
+  ApiFunnelRoute: typeof ApiFunnelRoute
   ApiVerifyPaymentRoute: typeof ApiVerifyPaymentRoute
   ApiWalletPassRoute: typeof ApiWalletPassRoute
   DeskActionRoute: typeof DeskActionRoute
@@ -327,7 +328,6 @@ export interface RootRouteChildren {
   ApiCronReconcileUnbookedRoute: typeof ApiCronReconcileUnbookedRoute
   ApiCronRefundRetryRoute: typeof ApiCronRefundRetryRoute
   ApiInvoiceCodeRoute: typeof ApiInvoiceCodeRoute
-  ApiFunnelRoute: typeof ApiFunnelRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -409,6 +409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCreateOrderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/funnel': {
+      id: '/api/funnel'
+      path: '/api/funnel'
+      fullPath: '/api/funnel'
+      preLoaderRoute: typeof ApiFunnelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/verify-payment': {
       id: '/api/verify-payment'
       path: '/api/verify-payment'
@@ -486,13 +493,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInvoiceCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/funnel': {
-      id: '/api/funnel'
-      path: '/api/funnel'
-      fullPath: '/api/funnel'
-      preLoaderRoute: typeof ApiFunnelRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -508,6 +508,7 @@ const rootRouteChildren: RootRouteChildren = {
   TravelersRoute: TravelersRoute,
   TripsRoute: TripsRoute,
   ApiCreateOrderRoute: ApiCreateOrderRoute,
+  ApiFunnelRoute: ApiFunnelRoute,
   ApiVerifyPaymentRoute: ApiVerifyPaymentRoute,
   ApiWalletPassRoute: ApiWalletPassRoute,
   DeskActionRoute: DeskActionRoute,
@@ -519,7 +520,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCronReconcileUnbookedRoute: ApiCronReconcileUnbookedRoute,
   ApiCronRefundRetryRoute: ApiCronRefundRetryRoute,
   ApiInvoiceCodeRoute: ApiInvoiceCodeRoute,
-  ApiFunnelRoute: ApiFunnelRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
