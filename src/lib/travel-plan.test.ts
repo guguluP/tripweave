@@ -34,8 +34,11 @@ describe("travel plan", () => {
     const best = ranked.find((r) => r.recommended);
     assert.ok(best);
     assert.equal(bucketOf(best!.leg), "hotel");
-    const quote = quoteTravel("taj-puri-resort-spa", familyFly);
+    const quote = quoteTravel("taj-puri-resort-spa", { ...familyFly, checkIn: "2026-06-26", nights: 3 });
     assert.match(quote.costLine, /BBI/);
+    const flights = quote.bookingLinks.find((link) => link.label === "Google Flights");
+    assert.ok(flights);
+    assert.match(decodeURIComponent(flights.href), /on 2026-06-26 through 2026-06-29/);
     assert.match(quote.bestLine, /hotel private transfer recommended/i);
   });
 

@@ -3,8 +3,9 @@ import { Shell } from "@/components/shell";
 import { RequireAuth } from "@/components/require-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TravelersInner } from "./travelers-inner";
+import { pageHead } from "@/lib/page-title";
 
-export const Route = createFileRoute("/travelers")({ component: TravelersPage });
+export const Route = createFileRoute("/travelers")({ component: TravelersPage, head: () => pageHead("Travelers") });
 
 function TravelersPage() {
   return (

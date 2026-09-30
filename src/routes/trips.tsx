@@ -16,6 +16,7 @@ import { loadCatalog, saveStayReview } from "@/lib/server/catalog";
 import { setCatalogOverlays } from "@/lib/catalog-store";
 
 import { getPersistStatus } from "@/lib/supabase/status";
+import { pageHead } from "@/lib/page-title";
 import { hotelMailto } from "@/lib/hotel-desk";
 import { readMeta } from "@/lib/booking-meta";
 import {
@@ -99,7 +100,7 @@ function ReviewStay({ booking }: { booking: BookingRow }) {
   );
 }
 
-export const Route = createFileRoute("/trips")({ component: Trips });
+export const Route = createFileRoute("/trips")({ component: Trips, head: () => pageHead("Your trips") });
 
 function TripsSkeleton() {
   return (

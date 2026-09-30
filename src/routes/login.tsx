@@ -10,10 +10,12 @@ import { consumeNext, loadNext } from "@/lib/packages";
 import { isRealUser } from "@/lib/session-guard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LOGIN_HERO, loginCheckoutBody, loginCheckoutPrompt } from "@/lib/login-copy";
+import { pageHead } from "@/lib/page-title";
 
 type LoginSearch = { error?: string; token?: string };
 
 export const Route = createFileRoute("/login")({
+  head: () => pageHead("Sign in"),
   component: Login,
   validateSearch: (s: Record<string, unknown>): LoginSearch => ({
     error: typeof s.error === "string" ? s.error : undefined,

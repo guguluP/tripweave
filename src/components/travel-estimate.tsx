@@ -49,8 +49,11 @@ export function TravelEstimateCard({
             ))}
           </div>
           <p className="text-xs text-subtle">
-            Train and bus booking sites open without your TripWeave dates filled in — enter travel
-            dates there yourself.
+            {arriveBy === "fly"
+              ? "Google Flights opens with your check-in and check-out. Cab apps open the airport ride and do not take a date."
+              : arriveBy === "road"
+                ? "Cab apps open the ride you chose and do not take a date."
+                : "Train and bus booking sites open without your TripWeave dates filled in — enter travel dates there yourself."}
           </p>
         </div>
       ) : null}

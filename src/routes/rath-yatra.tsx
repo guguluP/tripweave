@@ -3,9 +3,11 @@ import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { RathCarousel } from "@/components/rath-carousel";
 import { FESTIVAL } from "@/lib/inventory";
+import { pageHead } from "@/lib/page-title";
 
 export const Route = createFileRoute("/rath-yatra")({
   component: RathYatraPage,
+  head: () => pageHead("Rath Yatra"),
 });
 
 function RathYatraPage() {

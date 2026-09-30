@@ -26,17 +26,20 @@ import { TravelEstimateCard } from "@/components/travel-estimate";
 import { TravelPlanner } from "@/components/travel-planner";
 import {
   briefToSearch,
+  explicitCheckIn,
   mergeBriefUrl,
   searchHasBrief,
   searchToBrief,
   type BriefUrlState,
 } from "@/lib/brief-url";
+import { pageHead } from "@/lib/page-title";
 import { formatCheckInLabel } from "@/components/stay-quote";
 
 type MatchesSearch = Record<string, string | undefined>;
 
 export const Route = createFileRoute("/matches")({
   component: Matches,
+  head: () => pageHead("Matches"),
   validateSearch: (s: Record<string, unknown>): MatchesSearch => {
     if (!searchHasBrief(s)) return {};
     return briefToSearch(mergeBriefUrl(DEFAULT_BRIEF, searchToBrief(s)));
@@ -55,10 +58,14 @@ function Matches() {
   const search = Route.useSearch();
   const nav = useNavigate();
   const [ready, setReady] = useState(false);
-  const [brief, setBrief] = useState<Brief>(DEFAULT_BRIEF);
+  const [brief, setBrief] = useState<Brief>(() => {
+    const linked = explicitCheckIn(search);
+    if (!linked) return DEFAULT_BRIEF;
+    return { ...DEFAULT_BRIEF, ...searchToBrief(search), checkIn: linked };
+  });
   const [matches, setMatches] = useState<MatchedStay[]>([]);
   const [rest, setRest] = useState<MatchedStay[]>([]);
-  const [checkIn, setCheckIn] = useState<string | undefined>();
+  const [checkIn, setCheckIn] = useState<string | undefined>(() => explicitCheckIn(search));
   const [tab, setTab] = useState<Tab>("matches");
   const [query, setQuery] = useState("");
   const [plannerOpen, setPlannerOpen] = useState(false);
@@ -71,7 +78,8 @@ function Matches() {
     const next: BriefUrlState = fromUrl
       ? mergeBriefUrl(stored, searchToBrief(search))
       : { ...stored };
-    next.checkIn = checkInOnOrAfterToday(next.checkIn ?? loadPending()?.checkIn);
+    const linked = explicitCheckIn(search);
+    next.checkIn = linked ?? checkInOnOrAfterToday(next.checkIn ?? loadPending()?.checkIn);
     saveBriefWithDates(next);
     setBrief(next);
     const scored = scorePackages(next);

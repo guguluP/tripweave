@@ -15,9 +15,11 @@ import {
 } from "@/lib/travel-plan";
 import { TravelShareButtons } from "@/components/travel-planner";
 import type { OriginId } from "@/lib/origins";
+import { pageHead } from "@/lib/page-title";
 
 export const Route = createFileRoute("/voucher/$code")({
   component: VoucherPage,
+  head: () => pageHead("Voucher"),
 });
 
 function VoucherPage() {

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { LearnMore, Stagger } from "@/components/motion";
 import { KonarkCarousel, RathCarousel } from "@/components/rath-carousel";
 import { DEFAULT_BRIEF, listPackages } from "@/lib/packages";
+import { pageHead } from "@/lib/page-title";
 
 const COVER_SDR = ["/cover/shore.mp4", "/cover/coast.mp4", "/cover/waves.mp4"] as const;
 const COVER_HDR = ["/cover/shore-hdr.mp4", "/cover/coast-hdr.mp4", "/cover/waves-hdr.mp4"] as const;
@@ -18,7 +19,7 @@ function coverClips() {
   return screen && hevc !== "" ? COVER_HDR : COVER_SDR;
 }
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({ component: Home, head: () => pageHead("Puri hotels") });
 
 function Cover() {
   const [showStill, setShowStill] = useState(true);

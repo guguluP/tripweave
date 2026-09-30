@@ -17,7 +17,8 @@ import { loadLocalProfile } from "@/lib/profile-local";
 import { inboundPreview } from "@/lib/travel-plan";
 import { track } from "@/lib/analytics";
 import { TravelEstimateCard } from "@/components/travel-estimate";
-import { briefToSearch, mergeBriefUrl, searchHasBrief, searchToBrief } from "@/lib/brief-url";
+import { briefToSearch, explicitCheckIn, mergeBriefUrl, searchHasBrief, searchToBrief } from "@/lib/brief-url";
+import { pageHead } from "@/lib/page-title";
 import { checkInOnOrAfterToday, todayIso } from "@/lib/inventory";
 import { CityMenu, Choice } from "@/components/plan-city-menu";
 
@@ -25,6 +26,7 @@ type PlanSearch = Record<string, string | undefined>;
 
 export const Route = createFileRoute("/plan")({
   component: Plan,
+  head: () => pageHead("Plan"),
   validateSearch: (s: Record<string, unknown>): PlanSearch => {
     if (!searchHasBrief(s)) return {};
     return briefToSearch(mergeBriefUrl(DEFAULT_BRIEF, searchToBrief(s)));
@@ -82,8 +84,14 @@ function cityAsOrigin(name: string): Pick<Brief, "origin" | "originCity" | "arri
   return { origin: "other", originCity: trimmed, arriveBy: getOrigin("other").defaultArriveBy };
 }
 
-function defaultCheckIn(brief: BriefDates): string {
-  return checkInOnOrAfterToday(brief.checkIn);
+/** A date on the link stays, including a festival day before today. A saved brief still moves forward. */
+function shownCheckIn(
+  briefCheckIn: string | undefined,
+  urlCheckIn: string | undefined,
+  touched: boolean,
+): string {
+  if (!touched && urlCheckIn) return urlCheckIn;
+  return checkInOnOrAfterToday(briefCheckIn);
 }
 
 function Plan() {
@@ -98,13 +106,20 @@ function Plan() {
       if (home) loaded = { ...loaded, ...cityAsOrigin(home) };
     }
     if (searchHasBrief(search)) loaded = mergeBriefUrl(loaded, searchToBrief(search));
-    if (!loaded.checkIn) loaded = { ...loaded, checkIn: defaultCheckIn(loaded) };
+    const linked = explicitCheckIn(search);
+    loaded = {
+      ...loaded,
+      checkIn: linked ?? checkInOnOrAfterToday(loaded.checkIn),
+    };
     return loaded;
   });
   const homeCity = typeof window === "undefined" ? "" : loadLocalProfile()?.homeCity?.trim() ?? "";
   const [busy, setBusy] = useState(false);
+  const [dateTouched, setDateTouched] = useState(false);
   const arriveChoices = arriveOptionsFor(brief.origin);
-  const checkIn = defaultCheckIn(brief);
+  const checkIn = shownCheckIn(brief.checkIn, explicitCheckIn(search), dateTouched);
+  const today = todayIso();
+  const minDate = checkIn < today ? checkIn : today;
 
   const update = <K extends keyof BriefDates>(key: K, value: BriefDates[K]) => {
     setBrief((b) => {
@@ -136,8 +151,11 @@ function Plan() {
           <div className="mt-4">
             <CheckInField
               checkIn={checkIn}
-              minDate={todayIso()}
-              onCheckIn={(iso) => update("checkIn", iso)}
+              minDate={minDate}
+              onCheckIn={(iso) => {
+                setDateTouched(true);
+                update("checkIn", iso);
+              }}
               hint="Rath Yatra, Diwali, and New Year nights price differently — pick the date before we rank."
             />
           </div>
@@ -282,7 +300,7 @@ function Plan() {
         <TravelEstimateCard
           className="mt-10"
           arriveBy={brief.arriveBy}
-          quote={inboundPreview(brief)}
+          quote={inboundPreview({ ...brief, checkIn })}
         />
 
         <Button

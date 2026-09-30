@@ -19,6 +19,7 @@ import {
   type DeskOpsBooking,
 } from "@/lib/server/desk-ops";
 import { pushBanner } from "@/lib/banners";
+import { pageHead } from "@/lib/page-title";
 
 export const Route = createFileRoute("/desk/")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/desk/")({
     packageId: typeof search.packageId === "string" ? search.packageId : "",
   }),
   component: DeskPortal,
+  head: () => pageHead("Hotel desk"),
 });
 
 function DeskPortal() {

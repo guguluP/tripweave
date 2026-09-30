@@ -11,6 +11,7 @@ import {
   type TransportLeg,
 } from "./transport.ts";
 import { getPackage, originPlace, type Brief } from "./packages.ts";
+import { addDays } from "./inventory.ts";
 import { GATEWAYS, LANDMARKS, stayPin } from "./places.ts";
 
 export type TravelPlan = {
@@ -252,9 +253,22 @@ export function rideLinks(pickup: RidePoint, drop: RidePoint): BookingLink[] {
   ];
 }
 
-export function travelBookingLinks(arriveBy: ArriveBy, from = "", ride?: { pickup: RidePoint; drop: RidePoint }): BookingLink[] {
+function flightSearchQuery(from: string, checkIn?: string, nights?: number): string {
+  const place = from ? `Flights from ${from} to BBI` : "Flights to BBI";
+  if (!checkIn || !/^\d{4}-\d{2}-\d{2}$/.test(checkIn)) return place;
+  const stay = nights && nights >= 1 ? Math.min(14, Math.round(nights)) : 0;
+  if (stay >= 1) return `${place} on ${checkIn} through ${addDays(checkIn, stay)}`;
+  return `${place} on ${checkIn}`;
+}
+
+export function travelBookingLinks(
+  arriveBy: ArriveBy,
+  from = "",
+  ride?: { pickup: RidePoint; drop: RidePoint },
+  dates?: { checkIn?: string; nights?: number },
+): BookingLink[] {
   if (arriveBy === "fly") {
-    const q = from ? `Flights from ${from} to BBI` : "Flights to BBI";
+    const q = flightSearchQuery(from, dates?.checkIn, dates?.nights);
     return [
       { label: "Google Flights", href: `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}` },
       ...(ride ? rideLinks(ride.pickup, ride.drop).map((link) => ({ ...link, label: `${link.label} from BBI` })) : []),
@@ -425,7 +439,7 @@ export function rankLastMiles(packageId: string, brief: Brief): RankedLastMile[]
     .sort((a, b) => b.score - a.score);
 }
 
-export function quoteTravel(packageId: string, brief: Brief, plan?: Partial<TravelPlan>): TravelQuote {
+export function quoteTravel(packageId: string, brief: Brief & { checkIn?: string }, plan?: Partial<TravelPlan>): TravelQuote {
   const inbound = inboundFor(brief.origin, brief.arriveBy);
   const options = rankLastMiles(packageId, brief);
   const recommendedId = options.find((o) => o.recommended)?.id ?? options[0]?.id ?? "";
@@ -455,7 +469,12 @@ export function quoteTravel(packageId: string, brief: Brief, plan?: Partial<Trav
     bestLine,
     pickup,
     ride: rideEnds(packageId, hotelName, brief.arriveBy),
-    bookingLinks: travelBookingLinks(brief.arriveBy, originPlace(brief), rideEnds(packageId, hotelName, brief.arriveBy)),
+    bookingLinks: travelBookingLinks(
+      brief.arriveBy,
+      originPlace(brief),
+      rideEnds(packageId, hotelName, brief.arriveBy),
+      { checkIn: brief.checkIn, nights: brief.nights },
+    ),
     lastMileLinks: lastMileBookingLinks(lastMile, rideEnds(packageId, hotelName, brief.arriveBy)),
     why: lastMile.why,
     mapEmbedUrl: mapEmbedUrl(brief.arriveBy, stayPin(packageId, hotelName)),
@@ -463,7 +482,7 @@ export function quoteTravel(packageId: string, brief: Brief, plan?: Partial<Trav
   };
 }
 
-export function inboundPreview(brief: Brief): TravelQuote {
+export function inboundPreview(brief: Brief & { checkIn?: string }): TravelQuote {
   const quote = quoteTravel("mayfair-heritage-puri", brief);
   const city = originPlace(brief);
   const named =

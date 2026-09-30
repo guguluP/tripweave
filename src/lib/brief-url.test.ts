@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   briefToSearch,
   mergeBriefUrl,
+  explicitCheckIn,
   searchHasBrief,
   searchToBrief,
 } from "./brief-url.ts";
@@ -48,6 +49,15 @@ describe("brief URL", () => {
     assert.equal(search.originCity, "Singapore");
     const listed = briefToSearch({ ...DEFAULT_BRIEF, origin: "kolkata" });
     assert.equal(listed.originCity, undefined);
+  });
+
+  it("reads a JSON-quoted nights value from an older link", () => {
+    const parsed = searchToBrief({ nights: '"3"', checkIn: '"2026-06-26"', vibe: '"culture"' });
+    assert.equal(parsed.nights, 3);
+    assert.equal(parsed.checkIn, "2026-06-26");
+    assert.equal(parsed.vibe, "culture");
+    assert.equal(searchHasBrief({ nights: '"3"' }), true);
+    assert.equal(explicitCheckIn({ checkIn: "2026-06-26" }), "2026-06-26");
   });
 
   it("ignores junk search values", () => {

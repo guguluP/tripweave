@@ -11,8 +11,10 @@ import {
   loadRazorpayScript,
   openRazorpayCheckout,
 } from "@/lib/razorpay-client";
+import { pageHead } from "@/lib/page-title";
 
 export const Route = createFileRoute("/pay-test")({
+  head: () => pageHead("Pay test"),
   beforeLoad: () => {
     if (!import.meta.env.DEV) throw redirect({ to: "/" });
   },

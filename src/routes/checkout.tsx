@@ -36,6 +36,7 @@ import { refundPolicyFor } from "@/lib/refund-policy";
 import { loadLocalProfile } from "@/lib/profile-local";
 import { paymentLine } from "@/lib/pay";
 import { track } from "@/lib/analytics";
+import { pageHead } from "@/lib/page-title";
 import { createBooking, type BookingRow } from "@/lib/server/bookings-browser";
 import { bookingToWalletPayload } from "@/lib/apple-wallet";
 import { saveWalletPass } from "@/lib/wallet-store";
@@ -64,7 +65,7 @@ import { TravelShareButtons } from "@/components/travel-planner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export const Route = createFileRoute("/checkout")({ component: Checkout });
+export const Route = createFileRoute("/checkout")({ component: Checkout, head: () => pageHead("Checkout") });
 
 function tomorrowIso() {
   return todayIso();
@@ -168,7 +169,7 @@ function CheckoutInner() {
   const occupancy = room?.occupancy ?? 8;
   const brief = loadBrief();
   const plan = { ...travel, arriveBy: brief.arriveBy, origin: brief.origin };
-  const travelQuote = pkg ? quoteTravel(pkg.id, brief, plan) : null;
+  const travelQuote = pkg ? quoteTravel(pkg.id, { ...brief, checkIn, nights: stayNights }, plan) : null;
   const pickupInr = pkg ? pickupChargeInr(pkg.id, plan) : 0;
   const stayDue = perPerson;
   const total = stayDue + pickupInr;
@@ -231,7 +232,7 @@ function CheckoutInner() {
 
   if (confirmation && held) {
     const heldPlan = { ...plan, ...readMeta(held.swaps).travel };
-    const heldQuote = quoteTravel(held.packageId, brief, heldPlan);
+    const heldQuote = quoteTravel(held.packageId, { ...brief, checkIn, nights: stayNights }, heldPlan);
     const travelText = travelSummaryLine(heldQuote, heldPlan);
     const mailto = hotelMailto({
       packageId: held.packageId,

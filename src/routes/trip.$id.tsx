@@ -51,8 +51,14 @@ import {
   quoteTravel,
   type TravelPlan,
 } from "@/lib/travel-plan";
+import { pageTitle } from "@/lib/page-title";
 
-export const Route = createFileRoute("/trip/$id")({ component: TripDetail });
+export const Route = createFileRoute("/trip/$id")({
+  component: TripDetail,
+  head: ({ params }) => ({
+    meta: [{ title: pageTitle(getPackage(params.id)?.name ?? "Stay") }],
+  }),
+});
 
 function TripDetail() {
   const { id } = Route.useParams();
@@ -130,7 +136,7 @@ function TripDetail() {
   const brief = loadBriefWithDates();
   const amenities = stayAmenityFacts(pkg);
   const journey = getJourney(pkg.id, brief.origin, brief.arriveBy);
-  const travelQuote = quoteTravel(pkg.id, brief, travel);
+  const travelQuote = quoteTravel(pkg.id, { ...brief, checkIn, nights }, travel);
   const pickupInr = pickupChargeInr(pkg.id, { ...travel, arriveBy: brief.arriveBy, origin: brief.origin });
   const trust = computeTrustScore(pkg);
   const seedConsensus = getSeededConsensus(pkg.id);

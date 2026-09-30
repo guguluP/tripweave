@@ -16,24 +16,54 @@ const STYLES = new Set<TravelStyle>(["solo", "couple", "family", "friends"]);
 const ARRIVES = new Set<ArriveBy>(["fly", "train", "bus", "road"]);
 
 function asVibe(v: unknown): Vibe | undefined {
-  return typeof v === "string" && VIBES.has(v as Vibe) ? (v as Vibe) : undefined;
+  const s = searchScalar(v);
+  return s && VIBES.has(s as Vibe) ? (s as Vibe) : undefined;
 }
 function asBudget(v: unknown): Budget | undefined {
-  return typeof v === "string" && BUDGETS.has(v as Budget) ? (v as Budget) : undefined;
+  const s = searchScalar(v);
+  return s && BUDGETS.has(s as Budget) ? (s as Budget) : undefined;
 }
 function asStyle(v: unknown): TravelStyle | undefined {
-  return typeof v === "string" && STYLES.has(v as TravelStyle) ? (v as TravelStyle) : undefined;
+  const s = searchScalar(v);
+  return s && STYLES.has(s as TravelStyle) ? (s as TravelStyle) : undefined;
 }
 function asArrive(v: unknown): ArriveBy | undefined {
-  return typeof v === "string" && ARRIVES.has(v as ArriveBy) ? (v as ArriveBy) : undefined;
+  const s = searchScalar(v);
+  return s && ARRIVES.has(s as ArriveBy) ? (s as ArriveBy) : undefined;
 }
+/** Old links JSON-encoded strings, so a value can arrive as `"3"` including the quotes. */
+function searchScalar(v: unknown): string | undefined {
+  if (typeof v === "number" && Number.isFinite(v)) return String(v);
+  if (typeof v === "boolean") return v ? "true" : "false";
+  if (typeof v !== "string") return undefined;
+  const trimmed = v.trim();
+  if (trimmed.length >= 2 && trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    try {
+      const parsed = JSON.parse(trimmed) as unknown;
+      if (typeof parsed === "string" || typeof parsed === "number" || typeof parsed === "boolean") {
+        return String(parsed);
+      }
+    } catch {
+      /* keep the raw token */
+    }
+  }
+  return trimmed;
+}
+
 function asIsoDate(v: unknown): string | undefined {
-  return typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : undefined;
+  const s = searchScalar(v);
+  return s && /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : undefined;
 }
 function asNights(v: unknown): number | undefined {
-  const n = typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN;
+  const s = searchScalar(v);
+  const n = s == null ? NaN : Number(s);
   if (!Number.isFinite(n) || n < 1) return undefined;
   return Math.min(14, Math.round(n));
+}
+
+/** Check-in written on the link. Kept even when it is before today — Rath Yatra links do this. */
+export function explicitCheckIn(search: Record<string, unknown>): string | undefined {
+  return asIsoDate(search.checkIn);
 }
 
 /** Encode key brief fields for a reproducible /matches (or /plan) link. */
@@ -66,18 +96,18 @@ export function searchToBrief(search: Record<string, unknown>): Partial<BriefUrl
   const nights = asNights(search.nights);
   const arriveBy = asArrive(search.arriveBy);
   const checkIn = asIsoDate(search.checkIn);
-  const originRaw = typeof search.origin === "string" ? search.origin : undefined;
-  const originCity =
-    typeof search.originCity === "string" ? search.originCity.trim().slice(0, 80) : undefined;
+  const originRaw = searchScalar(search.origin);
+  const originCity = searchScalar(search.originCity)?.slice(0, 80);
 
   if (vibe) partial.vibe = vibe;
   if (budget) partial.budget = budget;
   if (style) partial.style = style;
   if (nights != null) partial.nights = nights;
   if (checkIn) partial.checkIn = checkIn;
-  if (search.flexible === "1" || search.flexible === true || search.flexible === "true") {
+  const flexible = searchScalar(search.flexible);
+  if (flexible === "1" || flexible === "true") {
     partial.flexible = true;
-  } else if (search.flexible === "0" || search.flexible === false || search.flexible === "false") {
+  } else if (flexible === "0" || flexible === "false") {
     partial.flexible = false;
   }
 
@@ -125,9 +155,9 @@ export function searchHasBrief(search: Record<string, unknown>): boolean {
     asNights(search.nights) != null ||
     asArrive(search.arriveBy) != null ||
     asIsoDate(search.checkIn) != null ||
-    typeof search.origin === "string" ||
-    search.flexible === "1" ||
-    search.flexible === "0"
+    searchScalar(search.origin) != null ||
+    searchScalar(search.flexible) === "1" ||
+    searchScalar(search.flexible) === "0"
   );
 }
 

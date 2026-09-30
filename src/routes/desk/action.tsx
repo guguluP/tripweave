@@ -3,12 +3,14 @@ import { useState } from "react";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { deskApplyActionToken } from "@/lib/server/desk-ops";
+import { pageHead } from "@/lib/page-title";
 
 export const Route = createFileRoute("/desk/action")({
   validateSearch: (search: Record<string, unknown>) => ({
     t: typeof search.t === "string" ? search.t : "",
   }),
   component: DeskActionPage,
+  head: () => pageHead("Hotel desk"),
 });
 
 function DeskActionPage() {

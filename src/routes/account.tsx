@@ -24,8 +24,9 @@ import { PartnerDesk } from "@/components/partner-desk";
 import { loadLocalProfile, saveLocalProfile } from "@/lib/profile-local";
 import { isClosedStay } from "@/lib/refund-policy";
 import { pushBanner } from "@/lib/banners";
+import { pageHead } from "@/lib/page-title";
 
-export const Route = createFileRoute("/account")({ component: Account });
+export const Route = createFileRoute("/account")({ component: Account, head: () => pageHead("Account") });
 
 function AccountSkeleton() {
   return (
