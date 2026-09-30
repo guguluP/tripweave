@@ -172,15 +172,14 @@ function TripDetail() {
     if (pkg.image && !list.includes(pkg.image)) return [pkg.image, ...list];
     return list.length ? list : pkg.image ? [pkg.image] : [];
   }, [pkg]);
-  const [photo, setPhoto] = useState(0);
   const [openToken, setOpenToken] = useState(0);
-  const coverImage = gallery[photo] ?? pkg.image;
+  const [frame, setFrame] = useState({ src: gallery[0] ?? pkg.image, position: 1, total: gallery.length });
   const pin = arrivalPinLabel(brief.arriveBy);
 
   return (
     <Shell>
       <StayCover
-        image={coverImage}
+        image={frame.src}
         name={pkg.name}
         detail={`${pkg.neighborhood} · ${pkg.destination} · ${pkg.nightsMin}–${pkg.nightsMax} nights`}
       >
@@ -191,8 +190,8 @@ function TripDetail() {
           onClick={() => setOpenToken((n) => n + 1)}
         />
         <span className="pointer-events-none absolute left-4 top-[4.75rem] z-20 rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg">
-          {Math.min(photo, Math.max(gallery.length - 1, 0)) + 1} / {gallery.length}
-          {gallery.length > 0 && gallery.length < 4 ? " · hotel-published, limited set" : ""}
+          {frame.position} / {frame.total}
+          {frame.total > 0 && frame.total < 4 ? " · hotel-published, limited set" : ""}
         </span>
         {pin ? (
           <span className="pointer-events-none absolute left-4 top-[7.25rem] z-20 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-fg">
@@ -212,8 +211,7 @@ function TripDetail() {
         roomImages={pkg.rooms.flatMap((room) => room.images ?? (room.image ? [room.image] : []))}
         videos={pkg.videos}
         hideHero
-        activeIndex={photo}
-        onActiveIndex={setPhoto}
+        onPhoto={(src, position, total) => setFrame({ src, position, total })}
         openToken={openToken}
       />
       </div>

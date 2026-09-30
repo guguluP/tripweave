@@ -61,6 +61,7 @@ export function PropertyMedia({
   hideHero = false,
   activeIndex,
   onActiveIndex,
+  onPhoto,
   openToken = 0,
 }: {
   id: string;
@@ -74,6 +75,8 @@ export function PropertyMedia({
   hideHero?: boolean;
   activeIndex?: number;
   onActiveIndex?: (index: number) => void;
+  /** Cover photograph: source, 1-based position, and size of the set on screen. */
+  onPhoto?: (src: string, position: number, total: number) => void;
   /** Increments when the cover asks to open the photo viewer. */
   openToken?: number;
 }) {
@@ -96,6 +99,7 @@ export function PropertyMedia({
   const [viewerHold, setViewerHold] = useState(false);
   const [viewerOn, setViewerOn] = useState(false);
   const thumbRail = useRef<HTMLDivElement>(null);
+  const listCount = useRef(1);
   const videoRail = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -130,15 +134,15 @@ export function PropertyMedia({
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
       if (e.key === "ArrowLeft") {
-        setIndex((n) => (n - 1 + gallery.length) % gallery.length);
+        setIndex((n) => (n - 1 + listCount.current) % listCount.current);
       }
       if (e.key === "ArrowRight") {
-        setIndex((n) => (n + 1) % gallery.length);
+        setIndex((n) => (n + 1) % listCount.current);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, gallery.length]);
+  }, [open]);
 
   useEffect(() => {
     const rail = thumbRail.current;
@@ -147,9 +151,21 @@ export function PropertyMedia({
     active?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
   }, [index]);
 
-  const rooms = roomImages.filter((src) => src && !gallery.includes(src));
-  const activeList = viewList ?? gallery;
+  const rooms = useMemo(
+    () => roomImages.filter((src) => src && !gallery.includes(src)),
+    [roomImages, gallery],
+  );
+  const shown = album === "rooms" && rooms.length ? rooms : gallery;
+  const activeList = viewList ?? shown;
+  listCount.current = Math.max(1, activeList.length);
   const current = activeList[index] ?? activeList[0];
+
+  useEffect(() => {
+    const src = shown[index] ?? shown[0];
+    if (!src) return;
+    onPhoto?.(src, Math.min(index, shown.length - 1) + 1, shown.length);
+  }, [shown, index, onPhoto]);
+
   if (!current && !hideHero) return null;
 
   const step = (dir: -1 | 1) => {
@@ -162,13 +178,7 @@ export function PropertyMedia({
     setOpen(true);
   };
 
-  const headerSrc = gallery[index] ?? gallery[0];
-  const albumPhotos =
-    album === "rooms" && rooms.length
-      ? rooms
-      : hideHero
-        ? gallery
-        : gallery.filter((src) => src !== headerSrc);
+  const headerSrc = shown[index] ?? shown[0];
 
   return (
     <>
@@ -204,44 +214,19 @@ export function PropertyMedia({
       )}
 
       <div className="mx-auto max-w-6xl px-4 pt-6">
-        {gallery.length > 1 ? (
-          <div
-            ref={thumbRail}
-            className="scrollbar-hide flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain"
-            role="listbox"
-            aria-label={`${name} photo thumbnails`}
-          >
-            {gallery.map((src, i) => (
-              <button
-                key={`${src}-${i}`}
-                type="button"
-                data-active={i === index ? "true" : "false"}
-                onClick={() => {
-                  setViewList(null);
-                  setIndex(i);
-                }}
-                className={cn(
-                  "h-20 w-28 shrink-0 snap-start overflow-hidden rounded-lg border-2 sm:h-24 sm:w-36",
-                  i === index ? "border-primary" : "border-transparent opacity-80",
-                )}
-                aria-label={`Photo ${i + 1} of ${gallery.length}`}
-                aria-selected={i === index}
-                role="option"
-              >
-                <img src={src} alt="" className="h-full w-full object-cover" />
-              </button>
-            ))}
-          </div>
-        ) : null}
-
-        <div className="mt-8 flex gap-2">
+        <div className="flex gap-2">
           <button
             type="button"
             className={cn(
               "rounded-full border px-4 py-2 text-sm",
               album === "property" ? "border-primary bg-primary text-primary-fg" : "border-border bg-elevated",
             )}
-            onClick={() => setAlbum("property")}
+            onClick={() => {
+              setViewList(null);
+              setAlbum("property");
+              setIndex(0);
+              if (hideHero) window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
           >
             Property · {gallery.length}
             {gallery.length > 0 && gallery.length < 4 ? " · limited set" : ""}
@@ -253,33 +238,47 @@ export function PropertyMedia({
                 "rounded-full border px-4 py-2 text-sm",
                 album === "rooms" ? "border-primary bg-primary text-primary-fg" : "border-border bg-elevated",
               )}
-              onClick={() => setAlbum("rooms")}
+              onClick={() => {
+                setViewList(null);
+                setAlbum("rooms");
+                setIndex(0);
+                if (hideHero) window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
             >
               Rooms · {rooms.length}
             </button>
           ) : null}
         </div>
-        <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-          {albumPhotos.map((src, i) => (
-            <button
-              key={`${album}-${src}-${i}`}
-              type="button"
-              className="relative aspect-[4/3] overflow-hidden rounded-xl bg-border"
-              onClick={() => {
-                if (album === "rooms") {
-                  openAt(rooms, rooms.indexOf(src));
-                  return;
-                }
-                const at = gallery.indexOf(src);
-                setViewList(null);
-                if (at >= 0) setIndex(at);
-              }}
-              aria-label={`Photo ${i + 1} of ${albumPhotos.length}`}
-            >
-              <img src={src} alt="" className="h-full w-full object-cover" />
-            </button>
-          ))}
-        </div>
+        {shown.length > 1 ? (
+          <div
+            ref={thumbRail}
+            className="scrollbar-hide mt-4 flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain"
+            role="listbox"
+            aria-label={album === "rooms" ? `${name} room photos` : `${name} property photos`}
+          >
+            {shown.map((src, i) => (
+              <button
+                key={`${album}-${src}-${i}`}
+                type="button"
+                data-active={i === index ? "true" : "false"}
+                onClick={() => {
+                  setViewList(null);
+                  setIndex(i);
+                  if (hideHero) window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={cn(
+                  "h-16 w-24 shrink-0 snap-start overflow-hidden rounded-lg border-2 sm:h-20 sm:w-28",
+                  i === index ? "border-primary" : "border-transparent opacity-80",
+                )}
+                aria-label={`Photo ${i + 1} of ${shown.length}`}
+                aria-selected={i === index}
+                role="option"
+              >
+                <img src={src} alt="" className="h-full w-full object-cover" />
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {videos.length > 0 ? (
