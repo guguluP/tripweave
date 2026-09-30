@@ -9,7 +9,7 @@ declare global {
     mappls?: {
       Map: new (
         id: string,
-        options: { center: [number, number]; zoom: number; zoomControl?: boolean },
+        options: { center: { lat: number; lng: number }; zoom: number; zoomControl?: boolean },
       ) => MapplsMapObj;
       Marker: new (options: {
         map: MapplsMapObj;
@@ -34,7 +34,8 @@ function loadMappls(key: string): Promise<void> {
   if (loading) return loading;
   loading = new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = `https://apis.mappls.com/advancedmaps/api/${encodeURIComponent(key)}/map_sdk?layer=vector&v=3.0`;
+    const domain = window.location.hostname;
+    script.src = `https://sdk.mappls.com/map/sdk/web?v=3.0&access_token=${encodeURIComponent(key)}&domain=${encodeURIComponent(domain)}`;
     script.async = true;
     script.dataset.mappls = "1";
     script.onload = () => resolve();
@@ -72,7 +73,7 @@ export function MapplsMap({
         if (cancel || !window.mappls?.Map) return;
         const first = markers[0]!;
         map = new window.mappls.Map(mapId, {
-          center: [first.lat, first.lng],
+          center: { lat: first.lat, lng: first.lng },
           zoom: markers.length > 1 ? 11 : 14,
           zoomControl: true,
         });
