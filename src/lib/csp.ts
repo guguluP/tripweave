@@ -45,7 +45,7 @@ export function buildContentSecurityPolicy(opts: CspOptions = {}): string {
     "object-src": ["'none'"],
     "frame-ancestors": ["'self'"],
     "form-action": ["'self'", ...RAZORPAY, ...GOOGLE],
-    "script-src": scriptSrc,
+    "script-src": [...scriptSrc, "https://va.vercel-scripts.com"],
     "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
     "font-src": ["'self'", "https://fonts.gstatic.com", "data:"],
     "img-src": ["'self'", "data:", "blob:", "https:"],
@@ -59,6 +59,8 @@ export function buildContentSecurityPolicy(opts: CspOptions = {}): string {
       "https://*.tile.openstreetmap.org",
       "https://www.youtube.com",
       "https://i.ytimg.com",
+      "https://va.vercel-scripts.com",
+      "https://vitals.vercel-insights.com",
     ],
     "frame-src": [
       "'self'",
