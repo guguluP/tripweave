@@ -145,7 +145,7 @@ Set these on the server. Never prefix a secret with `VITE_`. After a change on V
 | --- | --- |
 | `RAZORPAY_KEY_ID`, `VITE_RAZORPAY_KEY_ID` | Public Razorpay key |
 | `RAZORPAY_KEY_SECRET` | Server only |
-| `RAZORPAY_WEBHOOK_SECRET` | HMAC for `POST /api/verify-payment`. If unset, the handler uses the key secret. |
+| `RAZORPAY_WEBHOOK_SECRET` | HMAC for `POST /api/verify-payment`. Required. The key secret is not accepted. |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google web client. Redirect: `https://tripweave-web.vercel.app/api/auth/callback/google` |
 | `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` | Auth base URL and signing secret |
 | `SUPABASE_URL`, `VITE_SUPABASE_URL` | Project URL |
