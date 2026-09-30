@@ -52,7 +52,7 @@ export function rankEyebrow(pkg: StayPackage, brief: Brief, index: number): stri
   if (index === 0) {
     if (brief.arriveBy === "fly") {
       if (airportTransfer) {
-        return `First because you flew into BBI — airport transfer from ${city}.`;
+        return `First because you flew into BBI — this hotel can arrange airport pickup and drop from ${city}.`;
       }
       if (beach) {
         return `First because you flew into BBI — beach stay after the hop from ${city}.`;

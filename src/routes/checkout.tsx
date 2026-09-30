@@ -470,8 +470,8 @@ function CheckoutInner() {
             {travelQuote?.pickup.available ? (
               <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-elevated px-4 py-3">
                 <div>
-                  <p className="text-sm font-medium">Hotel car, already in the room price</p>
-                  <p className="text-xs text-muted">No extra charge. The hotel lists this transfer.</p>
+                  <p className="text-sm font-medium">Airport pickup and drop</p>
+                  <p className="text-xs text-muted">Ask the hotel to send a car from Bhubaneswar airport and back. The hotel bills it. TripWeave does not add it.</p>
                 </div>
                 <MotionToggle on={plan.includePickup} onChange={(v) => setTravel({ ...plan, includePickup: v })} label="Hotel pickup" />
               </div>

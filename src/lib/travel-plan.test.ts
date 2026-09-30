@@ -53,11 +53,15 @@ describe("travel plan", () => {
     assert.match(best!.leg.mode.toLowerCase(), /auto|walk|train|station/);
   });
 
-  it("treats Taj airport transfer as included pickup (no extra rupees)", () => {
+  it("offers Taj airport pickup and drop with no TripWeave charge", () => {
     const pickup = pickupQuoteFor("taj-puri-resort-spa", "fly");
     assert.equal(pickup.available, true);
     assert.equal(pickup.included, true);
     assert.equal(pickup.price, 0);
+    assert.equal(pickupQuoteFor("taj-puri-resort-spa", "train").available, false);
+    assert.equal(pickupQuoteFor("mayfair-heritage-puri", "fly").available, true);
+    assert.equal(pickupQuoteFor("hans-coco-palms", "fly").available, true);
+    assert.equal(pickupQuoteFor("mayfair-waves-puri", "fly").available, false);
     const plan = parseTravelPlan({
       lastMileId: "x",
       includePickup: true,

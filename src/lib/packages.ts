@@ -146,10 +146,10 @@ const LEISURE_DAY: DayPlan = {
  */
 const STAY_PLACES: Record<string, { area: StayArea; nearStation: boolean; hasAirportTransfer: boolean }> = {
   "taj-puri-resort-spa": { area: "marine", nearStation: false, hasAirportTransfer: true },
-  "mayfair-heritage-puri": { area: "marine", nearStation: false, hasAirportTransfer: false },
+  "mayfair-heritage-puri": { area: "marine", nearStation: false, hasAirportTransfer: true },
   "swosti-premium-beach-resort": { area: "marine", nearStation: false, hasAirportTransfer: false },
   "regenta-central-puri": { area: "grand-road", nearStation: false, hasAirportTransfer: false },
-  "hans-coco-palms": { area: "marine", nearStation: false, hasAirportTransfer: false },
+  "hans-coco-palms": { area: "marine", nearStation: false, hasAirportTransfer: true },
   "empires-hotel-puri": { area: "grand-road", nearStation: false, hasAirportTransfer: false },
   "mayfair-waves-puri": { area: "marine", nearStation: false, hasAirportTransfer: false },
   "toshali-sands-puri": { area: "konark", nearStation: false, hasAirportTransfer: false },
@@ -352,7 +352,7 @@ export function originFitReason(pkg: StayPackage, brief: Brief): string {
     }
   }
   if (brief.arriveBy === "fly" && airportTransfer) {
-    return `Airport transfer included — useful flying in from ${city}.`;
+    return `Hotel can arrange airport pickup and drop — useful flying in from ${city}.`;
   }
   const local =
     brief.origin === "bhubaneswar" ||

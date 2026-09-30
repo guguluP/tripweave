@@ -156,10 +156,10 @@ export function TransportPanel({
         <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-elevated px-4 py-3">
           <div>
             <p className="text-sm font-medium">
-              Hotel car, already in the stay price
+              Airport pickup and drop
             </p>
             <p className="text-xs text-muted">
-              This hotel lists an airport transfer with the room. Turning this on asks the desk to send that car. It does not add rupees.
+              This hotel can send a car from Bhubaneswar airport and back to the airport. Ask the desk. The hotel bills the car. TripWeave does not add it.
             </p>
           </div>
           <MotionToggle

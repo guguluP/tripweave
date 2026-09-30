@@ -332,9 +332,15 @@ export function mapDirectionsUrl(hotelName: string, arriveBy: ArriveBy): string 
   return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(`${hotelName} Puri`)}`;
 }
 
-function stayIncludesAirportTransfer(packageId: string): boolean {
-  const pkg = getPackage(packageId);
-  return Boolean(pkg?.includes.some((item) => /airport transfer|hotel transfer|pickup/i.test(item)));
+/**
+ * Hotels that publish an airport car of their own, both from BBI and back.
+ * The hotel bills it. TripWeave does not.
+ * Taj, Mayfair Heritage, and Hans: round-trip airport shuttle, surcharge, arranged with the hotel.
+ */
+const HOTEL_AIRPORT_CAR = new Set(["taj-puri-resort-spa", "mayfair-heritage-puri", "hans-coco-palms"]);
+
+function stayOffersAirportCar(packageId: string): boolean {
+  return HOTEL_AIRPORT_CAR.has(packageId);
 }
 
 function hotelTransferLeg(packageId: string, arriveBy: ArriveBy): TransportLeg | null {
@@ -347,16 +353,15 @@ function hotelTransferLeg(packageId: string, arriveBy: ArriveBy): TransportLeg |
 }
 
 export function pickupQuoteFor(packageId: string, arriveBy: ArriveBy): PickupQuote {
-  const included = stayIncludesAirportTransfer(packageId) && (arriveBy === "fly" || arriveBy === "road");
-  if (!included) {
-    return { available: false, included: false, price: 0, label: "Hotel pickup", duration: "" };
+  if (arriveBy !== "fly" || !stayOffersAirportCar(packageId)) {
+    return { available: false, included: false, price: 0, label: "Airport pickup and drop", duration: "" };
   }
   const hotel = hotelTransferLeg(packageId, arriveBy);
   return {
     available: true,
     included: true,
     price: 0,
-    label: "Included hotel transfer",
+    label: "Airport pickup and drop",
     duration: hotel?.duration ?? "",
   };
 }
