@@ -99,6 +99,7 @@ export function PropertyMedia({
   const [viewerHold, setViewerHold] = useState(false);
   const [viewerOn, setViewerOn] = useState(false);
   const thumbRail = useRef<HTMLDivElement>(null);
+  const swipeX = useRef<number | null>(null);
   const listCount = useRef(1);
   const videoRail = useRef<HTMLDivElement>(null);
 
@@ -330,11 +331,32 @@ export function PropertyMedia({
           >
             <X className="size-5" />
           </button>
+          <span
+            onClick={(e) => e.stopPropagation()}
+            className="block h-[78vh] w-full max-w-5xl touch-pan-y"
+            onPointerDown={(e) => {
+              swipeX.current = e.clientX;
+            }}
+            onPointerUp={(e) => {
+              if (swipeX.current == null || activeList.length < 2) return;
+              const delta = e.clientX - swipeX.current;
+              swipeX.current = null;
+              if (delta > 48) step(-1);
+              else if (delta < -48) step(1);
+            }}
+          >
+            <Crossfade
+              src={current}
+              alt={`${name} photo ${index + 1}`}
+              className="h-full w-full"
+              mediaClassName="object-contain"
+            />
+          </span>
           {activeList.length > 1 ? (
-            <>
+            <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-3 pb-safe">
               <button
                 type="button"
-                className="absolute left-3 flex size-11 items-center justify-center rounded-full bg-elevated text-fg sm:left-6"
+                className="flex size-11 items-center justify-center rounded-full bg-elevated text-fg"
                 aria-label="Previous photo"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -343,9 +365,12 @@ export function PropertyMedia({
               >
                 <ChevronLeft className="size-5" />
               </button>
+              <span className="rounded-full bg-elevated px-3 py-1 text-xs text-fg">
+                {index + 1} / {activeList.length}
+              </span>
               <button
                 type="button"
-                className="absolute right-3 flex size-11 items-center justify-center rounded-full bg-elevated text-fg sm:right-6"
+                className="flex size-11 items-center justify-center rounded-full bg-elevated text-fg"
                 aria-label="Next photo"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -354,16 +379,8 @@ export function PropertyMedia({
               >
                 <ChevronRight className="size-5" />
               </button>
-            </>
+            </div>
           ) : null}
-          <span onClick={(e) => e.stopPropagation()} className="block h-[85vh] w-full max-w-5xl">
-            <Crossfade
-              src={current}
-              alt={`${name} photo ${index + 1}`}
-              className="h-full w-full"
-              mediaClassName="object-contain"
-            />
-          </span>
         </div>
       ) : null}
     </>

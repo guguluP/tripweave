@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Check, MapPin } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { TrustMeter } from "@/components/trust-meter";
 import { Badge } from "@/components/ui/badge";
@@ -183,6 +183,7 @@ function TripDetail() {
     return list.length ? list : pkg.image ? [pkg.image] : [];
   }, [pkg]);
   const [openToken, setOpenToken] = useState(0);
+  const [photoIndex, setPhotoIndex] = useState(0);
   const [frame, setFrame] = useState({ src: gallery[0] ?? pkg.image, position: 1, total: gallery.length });
   const pin = arrivalPinLabel(brief.arriveBy);
 
@@ -212,6 +213,26 @@ function TripDetail() {
         <div className="absolute right-4 top-[4.75rem] z-20">
           <LikeButton id={pkg.id} />
         </div>
+        {gallery.length > 1 ? (
+          <div className="absolute inset-x-0 bottom-40 z-20 flex justify-between px-3 md:bottom-28">
+            <button
+              type="button"
+              className="flex size-11 items-center justify-center rounded-full bg-elevated/95 text-fg"
+              aria-label="Previous photo"
+              onClick={() => setPhotoIndex((n) => (n - 1 + gallery.length) % gallery.length)}
+            >
+              <ChevronLeft className="size-5" />
+            </button>
+            <button
+              type="button"
+              className="flex size-11 items-center justify-center rounded-full bg-elevated/95 text-fg"
+              aria-label="Next photo"
+              onClick={() => setPhotoIndex((n) => (n + 1) % gallery.length)}
+            >
+              <ChevronRight className="size-5" />
+            </button>
+          </div>
+        ) : null}
       </StayCover>
       <div id="stay-photos">
       <PropertyMedia
@@ -221,6 +242,8 @@ function TripDetail() {
         roomImages={pkg.rooms.flatMap((room) => room.images ?? (room.image ? [room.image] : []))}
         videos={pkg.videos}
         hideHero
+        activeIndex={photoIndex}
+        onActiveIndex={setPhotoIndex}
         onPhoto={(src, position, total) => setFrame({ src, position, total })}
         openToken={openToken}
       />

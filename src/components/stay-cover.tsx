@@ -14,7 +14,6 @@ export function StayCover({
 }) {
   return (
     <>
-      <div className="stay-cover-space" aria-hidden />
       <div className="stay-cover-sheet">
         <img src={image} alt={name} decoding="async" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-fg/85 via-fg/25 to-transparent px-6 pb-28 pt-28 md:pb-16">
