@@ -232,6 +232,8 @@ export async function transitionBookingRow(
     packageId: string;
     action: "desk_confirm" | "desk_decline" | "check_in";
     note?: string;
+    refundId?: string | null;
+    refundAmount?: number;
   },
 ) {
   const { data: row, error: readError } = await sb
@@ -249,7 +251,7 @@ export async function transitionBookingRow(
     next = "confirmed";
   } else if (input.action === "desk_decline") {
     if (status !== "paid") return { ok: false as const, message: "That stay is not waiting for this action." };
-    next = "cancelled";
+    next = input.refundId ? "refunded" : "cancelled";
   } else if (status !== "desk_confirmed" && status !== "confirmed") {
     return { ok: false as const, message: "That stay is not waiting for this action." };
   } else {
@@ -268,12 +270,60 @@ export async function transitionBookingRow(
         deskNote: input.note ?? "",
         deskAction: input.action,
         deskAt: new Date().toISOString(),
+        ...(input.refundId ? { refundId: input.refundId, refundAmount: input.refundAmount ?? 0, refundedAt: new Date().toISOString() } : {}),
       },
     })
     .eq("id", input.id)
     .eq("package_id", input.packageId);
   if (error) return { ok: false as const, message: error.message };
   return { ok: true as const, status: next };
+}
+
+/** Hotel declined the stay: send the full amount back before the row is closed. */
+async function refundDeskCancellation(
+  sb: NonNullable<ReturnType<typeof getSupabaseAdmin>>,
+  input: { id: number; packageId: string },
+) {
+  const { data: row, error } = await sb
+    .from("bookings")
+    .select("id,status,amount_inr,payment_ref,payment_method,user_id")
+    .eq("id", input.id)
+    .eq("package_id", input.packageId)
+    .maybeSingle();
+  if (error) return { ok: false as const, message: error.message };
+  if (!row) return { ok: false as const, message: "That stay was not found." };
+  if (String(row.status) !== "paid") return { ok: false as const, message: "That stay is not waiting for this action." };
+  const amountInr = Number(row.amount_inr) || 0;
+  const ref = String(row.payment_ref ?? "");
+  const method = String(row.payment_method ?? "");
+  if (method !== "razorpay" || !ref.startsWith("pay_") || amountInr <= 0) {
+    return { ok: true as const, refundId: null, amountInr: 0 };
+  }
+  const { fetchRazorpayPayment, refundRazorpayPayment } = await import("@/lib/server/razorpay");
+  const payment = await fetchRazorpayPayment(ref);
+  const already = (payment?.amountRefundedPaise ?? 0) >= Math.round(amountInr * 100);
+  let refundId = already ? "already_refunded" : "";
+  if (!already) {
+    const refunded = await refundRazorpayPayment(ref, amountInr);
+    if (!refunded.ok) return { ok: false as const, message: refunded.message };
+    refundId = refunded.refundId;
+  }
+  const userId = String(row.user_id ?? "");
+  if (userId) {
+    const { persistRefundIntent } = await import("@/lib/server/payment-ops");
+    await persistRefundIntent({
+      id: `refund_${userId}_${input.id}`,
+      userId,
+      bookingId: input.id,
+      paymentRef: ref,
+      amountInr,
+      status: "gateway_done",
+      refundId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+  }
+  return { ok: true as const, refundId, amountInr };
 }
 
 async function runTransition(input: {
@@ -291,18 +341,45 @@ async function runTransition(input: {
   if (isSupabaseConfigured()) {
     const sb = getSupabaseAdmin();
     if (!sb) return { ok: false as const, message: "Database not connected." };
+    let refundId: string | null = null;
+    let refundAmount = 0;
+    if (input.action === "desk_decline") {
+      const refund = await refundDeskCancellation(sb, input);
+      if (!refund.ok) return refund;
+      refundId = refund.refundId;
+      refundAmount = refund.amountInr;
+    }
+    const declined = (status?: string) => {
+      if (!refundId) return { ok: true as const, status: status ?? "cancelled" };
+      return {
+        ok: true as const,
+        status: "refunded",
+        message: `Declined. ₹${refundAmount.toLocaleString("en-IN")} will return to the original payment.`,
+      };
+    };
     const { data: result, error } = await sb.rpc("tw_desk_transition", {
       p_gate: SUPABASE_WRITE_GATE,
       p_payload: payload,
     });
-    if (!error) return { ok: true as const, status: (result as { status?: string })?.status };
+    if (!error) {
+      if (refundId) {
+        await sb
+          .from("bookings")
+          .update({ status: "refunded" })
+          .eq("id", input.id)
+          .eq("package_id", input.packageId);
+      }
+      return declined((result as { status?: string })?.status);
+    }
     if (!/schema cache|could not find the function|PGRST202/i.test(error.message)) {
       const msg = error.message.includes("not_open")
         ? "That stay is not waiting for this action."
         : error.message;
-      return { ok: false as const, message: msg };
+      return { ok: false as const, message: refundId ? `${msg} The payment was already sent back.` : msg };
     }
-    return transitionBookingRow(sb, input);
+    const saved = await transitionBookingRow(sb, { ...input, refundId, refundAmount });
+    if (!saved.ok) return saved;
+    return declined(saved.status);
   }
   if (!shouldSkipNeon()) {
     try {

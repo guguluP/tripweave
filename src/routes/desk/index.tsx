@@ -334,7 +334,11 @@ function DeskPortal() {
                       }).then((result) => {
                         if (!result.ok) pushBanner({ title: "Could not decline", body: result.message, tone: "danger" });
                         else {
-                          pushBanner({ title: "Declined", body: booking.confirmationCode, tone: "info" });
+                          pushBanner({
+                            title: "Declined",
+                            body: "message" in result && result.message ? result.message : booking.confirmationCode,
+                            tone: "info",
+                          });
                           refresh();
                         }
                       });
