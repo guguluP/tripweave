@@ -11,7 +11,7 @@ import {
   type TransportLeg,
 } from "./transport.ts";
 import { getPackage, originPlace, type Brief } from "./packages.ts";
-import { stayPin } from "./places.ts";
+import { GATEWAYS, LANDMARKS, stayPin } from "./places.ts";
 
 export type TravelPlan = {
   lastMileId: string;
@@ -287,43 +287,39 @@ export function lastMileBookingLinks(leg: TransportLeg, ride?: { pickup: RidePoi
   return [];
 }
 
-const PURI = { lat: 19.8135, lon: 85.8312 };
-const BBI = { lat: 20.2538, lon: 85.8173 };
-const STATION = { lat: 19.8076, lon: 85.8375 };
-const BUS = { lat: 19.8139, lon: 85.8319 };
+const town = LANDMARKS.find((pin) => pin.id === "temple") ?? LANDMARKS[0]!;
 
 export function rideEnds(packageId: string, hotelName: string, arriveBy: ArriveBy): { pickup: RidePoint; drop: RidePoint } {
   const gate = gatewayCoords(arriveBy);
-  const pickupName =
-    arriveBy === "fly" || arriveBy === "road"
-      ? "Biju Patnaik Airport, Bhubaneswar"
-      : arriveBy === "train"
-        ? "Puri railway station"
-        : "Puri Bus Stand";
   const stay = stayPin(packageId, hotelName);
   return {
-    pickup: { name: pickupName, lat: gate.lat, lng: gate.lon },
+    pickup: { name: gate.label, lat: gate.lat, lng: gate.lng },
     drop: {
       name: `${hotelName}, Puri`,
-      lat: stay?.lat ?? PURI.lat,
-      lng: stay?.lng ?? PURI.lon,
+      lat: stay?.lat ?? town.lat,
+      lng: stay?.lng ?? town.lng,
     },
   };
 }
 
 function gatewayCoords(arriveBy: ArriveBy) {
-  if (arriveBy === "fly" || arriveBy === "road") return BBI;
-  if (arriveBy === "train") return STATION;
-  return BUS;
+  if (arriveBy === "fly" || arriveBy === "road") return GATEWAYS.bbi;
+  if (arriveBy === "train") {
+    const station = LANDMARKS.find((pin) => pin.id === "station")!;
+    return { lat: station.lat, lng: station.lng, label: station.label };
+  }
+  return GATEWAYS.bus;
 }
 
-export function mapEmbedUrl(arriveBy: ArriveBy): string {
-  const p = gatewayCoords(arriveBy);
-  const minLon = Math.min(p.lon, PURI.lon) - 0.12;
-  const minLat = Math.min(p.lat, PURI.lat) - 0.12;
-  const maxLon = Math.max(p.lon, PURI.lon) + 0.12;
-  const maxLat = Math.max(p.lat, PURI.lat) + 0.12;
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${minLon}%2C${minLat}%2C${maxLon}%2C${maxLat}&layer=mapnik&marker=${p.lat}%2C${p.lon}`;
+export function mapEmbedUrl(arriveBy: ArriveBy, stay?: { lat: number; lng: number } | null): string {
+  const gate = gatewayCoords(arriveBy);
+  const dest = stay ?? town;
+  const pad = arriveBy === "fly" || arriveBy === "road" ? 0.08 : 0.02;
+  const minLon = Math.min(gate.lng, dest.lng) - pad;
+  const minLat = Math.min(gate.lat, dest.lat) - pad;
+  const maxLon = Math.max(gate.lng, dest.lng) + pad;
+  const maxLat = Math.max(gate.lat, dest.lat) + pad;
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${minLon}%2C${minLat}%2C${maxLon}%2C${maxLat}&layer=mapnik&marker=${dest.lat}%2C${dest.lng}`;
 }
 
 export function mapDirectionsUrl(hotelName: string, arriveBy: ArriveBy): string {
@@ -459,7 +455,7 @@ export function quoteTravel(packageId: string, brief: Brief, plan?: Partial<Trav
     bookingLinks: travelBookingLinks(brief.arriveBy, originPlace(brief), rideEnds(packageId, hotelName, brief.arriveBy)),
     lastMileLinks: lastMileBookingLinks(lastMile, rideEnds(packageId, hotelName, brief.arriveBy)),
     why: lastMile.why,
-    mapEmbedUrl: mapEmbedUrl(brief.arriveBy),
+    mapEmbedUrl: mapEmbedUrl(brief.arriveBy, stayPin(packageId, hotelName)),
     mapDirectionsUrl: mapDirectionsUrl(hotelName, brief.arriveBy),
   };
 }
