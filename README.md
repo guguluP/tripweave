@@ -68,6 +68,8 @@ Row level security on the tables denies `anon` and `authenticated`. The function
 
 The desk is the same account system. `assertPartnerStay` allows catalog overrides, booking lists, and confirmation only when the signed-in email matches `HOTEL_DESKS` or `PARTNER_EMAILS`. There is no separate desk role.
 
+Nightly units and stop-sell go through `tw_set_allotment` (`deskSetAllotment`). Each save is one room on one night in India time. Past nights are refused. The published count cannot drop below stays and live holds already on that room for that night; other dates keep their own counts. Apply `supabase/partner_desk_ops.sql` on the live database so the two-argument RPC the desk posts actually exists.
+
 ### Travel links
 
 Arrival mode picks the gateway: the airport, Puri railway station, or the bus stand. Cab buttons for Ola, Uber, and Odisha Yatri carry the pickup and drop names and coordinates from the page. The guest can edit those names. Train stays on IRCTC. Bus stays on OSRTC and Ama Bus. Odisha Yatri’s public site does not document reading those query parameters into its form, so the app may still ask the guest to confirm the drop.
@@ -94,9 +96,6 @@ The mobile tab bar (`Discover`, `Plan`, `Trips`, `Account`) is `position: fixed`
 src/routes/                 pages and the three public API routes
 src/components/shell.tsx    header, footer, mobile tab bar
 src/components/logo.tsx     WeaveMark, BrandWord, BrandLockup
-src/components/brand-assets.ts
-                            MARK_SRC data URI (transparent circle)
-src/components/rath-carousel.tsx
 src/lib/packages*.ts        the twelve-stay catalog
 src/lib/stay-media.json     photo index for public/stays
 src/lib/server/             bookings, holds, Razorpay, desk, mail
@@ -174,7 +173,7 @@ This is the posture of `main`. It is not a procedure for calling the endpoints.
 
 **Identity.** Aadhaar, passport, and licence numbers are reduced to the last four characters before they are kept in this browser. The traveller row stores those four characters. The DigiLocker control on the traveller page is a labelled sample. Without live DigiLocker credentials it returns a sample traveller for a fixed sandbox OTP. That payload is not an identity.
 
-**Desk.** Anyone whose sign-in email matches the desk list can change that hotel’s rate, photos, and key count. Protect those inboxes. `email:*` is refused. A desk grant needs `email:packageId`.
+**Desk.** Anyone whose sign-in email matches the desk list can change that hotel’s rate, photos, and nightly unit count. A unit save is one room on one night and cannot go under stays already booked. Protect those inboxes. `email:*` is refused. A desk grant needs `email:packageId`.
 
 **Known gaps.**
 
