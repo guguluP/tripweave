@@ -49,7 +49,7 @@ export type StayQuote = {
   soldOutNights: string[];
 };
 
-const FESTIVAL = [
+export const FESTIVAL = [
   ["2026-06-26", "2026-07-06"], // Rath Yatra 2026
   ["2026-10-19", "2026-10-22"], // Diwali week
   ["2026-12-28", "2027-01-02"],

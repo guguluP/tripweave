@@ -173,16 +173,18 @@ This is the posture of `main`. It is not a procedure for calling the endpoints.
 
 **Identity.** Aadhaar, passport, and licence numbers are reduced to the last four characters before they are kept in this browser. The traveller row stores those four characters. The DigiLocker control on the traveller page is a labelled sample. Without live DigiLocker credentials it returns a sample traveller for a fixed sandbox OTP. That payload is not an identity.
 
-**Desk.** Anyone whose sign-in email matches the desk list can change that hotel’s rate, photos, and key count. Protect those inboxes. A value of `email:*` grants every hotel.
+**Desk.** Anyone whose sign-in email matches the desk list can change that hotel’s rate, photos, and key count. Protect those inboxes. `email:*` is refused. A desk grant needs `email:packageId`.
 
 **Known gaps.**
 
 - A guest who closes the tab after paying depends on Razorpay calling `https://tripweave-web.vercel.app/api/verify-payment`. This repo does not create that webhook. Until it exists, a captured payment can have no booking.
 - Prefer `RAZORPAY_WEBHOOK_SECRET` over reusing the key secret.
-- A failed refund after a sold-out capture is queued. Opening My trips retries a pending refund for that guest. Nothing in the repo retries the queue on a clock while the guest is away.
-- Better Auth rows live in Supabase `ba_*` tables. Bookings still attach through `tw_claim_subject` and the sign-in email. Password reset mail stays off until Amazon SES is configured.
-- There is no Content-Security-Policy. Razorpay and Google load scripts from their own hosts. A policy has to allow those hosts on purpose.
-- `loadOccupancy` and `quoteCab` are public. Occupancy is which rooms are taken. Hold ids in that response are a hash, not confirmation codes. The cab figure is a distance times a fixed rate, not a live operator price.
+- Pending refunds retry on `GET /api/cron/refund-retry` when `CRON_SECRET` matches. Opening My trips still retries that guest’s queue. Captured orders with no booking are listed by `GET /api/cron/reconcile-unbooked`.
+- Checkout refuses to open Razorpay when the shared room hold is missing. There is no in-process hold fallback.
+- Better Auth rows live in Supabase `ba_*` tables. Bookings attach through the verified email on `account_subjects` (`tw_claim_subject`). Password reset mail stays off until Amazon SES is configured, and the booking row records whether that mail was accepted.
+- Content-Security-Policy is set in `server/middleware/csp.ts`. Razorpay and Google are explicit script and frame hosts.
+- `loadOccupancy` and `quoteCab` are public and rate-limited. Occupancy is which rooms are taken. Hold ids in that response are a hash, not confirmation codes. The cab figure is a distance times a fixed rate, not a live operator price.
+- The public host is still `tripweave-web.vercel.app`. A custom domain needs a name you control, then Vercel plus the Google OAuth redirect. Do not add more hotels until a few Puri desks are on a real key count, the webhook is live, and Trust Scores separate.
 
 ## License
 

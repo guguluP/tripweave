@@ -138,6 +138,12 @@ function Home() {
         </div>
       </section>
 
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 pt-8">
+        <p className="text-sm text-muted">Rath Yatra 2026 has its own dates and sold-out rules.</p>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/rath-yatra">Rath Yatra rooms</Link>
+        </Button>
+      </div>
       <RathCarousel />
       <KonarkCarousel />
 
@@ -151,7 +157,7 @@ function Home() {
           {
             icon: Wallet,
             title: "All-in rupees",
-            body: "Checkout charges the seasonal rate for your dates. A card with no date shows the catalog rate.",
+            body: "From a nightly room rate that sleeps a set number of people. Taxes are included when you pay. Guest count does not multiply the room.",
           },
           {
             icon: Landmark,

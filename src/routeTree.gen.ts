@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as PayTestRouteImport } from './routes/pay-test'
 import { Route as PlanRouteImport } from './routes/plan'
+import { Route as RathYatraRouteImport } from './routes/rath-yatra'
 import { Route as TravelersRouteImport } from './routes/travelers'
 import { Route as TripsRouteImport } from './routes/trips'
 import { Route as ApiCreateOrderRouteImport } from './routes/api/create-order'
@@ -64,6 +65,11 @@ const PayTestRoute = PayTestRouteImport.update({
 const PlanRoute = PlanRouteImport.update({
   id: '/plan',
   path: '/plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RathYatraRoute = RathYatraRouteImport.update({
+  id: '/rath-yatra',
+  path: '/rath-yatra',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TravelersRoute = TravelersRouteImport.update({
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/matches': typeof MatchesRoute
   '/pay-test': typeof PayTestRoute
   '/plan': typeof PlanRoute
+  '/rath-yatra': typeof RathYatraRoute
   '/travelers': typeof TravelersRoute
   '/trips': typeof TripsRoute
   '/api/create-order': typeof ApiCreateOrderRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/matches': typeof MatchesRoute
   '/pay-test': typeof PayTestRoute
   '/plan': typeof PlanRoute
+  '/rath-yatra': typeof RathYatraRoute
   '/travelers': typeof TravelersRoute
   '/trips': typeof TripsRoute
   '/api/create-order': typeof ApiCreateOrderRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/matches': typeof MatchesRoute
   '/pay-test': typeof PayTestRoute
   '/plan': typeof PlanRoute
+  '/rath-yatra': typeof RathYatraRoute
   '/travelers': typeof TravelersRoute
   '/trips': typeof TripsRoute
   '/api/create-order': typeof ApiCreateOrderRoute
@@ -218,6 +227,7 @@ export interface FileRouteTypes {
     | '/matches'
     | '/pay-test'
     | '/plan'
+    | '/rath-yatra'
     | '/travelers'
     | '/trips'
     | '/api/create-order'
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/matches'
     | '/pay-test'
     | '/plan'
+    | '/rath-yatra'
     | '/travelers'
     | '/trips'
     | '/api/create-order'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/matches'
     | '/pay-test'
     | '/plan'
+    | '/rath-yatra'
     | '/travelers'
     | '/trips'
     | '/api/create-order'
@@ -288,6 +300,7 @@ export interface RootRouteChildren {
   MatchesRoute: typeof MatchesRoute
   PayTestRoute: typeof PayTestRoute
   PlanRoute: typeof PlanRoute
+  RathYatraRoute: typeof RathYatraRoute
   TravelersRoute: typeof TravelersRoute
   TripsRoute: typeof TripsRoute
   ApiCreateOrderRoute: typeof ApiCreateOrderRoute
@@ -353,6 +366,13 @@ declare module '@tanstack/react-router' {
       path: '/plan'
       fullPath: '/plan'
       preLoaderRoute: typeof PlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rath-yatra': {
+      id: '/rath-yatra'
+      path: '/rath-yatra'
+      fullPath: '/rath-yatra'
+      preLoaderRoute: typeof RathYatraRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/travelers': {
@@ -464,6 +484,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatchesRoute: MatchesRoute,
   PayTestRoute: PayTestRoute,
   PlanRoute: PlanRoute,
+  RathYatraRoute: RathYatraRoute,
   TravelersRoute: TravelersRoute,
   TripsRoute: TripsRoute,
   ApiCreateOrderRoute: ApiCreateOrderRoute,

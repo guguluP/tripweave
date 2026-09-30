@@ -125,8 +125,7 @@ export function PackageCard({
                   </span>
                   {" "}
                   for {nightsPhrase(stayNights)}
-                  {dated ? " · seasonal rate" : ""}
-                  {" · room price, not per person"}
+                  {dated ? " · seasonal room total" : " · catalog room total"}
                 </p>
               ) : null}
             </div>

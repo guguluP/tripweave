@@ -157,6 +157,16 @@ function VoucherPage() {
             className="mt-4 h-40 w-full rounded-md border border-border"
             loading="lazy"
           />
+          <div className="mt-4 rounded-md border border-border bg-surface px-3 py-3 text-sm" lang="hi">
+            <p className="text-xs font-medium text-muted">डेस्क स्लिप</p>
+            <p className="mt-1">पुष्टि कोड {booking.confirmationCode}</p>
+            <p>{booking.packageName}</p>
+            <p>
+              चेक-इन {booking.checkIn} · {booking.nights} रातें · {booking.travelers} अतिथि
+            </p>
+            <p>भुगतान ₹{booking.amountInr}</p>
+            <p>डेस्क {desk.email}</p>
+          </div>
           <p className="mt-4 text-xs text-subtle">
             {booking.status === "paid"
               ? "Payment received. The hotel has not confirmed the room yet — show this code once the desk confirms."

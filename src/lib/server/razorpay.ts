@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createHmac } from "node:crypto";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
-import { recordHold, releaseHoldById, roomUnits, tryReserveHold } from "@/lib/inventory";
+import { recordHold, releaseHoldById, roomUnits } from "@/lib/inventory";
 import { getPackage } from "@/lib/packages";
 import { computePayable, payTestAllowed } from "@/lib/server/payable";
 import { pendingHoldId as checkoutPendingId, releaseCheckoutHold, reserveCheckoutHold } from "@/lib/server/room-holds";
@@ -285,16 +285,12 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
       }
       if (reserved === "ok") {
         recordHold(holdBody);
-      } else if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+      } else {
+        // A missing database hold is not a reservation. Two isolates must not sell the same key.
         return {
           ok: false,
-          message:
-            reserved === "missing"
-              ? "Booking is temporarily unavailable. Please try again in a moment."
-              : "Could not reserve this room. Try again in a moment.",
+          message: "Could not reserve this room. Try again in a moment.",
         };
-      } else if (!tryReserveHold(holdBody)) {
-        return { ok: false, message: "Those nights just sold out. Pick another date." };
       }
       const amountPaise = Math.round(payable.amountInr * 100);
       if (amountPaise < 100) {
