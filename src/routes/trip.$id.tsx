@@ -146,6 +146,19 @@ function TripDetail() {
     ? `GSTIN ${desk.gstin} · taxes included at checkout`
     : "GST as billed by the hotel at checkout";
   const refundLabel = refundPolicyFor(checkIn).label;
+  const rateLine =
+    inventory === "loading"
+      ? "Checking rooms for these dates"
+      : inventory === "failed" || quote?.unknown
+        ? "Couldn't check rooms for these dates"
+        : !quote?.released
+          ? "On request — the hotel has not released these nights"
+          : quote.available
+            ? `${formatMoney(nightlyRate)} / night · ${room.name} · ${nightsPhrase(nights)} · sleeps ${room.occupancy}`
+            : "Sold out — pick another date";
+  const finePrint = quote?.available
+    ? `Stay total ${formatMoney(price)}${pickupInr > 0 ? ` · pickup ${formatMoney(pickupInr)} at checkout` : ""} · ${gstLine} · ${refundLabel}`
+    : null;
 
   const setTravelAndDraft = (next: TravelPlan) => {
     const merged = { ...next, arriveBy: brief.arriveBy, origin: brief.origin };
@@ -254,7 +267,7 @@ function TripDetail() {
         openToken={openToken}
       />
       </div>
-      <div className="mx-auto max-w-3xl px-4 pb-44 md:pb-32">
+      <div className="mx-auto max-w-3xl px-4 pb-64 md:pb-32">
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <Stagger>
             <p className="eyebrow">{pkg.destination}</p>
@@ -425,36 +438,29 @@ function TripDetail() {
         </div>
       </div>
       <div className="fixed inset-x-0 bottom-14 z-20 border-t border-border bg-elevated/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-md md:bottom-0 md:pb-3">
-        <div className="mx-auto flex max-w-3xl flex-nowrap items-center justify-between gap-3">
-          <div className="min-w-0">
-            <p className="font-display text-xl tabular-nums">
-              <RollingPrice value={price} />
-            </p>
-            <p className="hidden truncate text-xs text-muted md:block">
-              {inventory === "loading"
-                ? "Checking rooms for these dates"
-                : inventory === "failed" || quote?.unknown
-                  ? "Couldn't check rooms for these dates"
-                  : !quote?.released
-                    ? "On request — the hotel has not released these nights"
-                    : quote.available
-                      ? `${formatMoney(nightlyRate)} / night · ${room.name} · ${nightsPhrase(nights)} · sleeps ${room.occupancy}`
-                      : "Sold out — pick another date"}
-            </p>
-            {quote?.available ? (
-              <p className="mt-0.5 hidden truncate text-[0.65rem] leading-snug text-subtle md:block">
-                Stay total {formatMoney(price)}
-                {pickupInr > 0 ? ` · pickup ${formatMoney(pickupInr)} at checkout` : ""}
-                {" · "}
-                {gstLine}
-                {" · "}
-                {refundLabel}
-              </p>
-            ) : null}
-          </div>
-          <Button size="lg" className="shrink-0 whitespace-nowrap" onClick={goBook} disabled={isPending || !quote?.available}>
+        <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3">
+          <p className="font-display text-xl tabular-nums">
+            <RollingPrice value={price} />
+          </p>
+          <Button
+            size="lg"
+            className={cn(
+              "col-start-2 row-start-1 shrink-0 self-center whitespace-nowrap",
+              finePrint ? "md:row-span-3" : "md:row-span-2",
+            )}
+            onClick={goBook}
+            disabled={isPending || !quote?.available}
+          >
             <TextSwap text={booking ? "Traveller details…" : "Book this stay"} shimmer={booking} />
           </Button>
+          <p className="col-span-2 mt-1 min-w-0 text-xs leading-snug text-muted md:col-span-1 md:mt-0 md:truncate">
+            {rateLine}
+          </p>
+          {finePrint ? (
+            <p className="col-span-2 mt-0.5 min-w-0 text-[0.65rem] leading-snug text-subtle md:col-span-1 md:truncate">
+              {finePrint}
+            </p>
+          ) : null}
         </div>
       </div>
     </Shell>
