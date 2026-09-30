@@ -19,7 +19,7 @@ Do not swap the lockup back to one raster JPEG. A cropped photo sat on the cream
 
 ## Architecture
 
-The app is one TanStack Start project. Pages and server functions ship together. The browser never holds a service credential. Postgres is reached only from the server, through security-definer functions that accept the Supabase service role.
+The app is one TanStack Start project. Pages and server functions ship together. The browser never holds a service credential. Postgres is reached only from the server, through security-definer functions that accept the Supabase service role. Vercel Speed Insights is mounted in the root layout (`src/routes/__root.tsx`) so production collects Core Web Vitals; the content policy allows the Vercel vitals script and endpoint.
 
 ```
 Browser
@@ -40,13 +40,13 @@ TanStack Start server functions
 
 ### Request path
 
-1. **Plan** (`src/routes/plan.tsx`) stores a brief in the browser. “Coming from” searches the short arrival list, then a wider India and abroad catalog (`src/lib/world-cities.ts`), then any typed city. The first plan with no saved brief starts from the home city on the account page. That city stays in local storage.
+1. **Plan** (`src/routes/plan.tsx`) stores a brief in the browser. “Coming from” searches the short arrival list, then a wider India and abroad catalog (`src/lib/world-cities.ts`), then any typed city. The first plan with no saved brief starts from the home city on the account page. That city stays in local storage. Festival or deep-link dates in the URL (`checkIn`, `nights`) stay on the plan form and the matches line; `nights` stays a plain number. Google Flights opens with those stay dates.
 2. **Match** ranks the twelve stays in `src/lib/packages-data-a.ts` and `packages-data-b.ts` by vibe, budget, nights, and arrival. Trust scores are computed in `src/lib/trust-score.ts`.
 3. **Stay** (`src/routes/trip.$id.tsx`) shows the property gallery, official room types, leftover keys, a travel quote, and reviewer notes. Photos come from `src/lib/stay-media.json` and `public/stays/`.
 4. **Travellers** collects the guest, phone, email, masked identity, and an emergency contact.
 5. **Checkout** creates a Razorpay order for an amount computed on the server (`computePayable`). The amount is the room for those nights, each selected add-on once, and the car once. Guest count does not multiply it. The count still cannot exceed the number of people the room sleeps. “Today” is the calendar day in India (`Asia/Kolkata`). Before the window opens, `reserveCheckoutHold` asks Postgres for the nights. A sold-out room stops checkout. A missing or rejected service client also stops checkout. The room is not reserved in process memory.
 6. **Verify.** The browser returns the Razorpay signature. The server checks it, reads the payment from Razorpay, then writes the booking. A confirmation code is `TW-` plus 10 characters.
-7. **After pay.** The guest gets a voucher, an HTML pass, and a calendar file. Apple Wallet is added only when pass certificates are configured. Cancellation follows `src/lib/refund-policy.ts`: full refund at least 48 hours before noon IST on check-in, half inside that window, none after. A refund that was saved but not finished is tried again when that guest opens My trips, and on the daily refund cron. It uses the amount already decided and does not send the money twice.
+7. **After pay.** The guest gets a voucher, an HTML pass, and a calendar file. Apple Wallet is added only when pass certificates are configured. Cancellation follows `src/lib/refund-policy.ts`: full refund at least 48 hours before noon IST on check-in, half inside that window, none after. A refund that was saved but not finished is tried again when that guest opens My trips, and on the daily refund cron. It uses the amount already decided and does not send the money twice. When the desk declines a paid stay, Razorpay is refunded in full before the booking is marked refunded; a failed refund leaves the stay paid so the desk can try again.
 
 Cookie sessions mint a new Better Auth user id on each login. `tw_claim_subject` maps the sign-in email back to the id that already owns that guest’s bookings, saved stays, and travellers.
 
@@ -66,17 +66,19 @@ Row level security on the tables denies `anon` and `authenticated`. The function
 
 ### Hotel desk
 
-The desk is the same account system. `assertPartnerStay` allows catalog overrides, booking lists, and confirmation only when the signed-in email matches `HOTEL_DESKS` or `PARTNER_EMAILS`. There is no separate desk role.
+The desk is the same account system. `assertPartnerStay` allows catalog overrides, booking lists, and confirmation only when the signed-in email matches `HOTEL_DESKS` or `PARTNER_EMAILS`. There is no separate desk role. Confirm, decline, and complete update the booking row even when `tw_desk_transition` is missing from the database. Declining a paid stay refunds the full payment (see After pay). The desk sign-in page asks for that property’s desk key in plain hotel language.
+
+Nightly units and stop-sell go through `tw_set_allotment` (`deskSetAllotment`). Each save is one room on one night in India time. Past nights are refused. The published count cannot drop below stays and live holds already on that room for that night; other dates keep their own counts. Apply `supabase/partner_desk_ops.sql` on the live database so the two-argument RPC the desk posts actually exists.
 
 ### Travel links
 
 Arrival mode picks the gateway: the airport, Puri railway station, or the bus stand. Cab buttons for Ola, Uber, and Odisha Yatri carry the pickup and drop names and coordinates from the page. The guest can edit those names. Train stays on IRCTC. Bus stays on OSRTC and Ama Bus. Odisha Yatri’s public site does not document reading those query parameters into its form, so the app may still ask the guest to confirm the drop.
 
-Hotel pickup is separate from those links. Only a stay whose catalog line includes an airport or hotel transfer (Taj, when the guest flies or comes by road) treats the hotel car as part of the room price. Turning it on records a request for that included car and adds ₹0. Every other hotel’s pickup is an optional estimate: one car, added once at checkout, not multiplied by guests. TripWeave does not book that car with the hotel, Ola, or Uber. The stay map is an OpenStreetMap frame of the hotel against the temple, the station, and the beach. The rupee cab lines under it are ₹50 plus ₹25 per kilometre of driving distance, not a live cab fare.
+Hotel pickup is separate from those links. Only hotels that publish their own airport car — Taj, Mayfair Heritage, and Hans — offer an airport pickup-and-drop switch, and only when the guest flies. Turning it on records a request for that included car and adds ₹0 to the TripWeave bill; the hotel bills the shuttle. Other hotels keep the cab links and do not show a paid TripWeave pickup estimate. TripWeave does not book that car with the hotel, Ola, or Uber. Stay and trip maps open on Mappls (Survey of India boundary) for the hotel pin and the airport-to-hotel frame (`src/lib/mappls.ts`). The rupee cab lines under the map are ₹50 plus ₹25 per kilometre of driving distance, not a live cab fare.
 
 ### Media and motion
 
-Stay photos are local JPEGs under `public/stays/`. The build does not hotlink hotel CDNs. The stay page opens with a large header photo. Property and Rooms underneath list the other saved frames at the file’s own size. A room strip shows only that room’s own photos. Some room files are the same JPEG the hotel published for a gallery frame.
+Stay photos are local JPEGs under `public/stays/`. The build does not hotlink hotel CDNs. The stay page opens with a cover about 35 percent of the screen; the hotel name and place line sit on the bottom of that photo, clear of the booking bar. Property and Rooms underneath list the other saved frames at the file’s own size, with no blank band between the cover and the filmstrip. A room strip shows only that room’s own photos. Some room files are the same JPEG the hotel published for a gallery frame. The full-screen viewer is swipeable; next and previous sit above the booking bar. On mobile, the booking bar keeps the price and Book this stay on one line.
 
 The homepage cover plays the beach still, then crossfades between three clips. Screens that report high dynamic range and can play HEVC get the 10-bit HLG files. Every other screen gets the tonemapped H.264 files.
 
@@ -103,6 +105,7 @@ src/lib/server/             bookings, holds, Razorpay, desk, mail
 src/lib/supabase/           service client and RPC adapters
 src/lib/auth/               Better Auth session and route guards
 src/lib/travel-plan.ts      arrival, last mile, cab links
+src/lib/mappls.ts           Mappls direction embeds (Survey of India)
 src/lib/refund-policy.ts    IST refund windows
 src/lib/world-cities.ts     plan-page city search
 supabase/schema.sql         tables, RLS, and the tw_* functions
@@ -113,19 +116,20 @@ public/cover/               homepage still and 4K clips
 
 ## Updated files (Sep 2026)
 
-These are the files that changed for the current lockup, session fix, and carousels.
+Recent product notes that belong in this README (lockup, maps, pickup, desk, and plan dates).
 
-| File | Change |
+| File / area | Change |
 | --- | --- |
-| `src/components/logo.tsx` | Lockup is circle mark + live wordmark. No single cropped JPEG. |
-| `src/components/brand-assets.ts` | Transparent WebP of the full night-sea circle (`MARK_SRC`). |
-| `src/components/shell.tsx` | Header and footer render `BrandLockup`. |
-| `public/favicon.svg` | Night-sea temple disk for the tab. |
-| `src/components/rath-carousel.tsx` | Stills hold 7s; films play through muted, then the next frame. |
-| `src/routes/trip.$id.tsx` | Stay price caption stays in one JSX expression so production build succeeds. |
+| `src/components/logo.tsx` / brand assets | Lockup is circle mark + live wordmark. No single cropped JPEG. |
+| `src/lib/mappls.ts` / travel maps | Stay and trip maps use Mappls (Survey of India boundary). |
+| Hotel airport car | Taj, Mayfair Heritage, and Hans only; fly arrivals; ₹0 on TripWeave. |
+| Plan deep-links | Festival `checkIn` / `nights` stay in the URL and on the form. |
+| Stay photo UI | Shorter cover, swipeable viewer, one-line mobile booking bar. |
+| Desk confirm / decline | Works without `tw_desk_transition`; decline refunds in full. |
+| Desk allotment | `tw_set_allotment` / `deskSetAllotment`: one room one night; apply `partner_desk_ops.sql`. |
+| Vercel Speed Insights | Mounted in `__root.tsx` for production Core Web Vitals. |
 | Session / bookings path | Sign-in email maps back to the account that already owns those trips. |
-| Konark stills | Chandrabhaga sand photos rotated right-side up. |
-| `src/styles.css` / account layout | Mobile tab bar no longer shifts when a line is too wide. |
+| `src/components/rath-carousel.tsx` | Stills hold 7s; films play through muted, then the next frame. |
 
 ## Run locally
 
@@ -174,7 +178,7 @@ This is the posture of `main`. It is not a procedure for calling the endpoints.
 
 **Identity.** Aadhaar, passport, and licence numbers are reduced to the last four characters before they are kept in this browser. The traveller row stores those four characters. The DigiLocker control on the traveller page is a labelled sample. Without live DigiLocker credentials it returns a sample traveller for a fixed sandbox OTP. That payload is not an identity.
 
-**Desk.** Anyone whose sign-in email matches the desk list can change that hotel’s rate, photos, and key count. Protect those inboxes. `email:*` is refused. A desk grant needs `email:packageId`.
+**Desk.** Anyone whose sign-in email matches the desk list can change that hotel’s rate, photos, and nightly unit count. A unit save is one room on one night and cannot go under stays already booked. Protect those inboxes. `email:*` is refused. A desk grant needs `email:packageId`.
 
 **Known gaps.**
 
@@ -182,8 +186,8 @@ This is the posture of `main`. It is not a procedure for calling the endpoints.
 - `POST /api/verify-payment` accepts only `RAZORPAY_WEBHOOK_SECRET`. The Razorpay dashboard webhook to that URL is still created outside this repo.
 - Pending refunds retry on `GET /api/cron/refund-retry` when `CRON_SECRET` matches. Opening My trips still retries that guest’s queue. Captured orders with no booking are listed by `GET /api/cron/reconcile-unbooked`.
 - Checkout refuses to open Razorpay when the shared room hold is missing. There is no in-process hold fallback.
-- Better Auth rows live in Supabase `ba_*` tables. Bookings attach through the verified email on `account_subjects` (`tw_claim_subject`). Password reset mail stays off until Amazon SES is configured, and the booking row records whether that mail was accepted.
-- Content-Security-Policy is set in `server/middleware/csp.ts`. Razorpay and Google are explicit script and frame hosts.
+- Better Auth rows live in Supabase `ba_*` tables. Bookings attach through the verified email on `account_subjects` (`tw_claim_subject`). Password reset mail uses SMTP when those values are set, otherwise Amazon SES; it stays off until one of those is configured, and the booking row records whether that mail was accepted.
+- Content-Security-Policy is set in `server/middleware/csp.ts`. Razorpay, Google, and Vercel Speed Insights are explicit script / connect hosts.
 - `loadOccupancy` and `quoteCab` are public and rate-limited. Occupancy is which rooms are taken. Hold ids in that response are a hash, not confirmation codes. The cab figure is a distance times a fixed rate, not a live operator price.
 - The public host is still `tripweave-web.vercel.app`. A custom domain needs a name you control, then Vercel plus the Google OAuth redirect. Do not add more hotels until a few Puri desks are on a real key count, the webhook is live, and Trust Scores separate.
 
