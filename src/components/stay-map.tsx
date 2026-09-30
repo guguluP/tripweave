@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { quoteCab, type CabLeg } from "@/lib/server/cab";
-import { stayPin } from "@/lib/places";
+import { LANDMARKS, stayPin } from "@/lib/places";
 import { mapplsPinUrl } from "@/lib/mappls";
+import { MapplsMap } from "@/components/mappls-map";
 import { formatMoney } from "@/lib/packages";
 import { stayWalkTimes } from "@/lib/walk-estimate";
 
@@ -38,10 +39,10 @@ export function StayMap({ packageId, name }: { packageId: string; name: string }
         walking times below are straight-line estimates at ~5 km/h.
       </p>
       <div className="relative mt-4 h-72 overflow-hidden rounded-xl border border-border">
-        <iframe
+        <MapplsMap
           title={`Map of ${name} in Puri`}
           className="h-full w-full"
-          src={mappls}
+          markers={[stay, ...LANDMARKS].map((pin) => ({ lat: pin.lat, lng: pin.lng, label: pin.label }))}
         />
       </div>
       <a href={mappls} target="_blank" rel="noreferrer" className="mt-2 inline-block text-sm text-primary underline-offset-4 hover:underline">

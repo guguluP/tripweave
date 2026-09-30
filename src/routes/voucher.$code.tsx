@@ -8,11 +8,14 @@ import { listBookings, type BookingRow } from "@/lib/server/bookings";
 import { deskFor, hotelMailto } from "@/lib/hotel-desk";
 import { readMeta } from "@/lib/booking-meta";
 import {
+  mapMarkers,
   parseTravelPlan,
   quoteTravel,
   travelShareText,
   travelSummaryLine,
 } from "@/lib/travel-plan";
+import { MapplsMap } from "@/components/mappls-map";
+import { stayPin } from "@/lib/places";
 import { TravelShareButtons } from "@/components/travel-planner";
 import type { OriginId } from "@/lib/origins";
 import { pageHead } from "@/lib/page-title";
@@ -153,12 +156,13 @@ function VoucherPage() {
               </div>
             ) : null}
           </dl>
-          <iframe
-            title="Last-mile map"
-            src={travelQuote.mapEmbedUrl}
-            className="mt-4 h-40 w-full rounded-md border border-border"
-            loading="lazy"
-          />
+          <div className="mt-4 h-40 overflow-hidden rounded-md border border-border">
+            <MapplsMap
+              title="Last-mile map"
+              className="h-full w-full"
+              markers={mapMarkers(plan.arriveBy || brief.arriveBy, stayPin(booking.packageId, booking.packageName))}
+            />
+          </div>
           <div className="mt-4 rounded-md border border-border bg-surface px-3 py-3 text-sm" lang="hi">
             <p className="text-xs font-medium text-muted">डेस्क स्लिप</p>
             <p className="mt-1">पुष्टि कोड {booking.confirmationCode}</p>

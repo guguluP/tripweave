@@ -326,6 +326,18 @@ function gatewayCoords(arriveBy: ArriveBy) {
   return GATEWAYS.bus;
 }
 
+export function mapMarkers(
+  arriveBy: ArriveBy,
+  stay?: { lat: number; lng: number; label?: string } | null,
+): { lat: number; lng: number; label: string }[] {
+  const gate = gatewayCoords(arriveBy);
+  const dest = stay ?? town;
+  return [
+    { lat: gate.lat, lng: gate.lng, label: gate.label },
+    { lat: dest.lat, lng: dest.lng, label: stay?.label ?? "Stay" },
+  ];
+}
+
 export function mapEmbedUrl(arriveBy: ArriveBy, stay?: { lat: number; lng: number } | null): string {
   const gate = gatewayCoords(arriveBy);
   const dest = stay ?? town;
