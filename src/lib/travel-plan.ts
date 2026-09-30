@@ -13,6 +13,7 @@ import {
 import { getPackage, originPlace, type Brief } from "./packages.ts";
 import { addDays } from "./inventory.ts";
 import { GATEWAYS, LANDMARKS, stayPin } from "./places.ts";
+import { mapplsDirectionUrl } from "./mappls.ts";
 
 export type TravelPlan = {
   lastMileId: string;
@@ -328,12 +329,7 @@ function gatewayCoords(arriveBy: ArriveBy) {
 export function mapEmbedUrl(arriveBy: ArriveBy, stay?: { lat: number; lng: number } | null): string {
   const gate = gatewayCoords(arriveBy);
   const dest = stay ?? town;
-  const pad = arriveBy === "fly" || arriveBy === "road" ? 0.08 : 0.02;
-  const minLon = Math.min(gate.lng, dest.lng) - pad;
-  const minLat = Math.min(gate.lat, dest.lat) - pad;
-  const maxLon = Math.max(gate.lng, dest.lng) + pad;
-  const maxLat = Math.max(gate.lat, dest.lat) + pad;
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${minLon}%2C${minLat}%2C${maxLon}%2C${maxLat}&layer=mapnik&marker=${dest.lat}%2C${dest.lng}`;
+  return mapplsDirectionUrl(gate, dest);
 }
 
 export function mapDirectionsUrl(hotelName: string, arriveBy: ArriveBy): string {

@@ -9,6 +9,7 @@ describe("buildContentSecurityPolicy", () => {
     assert.ok(cspAllowsHost(policy, "https://accounts.google.com"));
     assert.match(policy, /default-src 'self'/);
     assert.match(policy, /object-src 'none'/);
+    assert.ok(cspAllowsHost(policy, "https://www.mappls.com"));
   });
 
   it("keeps frame-ancestors self", () => {

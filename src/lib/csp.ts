@@ -56,7 +56,6 @@ export function buildContentSecurityPolicy(opts: CspOptions = {}): string {
       ...GOOGLE,
       "https://*.supabase.co",
       "https://router.project-osrm.org",
-      "https://*.tile.openstreetmap.org",
       "https://www.youtube.com",
       "https://i.ytimg.com",
       "https://va.vercel-scripts.com",
@@ -68,7 +67,8 @@ export function buildContentSecurityPolicy(opts: CspOptions = {}): string {
       ...GOOGLE,
       "https://www.youtube.com",
       "https://www.youtube-nocookie.com",
-      "https://www.openstreetmap.org",
+      "https://www.mappls.com",
+      "https://mappls.com",
     ],
     "worker-src": ["'self'", "blob:"],
   };

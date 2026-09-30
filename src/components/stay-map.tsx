@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { quoteCab, type CabLeg } from "@/lib/server/cab";
-import { LANDMARKS, mapFrame, stayPin } from "@/lib/places";
+import { stayPin } from "@/lib/places";
+import { mapplsPinUrl } from "@/lib/mappls";
 import { formatMoney } from "@/lib/packages";
 import { stayWalkTimes } from "@/lib/walk-estimate";
 
@@ -27,9 +28,7 @@ export function StayMap({ packageId, name }: { packageId: string; name: string }
   }, [packageId]);
 
   if (!stay) return null;
-  const pins = [stay, ...LANDMARKS];
-  const frame = mapFrame(pins);
-  const osm = `https://www.openstreetmap.org/?mlat=${stay.lat}&mlon=${stay.lng}#map=14/${stay.lat}/${stay.lng}`;
+  const mappls = mapplsPinUrl(stay.lat, stay.lng);
 
   return (
     <section className="mt-10 scroll-mt-24" aria-labelledby="stay-map-title">
@@ -42,11 +41,11 @@ export function StayMap({ packageId, name }: { packageId: string; name: string }
         <iframe
           title={`Map of ${name} in Puri`}
           className="h-full w-full"
-          src={`https://www.openstreetmap.org/export/embed.html?bbox=${frame.minLng}%2C${frame.minLat}%2C${frame.maxLng}%2C${frame.maxLat}&layer=mapnik&marker=${stay.lat}%2C${stay.lng}`}
+          src={mappls}
         />
       </div>
-      <a href={osm} target="_blank" rel="noreferrer" className="mt-2 inline-block text-sm text-primary underline-offset-4 hover:underline">
-        Open this pin on OpenStreetMap
+      <a href={mappls} target="_blank" rel="noreferrer" className="mt-2 inline-block text-sm text-primary underline-offset-4 hover:underline">
+        Open this pin on Mappls
       </a>
       {walks && (walks.templeMinutes != null || walks.stationMinutes != null) ? (
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
