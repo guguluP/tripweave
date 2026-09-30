@@ -91,22 +91,18 @@ function DeskPortal() {
     return (
       <Shell>
         <div className="mx-auto max-w-md px-4 py-12">
-          <p className="eyebrow">Partner desk</p>
-          <h1 className="mt-2 font-display text-3xl">Hotel desk portal</h1>
+          <p className="eyebrow">Hotel desk</p>
+          <h1 className="mt-2 font-display text-3xl">Open your desk</h1>
           <p className="mt-2 text-sm text-muted">
-            Enter the per-property desk token from TripWeave ops (<code className="text-xs">TW_DESK_TOKENS</code>).
-            This is not the guest sign-in.
+            This is for the hotel, not for guests. Paste the desk key TripWeave sent you. It opens only your property.
           </p>
           <Label className="mt-6 block text-sm">
-            Desk token
+            Desk key
             <Input className="mt-1" type="password" value={token} onChange={(e) => setToken(e.target.value)} autoComplete="off" />
           </Label>
           <Button className="mt-4" type="button" onClick={() => setToken(token.trim())}>
             Open desk
           </Button>
-          <p className="mt-6 text-xs text-subtle">
-            Prefer signed accept/decline links in the booking email when <code>TW_DESK_SECRET</code> is set.
-          </p>
         </div>
       </Shell>
     );
@@ -117,7 +113,7 @@ function DeskPortal() {
       <Shell>
         <div className="mx-auto max-w-md px-4 py-12">
           <h1 className="font-display text-3xl">Desk token not recognised</h1>
-          <p className="mt-2 text-sm text-muted">Ask TripWeave ops to add this property to TW_DESK_TOKENS.</p>
+          <p className="mt-2 text-sm text-muted">That desk key does not match a hotel. Ask TripWeave for the key for your property.</p>
           <Button className="mt-4" type="button" variant="outline" onClick={() => setToken("")}>
             Try another token
           </Button>
