@@ -29,7 +29,7 @@ import {
   saveNext,
   loadBrief,
 } from "@/lib/packages";
-import { quoteStay, travelersFitRoom } from "@/lib/inventory";
+import { quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory";
 import { useStayInventory } from "@/lib/use-occupancy";
 import { deskFor, hotelMailto } from "@/lib/hotel-desk";
 import { refundPolicyFor } from "@/lib/refund-policy";
@@ -67,9 +67,7 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/checkout")({ component: Checkout });
 
 function tomorrowIso() {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return d.toISOString().slice(0, 10);
+  return todayIso();
 }
 
 function CheckoutSkeleton() {
@@ -465,7 +463,7 @@ function CheckoutInner() {
           </Stagger>
           <form className="mt-8 grid gap-4" noValidate onSubmit={onPay}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <ShakeField label="Check-in" type="date" value={checkIn} min={new Date().toISOString().slice(0, 10)} error={errors.checkIn} shakeKey={shakeKey} onChange={(e) => { setCheckIn(e.target.value); setErrors((er) => ({ ...er, checkIn: "" })); }} />
+              <ShakeField label="Check-in" type="date" value={checkIn} min={todayIso()} error={errors.checkIn} shakeKey={shakeKey} onChange={(e) => { setCheckIn(e.target.value); setErrors((er) => ({ ...er, checkIn: "" })); }} />
               <ShakeField label="Travelers" type="number" min={1} max={occupancy} value={travelers} onChange={(e) => setTravelers(Math.min(occupancy, Math.max(1, Number(e.target.value) || 1)))} />
             </div>
             <ShakeField label="Payer name" name="payerName" value={payerName} error={errors.payerName} shakeKey={shakeKey} autoComplete="name" onChange={(e) => { setPayerName(e.target.value); setErrors((er) => ({ ...er, payerName: "" })); }} />

@@ -1,3 +1,4 @@
+import { checkInOnOrAfterToday } from "./inventory.ts";
 import {
   DEFAULT_BRIEF,
   BRIEF_KEY,
@@ -21,7 +22,7 @@ export function loadBriefWithDates(): BriefDates {
     const parsed = JSON.parse(raw) as Partial<BriefDates>;
     const base = loadBriefBase();
     const checkIn = parseCheckIn(parsed.checkIn);
-    return checkIn ? { ...base, checkIn } : base;
+    return { ...base, checkIn: checkInOnOrAfterToday(checkIn) };
   } catch {
     return loadBriefBase();
   }

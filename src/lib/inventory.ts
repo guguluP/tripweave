@@ -85,12 +85,21 @@ export function eachNight(checkIn: string, nights: number): string[] {
 
 /** Calendar day in India. Vercel runs in UTC; check-in "today" follows Puri. */
 export function todayIso(now = new Date()) {
-  return new Intl.DateTimeFormat("en-CA", {
+  const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Kolkata",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(now);
+  }).formatToParts(now);
+  const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+/** A saved check-in before today is not a date the guest can book. */
+export function checkInOnOrAfterToday(iso: string | undefined, now = new Date()): string {
+  const today = todayIso(now);
+  if (iso && /^\d{4}-\d{2}-\d{2}$/.test(iso) && iso >= today) return iso;
+  return today;
 }
 
 function inRange(iso: string, start: string, end: string) {

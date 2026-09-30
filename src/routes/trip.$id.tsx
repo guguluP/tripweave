@@ -35,7 +35,7 @@ import {
   saveNext,
   savePending,
 } from "@/lib/packages";
-import { addDays, leftoverForRooms, quoteStay, todayIso } from "@/lib/inventory";
+import { checkInOnOrAfterToday, leftoverForRooms, quoteStay, todayIso } from "@/lib/inventory";
 import { deskFor } from "@/lib/hotel-desk";
 import { getSeededConsensus } from "@/lib/youtube/get-seeded";
 import { useStayInventory } from "@/lib/use-occupancy";
@@ -63,7 +63,7 @@ function TripDetail() {
   const [booking, setBooking] = useState(false);
   const [nights, setNights] = useState(pkg?.nights ?? 1);
   const [roomId, setRoomId] = useState(pkg?.rooms[0]?.id ?? "");
-  const [checkIn, setCheckIn] = useState(() => addDays(todayIso(), 1));
+  const [checkIn, setCheckIn] = useState(() => todayIso());
   const [liveTrust, setLiveTrust] = useState<number | null>(null);
   const [liveBreakdown, setLiveBreakdown] = useState<TrustScoreBreakdown | null>(null);
   const [travel, setTravel] = useState<TravelPlan>(EMPTY_TRAVEL);
@@ -82,8 +82,8 @@ function TripDetail() {
     setBooking(false);
     const briefNow = loadBriefWithDates();
     const pending = loadPending();
-    if (briefNow.checkIn) setCheckIn(briefNow.checkIn);
-    else if (pending?.checkIn) setCheckIn(pending.checkIn);
+    if (briefNow.checkIn) setCheckIn(checkInOnOrAfterToday(briefNow.checkIn));
+    else if (pending?.checkIn) setCheckIn(checkInOnOrAfterToday(pending.checkIn));
     setTravel(defaultTravelPlan(pkg.id, briefNow, pending?.packageId === pkg.id ? pending.travel : undefined));
     // Only when the stay changes. Catalog overlays rebuild `pkg` every render,
     // and depending on that object wiped the room the guest had just picked.

@@ -2,10 +2,18 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { DEFAULT_BRIEF, getPackage, matchPackages, originFitReason, originFitScore } from "./packages.ts";
 import { setNightUnits, replaceAllotment } from "./allotment-store.ts";
-import { leftoverForRooms, quoteStay, recordHold, releaseHoldById, roomUnits, seasonFor, travelersFitRoom } from "./inventory.ts";
+import { checkInOnOrAfterToday, leftoverForRooms, quoteStay, recordHold, releaseHoldById, roomUnits, seasonFor, todayIso, travelersFitRoom } from "./inventory.ts";
 import { refundAmountInr, refundPolicyFor } from "./refund-policy.ts";
 
 describe("dated rates", () => {
+  it("names today in India as YYYY-MM-DD and drops a past check-in", () => {
+    const eveningBefore = new Date("2026-09-29T19:30:00Z");
+    assert.equal(todayIso(eveningBefore), "2026-09-30");
+    assert.match(todayIso(eveningBefore), /^\d{4}-\d{2}-\d{2}$/);
+    assert.equal(checkInOnOrAfterToday("2026-06-26", eveningBefore), "2026-09-30");
+    assert.equal(checkInOnOrAfterToday("2026-10-02", eveningBefore), "2026-10-02");
+  });
+
   it("says the festival calendar has ended after June 2027", () => {
     const s = seasonFor("2027-07-08");
     assert.match(s.label, /festival calendar ends Jun 2027/);

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatMoney } from "@/lib/packages";
 import { ALLOTMENT_LABEL, type StayQuote } from "@/lib/inventory";
 import { cn } from "@/lib/utils";
@@ -46,7 +46,11 @@ export function CheckInField({
   hint?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [cursor, setCursor] = useState(checkIn || minDate);
+  const visible = checkIn >= minDate ? checkIn : minDate;
+  const [cursor, setCursor] = useState(visible);
+  useEffect(() => {
+    setCursor(visible);
+  }, [visible]);
   const month = useMemo(() => monthCells(cursor || minDate), [cursor, minDate]);
   const shown = checkIn ? formatCheckInLabel(checkIn) : "Choose a date";
 

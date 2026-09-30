@@ -18,6 +18,7 @@ import {
 } from "@/lib/packages";
 import { rankEyebrow, scorePackages } from "@/lib/match-score";
 import { loadBriefWithDates, saveBriefWithDates } from "@/lib/brief-persist";
+import { checkInOnOrAfterToday } from "@/lib/inventory";
 import { useSavedIds } from "@/lib/saved";
 import { getOrigin } from "@/lib/origins";
 import { loadTravelDraft, patchTravelDraft, quoteTravel } from "@/lib/travel-plan";
@@ -70,10 +71,7 @@ function Matches() {
     const next: BriefUrlState = fromUrl
       ? mergeBriefUrl(stored, searchToBrief(search))
       : { ...stored };
-    if (!next.checkIn) {
-      const pendingIn = loadPending()?.checkIn;
-      if (pendingIn) next.checkIn = pendingIn;
-    }
+    next.checkIn = checkInOnOrAfterToday(next.checkIn ?? loadPending()?.checkIn);
     saveBriefWithDates(next);
     setBrief(next);
     const scored = scorePackages(next);

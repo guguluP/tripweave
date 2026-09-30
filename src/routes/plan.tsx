@@ -18,7 +18,7 @@ import { inboundPreview } from "@/lib/travel-plan";
 import { track } from "@/lib/analytics";
 import { TravelEstimateCard } from "@/components/travel-estimate";
 import { briefToSearch, mergeBriefUrl, searchHasBrief, searchToBrief } from "@/lib/brief-url";
-import { addDays, todayIso } from "@/lib/inventory";
+import { checkInOnOrAfterToday, todayIso } from "@/lib/inventory";
 import { CityMenu, Choice } from "@/components/plan-city-menu";
 
 type PlanSearch = Record<string, string | undefined>;
@@ -83,9 +83,7 @@ function cityAsOrigin(name: string): Pick<Brief, "origin" | "originCity" | "arri
 }
 
 function defaultCheckIn(brief: BriefDates): string {
-  return brief.checkIn && /^\d{4}-\d{2}-\d{2}$/.test(brief.checkIn)
-    ? brief.checkIn
-    : addDays(todayIso(), 1);
+  return checkInOnOrAfterToday(brief.checkIn);
 }
 
 function Plan() {
