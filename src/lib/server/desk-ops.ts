@@ -224,6 +224,58 @@ const transitionSchema = z.object({
   deskToken: z.string().max(200).optional(),
 });
 
+/** Used when tw_desk_transition was never created. Statuses stay inside the live bookings check. */
+export async function transitionBookingRow(
+  sb: NonNullable<ReturnType<typeof getSupabaseAdmin>>,
+  input: {
+    id: number;
+    packageId: string;
+    action: "desk_confirm" | "desk_decline" | "check_in";
+    note?: string;
+  },
+) {
+  const { data: row, error: readError } = await sb
+    .from("bookings")
+    .select("id,status,swaps")
+    .eq("id", input.id)
+    .eq("package_id", input.packageId)
+    .maybeSingle();
+  if (readError) return { ok: false as const, message: readError.message };
+  if (!row) return { ok: false as const, message: "That stay was not found." };
+  const status = String(row.status);
+  let next = "";
+  if (input.action === "desk_confirm") {
+    if (status !== "paid") return { ok: false as const, message: "That stay is not waiting for this action." };
+    next = "confirmed";
+  } else if (input.action === "desk_decline") {
+    if (status !== "paid") return { ok: false as const, message: "That stay is not waiting for this action." };
+    next = "cancelled";
+  } else if (status !== "desk_confirmed" && status !== "confirmed") {
+    return { ok: false as const, message: "That stay is not waiting for this action." };
+  } else {
+    next = "completed";
+  }
+  const swaps =
+    row.swaps && typeof row.swaps === "object" && !Array.isArray(row.swaps)
+      ? (row.swaps as Record<string, unknown>)
+      : {};
+  const { error } = await sb
+    .from("bookings")
+    .update({
+      status: next,
+      swaps: {
+        ...swaps,
+        deskNote: input.note ?? "",
+        deskAction: input.action,
+        deskAt: new Date().toISOString(),
+      },
+    })
+    .eq("id", input.id)
+    .eq("package_id", input.packageId);
+  if (error) return { ok: false as const, message: error.message };
+  return { ok: true as const, status: next };
+}
+
 async function runTransition(input: {
   id: number;
   packageId: string;
@@ -243,13 +295,14 @@ async function runTransition(input: {
       p_gate: SUPABASE_WRITE_GATE,
       p_payload: payload,
     });
-    if (error) {
+    if (!error) return { ok: true as const, status: (result as { status?: string })?.status };
+    if (!/schema cache|could not find the function|PGRST202/i.test(error.message)) {
       const msg = error.message.includes("not_open")
         ? "That stay is not waiting for this action."
         : error.message;
       return { ok: false as const, message: msg };
     }
-    return { ok: true as const, status: (result as { status?: string })?.status };
+    return transitionBookingRow(sb, input);
   }
   if (!shouldSkipNeon()) {
     try {
