@@ -61,6 +61,9 @@ begin
   if v_pkg is null or v_room is null or v_night is null or v_units is null or v_units < 0 then
     raise exception 'invalid_allotment';
   end if;
+  if v_night < (timezone('Asia/Kolkata', now()))::date then
+    raise exception 'past_night';
+  end if;
   insert into public.room_allotment (package_id, room_id, night, units, updated_by, updated_at)
   values (v_pkg, v_room, v_night, v_units, p_payload->>'updated_by', now())
   on conflict (package_id, room_id, night) do update set
@@ -83,6 +86,9 @@ declare
 begin
   if v_pkg is null or v_night is null then
     raise exception 'invalid_stop_sell';
+  end if;
+  if v_night < (timezone('Asia/Kolkata', now()))::date then
+    raise exception 'past_night';
   end if;
   if v_closed then
     insert into public.stop_sell (package_id, room_id, night, reason, updated_by, updated_at)

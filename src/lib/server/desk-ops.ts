@@ -18,6 +18,7 @@ import {
   type NightAllotment,
   type StopSellRow,
 } from "@/lib/allotment-store";
+import { todayIso } from "@/lib/inventory";
 import { getSql } from "@/lib/db";
 import { isDurableDbError, markDurableDbFailed, shouldSkipNeon } from "@/lib/server/db-fallback";
 
@@ -132,6 +133,7 @@ export const deskSetAllotment = createServerFn({ method: "POST" })
   .validator((data: unknown) => allotmentSchema.parse(data))
   .handler(async ({ data }) => {
     await assertDeskAccess(data.packageId, data.deskToken);
+    if (data.night < todayIso()) return { ok: false as const, message: "That night has already passed." };
     const payload = {
       package_id: data.packageId,
       room_id: data.roomId,
@@ -179,6 +181,7 @@ export const deskSetStopSell = createServerFn({ method: "POST" })
   .validator((data: unknown) => stopSellSchema.parse(data))
   .handler(async ({ data }) => {
     await assertDeskAccess(data.packageId, data.deskToken);
+    if (data.night < todayIso()) return { ok: false as const, message: "That night has already passed." };
     const payload = {
       package_id: data.packageId,
       room_id: data.roomId ?? "",

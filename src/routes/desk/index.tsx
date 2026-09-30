@@ -167,7 +167,16 @@ function DeskPortal() {
           </Label>
           <Label className="block text-sm">
             Night
-            <Input className="mt-1" type="date" value={night} onChange={(e) => setNight(e.target.value)} />
+            <Input
+              className="mt-1"
+              type="date"
+              min={from}
+              value={night}
+              onChange={(e) => {
+                const next = e.target.value;
+                if (next >= from) setNight(next);
+              }}
+            />
           </Label>
           <Label className="block text-sm">
             Units
@@ -182,7 +191,7 @@ function DeskPortal() {
           </Label>
           <Button
             type="button"
-            disabled={busy || !roomId}
+            disabled={busy || !roomId || night < from}
             onClick={() => {
               setBusy(true);
               void deskSetAllotment({
@@ -214,12 +223,21 @@ function DeskPortal() {
           <h2 className="font-medium">Stop-sell / close date</h2>
           <Label className="block text-sm">
             Night
-            <Input className="mt-1" type="date" value={night} onChange={(e) => setNight(e.target.value)} />
+            <Input
+              className="mt-1"
+              type="date"
+              min={from}
+              value={night}
+              onChange={(e) => {
+                const next = e.target.value;
+                if (next >= from) setNight(next);
+              }}
+            />
           </Label>
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
-              disabled={busy}
+              disabled={busy || night < from}
               onClick={() => {
                 setBusy(true);
                 void deskSetStopSell({
@@ -246,7 +264,7 @@ function DeskPortal() {
             <Button
               type="button"
               variant="outline"
-              disabled={busy}
+              disabled={busy || night < from}
               onClick={() => {
                 setBusy(true);
                 void deskSetStopSell({
