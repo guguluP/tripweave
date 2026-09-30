@@ -138,13 +138,21 @@ function Home() {
         </div>
       </section>
 
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 pt-8">
-        <p className="text-sm text-muted">Rath Yatra 2026 has its own dates and sold-out rules.</p>
-        <Button asChild variant="outline" size="sm">
-          <Link to="/rath-yatra">Rath Yatra rooms</Link>
-        </Button>
-      </div>
-      <RathCarousel />
+      <RathCarousel
+        corner={
+          <Link
+            to="/rath-yatra"
+            className="absolute bottom-4 right-4 z-10 max-w-[15rem] rounded-2xl bg-black/70 px-4 py-3 text-right text-white shadow-lg backdrop-blur-sm"
+          >
+            <span className="block text-xs leading-snug text-white/85">
+              Rath Yatra 2026 has its own dates and sold-out rules.
+            </span>
+            <span className="mt-2 inline-flex rounded-full bg-white px-3 py-1 text-xs font-medium text-fg">
+              Rath Yatra rooms
+            </span>
+          </Link>
+        }
+      />
       <KonarkCarousel />
 
       <section className="mx-auto grid max-w-6xl gap-4 px-4 py-10 md:grid-cols-3">

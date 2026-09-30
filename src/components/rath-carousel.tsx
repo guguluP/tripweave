@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Crossfade } from "@/components/crossfade";
 import { cn } from "@/lib/utils";
 
@@ -47,11 +47,13 @@ function StoryCarousel({
   title,
   frames,
   tone,
+  corner,
 }: {
   kicker: string;
   title: string;
   frames: Frame[];
   tone: "dark" | "sand";
+  corner?: ReactNode;
 }) {
   const [active, setActive] = useState(0);
   const [videoProgress, setVideoProgress] = useState(0);
@@ -120,11 +122,12 @@ function StoryCarousel({
             {frame.note ? (
               <figcaption
                 key={frame.id}
-                className="story-caption absolute bottom-4 left-4 rounded-full bg-black/70 px-4 py-2 text-sm text-white"
+                className="story-caption absolute bottom-4 left-4 z-10 max-w-[55%] rounded-full bg-black/70 px-4 py-2 text-sm text-white"
               >
                 {frame.note}
               </figcaption>
             ) : null}
+            {corner}
           </div>
         </figure>
       </div>
@@ -132,8 +135,8 @@ function StoryCarousel({
   );
 }
 
-export function RathCarousel() {
-  return <StoryCarousel kicker="Rath Yatra" title="Puri, from the road" frames={RATH_FRAMES} tone="dark" />;
+export function RathCarousel({ corner }: { corner?: ReactNode }) {
+  return <StoryCarousel kicker="Rath Yatra" title="Puri, from the road" frames={RATH_FRAMES} tone="dark" corner={corner} />;
 }
 
 export function KonarkCarousel() {
