@@ -58,6 +58,10 @@ export function PropertyMedia({
   featured,
   arrivalPin,
   roomImages = [],
+  hideHero = false,
+  activeIndex,
+  onActiveIndex,
+  openToken = 0,
 }: {
   id: string;
   name: string;
@@ -66,6 +70,12 @@ export function PropertyMedia({
   featured?: string;
   arrivalPin?: string;
   roomImages?: string[];
+  /** Cover already shows the current photograph. */
+  hideHero?: boolean;
+  activeIndex?: number;
+  onActiveIndex?: (index: number) => void;
+  /** Increments when the cover asks to open the photo viewer. */
+  openToken?: number;
 }) {
   const gallery = useMemo(() => {
     const list = images.filter(Boolean);
@@ -73,7 +83,13 @@ export function PropertyMedia({
     return list;
   }, [images, featured]);
 
-  const [index, setIndex] = useState(0);
+  const [localIndex, setLocalIndex] = useState(0);
+  const index = activeIndex ?? localIndex;
+  const setIndex = (next: number | ((current: number) => number)) => {
+    const value = typeof next === "function" ? next(index) : next;
+    onActiveIndex?.(value);
+    if (activeIndex === undefined) setLocalIndex(value);
+  };
   const [open, setOpen] = useState(false);
   const [album, setAlbum] = useState<"property" | "rooms">("property");
   const [viewList, setViewList] = useState<string[] | null>(null);
@@ -83,13 +99,20 @@ export function PropertyMedia({
   const videoRail = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (activeIndex !== undefined) return;
     if (!featured) {
       setIndex(0);
       return;
     }
     const i = gallery.indexOf(featured);
     setIndex(i >= 0 ? i : 0);
-  }, [featured, gallery]);
+  }, [featured, gallery, activeIndex]);
+
+  useEffect(() => {
+    if (!openToken) return;
+    setViewList(null);
+    setOpen(true);
+  }, [openToken]);
 
   useEffect(() => {
     if (open) {
@@ -127,7 +150,7 @@ export function PropertyMedia({
   const rooms = roomImages.filter((src) => src && !gallery.includes(src));
   const activeList = viewList ?? gallery;
   const current = activeList[index] ?? activeList[0];
-  if (!current) return null;
+  if (!current && !hideHero) return null;
 
   const step = (dir: -1 | 1) => {
     setIndex((n) => (n + dir + activeList.length) % activeList.length);
@@ -140,12 +163,16 @@ export function PropertyMedia({
   };
 
   const headerSrc = gallery[index] ?? gallery[0];
-  const albumPhotos = album === "rooms" && rooms.length
-    ? rooms.filter((src) => src !== headerSrc)
-    : gallery.filter((src) => src !== headerSrc);
+  const albumPhotos =
+    album === "rooms" && rooms.length
+      ? rooms
+      : hideHero
+        ? gallery
+        : gallery.filter((src) => src !== headerSrc);
 
   return (
     <>
+      {hideHero ? null : (
       <div className="relative">
         <button
           type="button"
@@ -174,8 +201,9 @@ export function PropertyMedia({
           <LikeButton id={id} />
         </div>
       </div>
+      )}
 
-      <div className="mx-auto max-w-6xl px-4 pt-4">
+      <div className="mx-auto max-w-6xl px-4 pt-6">
         {gallery.length > 1 ? (
           <div
             ref={thumbRail}
@@ -231,12 +259,12 @@ export function PropertyMedia({
             </button>
           ) : null}
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
+        <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
           {albumPhotos.map((src, i) => (
             <button
               key={`${album}-${src}-${i}`}
               type="button"
-              className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-border"
+              className="relative aspect-[4/3] overflow-hidden rounded-xl bg-border"
               onClick={() => {
                 if (album === "rooms") {
                   openAt(rooms, rooms.indexOf(src));

@@ -1,14 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 /** Full-viewport photograph. Scroll lifts it off so the stay page underneath is unchanged. */
 export function StayCover({
   image,
   name,
   detail,
+  children,
 }: {
   image: string;
   name: string;
   detail: string;
+  children?: ReactNode;
 }) {
   const sheet = useRef<HTMLDivElement>(null);
   const [motionOk, setMotionOk] = useState(true);
@@ -57,6 +59,7 @@ export function StayCover({
           <p className="mt-6 text-xs tracking-wide text-bg/70">Scroll for rooms and the rate</p>
         ) : null}
       </div>
+      {children}
     </>
   );
 

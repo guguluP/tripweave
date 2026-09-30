@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, MapPin } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { TrustMeter } from "@/components/trust-meter";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DigitPop, Stagger, TextSwap } from "@/components/motion";
 import { RollingPrice } from "@/components/motion/rolling-price";
+import { LikeButton } from "@/components/motion";
 import { PropertyMedia } from "@/components/property-media";
 import { StayCover } from "@/components/stay-cover";
 import { ReviewerConsensus } from "@/components/reviewer-consensus";
@@ -166,21 +167,56 @@ function TripDetail() {
     void nav({ to: "/travelers" });
   };
 
+  const gallery = useMemo(() => {
+    const list = pkg.images.filter(Boolean);
+    if (pkg.image && !list.includes(pkg.image)) return [pkg.image, ...list];
+    return list.length ? list : pkg.image ? [pkg.image] : [];
+  }, [pkg]);
+  const [photo, setPhoto] = useState(0);
+  const [openToken, setOpenToken] = useState(0);
+  const coverImage = gallery[photo] ?? pkg.image;
+  const pin = arrivalPinLabel(brief.arriveBy);
+
   return (
     <Shell>
       <StayCover
-        image={pkg.image}
+        image={coverImage}
         name={pkg.name}
         detail={`${pkg.neighborhood} · ${pkg.destination} · ${pkg.nightsMin}–${pkg.nightsMax} nights`}
-      />
+      >
+        <button
+          type="button"
+          className="absolute inset-0 z-10"
+          aria-label={`View photos of ${pkg.name}`}
+          onClick={() => setOpenToken((n) => n + 1)}
+        />
+        <span className="pointer-events-none absolute left-4 top-[4.75rem] z-20 rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg">
+          {Math.min(photo, Math.max(gallery.length - 1, 0)) + 1} / {gallery.length}
+          {gallery.length > 0 && gallery.length < 4 ? " · hotel-published, limited set" : ""}
+        </span>
+        {pin ? (
+          <span className="pointer-events-none absolute left-4 top-[7.25rem] z-20 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-fg">
+            <MapPin className="size-3" />
+            {pin}
+          </span>
+        ) : null}
+        <div className="absolute right-4 top-[4.75rem] z-20">
+          <LikeButton id={pkg.id} />
+        </div>
+      </StayCover>
+      <div id="stay-photos">
       <PropertyMedia
         id={pkg.id}
         name={pkg.name}
         images={pkg.images}
         roomImages={pkg.rooms.flatMap((room) => room.images ?? (room.image ? [room.image] : []))}
         videos={pkg.videos}
-        arrivalPin={arrivalPinLabel(brief.arriveBy)}
+        hideHero
+        activeIndex={photo}
+        onActiveIndex={setPhoto}
+        openToken={openToken}
       />
+      </div>
       <div className="mx-auto max-w-3xl px-4 pb-44 md:pb-32">
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <Stagger>
