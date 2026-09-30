@@ -419,12 +419,12 @@ function TripDetail() {
         </div>
       </div>
       <div className="fixed inset-x-0 bottom-14 z-20 border-t border-border bg-elevated/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-md md:bottom-0 md:pb-3">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
+        <div className="mx-auto flex max-w-3xl flex-nowrap items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="font-display text-xl tabular-nums">
               <RollingPrice value={price} />
             </p>
-            <p className="text-xs text-muted">
+            <p className="hidden truncate text-xs text-muted md:block">
               {inventory === "loading"
                 ? "Checking rooms for these dates"
                 : inventory === "failed" || quote?.unknown
@@ -436,7 +436,7 @@ function TripDetail() {
                       : "Sold out — pick another date"}
             </p>
             {quote?.available ? (
-              <p className="mt-0.5 text-[0.65rem] leading-snug text-subtle">
+              <p className="mt-0.5 hidden truncate text-[0.65rem] leading-snug text-subtle md:block">
                 Stay total {formatMoney(price)}
                 {pickupInr > 0 ? ` · pickup ${formatMoney(pickupInr)} at checkout` : ""}
                 {" · "}
@@ -446,7 +446,7 @@ function TripDetail() {
               </p>
             ) : null}
           </div>
-          <Button size="lg" onClick={goBook} disabled={isPending || !quote?.available}>
+          <Button size="lg" className="shrink-0 whitespace-nowrap" onClick={goBook} disabled={isPending || !quote?.available}>
             <TextSwap text={booking ? "Traveller details…" : "Book this stay"} shimmer={booking} />
           </Button>
         </div>
