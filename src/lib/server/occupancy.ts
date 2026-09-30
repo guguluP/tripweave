@@ -65,5 +65,9 @@ export async function refreshOccupancy(): Promise<OccupancyHold[]> {
 }
 
 export const loadOccupancy = createServerFn({ method: "GET" }).handler(async () => {
+  const { allowRequest } = await import("@/lib/server/rate-limit");
+  if (!allowRequest("occupancy", 40, 60_000)) {
+    throw new Error("Too many occupancy reads. Try again in a minute.");
+  }
   return refreshOccupancy();
 });

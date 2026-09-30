@@ -176,8 +176,13 @@ export async function fetchRazorpayOrder(orderId: string): Promise<{
 }
 
 export async function settleRazorpayWebhook(rawBody: string, signature: string | null): Promise<Response> {
-  const secret = process.env.RAZORPAY_WEBHOOK_SECRET?.trim() || getKeySecret();
-  if (!secret || !signature) return Response.json({ error: "Missing webhook secret or signature." }, { status: 401 });
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET?.trim();
+  if (!secret || !signature) {
+    return Response.json(
+      { error: "Set RAZORPAY_WEBHOOK_SECRET. The key secret is not accepted here." },
+      { status: 401 },
+    );
+  }
   const expected = createHmac("sha256", secret).update(rawBody).digest("hex");
   const a = Buffer.from(expected, "utf8");
   const b = Buffer.from(signature, "utf8");
@@ -213,6 +218,8 @@ export async function settleRazorpayWebhook(rawBody: string, signature: string |
     payerName: payment.email || "Guest",
     guestEmail: payment.email,
   });
+  const { recordFunnelEvent } = await import("@/lib/server/funnel");
+  await recordFunnelEvent("webhook_booked", packageId);
   return Response.json({ ok: true });
 }
 

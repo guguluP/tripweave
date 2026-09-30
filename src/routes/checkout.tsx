@@ -34,7 +34,8 @@ import { usePaidHolds } from "@/lib/use-occupancy";
 import { deskFor, hotelMailto } from "@/lib/hotel-desk";
 import { refundPolicyFor } from "@/lib/refund-policy";
 import { loadLocalProfile } from "@/lib/profile-local";
-import { methodLabel, paymentLine } from "@/lib/pay";
+import { paymentLine } from "@/lib/pay";
+import { track } from "@/lib/analytics";
 import { createBooking, type BookingRow } from "@/lib/server/bookings-browser";
 import { bookingToWalletPayload } from "@/lib/apple-wallet";
 import { saveWalletPass } from "@/lib/wallet-store";
@@ -188,7 +189,13 @@ function CheckoutInner() {
       stored,
     });
     setBusy(false);
+    track("paid", { packageId: booking.packageId });
   };
+
+  useEffect(() => {
+    if (!pkg) return;
+    track("checkout_opened", { packageId: pkg.id });
+  }, [pkg?.id]);
 
   if (!ready) return <CheckoutSkeleton />;
 
@@ -246,7 +253,7 @@ function CheckoutInner() {
           <p className="mt-3 text-muted">{confirmation.name} — awaiting hotel confirmation. Your code is</p>
           <p className="mt-4 font-display text-3xl tabular-nums tracking-wide"><DigitPop value={confirmation.code} /></p>
           <p className="mt-2 text-sm text-muted">
-            Charged <DigitPop value={formatMoney(confirmation.amount)} /> via {methodLabel(confirmation.method).toLowerCase()}
+            Charged <DigitPop value={formatMoney(confirmation.amount)} />. Paid via Razorpay · UPI/card
             {confirmation.line ? ` · ${confirmation.line}` : ""}. The hotel desk still confirms the room.
           </p>
           {confirmation.ref ? <p className="mt-1 text-xs text-subtle">Ref {confirmation.ref}</p> : null}

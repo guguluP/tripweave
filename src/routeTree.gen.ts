@@ -31,6 +31,7 @@ import { Route as ApiCronFlagUnconfirmedRouteImport } from './routes/api/cron/fl
 import { Route as ApiCronReconcileUnbookedRouteImport } from './routes/api/cron/reconcile-unbooked'
 import { Route as ApiCronRefundRetryRouteImport } from './routes/api/cron/refund-retry'
 import { Route as ApiInvoiceCodeRouteImport } from './routes/api/invoice.$code'
+import { Route as ApiFunnelRouteImport } from './routes/api/funnel'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -143,6 +144,11 @@ const ApiInvoiceCodeRoute = ApiInvoiceCodeRouteImport.update({
   path: '/api/invoice/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiFunnelRoute = ApiFunnelRouteImport.update({
+  id: '/api/funnel',
+  path: '/api/funnel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -167,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
   '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
   '/api/invoice/$code': typeof ApiInvoiceCodeRoute
+  '/api/funnel': typeof ApiFunnelRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByTo {
   '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
   '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
   '/api/invoice/$code': typeof ApiInvoiceCodeRoute
+  '/api/funnel': typeof ApiFunnelRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -216,6 +224,7 @@ export interface FileRoutesById {
   '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
   '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
   '/api/invoice/$code': typeof ApiInvoiceCodeRoute
+  '/api/funnel': typeof ApiFunnelRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/api/cron/reconcile-unbooked'
     | '/api/cron/refund-retry'
     | '/api/invoice/$code'
+    | '/api/funnel'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/api/cron/reconcile-unbooked'
     | '/api/cron/refund-retry'
     | '/api/invoice/$code'
+    | '/api/funnel'
   id:
     | '__root__'
     | '/'
@@ -290,6 +301,7 @@ export interface FileRouteTypes {
     | '/api/cron/reconcile-unbooked'
     | '/api/cron/refund-retry'
     | '/api/invoice/$code'
+    | '/api/funnel'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -315,6 +327,7 @@ export interface RootRouteChildren {
   ApiCronReconcileUnbookedRoute: typeof ApiCronReconcileUnbookedRoute
   ApiCronRefundRetryRoute: typeof ApiCronRefundRetryRoute
   ApiInvoiceCodeRoute: typeof ApiInvoiceCodeRoute
+  ApiFunnelRoute: typeof ApiFunnelRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -473,6 +486,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInvoiceCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/funnel': {
+      id: '/api/funnel'
+      path: '/api/funnel'
+      fullPath: '/api/funnel'
+      preLoaderRoute: typeof ApiFunnelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -499,6 +519,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCronReconcileUnbookedRoute: ApiCronReconcileUnbookedRoute,
   ApiCronRefundRetryRoute: ApiCronRefundRetryRoute,
   ApiInvoiceCodeRoute: ApiInvoiceCodeRoute,
+  ApiFunnelRoute: ApiFunnelRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

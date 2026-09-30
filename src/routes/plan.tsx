@@ -15,6 +15,7 @@ import { loadBriefWithDates, saveBriefWithDates, type BriefDates } from "@/lib/b
 import { ARRIVE_BY, ORIGINS, arriveOptionsFor, getOrigin, type ArriveBy } from "@/lib/origins";
 import { loadLocalProfile } from "@/lib/profile-local";
 import { inboundPreview } from "@/lib/travel-plan";
+import { track } from "@/lib/analytics";
 import { TravelEstimateCard } from "@/components/travel-estimate";
 import { briefToSearch, mergeBriefUrl, searchHasBrief, searchToBrief } from "@/lib/brief-url";
 import { addDays, todayIso } from "@/lib/inventory";
@@ -293,6 +294,7 @@ function Plan() {
             setBusy(true);
             const next = { ...brief, checkIn };
             saveBriefWithDates(next);
+            track("brief_completed", { nights: next.nights, origin: next.origin });
             void nav({ to: "/matches", search: briefToSearch(next) });
           }}
         >

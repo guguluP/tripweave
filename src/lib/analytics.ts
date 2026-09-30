@@ -34,4 +34,16 @@ export function track(event: FunnelEvent, payload?: AnalyticsPayload) {
   } catch (err) {
     console.warn("[tw:funnel] sink failed", err instanceof Error ? err.message : err);
   }
+  if (typeof window === "undefined") return;
+  const packageId = payload?.packageId;
+  void fetch("/api/funnel", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      event,
+      packageId: typeof packageId === "string" ? packageId : undefined,
+    }),
+  }).catch(() => {
+    /* funnel must not block the guest */
+  });
 }

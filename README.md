@@ -35,7 +35,7 @@ TanStack Start server functions
         │                      bookings, travellers, profiles, holds, refunds
         │
         └── if that client is missing or rejected
-              in-process hold book for this server only
+              checkout stops — the room is not reserved
 ```
 
 ### Request path
@@ -44,9 +44,9 @@ TanStack Start server functions
 2. **Match** ranks the twelve stays in `src/lib/packages-data-a.ts` and `packages-data-b.ts` by vibe, budget, nights, and arrival. Trust scores are computed in `src/lib/trust-score.ts`.
 3. **Stay** (`src/routes/trip.$id.tsx`) shows the property gallery, official room types, leftover keys, a travel quote, and reviewer notes. Photos come from `src/lib/stay-media.json` and `public/stays/`.
 4. **Travellers** collects the guest, phone, email, masked identity, and an emergency contact.
-5. **Checkout** creates a Razorpay order for an amount computed on the server (`computePayable`). The amount is the room for those nights, each selected add-on once, and the car once. Guest count does not multiply it. The count still cannot exceed the number of people the room sleeps. “Today” is the calendar day in India (`Asia/Kolkata`). Before the window opens, `reserveCheckoutHold` asks Postgres for the nights. A sold-out room stops checkout. A missing or rejected service client falls back to the in-process hold book so the window can still open. That fallback hold is not shared across server instances.
+5. **Checkout** creates a Razorpay order for an amount computed on the server (`computePayable`). The amount is the room for those nights, each selected add-on once, and the car once. Guest count does not multiply it. The count still cannot exceed the number of people the room sleeps. “Today” is the calendar day in India (`Asia/Kolkata`). Before the window opens, `reserveCheckoutHold` asks Postgres for the nights. A sold-out room stops checkout. A missing or rejected service client also stops checkout. The room is not reserved in process memory.
 6. **Verify.** The browser returns the Razorpay signature. The server checks it, reads the payment from Razorpay, then writes the booking. A confirmation code is `TW-` plus 10 characters.
-7. **After pay.** The guest gets a voucher, an HTML pass, and a calendar file. Apple Wallet is added only when pass certificates are configured. Cancellation follows `src/lib/refund-policy.ts`: full refund at least 48 hours before noon IST on check-in, half inside that window, none after. A refund that was saved but not finished is tried again when that guest opens My trips. It uses the amount already decided and does not send the money twice.
+7. **After pay.** The guest gets a voucher, an HTML pass, and a calendar file. Apple Wallet is added only when pass certificates are configured. Cancellation follows `src/lib/refund-policy.ts`: full refund at least 48 hours before noon IST on check-in, half inside that window, none after. A refund that was saved but not finished is tried again when that guest opens My trips, and on the hourly refund cron. It uses the amount already decided and does not send the money twice.
 
 Cookie sessions mint a new Better Auth user id on each login. `tw_claim_subject` maps the sign-in email back to the id that already owns that guest’s bookings, saved stays, and travellers.
 
@@ -178,7 +178,7 @@ This is the posture of `main`. It is not a procedure for calling the endpoints.
 **Known gaps.**
 
 - A guest who closes the tab after paying depends on Razorpay calling `https://tripweave-web.vercel.app/api/verify-payment`. This repo does not create that webhook. Until it exists, a captured payment can have no booking.
-- Prefer `RAZORPAY_WEBHOOK_SECRET` over reusing the key secret.
+- `POST /api/verify-payment` accepts only `RAZORPAY_WEBHOOK_SECRET`. The Razorpay dashboard webhook to that URL is still created outside this repo.
 - Pending refunds retry on `GET /api/cron/refund-retry` when `CRON_SECRET` matches. Opening My trips still retries that guest’s queue. Captured orders with no booking are listed by `GET /api/cron/reconcile-unbooked`.
 - Checkout refuses to open Razorpay when the shared room hold is missing. There is no in-process hold fallback.
 - Better Auth rows live in Supabase `ba_*` tables. Bookings attach through the verified email on `account_subjects` (`tw_claim_subject`). Password reset mail stays off until Amazon SES is configured, and the booking row records whether that mail was accepted.

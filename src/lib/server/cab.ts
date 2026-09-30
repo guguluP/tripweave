@@ -16,6 +16,10 @@ export type CabLeg = {
 export const quoteCab = createServerFn({ method: "POST" })
   .validator((packageId: string) => z.string().min(1).max(80).parse(packageId))
   .handler(async ({ data }): Promise<CabLeg[] | { ok: false; message: string }> => {
+    const { allowRequest } = await import("@/lib/server/rate-limit");
+    if (!allowRequest("cab", 20, 60_000)) {
+      return { ok: false, message: "Too many cab quotes. Try again in a minute." };
+    }
     const stay = stayPin(data, data);
     if (!stay) return { ok: false, message: "This stay has no map pin yet." };
     const legs: CabLeg[] = [];

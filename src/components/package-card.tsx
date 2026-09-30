@@ -16,6 +16,7 @@ import { ReviewerChip } from "@/components/reviewer-consensus";
 import { LastMilePicker } from "@/components/last-mile-picker";
 import { computeTrustScore, youtubeSourceCount } from "@/lib/trust-score";
 import { quoteTravel } from "@/lib/travel-plan";
+import { track } from "@/lib/analytics";
 
 export function PackageCard({
   pkg,
@@ -63,7 +64,12 @@ export function PackageCard({
       <div className="absolute right-3 top-3 z-10">
         <LikeButton id={pkg.id} />
       </div>
-      <Link to="/trip/$id" params={{ id: pkg.id }} className="group block">
+      <Link
+        to="/trip/$id"
+        params={{ id: pkg.id }}
+        className="group block"
+        onClick={() => track("match_clicked", { packageId: pkg.id })}
+      >
         <div className="overflow-hidden rounded-t-xl">
           <div className="relative">
             <img src={pkg.image} alt={pkg.name} className="h-44 w-full object-cover" />
