@@ -18,7 +18,8 @@ import {
   type NightAllotment,
   type StopSellRow,
 } from "@/lib/allotment-store";
-import { todayIso } from "@/lib/inventory";
+import { bookedOnNight, todayIso } from "@/lib/inventory";
+import { refreshStayInventory } from "@/lib/server/occupancy";
 import { getSql } from "@/lib/db";
 import { isDurableDbError, markDurableDbFailed, shouldSkipNeon } from "@/lib/server/db-fallback";
 
@@ -134,6 +135,20 @@ export const deskSetAllotment = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await assertDeskAccess(data.packageId, data.deskToken);
     if (data.night < todayIso()) return { ok: false as const, message: "That night has already passed." };
+    const loaded = await refreshStayInventory(data.packageId, data.night, data.night).catch(() => ({
+      ok: false as const,
+      holds: [],
+    }));
+    if (!loaded.ok) {
+      return { ok: false as const, message: "Could not check stays already booked for this night. Units were not changed." };
+    }
+    const booked = bookedOnNight(data.packageId, data.roomId, data.night);
+    if (data.units < booked) {
+      return {
+        ok: false as const,
+        message: `${booked} ${booked === 1 ? "stay is" : "stays are"} already booked for this room on ${data.night}. Those stays stay as they are. Set at least ${booked} units.`,
+      };
+    }
     const payload = {
       package_id: data.packageId,
       room_id: data.roomId,
@@ -148,7 +163,17 @@ export const deskSetAllotment = createServerFn({ method: "POST" })
           p_gate: SUPABASE_WRITE_GATE,
           p_payload: payload,
         });
-        if (error) return { ok: false as const, message: error.message };
+        if (error) {
+          const below = error.message.match(/below_booked:(\d+)/);
+          if (below) {
+            const already = Number(below[1]);
+            return {
+              ok: false as const,
+              message: `${already} ${already === 1 ? "stay is" : "stays are"} already booked for this room on ${data.night}. Those stays stay as they are. Set at least ${already} units.`,
+            };
+          }
+          return { ok: false as const, message: error.message };
+        }
       }
     } else if (!shouldSkipNeon()) {
       try {

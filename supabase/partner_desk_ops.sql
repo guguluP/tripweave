@@ -64,6 +64,31 @@ begin
   if v_night < (timezone('Asia/Kolkata', now()))::date then
     raise exception 'past_night';
   end if;
+  -- One row is one room on one night. Do not shrink it under stays already booked.
+  declare
+    v_booked int := 0;
+    v_holds int := 0;
+  begin
+    select count(*) into v_booked
+    from public.bookings b
+    where b.package_id = v_pkg
+      and coalesce(b.swaps->>'roomId', '') = v_room
+      and b.status in ('paid', 'held', 'confirmed', 'desk_confirmed', 'checked_in')
+      and b.check_in <= v_night
+      and b.check_in + b.nights > v_night;
+    select count(*) into v_holds
+    from public.room_holds h
+    where h.package_id = v_pkg
+      and h.room_id = v_room
+      and h.status = 'held'
+      and h.expires_at > now()
+      and h.check_in <= v_night
+      and h.check_in + h.nights > v_night;
+    v_booked := v_booked + v_holds;
+    if v_units < v_booked then
+      raise exception 'below_booked:%', v_booked;
+    end if;
+  end;
   insert into public.room_allotment (package_id, room_id, night, units, updated_by, updated_at)
   values (v_pkg, v_room, v_night, v_units, p_payload->>'updated_by', now())
   on conflict (package_id, room_id, night) do update set

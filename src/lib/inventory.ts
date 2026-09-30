@@ -233,15 +233,13 @@ function nightsOverlap(hold: OccupancyHold, date: string) {
   return holdNights.includes(date);
 }
 
-export function takenOnNight(
+/** Stays and live holds already on this room for this night. Not capped by the published count. */
+export function bookedOnNight(
   packageId: string,
   roomId: string,
   date: string,
   extraHolds: OccupancyHold[] = [],
 ): number {
-  const pkg = getPackage(packageId);
-  if (!pkg) return 0;
-  const units = unitsForNight(pkg, roomId, date);
   const seen = new Set<string>();
   let held = 0;
   for (const [index, h] of [...listHolds(), ...extraHolds].entries()) {
@@ -251,7 +249,18 @@ export function takenOnNight(
     seen.add(key);
     held += 1;
   }
-  return Math.min(units, held);
+  return held;
+}
+
+export function takenOnNight(
+  packageId: string,
+  roomId: string,
+  date: string,
+  extraHolds: OccupancyHold[] = [],
+): number {
+  const pkg = getPackage(packageId);
+  if (!pkg) return 0;
+  return Math.min(unitsForNight(pkg, roomId, date), bookedOnNight(packageId, roomId, date, extraHolds));
 }
 
 export function quoteStay(input: {

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getPackage, formatMoney, PACKAGES } from "@/lib/packages";
 import { stayStatusLabel } from "@/lib/refund-policy";
-import { addDays, todayIso } from "@/lib/inventory";
+import { addDays, roomUnits, todayIso } from "@/lib/inventory";
 import {
   deskListAllotment,
   deskListBookings,
@@ -65,6 +65,12 @@ function DeskPortal() {
     if (!packageId || !pkg) return;
     setRoomId(pkg.rooms[0]?.id ?? "");
   }, [packageId]);
+
+  useEffect(() => {
+    if (!pkg || !roomId) return;
+    const saved = allotment.find((row) => row.roomId === roomId && row.night === night);
+    setUnits(saved ? saved.units : roomUnits(pkg, roomId));
+  }, [night, roomId, allotment, pkg]);
 
   const refresh = () => {
     if (!packageId || !token.trim()) return;
@@ -189,6 +195,7 @@ function DeskPortal() {
               onChange={(e) => setUnits(Number(e.target.value))}
             />
           </Label>
+          <p className="text-xs text-muted">This count is only for {night}. Other dates keep their own count. Stays already booked for this night are left as they are.</p>
           <Button
             type="button"
             disabled={busy || !roomId || night < from}
