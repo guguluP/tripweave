@@ -62,7 +62,11 @@ export function buildContentSecurityPolicy(opts: CspOptions = {}): string {
       "https://vitals.vercel-insights.com",
       "https://apis.mappls.com",
       "https://sdk.mappls.com",
+      "https://tile.mappls.com",
       "https://tiles.mappls.com",
+      "https://cdn.mappls.com",
+      "https://explore.mappls.com",
+      "https://livetraffic.mappls.com",
     ],
     "frame-src": [
       "'self'",
