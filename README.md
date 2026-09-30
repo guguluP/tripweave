@@ -96,6 +96,9 @@ The mobile tab bar (`Discover`, `Plan`, `Trips`, `Account`) is `position: fixed`
 src/routes/                 pages and the three public API routes
 src/components/shell.tsx    header, footer, mobile tab bar
 src/components/logo.tsx     WeaveMark, BrandWord, BrandLockup
+src/components/brand-assets.ts
+                            MARK_SRC data URI (transparent circle)
+src/components/rath-carousel.tsx
 src/lib/packages*.ts        the twelve-stay catalog
 src/lib/stay-media.json     photo index for public/stays
 src/lib/server/             bookings, holds, Razorpay, desk, mail
