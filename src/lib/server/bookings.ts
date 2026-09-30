@@ -800,6 +800,7 @@ export const createBooking = createServerFn({ method: "POST" })
         await releaseCheckoutHold({ userId: context.userId, holdId: id });
       }
     };
+    const holdUnits = await publishedHoldUnits(pkg, room.id, data.checkIn, nights);
     const queuedCapture = () =>
       queueCaptureReconcile({
         userId: context.userId,
@@ -807,7 +808,7 @@ export const createBooking = createServerFn({ method: "POST" })
         orderId: data.razorpayOrderId ?? null,
         local,
         roomId: room.id,
-        units: await publishedHoldUnits(pkg, room.id, data.checkIn, nights),
+        units: holdUnits,
         exceptHoldIds: checkoutHoldIds,
       });
 
@@ -833,7 +834,7 @@ export const createBooking = createServerFn({ method: "POST" })
           ...local,
           userId: context.userId,
           roomId: room.id,
-          units: await publishedHoldUnits(pkg, room.id, data.checkIn, nights),
+          units: holdUnits,
           exceptHoldIds: checkoutHoldIds,
         });
         if (booking) return await finishStored({ ...booking, userId: context.userId }, "supabase");
@@ -859,7 +860,7 @@ export const createBooking = createServerFn({ method: "POST" })
 
     try {
       const neon = await insertNeonBooking(
-        neonWire(local, context.userId, room.id, await publishedHoldUnits(pkg, room.id, data.checkIn, nights), checkoutHoldIds),
+        neonWire(local, context.userId, room.id, holdUnits, checkoutHoldIds),
       );
       if (neon.ok) return await finishStored(neon.booking, "local");
       if (neon.soldOut) {
