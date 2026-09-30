@@ -200,21 +200,21 @@ function TripDetail() {
           aria-label={`View photos of ${pkg.name}`}
           onClick={() => setOpenToken((n) => n + 1)}
         />
-        <span className="pointer-events-none absolute left-4 top-[4.75rem] z-20 rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg">
+        <span className="pointer-events-none absolute left-3 top-3 z-20 rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg">
           {frame.position} / {frame.total}
           {frame.total > 0 && frame.total < 4 ? " · hotel-published, limited set" : ""}
         </span>
         {pin ? (
-          <span className="pointer-events-none absolute left-4 top-[7.25rem] z-20 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-fg">
+          <span className="pointer-events-none absolute left-3 top-12 z-20 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-fg">
             <MapPin className="size-3" />
             {pin}
           </span>
         ) : null}
-        <div className="absolute right-4 top-[4.75rem] z-20">
+        <div className="absolute right-3 top-3 z-20">
           <LikeButton id={pkg.id} />
         </div>
         {gallery.length > 1 ? (
-          <div className="absolute inset-x-0 bottom-40 z-20 flex justify-between px-3 md:bottom-28">
+          <div className="absolute inset-x-0 top-1/2 z-20 flex -translate-y-1/2 justify-between px-3">
             <button
               type="button"
               className="flex size-11 items-center justify-center rounded-full bg-elevated/95 text-fg"

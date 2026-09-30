@@ -16,9 +16,9 @@ export function StayCover({
     <>
       <div className="stay-cover-sheet">
         <img src={image} alt={name} decoding="async" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-fg/85 via-fg/25 to-transparent px-6 pb-28 pt-28 md:pb-16">
-          <p className="max-w-3xl font-display text-4xl leading-tight text-bg md:text-6xl">{name}</p>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-bg/85">{detail}</p>
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-fg/80 via-fg/20 to-transparent px-4 pb-3 pt-10 md:px-6">
+          <p className="max-w-3xl font-display text-2xl leading-tight text-bg md:text-4xl">{name}</p>
+          <p className="mt-1 max-w-xl text-xs leading-snug text-bg/85 md:text-sm">{detail}</p>
           <p className="stay-cover-hint mt-6 text-xs tracking-wide text-bg/70">Scroll for rooms and the rate</p>
         </div>
         {children}

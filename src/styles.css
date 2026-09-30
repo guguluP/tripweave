@@ -37,8 +37,8 @@
 .stay-cover-sheet {
   position: relative;
   z-index: 0;
-  height: 100svh;
-  min-height: 24rem;
+  height: 35vh;
+  min-height: 11rem;
   overflow: hidden;
 }
 .stay-cover-hint {
