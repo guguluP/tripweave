@@ -347,19 +347,17 @@ function hotelTransferLeg(packageId: string, arriveBy: ArriveBy): TransportLeg |
 }
 
 export function pickupQuoteFor(packageId: string, arriveBy: ArriveBy): PickupQuote {
-  const hotel = hotelTransferLeg(packageId, arriveBy);
-  if (!hotel) {
+  const included = stayIncludesAirportTransfer(packageId) && (arriveBy === "fly" || arriveBy === "road");
+  if (!included) {
     return { available: false, included: false, price: 0, label: "Hotel pickup", duration: "" };
   }
-  const included = stayIncludesAirportTransfer(packageId) && (arriveBy === "fly" || arriveBy === "road");
-  const range = parseInrRange(hotel.costHint);
-  const price = included ? 0 : range.min > 0 ? range.min : 1800;
+  const hotel = hotelTransferLeg(packageId, arriveBy);
   return {
     available: true,
-    included,
-    price,
-    label: included ? "Included hotel transfer" : "Hotel pickup",
-    duration: hotel.duration,
+    included: true,
+    price: 0,
+    label: "Included hotel transfer",
+    duration: hotel?.duration ?? "",
   };
 }
 

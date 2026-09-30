@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { LastMilePicker } from "@/components/last-mile-picker";
 import { BUS_GUIDE, DIGIYATRA_GUIDE, type Journey, type TransportLeg } from "@/lib/transport";
 import { getOrigin } from "@/lib/origins";
-import { formatInrRange, type TravelPlan, type TravelQuote } from "@/lib/travel-plan";
+import { type TravelPlan, type TravelQuote } from "@/lib/travel-plan";
 import { MotionToggle } from "@/components/motion";
 import { cn } from "@/lib/utils";
 
@@ -156,14 +156,10 @@ export function TransportPanel({
         <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-elevated px-4 py-3">
           <div>
             <p className="text-sm font-medium">
-              {quote.pickup.included
-                ? "Hotel car, already in the stay price"
-                : `Add a hotel-pickup estimate · ${formatInrRange(quote.pickup.price, quote.pickup.price)}`}
+              Hotel car, already in the stay price
             </p>
             <p className="text-xs text-muted">
-              {quote.pickup.included
-                ? "This hotel lists an airport transfer with the room. Turning this on asks the desk to send that car. It does not add rupees."
-                : "This hotel does not include a car. The amount is TripWeave’s road estimate, charged once at checkout. It is not a confirmed booking with the hotel or with Ola."}
+              This hotel lists an airport transfer with the room. Turning this on asks the desk to send that car. It does not add rupees.
             </p>
           </div>
           <MotionToggle

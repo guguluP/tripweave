@@ -66,18 +66,16 @@ describe("travel plan", () => {
     assert.equal(pickupChargeInr("taj-puri-resort-spa", plan), 0);
   });
 
-  it("charges hotel pickup when the stay does not include a transfer", () => {
+  it("does not sell a pickup when the hotel does not list its own car", () => {
     const pickup = pickupQuoteFor("empires-hotel-puri", "fly");
-    assert.equal(pickup.available, true);
+    assert.equal(pickup.available, false);
     assert.equal(pickup.included, false);
-    assert.ok(pickup.price >= 1000);
+    assert.equal(pickup.price, 0);
     const plan = parseTravelPlan({
       lastMileId: lastMileId(lastMileOptions("empires-hotel-puri", "fly")[0]!),
       includePickup: true,
       arriveBy: "fly",
     });
-    assert.equal(pickupChargeInr("empires-hotel-puri", plan), pickup.price);
-    plan.includePickup = false;
     assert.equal(pickupChargeInr("empires-hotel-puri", plan), 0);
   });
 
