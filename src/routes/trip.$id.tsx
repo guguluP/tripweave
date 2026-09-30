@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { DigitPop, Stagger, TextSwap } from "@/components/motion";
 import { RollingPrice } from "@/components/motion/rolling-price";
 import { PropertyMedia } from "@/components/property-media";
+import { StayCover } from "@/components/stay-cover";
 import { ReviewerConsensus } from "@/components/reviewer-consensus";
 import { TrustHonestyStrip } from "@/components/trust-honesty";
 import { StayMap } from "@/components/stay-map";
@@ -167,6 +168,11 @@ function TripDetail() {
 
   return (
     <Shell>
+      <StayCover
+        image={pkg.image}
+        name={pkg.name}
+        detail={`${pkg.neighborhood} · ${pkg.destination} · ${pkg.nightsMin}–${pkg.nightsMax} nights`}
+      />
       <PropertyMedia
         id={pkg.id}
         name={pkg.name}
