@@ -3,8 +3,8 @@
 @import "./styles.motion-b.css";
 
 @keyframes page-rise {
-  from { transform: translateY(8px); }
-  to { transform: none; }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .page-rise {
@@ -35,8 +35,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .page-rise,
-  .roll-digit-strip {
+  .roll-digit-strip,
+  .story-caption,
+  .story-progress {
     animation: none;
+    transition: none;
+  }
+  .story-frame img,
+  .story-frame video {
+    transform: none;
     transition: none;
   }
   ::view-transition-old(*),

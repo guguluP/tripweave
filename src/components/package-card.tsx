@@ -72,7 +72,11 @@ export function PackageCard({
       >
         <div className="overflow-hidden rounded-t-xl">
           <div className="relative">
-            <img src={pkg.image} alt={pkg.name} className="h-44 w-full object-cover" />
+            <img
+              src={pkg.image}
+              alt={pkg.name}
+              className="h-44 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+            />
             <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-fg/70 to-transparent" />
             <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between pr-12">
               <Badge className="border-0 bg-elevated/95 text-fg">{variantLabel(pkg)}</Badge>

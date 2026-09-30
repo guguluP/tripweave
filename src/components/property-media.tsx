@@ -218,7 +218,7 @@ export function PropertyMedia({
           <button
             type="button"
             className={cn(
-              "rounded-full border px-4 py-2 text-sm",
+              "rounded-full border px-4 py-2 text-sm transition-colors duration-200",
               album === "property" ? "border-primary bg-primary text-primary-fg" : "border-border bg-elevated",
             )}
             onClick={() => {
@@ -235,7 +235,7 @@ export function PropertyMedia({
             <button
               type="button"
               className={cn(
-                "rounded-full border px-4 py-2 text-sm",
+                "rounded-full border px-4 py-2 text-sm transition-colors duration-200",
                 album === "rooms" ? "border-primary bg-primary text-primary-fg" : "border-border bg-elevated",
               )}
               onClick={() => {
@@ -267,7 +267,7 @@ export function PropertyMedia({
                   if (hideHero) window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
                 className={cn(
-                  "h-16 w-24 shrink-0 snap-start overflow-hidden rounded-lg border-2 sm:h-20 sm:w-28",
+                  "h-16 w-24 shrink-0 snap-start overflow-hidden rounded-lg border-2 transition-[border-color,opacity,transform] duration-200 sm:h-20 sm:w-28",
                   i === index ? "border-primary" : "border-transparent opacity-80",
                 )}
                 aria-label={`Photo ${i + 1} of ${shown.length}`}
