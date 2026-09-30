@@ -70,6 +70,9 @@ export async function rebuildConsensus(packageId: string): Promise<PackageReview
   const videos = await resolveVideos(packageId);
   const hash = hashVideos(packageId, videos);
   const fallback = (await storedConsensus(packageId, hash)) ?? emptyConsensus(packageId);
+  const last = cool.__twConsensusCool__!.get(packageId) ?? 0;
+  if (Date.now() - last < COOLDOWN_MS) return fallback;
+  cool.__twConsensusCool__!.set(packageId, Date.now());
 
   if (videos.length === 0) {
     const empty = attachRoomNotes(packageId, emptyConsensus(packageId));

@@ -78,6 +78,16 @@ export type PackageReviewConsensus = {
   roomNotes?: Record<string, RoomReviewNotes>;
 };
 
+/** Saved notes older than this, or notes that never came from captions, need another look. */
+export const CONSENSUS_STALE_MS = 24 * 60 * 60 * 1000;
+
+export function notesNeedACheck(notes: { origin: PackageReviewConsensus["origin"]; updatedAt: string }) {
+  if (notes.origin !== "live") return true;
+  const at = Date.parse(notes.updatedAt);
+  if (!Number.isFinite(at)) return true;
+  return Date.now() - at > CONSENSUS_STALE_MS;
+}
+
 export type ConsensusResponse =
   | { ok: true; consensus: PackageReviewConsensus }
   | { ok: false; message: string; consensus?: PackageReviewConsensus };

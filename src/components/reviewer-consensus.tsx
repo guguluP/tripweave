@@ -16,7 +16,7 @@ import {
   getReviewerConsensus,
   refreshReviewerConsensus,
 } from "@/lib/youtube/server";
-import type { PackageReviewConsensus, Sentiment } from "@/lib/youtube/types";
+import { notesNeedACheck, type PackageReviewConsensus, type Sentiment } from "@/lib/youtube/types";
 import { getSeededConsensus } from "@/lib/youtube/get-seeded";
 import { captionFailureCopy, isCaptionHostBlock } from "@/lib/youtube/caption-copy";
 import { cn } from "@/lib/utils";
@@ -86,6 +86,7 @@ export function ReviewerConsensus({
   const [message, setMessage] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [sourcesOpen, setSourcesOpen] = useState(false);
+  const checked = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -146,6 +147,13 @@ export function ReviewerConsensus({
       setRefreshing(false);
     }
   };
+
+  useEffect(() => {
+    if (!data || checked.current) return;
+    if (!notesNeedACheck(data)) return;
+    checked.current = true;
+    void onRefresh();
+  }, [data]);
 
   if (status === "loading") return <ConsensusSkeleton />;
 
@@ -327,8 +335,11 @@ export function ReviewerConsensus({
           ) : null}
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs text-subtle">
-              {data.origin === "live" ? "Rebuilt from captions" : "Curated from stay-review videos"}
-              {data.updatedAt ? ` · ${formatUpdated(data.updatedAt)}` : ""}
+              {refreshing
+                ? "Checking the review videos for anything newer"
+                : data.origin === "live"
+                  ? `Latest from those videos · ${formatUpdated(data.updatedAt)}`
+                  : `Saved notes${data.updatedAt ? ` · ${formatUpdated(data.updatedAt)}` : ""}. A newer check has not replaced them.`}
             </p>
             <Button
               type="button"
@@ -340,9 +351,9 @@ export function ReviewerConsensus({
             >
               <RefreshCw className={cn("size-3.5", refreshing && "animate-spin")} />
               {refreshing ? (
-                <Shimmer>Watching the videos</Shimmer>
+                <Shimmer>Checking reviews</Shimmer>
               ) : (
-                "Rebuild from videos"
+                "Check again"
               )}
             </Button>
           </div>

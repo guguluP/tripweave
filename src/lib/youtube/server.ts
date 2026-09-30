@@ -22,6 +22,15 @@ export const getReviewerConsensus = createServerFn({ method: "POST" })
 export const refreshReviewerConsensus = createServerFn({ method: "POST" })
   .validator((data: unknown) => idSchema.parse(data))
   .handler(async ({ data }): Promise<ConsensusResponse> => {
+    const { allowRequest } = await import("@/lib/server/rate-limit");
+    if (!allowRequest("review-rebuild", 4, 10 * 60_000)) {
+      const consensus = await loadConsensus(data.packageId).catch(() => undefined);
+      return {
+        ok: false,
+        message: "A newer check just ran. These are the latest notes we have.",
+        consensus,
+      };
+    }
     try {
       const consensus = await rebuildConsensus(data.packageId);
       if (consensus.origin !== "live" && consensus.rebuildNote) {
