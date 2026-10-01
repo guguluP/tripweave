@@ -21,6 +21,8 @@ import {
 import { bookedOnNight, todayIso } from "@/lib/inventory";
 import { refreshStayInventory } from "@/lib/server/occupancy";
 import { getSql } from "@/lib/db";
+import { readMeta } from "@/lib/booking-meta";
+import { notifyGuestCheckedIn, notifyGuestConfirmed } from "@/lib/server/desk-notify";
 import { isDurableDbError, markDurableDbFailed, shouldSkipNeon } from "@/lib/server/db-fallback";
 
 export type DeskOpsBooking = {
@@ -397,7 +399,11 @@ async function runTransition(input: {
           .eq("id", input.id)
           .eq("package_id", input.packageId);
       }
-      return declined((result as { status?: string })?.status);
+      const outcome = declined((result as { status?: string })?.status);
+      if (input.action === "desk_confirm" || input.action === "check_in") {
+        await mailGuestAfterDesk(input);
+      }
+      return outcome;
     }
     if (!/schema cache|could not find the function|PGRST202/i.test(error.message)) {
       const msg = error.message.includes("not_open")
@@ -407,6 +413,9 @@ async function runTransition(input: {
     }
     const saved = await transitionBookingRow(sb, { ...input, refundId, refundAmount });
     if (!saved.ok) return saved;
+    if (input.action === "desk_confirm" || input.action === "check_in") {
+      await mailGuestAfterDesk(input);
+    }
     return declined(saved.status);
   }
   if (!shouldSkipNeon()) {
@@ -422,6 +431,53 @@ async function runTransition(input: {
     }
   }
   return { ok: false as const, message: "Desk transition needs the database." };
+}
+
+function guestEmailFromSwaps(swaps: unknown): string {
+  if (!swaps || typeof swaps !== "object" || Array.isArray(swaps)) return "";
+  const record = swaps as Record<string, unknown>;
+  const raw = record.__tw;
+  const meta =
+    typeof raw === "string"
+      ? readMeta(record as Record<string, string>)
+      : raw && typeof raw === "object"
+        ? (raw as { accountEmail?: string; guestEmail?: string })
+        : {};
+  const email = (meta.accountEmail || meta.guestEmail || "").trim().toLowerCase();
+  return email.includes("@") ? email : "";
+}
+
+/** Guest mail after the desk confirms or checks the stay in. A mail failure does not undo the desk action. */
+export async function mailGuestAfterDesk(input: {
+  id: number;
+  packageId: string;
+  action: "desk_confirm" | "check_in";
+}) {
+  const sb = getSupabaseAdmin();
+  if (!sb) return;
+  const { data } = await sb
+    .from("bookings")
+    .select("package_name,confirmation_code,check_in,nights,travelers,amount_inr,payer_name,swaps")
+    .eq("id", input.id)
+    .eq("package_id", input.packageId)
+    .maybeSingle();
+  if (!data) return;
+  const guestEmail = guestEmailFromSwaps(data.swaps);
+  if (!guestEmail) return;
+  const notice = {
+    bookingId: input.id,
+    guestEmail,
+    packageId: input.packageId,
+    packageName: String(data.package_name ?? ""),
+    confirmationCode: String(data.confirmation_code ?? ""),
+    checkIn: String(data.check_in ?? "").slice(0, 10),
+    nights: Number(data.nights) || 1,
+    travelers: Number(data.travelers) || 1,
+    amountInr: Number(data.amount_inr) || 0,
+    payerName: String(data.payer_name ?? ""),
+  };
+  if (input.action === "desk_confirm") await notifyGuestConfirmed(notice);
+  else await notifyGuestCheckedIn(notice);
 }
 
 export const deskTransitionBooking = createServerFn({ method: "POST" })

@@ -143,17 +143,26 @@ export const confirmDeskBooking = createServerFn({ method: "POST" })
       p_gate: SUPABASE_WRITE_GATE,
       p_payload: { id: data.id, package_id: data.packageId, note: data.note },
     });
-    if (!error) return { ok: true as const };
+    if (!error) {
+      const { mailGuestAfterDesk } = await import("@/lib/server/desk-ops");
+      await mailGuestAfterDesk({ id: data.id, packageId: data.packageId, action: "desk_confirm" });
+      return { ok: true as const };
+    }
     if (!/schema cache|could not find the function|PGRST202/i.test(error.message)) {
       return { ok: false as const, message: error.message.includes("not_open") ? "That stay is not waiting for the desk." : error.message };
     }
     const { transitionBookingRow } = await import("@/lib/server/desk-ops");
-    return transitionBookingRow(sb, {
+    const saved = await transitionBookingRow(sb, {
       id: data.id,
       packageId: data.packageId,
       action: "desk_confirm",
       note: data.note,
     });
+    if (saved.ok) {
+      const { mailGuestAfterDesk } = await import("@/lib/server/desk-ops");
+      await mailGuestAfterDesk({ id: data.id, packageId: data.packageId, action: "desk_confirm" });
+    }
+    return saved;
   });
 
 export const sendStayReminder = createServerFn({ method: "POST" })

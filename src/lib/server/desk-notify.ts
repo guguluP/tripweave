@@ -140,3 +140,45 @@ export async function notifyGuestPaid(input: DeskNotice): Promise<boolean> {
     return false;
   }
 }
+
+export async function notifyGuestConfirmed(input: DeskNotice): Promise<boolean> {
+  if (!input.guestEmail || !bookingMailConfigured()) return false;
+  const text = [
+    `${input.packageName} confirmed your stay.`,
+    `Confirmation ${input.confirmationCode}`,
+    `Check-in ${input.checkIn} · ${input.nights} nights · ${input.travelers} guests`,
+    "",
+    "Show this confirmation at the desk when you arrive.",
+  ].join("\n");
+  try {
+    return await sendBookingMail({
+      to: input.guestEmail,
+      subject: `Stay confirmed — ${input.confirmationCode}`,
+      text,
+    });
+  } catch (err) {
+    console.error("[notifyDesk] confirmed", err instanceof Error ? err.message : err);
+    return false;
+  }
+}
+
+export async function notifyGuestCheckedIn(input: DeskNotice): Promise<boolean> {
+  if (!input.guestEmail || !bookingMailConfigured()) return false;
+  const text = [
+    `${input.packageName} has checked you in.`,
+    `Confirmation ${input.confirmationCode}`,
+    `Check-in ${input.checkIn} · ${input.nights} nights`,
+    "",
+    "You are checked in. Enjoy the stay.",
+  ].join("\n");
+  try {
+    return await sendBookingMail({
+      to: input.guestEmail,
+      subject: `Checked in — ${input.confirmationCode}`,
+      text,
+    });
+  } catch (err) {
+    console.error("[notifyDesk] check-in", err instanceof Error ? err.message : err);
+    return false;
+  }
+}
