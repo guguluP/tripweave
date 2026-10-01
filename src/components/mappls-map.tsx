@@ -104,8 +104,29 @@ export function MapplsMap({
             });
           }
         };
-        if (map.addListener) map.addListener("load", place);
+        const parkControls = () => {
+          const root = document.getElementById(mapId);
+          const scope = root?.parentElement ?? root;
+          if (!scope) return;
+          const nodes = scope.querySelectorAll<HTMLElement>("*");
+          for (const el of nodes) {
+            const name = typeof el.className === "string" ? el.className : "";
+            if (!/bottom-right|ctrl-bottom|control-bottom|zoom-control|mappls-ctrl/i.test(name)) continue;
+            el.style.position = "absolute";
+            el.style.top = "0.5rem";
+            el.style.right = "0.5rem";
+            el.style.bottom = "auto";
+            el.style.left = "auto";
+            el.style.zIndex = "2";
+          }
+        };
+        if (map.addListener) map.addListener("load", () => {
+          place();
+          parkControls();
+        });
         else place();
+        window.setTimeout(parkControls, 400);
+        window.setTimeout(parkControls, 1200);
       })
       .catch(() => {
         if (!cancel) setFailed(true);

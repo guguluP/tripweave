@@ -39,9 +39,14 @@
   overflow: hidden;
 }
 .map-frame .maplibregl-ctrl-bottom-right,
-.map-frame .mapboxgl-ctrl-bottom-right {
-  right: 0.5rem;
-  bottom: 0.5rem;
+.map-frame .mapboxgl-ctrl-bottom-right,
+.map-frame .mapplsgl-ctrl-bottom-right,
+.map-frame [class*="bottom-right"],
+.map-frame [class*="ctrl-bottom"] {
+  top: 0.5rem !important;
+  right: 0.5rem !important;
+  bottom: auto !important;
+  left: auto !important;
 }
 
 /* The photograph is in the page flow, so the filmstrip starts as soon as it ends. */
