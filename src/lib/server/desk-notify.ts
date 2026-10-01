@@ -1,9 +1,11 @@
 /**
- * Desk notification channel. SES email is live when AWS/SES env is set.
+ * Desk notification channel. Booking mail uses the same SMTP mailbox as
+ * password reset. SES is only the fallback when SMTP is unset.
  * WhatsApp is stubbed unless TW_WHATSAPP_* is configured.
  */
 import { deskFor } from "@/lib/hotel-desk";
-import { mailConfigured, sendMail } from "@/lib/mail/ses";
+import { mailConfigured, sendMail, type OutboundMail } from "@/lib/mail/ses";
+import { sendSmtpMail, smtpConfigured } from "@/lib/mail/smtp";
 import {
   deskActionUrl,
   deskSigningReady,
@@ -48,6 +50,20 @@ async function sendWhatsAppStub(toPhone: string | undefined, text: string): Prom
   return false;
 }
 
+function bookingMailConfigured(): boolean {
+  return smtpConfigured() || mailConfigured();
+}
+
+/** Same path as password reset: SMTP first, SES only if SMTP is unset. */
+async function sendBookingMail(message: OutboundMail): Promise<boolean> {
+  if (smtpConfigured()) {
+    await sendSmtpMail(message);
+    return true;
+  }
+  if (mailConfigured()) return sendMail(message);
+  return false;
+}
+
 export async function notifyDesk(input: DeskNotice): Promise<NotifyResult> {
   const desk = deskFor(input.packageId);
   let acceptUrl: string | undefined;
@@ -85,9 +101,9 @@ export async function notifyDesk(input: DeskNotice): Promise<NotifyResult> {
 
   const text = lines.join("\n");
   let emailOk = false;
-  if (desk.email && mailConfigured()) {
+  if (desk.email && bookingMailConfigured()) {
     try {
-      emailOk = await sendMail({
+      emailOk = await sendBookingMail({
         to: desk.email,
         subject: `Confirm stay ${input.confirmationCode} — ${input.packageName}`,
         text,
@@ -96,7 +112,7 @@ export async function notifyDesk(input: DeskNotice): Promise<NotifyResult> {
       console.error("[notifyDesk] email", err instanceof Error ? err.message : err);
     }
   } else if (desk.email) {
-    console.info("[notifyDesk] SES not configured; desk email skipped for", desk.email);
+    console.info("[notifyDesk] mail not configured; desk email skipped for", desk.email);
   }
 
   const whatsapp = await sendWhatsAppStub(desk.phone, text);
@@ -104,7 +120,7 @@ export async function notifyDesk(input: DeskNotice): Promise<NotifyResult> {
 }
 
 export async function notifyGuestPaid(input: DeskNotice): Promise<boolean> {
-  if (!input.guestEmail || !mailConfigured()) return false;
+  if (!input.guestEmail || !bookingMailConfigured()) return false;
   const text = [
     `Payment received for ${input.packageName}.`,
     `Confirmation ${input.confirmationCode}`,
@@ -114,7 +130,7 @@ export async function notifyGuestPaid(input: DeskNotice): Promise<boolean> {
     "My trips will say Awaiting hotel confirmation until the desk accepts.",
   ].join("\n");
   try {
-    return await sendMail({
+    return await sendBookingMail({
       to: input.guestEmail,
       subject: `Payment received — awaiting hotel confirmation (${input.confirmationCode})`,
       text,

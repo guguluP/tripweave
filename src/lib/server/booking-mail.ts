@@ -16,7 +16,7 @@ type Notice = {
   roomName?: string;
 };
 
-/** Guest and hotel desk. SES when configured; WhatsApp stub otherwise. */
+/** Guest and hotel desk. SMTP when configured, otherwise SES. WhatsApp stays a stub. */
 export async function sendBookingNotices(input: Notice) {
   const notice: DeskNotice = {
     bookingId: input.bookingId ?? 0,
