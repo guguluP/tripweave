@@ -437,30 +437,25 @@ function TripDetail() {
           ))}
         </div>
       </div>
-      <div className="fixed inset-x-0 bottom-14 z-20 border-t border-border bg-elevated/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-md md:bottom-0 md:pb-3">
-        <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3">
-          <p className="font-display text-xl tabular-nums">
-            <RollingPrice value={price} />
-          </p>
+      <div className="fixed inset-x-0 bottom-14 z-40 border-t border-border bg-elevated/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-md md:bottom-0 md:pb-3">
+        <div className="mx-auto flex max-w-3xl items-start justify-between gap-3">
+          <div className="min-w-0 flex-1 text-left">
+            <p className="font-display text-xl tabular-nums">
+              <RollingPrice value={price} />
+            </p>
+            <p className="mt-1 text-left text-xs leading-snug text-muted">{rateLine}</p>
+            {finePrint ? (
+              <p className="mt-0.5 text-left text-[0.65rem] leading-snug text-subtle">{finePrint}</p>
+            ) : null}
+          </div>
           <Button
             size="lg"
-            className={cn(
-              "col-start-2 row-start-1 shrink-0 self-center whitespace-nowrap",
-              finePrint ? "md:row-span-3" : "md:row-span-2",
-            )}
+            className="shrink-0 whitespace-nowrap"
             onClick={goBook}
             disabled={isPending || !quote?.available}
           >
             <TextSwap text={booking ? "Traveller details…" : "Book this stay"} shimmer={booking} />
           </Button>
-          <p className="col-span-2 mt-1 min-w-0 text-xs leading-snug text-muted md:col-span-1 md:mt-0 md:truncate">
-            {rateLine}
-          </p>
-          {finePrint ? (
-            <p className="col-span-2 mt-0.5 min-w-0 text-[0.65rem] leading-snug text-subtle md:col-span-1 md:truncate">
-              {finePrint}
-            </p>
-          ) : null}
         </div>
       </div>
     </Shell>

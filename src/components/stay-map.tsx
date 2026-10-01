@@ -38,7 +38,7 @@ export function StayMap({ packageId, name }: { packageId: string; name: string }
         The stay against the temple, the station, and the beach. Cab prices use live road distance;
         walking times below are straight-line estimates at ~5 km/h.
       </p>
-      <div className="relative mt-4 h-72 overflow-hidden rounded-xl border border-border">
+      <div className="map-frame relative mt-4 h-72 overflow-hidden rounded-xl border border-border">
         <MapplsMap
           title={`Map of ${name} in Puri`}
           className="h-full w-full"

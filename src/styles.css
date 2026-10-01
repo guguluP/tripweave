@@ -33,6 +33,17 @@
   animation: none;
 }
 
+/* Mappls zoom controls stay inside the map, above the booking bar. */
+.map-frame,
+.map-frame > div {
+  overflow: hidden;
+}
+.map-frame .maplibregl-ctrl-bottom-right,
+.map-frame .mapboxgl-ctrl-bottom-right {
+  right: 0.5rem;
+  bottom: 0.5rem;
+}
+
 /* The photograph is in the page flow, so the filmstrip starts as soon as it ends. */
 .stay-cover-sheet {
   position: relative;
