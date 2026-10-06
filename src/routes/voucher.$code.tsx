@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -27,30 +28,59 @@ export const Route = createFileRoute("/voucher/$code")({
 
 function VoucherPage() {
   const { code } = Route.useParams();
+  const { user, isPending } = useCurrentUserState();
   const [booking, setBooking] = useState<BookingRow | null>(null);
+  const [lookedUp, setLookedUp] = useState(false);
 
   useEffect(() => {
+    if (isPending) return;
+    if (!user) {
+      setBooking(null);
+      setLookedUp(true);
+      return;
+    }
+    setLookedUp(false);
     void listBookings()
       .then((rows) => {
         const found = rows.find((b) => b.confirmationCode === code);
-        if (found) setBooking(found);
+        setBooking(found ?? null);
       })
       .catch(() => {
-        /* local voucher is enough */
-      });
-  }, [code]);
+        setBooking(null);
+      })
+      .finally(() => setLookedUp(true));
+  }, [code, user, isPending]);
+
+  if (isPending || !lookedUp) {
+    return (
+      <Shell>
+        <div className="mx-auto max-w-lg px-4 py-16">
+          <h1 className="font-display text-3xl">Opening voucher…</h1>
+          <p className="mt-3 text-sm text-muted">Checking the account that paid for this stay.</p>
+        </div>
+      </Shell>
+    );
+  }
 
   if (!booking) {
     return (
       <Shell>
         <div className="mx-auto max-w-lg px-4 py-16">
-          <h1 className="font-display text-3xl">Voucher not found</h1>
+          <h1 className="font-display text-3xl">{user ? "Voucher not found" : "Sign in to open this voucher"}</h1>
           <p className="mt-3 text-sm text-muted">
-            Sign in on the account that paid. A confirmation code does not open someone else’s voucher.
+            {user
+              ? "This confirmation code is not on the signed-in account. A code does not open someone else’s voucher."
+              : "Vouchers are private to the account that paid. Sign in, then open this link again."}
           </p>
-          <Button asChild className="mt-6">
-            <Link to="/trips">My trips</Link>
-          </Button>
+          {user ? (
+            <Button asChild className="mt-6">
+              <Link to="/trips">My trips</Link>
+            </Button>
+          ) : (
+            <Button asChild className="mt-6">
+              <Link to="/login">Sign in</Link>
+            </Button>
+          )}
         </div>
       </Shell>
     );

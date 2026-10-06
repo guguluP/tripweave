@@ -40,13 +40,21 @@ function whatsappConfigured(): boolean {
   );
 }
 
-/** Stub: logs intent. Wire a Meta Cloud API client when TW_WHATSAPP_* is set. */
+/**
+ * WhatsApp desk notify is intentionally stubbed.
+ * Set TW_WHATSAPP_TOKEN + TW_WHATSAPP_PHONE_ID when a Meta Cloud API client is wired;
+ * until then this only logs and returns false (email remains the live desk channel).
+ */
 async function sendWhatsAppStub(toPhone: string | undefined, text: string): Promise<boolean> {
   if (!whatsappConfigured()) {
     console.info("[notifyDesk] whatsapp stub (no TW_WHATSAPP_*):", text.slice(0, 120));
     return false;
   }
-  console.info("[notifyDesk] whatsapp configured but client not wired; would send to", toPhone ?? "(desk)", text.slice(0, 80));
+  console.info(
+    "[notifyDesk] whatsapp env set but Meta Cloud API client not wired; skipped send to",
+    toPhone ?? "(desk)",
+    text.slice(0, 80),
+  );
   return false;
 }
 
