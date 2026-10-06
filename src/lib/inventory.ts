@@ -233,17 +233,52 @@ function nightsOverlap(hold: OccupancyHold, date: string) {
   return holdNights.includes(date);
 }
 
+const OWN_HOLDS_KEY = "tripweave-own-holds";
+let ownHoldIds: Set<string> | null = null;
+
+function browserOwnHolds(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  if (ownHoldIds) return ownHoldIds;
+  try {
+    const raw = window.sessionStorage.getItem(OWN_HOLDS_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    ownHoldIds = new Set(Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === "string") : []);
+  } catch {
+    ownHoldIds = new Set();
+  }
+  return ownHoldIds;
+}
+
+/**
+ * Browser only: remember a soft hold this guest placed, so their own hold does not
+ * make the room look sold out to them on Travellers / Checkout. Servers never read this;
+ * they pass `ignoreHoldIds` explicitly per user.
+ */
+export function rememberOwnHold(holdId: string) {
+  if (typeof window === "undefined" || !holdId) return;
+  const set = browserOwnHolds();
+  set.add(holdId);
+  try {
+    window.sessionStorage.setItem(OWN_HOLDS_KEY, JSON.stringify([...set].slice(-20)));
+  } catch {
+    /* ignore */
+  }
+}
+
 /** Stays and live holds already on this room for this night. Not capped by the published count. */
 export function bookedOnNight(
   packageId: string,
   roomId: string,
   date: string,
   extraHolds: OccupancyHold[] = [],
+  ignoreHoldIds: readonly string[] = [],
 ): number {
   const seen = new Set<string>();
+  const ignore = new Set<string>([...ignoreHoldIds, ...browserOwnHolds()]);
   let held = 0;
   for (const [index, h] of [...listHolds(), ...extraHolds].entries()) {
     if (h.packageId !== packageId || h.roomId !== roomId || !nightsOverlap(h, date)) continue;
+    if (h.holdId && ignore.has(h.holdId)) continue;
     const key = h.holdId ?? `row:${index}:${h.checkIn}:${h.nights}`;
     if (seen.has(key)) continue;
     seen.add(key);
@@ -257,10 +292,11 @@ export function takenOnNight(
   roomId: string,
   date: string,
   extraHolds: OccupancyHold[] = [],
+  ignoreHoldIds: readonly string[] = [],
 ): number {
   const pkg = getPackage(packageId);
   if (!pkg) return 0;
-  return Math.min(unitsForNight(pkg, roomId, date), bookedOnNight(packageId, roomId, date, extraHolds));
+  return Math.min(unitsForNight(pkg, roomId, date), bookedOnNight(packageId, roomId, date, extraHolds, ignoreHoldIds));
 }
 
 export function quoteStay(input: {
@@ -270,6 +306,8 @@ export function quoteStay(input: {
   nights: number;
   swaps?: Record<string, string>;
   extraHolds?: OccupancyHold[];
+  /** This guest's own checkout holds. They must not count against the guest holding them. */
+  ignoreHoldIds?: readonly string[];
   /** False after a failed occupancy read. Prices still calculate; leftover does not. */
   inventoryKnown?: boolean;
 }): StayQuote | null {
@@ -288,7 +326,7 @@ export function quoteStay(input: {
     }
     const published = publishedNightUnits(pkg, room.id, date);
     const nightUnits = published ?? roomUnits(pkg, room.id);
-    const remaining = Math.max(0, nightUnits - takenOnNight(pkg.id, room.id, date, input.extraHolds));
+    const remaining = Math.max(0, nightUnits - takenOnNight(pkg.id, room.id, date, input.extraHolds, input.ignoreHoldIds));
     return { date, rate, label: season.label, remaining, released: true };
   });
   const published = dates.map((date) => publishedNightUnits(pkg, room.id, date) ?? roomUnits(pkg, room.id));
