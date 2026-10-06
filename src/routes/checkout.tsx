@@ -29,7 +29,7 @@ import {
   saveNext,
   loadBrief,
 } from "@/lib/packages";
-import { quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory";
+import { addDays, quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory";
 import { useStayInventory } from "@/lib/use-occupancy";
 import { deskFor, hotelMailto } from "@/lib/hotel-desk";
 import { refundPolicyFor } from "@/lib/refund-policy";
@@ -67,8 +67,9 @@ import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/checkout")({ component: Checkout, head: () => pageHead("Checkout") });
 
+/** Default check-in: tomorrow in India time (min date on the form is still today). */
 function tomorrowIso() {
-  return todayIso();
+  return addDays(todayIso(), 1);
 }
 
 function CheckoutSkeleton() {
