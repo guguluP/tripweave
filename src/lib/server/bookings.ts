@@ -428,6 +428,7 @@ async function runReconcileJob(job: ReconcileJob): Promise<BookingRow | null> {
     const { sendBookingNotices } = await import("@/lib/server/booking-mail");
     const meta = readMeta(booking.swaps);
     void sendBookingNotices({
+      bookingId: booking.id,
       guestEmail: meta.guestEmail,
       packageId: booking.packageId,
       packageName: booking.packageName,
@@ -825,6 +826,21 @@ export const createBooking = createServerFn({ method: "POST" })
           payload: { method: paid.method, confirmation: code },
         });
       }
+      const { sendBookingNotices } = await import("@/lib/server/booking-mail");
+      const meta = readMeta(booking.swaps);
+      void sendBookingNotices({
+        bookingId: booking.id,
+        guestEmail: meta.guestEmail,
+        packageId: booking.packageId,
+        packageName: booking.packageName,
+        confirmationCode: booking.confirmationCode,
+        checkIn: booking.checkIn,
+        nights: booking.nights,
+        travelers: booking.travelers,
+        amountInr: booking.amountInr,
+        payerName: booking.payerName,
+        roomName: room.name,
+      }).catch((err) => console.error("[mail] booking", err));
       return { ok: true as const, booking, stored };
     };
 

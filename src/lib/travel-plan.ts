@@ -584,7 +584,7 @@ export function travelSummaryLine(quote: TravelQuote, plan: TravelPlan): string 
   if (plan.carrierRef.trim()) bits.push(plan.carrierRef.trim());
   if (plan.arrivalTime.trim()) bits.push(`ETA ${plan.arrivalTime.trim()}`);
   if (plan.includePickup && quote.pickup.available) {
-    bits.push(quote.pickup.included ? "hotel car included" : `pickup ${formatInrRange(quote.pickup.price, quote.pickup.price)}`);
+    bits.push(quote.pickup.included ? "hotel car (hotel bills you)" : `pickup ${formatInrRange(quote.pickup.price, quote.pickup.price)}`);
   }
   return bits.join(" · ");
 }
@@ -609,7 +609,7 @@ export function travelShareText(input: {
     input.plan.arrivalTime.trim() ? `ETA: ${input.plan.arrivalTime.trim()}` : "ETA: TBC",
     input.plan.includePickup && input.quote.pickup.available
       ? input.quote.pickup.included
-        ? "Pickup: please send the included hotel car"
+        ? "Pickup: please send the hotel car (hotel bills you)"
         : `Pickup: hotel car paid on TripWeave (${formatInrRange(input.quote.pickup.price, input.quote.pickup.price)})`
       : "Pickup: guest making own way",
     input.guests ? `Guests: ${input.guests}` : "",

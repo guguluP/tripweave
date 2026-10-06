@@ -28,15 +28,35 @@ function smtpPort(): number {
 }
 
 export function smtpData(from: string, message: OutboundMail): string {
-  const lines = [
-    `From: ${from}`,
-    `To: ${message.to}`,
-    `Subject: ${message.subject}`,
-    "MIME-Version: 1.0",
-    "Content-Type: text/plain; charset=UTF-8",
-    "",
-    message.text.replace(/\r?\n/g, "\r\n"),
-  ];
+  const textBody = message.text.replace(/\r?\n/g, "\r\n");
+  const htmlBody = message.html?.replace(/\r?\n/g, "\r\n");
+  const lines = htmlBody
+    ? [
+        `From: ${from}`,
+        `To: ${message.to}`,
+        `Subject: ${message.subject}`,
+        "MIME-Version: 1.0",
+        'Content-Type: multipart/alternative; boundary="tw-alt"',
+        "",
+        "--tw-alt",
+        "Content-Type: text/plain; charset=UTF-8",
+        "",
+        textBody,
+        "--tw-alt",
+        "Content-Type: text/html; charset=UTF-8",
+        "",
+        htmlBody,
+        "--tw-alt--",
+      ]
+    : [
+        `From: ${from}`,
+        `To: ${message.to}`,
+        `Subject: ${message.subject}`,
+        "MIME-Version: 1.0",
+        "Content-Type: text/plain; charset=UTF-8",
+        "",
+        textBody,
+      ];
   return lines
     .join("\r\n")
     .split("\r\n")
@@ -69,7 +89,7 @@ async function command(socket: tls.TLSSocket, line: string): Promise<string> {
   return pending;
 }
 
-/** Sends one plain-text message over implicit TLS (port 465). */
+/** Sends one message over implicit TLS (port 465). HTML uses multipart/alternative. */
 export async function sendSmtpMail(message: OutboundMail): Promise<void> {
   if (!smtpConfigured() || !message.to) {
     throw new Error("SMTP is not configured.");

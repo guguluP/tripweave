@@ -109,6 +109,23 @@ function TripDetail() {
     });
   }, [pkg, inventoryKnown, checkIn, nights]);
 
+  const gallery = useMemo(() => {
+    if (!pkg) return [] as string[];
+    const list = pkg.images.filter(Boolean);
+    if (pkg.image && !list.includes(pkg.image)) return [pkg.image, ...list];
+    return list.length ? list : pkg.image ? [pkg.image] : [];
+  }, [pkg]);
+  const [openToken, setOpenToken] = useState(0);
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const [frame, setFrame] = useState({ src: "", position: 1, total: 0 });
+
+  useEffect(() => {
+    if (!gallery.length) return;
+    setFrame((prev) =>
+      prev.src ? prev : { src: gallery[0]!, position: 1, total: gallery.length },
+    );
+  }, [gallery]);
+
   if (!pkg) {
     return (
       <Shell>
@@ -196,14 +213,6 @@ function TripDetail() {
     void nav({ to: "/travelers" });
   };
 
-  const gallery = useMemo(() => {
-    const list = pkg.images.filter(Boolean);
-    if (pkg.image && !list.includes(pkg.image)) return [pkg.image, ...list];
-    return list.length ? list : pkg.image ? [pkg.image] : [];
-  }, [pkg]);
-  const [openToken, setOpenToken] = useState(0);
-  const [photoIndex, setPhotoIndex] = useState(0);
-  const [frame, setFrame] = useState({ src: gallery[0] ?? pkg.image, position: 1, total: gallery.length });
   const pin = arrivalPinLabel(brief.arriveBy);
 
   return (
