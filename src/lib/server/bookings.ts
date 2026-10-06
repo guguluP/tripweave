@@ -670,6 +670,8 @@ export const createBooking = createServerFn({ method: "POST" })
       checkIn: data.checkIn,
       nights: data.nights,
       roomId: data.roomId,
+      userId: context.userId,
+      orderId: data.razorpayOrderId ?? null,
     });
     if (!payable.ok) return { ok: false, message: payable.message, field: payable.field };
 
