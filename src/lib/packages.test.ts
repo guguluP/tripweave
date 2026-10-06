@@ -10,6 +10,7 @@ import {
   getPackage,
   getRoom,
   nightsPhrase,
+  safeNextPath,
   priceWithSwaps,
   stayTotal,
 } from "./packages.ts";
@@ -162,5 +163,18 @@ describe("stay plan", () => {
   it("names a single night correctly", () => {
     assert.equal(nightsPhrase(1), "1 night");
     assert.equal(nightsPhrase(3), "3 nights");
+  });
+});
+
+describe("login next path", () => {
+  it("keeps same-origin app paths and rejects open redirects or login loops", () => {
+    assert.equal(safeNextPath("/checkout"), "/checkout");
+    assert.equal(safeNextPath("/trip/taj-puri-resort-spa?x=1"), "/trip/taj-puri-resort-spa?x=1");
+    assert.equal(safeNextPath("//evil.example"), null);
+    assert.equal(safeNextPath("https://evil.example"), null);
+    assert.equal(safeNextPath("/\\evil.example"), null);
+    assert.equal(safeNextPath("/login"), null);
+    assert.equal(safeNextPath("/login?next=/checkout"), null);
+    assert.equal(safeNextPath(undefined), null);
   });
 });
