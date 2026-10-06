@@ -2,7 +2,9 @@ import { clampNights, getPackage, getRoom } from "@/lib/packages";
 import { addDays, quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory";
 import { parseTravelPlan, pickupChargeInr } from "@/lib/travel-plan";
 import { readMeta } from "@/lib/booking-meta";
+import { createHash } from "node:crypto";
 import { refreshStayInventory } from "@/lib/server/occupancy";
+import { holdIdsForCheckout } from "@/lib/server/room-holds";
 
 export type PayableInput = {
   packageId: string;
@@ -11,7 +13,30 @@ export type PayableInput = {
   checkIn: string;
   nights?: number;
   roomId?: string;
+  /** Signed-in guest. Their own soft / checkout holds do not count against them. */
+  userId?: string;
+  /** Razorpay order id whose hold also belongs to this guest. */
+  orderId?: string | null;
 };
+
+/** Same hash as occupancy.ts mapHolds, so a hold read back from tw_occupancy matches. */
+export function publicHoldId(raw: string) {
+  return createHash("sha256").update(raw).digest("hex").slice(0, 24);
+}
+
+/** Raw and public (hashed) ids of this guest's checkout holds for one stay. */
+export function ownHoldIds(input: {
+  userId?: string;
+  packageId: string;
+  roomId: string;
+  checkIn: string;
+  nights: number;
+  orderId?: string | null;
+}): string[] {
+  if (!input.userId) return [];
+  const raw = holdIdsForCheckout({ ...input, userId: input.userId });
+  return [...raw, ...raw.map(publicHoldId)];
+}
 
 export type PayableQuote =
   | {
@@ -68,6 +93,14 @@ export async function computePayable(input: PayableInput): Promise<PayableQuote>
     checkIn: input.checkIn,
     nights,
     swaps: input.swaps ?? {},
+    ignoreHoldIds: ownHoldIds({
+      userId: input.userId,
+      packageId: pkg.id,
+      roomId: room.id,
+      checkIn: input.checkIn,
+      nights,
+      orderId: input.orderId,
+    }),
   });
   if (quote && !quote.released) {
     return { ok: false, message: "The hotel has not released these nights yet." };

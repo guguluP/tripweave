@@ -13,7 +13,12 @@ import { readSaved, replaceSaved } from "@/lib/saved";
 import { loadGuestPlan, saveGuestPlan } from "@/lib/supabase/plan";
 import { listSavedStays, syncSavedStay } from "@/lib/supabase/saved";
 
-function applyDocument(document: Record<string, unknown>, updatedAt: string) {
+/**
+ * Apply the cloud plan to this browser. Returns true when a local cart was kept because the
+ * cloud copy had none (signing in mid-booking must not empty the cart), so the caller can
+ * push it back up.
+ */
+function applyDocument(document: Record<string, unknown>, updatedAt: string): boolean {
   const brief = document.brief;
   if (brief && typeof brief === "object") {
     const row = brief as { checkIn?: string };
@@ -23,12 +28,17 @@ function applyDocument(document: Record<string, unknown>, updatedAt: string) {
     } as Parameters<typeof saveBriefWithDates>[0]);
   }
   const pending = document.pending;
+  let keptLocal = false;
   if (pending && typeof pending === "object" && typeof (pending as PendingBooking).packageId === "string") {
     savePending(pending as PendingBooking);
+  } else if (loadPending()) {
+    // Cloud plan has no cart but this browser does (guest picked a room, then signed in).
+    keptLocal = true;
   } else {
     clearPending();
   }
   if (updatedAt) window.localStorage.setItem(PLAN_STAMP_KEY, updatedAt);
+  return keptLocal;
 }
 
 export function AuthSlot() {
@@ -77,8 +87,13 @@ export function AuthSlot() {
         const hasLocal = window.localStorage.getItem("tripweave-brief") != null;
         if (remote && (!hasLocal || remoteAt > localAt)) {
           applying.current = true;
-          applyDocument(remote.document, remote.updatedAt);
+          const keptLocal = applyDocument(remote.document, remote.updatedAt);
           applying.current = false;
+          if (keptLocal) {
+            // Stamp after the cloud copy so the kept cart wins on the next save.
+            window.localStorage.setItem(PLAN_STAMP_KEY, new Date().toISOString());
+            pushPlan();
+          }
         } else if (hasLocal) {
           pushPlan();
         }
