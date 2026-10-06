@@ -461,7 +461,7 @@ export function loadBrief(): Brief {
       nights: Number.isFinite(nights) && nights >= 1 ? Math.min(14, nights) : DEFAULT_BRIEF.nights,
       flexible: Boolean(parsed.flexible),
       origin,
-      originCity: typeof parsed.originCity === "string" ? parsed.originCity.slice(0, 60) : undefined,
+      originCity: typeof parsed.originCity === "string" ? parsed.originCity.slice(0, 80) : undefined,
       arriveBy,
     };
   } catch {
@@ -536,14 +536,20 @@ export function saveNext(path: string) {
   window.sessionStorage.setItem(NEXT_KEY, path);
 }
 
+/** Same-origin app path only. Rejects protocol-relative, backslash, and /login loops. */
+export function safeNextPath(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const next = raw.trim();
+  if (!next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return null;
+  if (next === "/login" || next.startsWith("/login?") || next.startsWith("/login/")) return null;
+  for (let i = 0; i < next.length; i += 1) if (next.charCodeAt(i) < 32) return null;
+  return next.slice(0, 500);
+}
+
 export function loadNext(): string {
   if (typeof window === "undefined") return "/";
   try {
-    const next = window.sessionStorage.getItem(NEXT_KEY);
-    if (next && next.startsWith("/") && !next.startsWith("//") && next !== "/login") {
-      return next;
-    }
-    return "/";
+    return safeNextPath(window.sessionStorage.getItem(NEXT_KEY)) ?? "/";
   } catch {
     return "/";
   }
