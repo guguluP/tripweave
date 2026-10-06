@@ -61,11 +61,15 @@ function Matches() {
   const [brief, setBrief] = useState<Brief>(() => {
     const linked = explicitCheckIn(search);
     if (!linked) return DEFAULT_BRIEF;
-    return { ...DEFAULT_BRIEF, ...searchToBrief(search), checkIn: linked };
+    return { ...DEFAULT_BRIEF, ...searchToBrief(search), checkIn: checkInOnOrAfterToday(linked) };
   });
+  const [dateMoved, setDateMoved] = useState<string | null>(null);
   const [matches, setMatches] = useState<MatchedStay[]>([]);
   const [rest, setRest] = useState<MatchedStay[]>([]);
-  const [checkIn, setCheckIn] = useState<string | undefined>(() => explicitCheckIn(search));
+  const [checkIn, setCheckIn] = useState<string | undefined>(() => {
+    const linked = explicitCheckIn(search);
+    return linked ? checkInOnOrAfterToday(linked) : undefined;
+  });
   const [tab, setTab] = useState<Tab>("matches");
   const [query, setQuery] = useState("");
   const [plannerOpen, setPlannerOpen] = useState(false);
@@ -79,7 +83,10 @@ function Matches() {
       ? mergeBriefUrl(stored, searchToBrief(search))
       : { ...stored };
     const linked = explicitCheckIn(search);
-    next.checkIn = linked ?? checkInOnOrAfterToday(next.checkIn ?? loadPending()?.checkIn);
+    const wanted = linked ?? next.checkIn ?? loadPending()?.checkIn;
+    // Same rule as Stay and Checkout: a passed date moves to today, and we say so.
+    next.checkIn = checkInOnOrAfterToday(wanted);
+    setDateMoved(wanted && wanted !== next.checkIn ? wanted : null);
     saveBriefWithDates(next);
     setBrief(next);
     const scored = scorePackages(next);
@@ -89,7 +96,7 @@ function Matches() {
     setLastMileByPackage(loadTravelDraft().lastMileByPackage);
     setReady(true);
     // Persist into the URL so a shared matches link is reproducible.
-    if (!fromUrl) {
+    if (!fromUrl || (linked && linked !== next.checkIn)) {
       void nav({ to: "/matches", search: briefToSearch(next), replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- hydrate once from URL + storage
@@ -131,6 +138,12 @@ function Matches() {
             {checkIn ? `, check-in ${formatCheckInLabel(checkIn)}` : ""}. {rankingBlurb(brief)} Three
             on the short list; the other nine stay visible below.
           </p>
+          {dateMoved && checkIn ? (
+            <p className="mt-3 max-w-xl rounded-md border border-border bg-elevated px-3 py-2 text-sm text-muted" role="status">
+              The check-in you picked ({formatCheckInLabel(dateMoved)}) has already passed, so prices
+              below are for {formatCheckInLabel(checkIn)}. You can change the date on each stay.
+            </p>
+          ) : null}
         </Stagger>
 
         {ready && tab === "matches" && !query && matches[0] ? (

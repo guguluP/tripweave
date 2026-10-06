@@ -25,6 +25,7 @@ import {
 import { getPackage, getRoom, loadBrief, loadPending, nightsPhrase, stayTotal } from "@/lib/packages";
 import { quoteStay } from "@/lib/inventory";
 import { usePaidHolds } from "@/lib/use-occupancy";
+import { holdCartRoom } from "@/lib/soft-hold-client";
 
 import { TravelerGuestCard } from "./travelers-guest-card";
 
@@ -55,6 +56,7 @@ export function TravelersInner() {
   const [errors, setErrors] = useState<TravelerErrors[]>([]);
   const [shakeKey, setShakeKey] = useState(0);
   const [digiGuest, setDigiGuest] = useState<number | null>(null);
+  const [holdNote, setHoldNote] = useState<{ tone: "ok" | "danger"; text: string } | null>(null);
 
   useEffect(() => {
     const pending = loadPending();
@@ -82,6 +84,30 @@ export function TravelersInner() {
     }
     setReady(true);
   }, [user?.displayName, user?.primaryEmail]);
+
+  // Soft-hold the room while the guest fills in names, so the last key is not sold underneath them.
+  const userId = user?.id;
+  useEffect(() => {
+    if (!ready || !userId || !packageId || !checkIn) return;
+    let cancelled = false;
+    void holdCartRoom({ packageId, roomId, checkIn, nights }).then((result) => {
+      if (cancelled || !result) return;
+      if (result.ok) {
+        const until = new Date(result.expiresAt).toLocaleTimeString("en-IN", {
+          hour: "numeric",
+          minute: "2-digit",
+          timeZone: "Asia/Kolkata",
+        });
+        setHoldNote({ tone: "ok", text: `Room held for you until ${until} IST while you add travellers.` });
+      } else if (result.reason === "sold_out") {
+        setHoldNote({ tone: "danger", text: result.message });
+        pushBanner({ title: "Room no longer available", body: result.message, tone: "danger" });
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, userId, packageId, roomId, checkIn, nights]);
 
   const pkg = packageId ? getPackage(packageId) : undefined;
   const brief = loadBrief();
@@ -196,6 +222,25 @@ export function TravelersInner() {
         <div className="min-w-0">
           <Stagger>
             <Stepper />
+            {holdNote ? (
+              <p
+                className={
+                  holdNote.tone === "danger"
+                    ? "mt-4 rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
+                    : "mt-4 rounded-md border border-border bg-elevated px-3 py-2 text-xs text-muted"
+                }
+              >
+                {holdNote.text}
+                {holdNote.tone === "danger" ? (
+                  <>
+                    {" "}
+                    <Link to="/trip/$id" params={{ id: packageId ?? "" }} className="underline">
+                      Back to the stay
+                    </Link>
+                  </>
+                ) : null}
+              </p>
+            ) : null}
             <p className="eyebrow mt-6">Before payment</p>
             <h1 className="mt-2 font-display text-4xl">Traveller details</h1>
             <p className="mt-3 max-w-xl text-sm text-muted">

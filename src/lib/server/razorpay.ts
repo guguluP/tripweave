@@ -260,7 +260,7 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
         };
       }
 
-      const payable = await computePayable(data);
+      const payable = await computePayable({ ...data, userId: context.userId });
       if (!payable.ok) return { ok: false, message: payable.message };
       const units = payable.units;
       pendingHoldId = checkoutPendingId({

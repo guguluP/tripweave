@@ -27,9 +27,12 @@ import {
   nightsPhrase,
   stayTotal,
   saveNext,
+  savePending,
   loadBrief,
+  type PendingBooking,
 } from "@/lib/packages";
-import { addDays, quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory";
+import { addDays, checkInOnOrAfterToday, quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory";
+import { holdCartRoom } from "@/lib/soft-hold-client";
 import { useStayInventory } from "@/lib/use-occupancy";
 import { deskFor, hotelMailto } from "@/lib/hotel-desk";
 import { refundPolicyFor } from "@/lib/refund-policy";
@@ -105,6 +108,10 @@ function CheckoutInner() {
   const [shakeKey, setShakeKey] = useState(0);
   const [busy, setBusy] = useState(false);
   const [travelersOk, setTravelersOk] = useState(false);
+  /** Guests with a filled, valid traveller form. Checkout charges for exactly this many. */
+  const [namedGuests, setNamedGuests] = useState(0);
+  const [pendingBase, setPendingBase] = useState<PendingBooking | null>(null);
+  const [holdNote, setHoldNote] = useState<string | null>(null);
   const [travel, setTravel] = useState<TravelPlan>(EMPTY_TRAVEL);
   const inventory = useStayInventory(packageId ?? undefined, checkIn, nights);
   const [held, setHeld] = useState<BookingRow | null>(null);
@@ -124,22 +131,20 @@ function CheckoutInner() {
     setSwaps(pending?.swaps ?? {});
     setNights(pending?.nights ?? 1);
     setRoomId(pending?.roomId ?? "");
-    if (pending?.checkIn) setCheckIn(pending.checkIn);
+    setPendingBase(pending);
+    if (pending?.checkIn) setCheckIn(checkInOnOrAfterToday(pending.checkIn));
     const b = loadBrief();
     if (pending?.packageId) setTravel(defaultTravelPlan(pending.packageId, b, pending.travel));
     try {
-      const n = Number(window.localStorage.getItem("tripweave-traveler-count") || "0");
-      if (n >= 1 && n <= 8) setTravelers(n);
-      else {
-        const list = loadTravelers();
-        if (list.length >= 1) setTravelers(list.length);
-      }
-    } catch {
-      /* ignore */
-    }
-    try {
+      // Pay for exactly the guests who have a filled form. A stale stored count must not
+      // let checkout charge for 4 when only 1 traveller was named.
       const list = loadTravelers();
-      setTravelersOk(validateTravelers(list).ok && list.length >= 1);
+      const ok = list.length >= 1 && validateTravelers(list).ok;
+      const stored = Number(window.localStorage.getItem("tripweave-traveler-count") || "0");
+      const countMatches = !(stored >= 1) || stored === list.length;
+      setNamedGuests(ok ? list.length : 0);
+      if (list.length >= 1) setTravelers(list.length);
+      setTravelersOk(ok && countMatches);
     } catch {
       setTravelersOk(false);
     }
@@ -181,6 +186,22 @@ function CheckoutInner() {
     guestEmail: user?.primaryEmail ?? undefined,
   });
 
+  // Keep the cart in step with what the guest edits here, so Back / refresh / sign-in keep it.
+  const persistCart = (patch: { checkIn?: string; travel?: TravelPlan }) => {
+    if (!pendingBase || !pkg) return;
+    const nextTravel = patch.travel ?? plan;
+    const nextCheckIn = patch.checkIn ?? checkIn;
+    const nextPickup = pickupChargeInr(pkg.id, nextTravel);
+    const next: PendingBooking = {
+      ...pendingBase,
+      checkIn: nextCheckIn,
+      travel: { ...nextTravel, origin: getOrigin(nextTravel.origin).id },
+      swaps: writeMeta(pendingBase.swaps, { travel: nextTravel, pickupInr: nextPickup, roomId: room?.id }),
+    };
+    setPendingBase(next);
+    savePending(next);
+  };
+
   const finishPaid = (booking: BookingRow, stored: "supabase" | "local" = "local") => {
     saveWalletPass(bookingToWalletPayload(booking));
     clearSensitiveTravelers();
@@ -205,6 +226,21 @@ function CheckoutInner() {
     track("checkout_opened", { packageId: pkg.id });
   }, [pkg?.id]);
 
+  // Refresh (or move) the soft room hold for these dates while the guest is on Pay.
+  const userId = user?.id;
+  const holdRoomId = room?.id;
+  useEffect(() => {
+    if (!ready || !userId || !packageId || !travelersOk || confirmation) return;
+    let cancelled = false;
+    void holdCartRoom({ packageId, roomId: holdRoomId, checkIn, nights: stayNights }).then((result) => {
+      if (cancelled || !result) return;
+      setHoldNote(result.ok ? null : result.reason === "sold_out" ? result.message : null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, userId, packageId, holdRoomId, checkIn, stayNights, travelersOk, confirmation]);
+
   if (!ready) return <CheckoutSkeleton />;
 
   if (!pkg) {
@@ -224,7 +260,10 @@ function CheckoutInner() {
       <Shell>
         <div className="mx-auto max-w-lg px-4 py-16">
           <h1 className="font-display text-3xl">Add traveller details</h1>
-          <p className="mt-3 text-muted">We need guest names and ID details before Razorpay checkout.</p>
+          <p className="mt-3 text-muted">
+            We need a name and ID details for every guest before Razorpay checkout.
+            {namedGuests > 0 ? ` ${namedGuests} filled so far — check the guest count and forms.` : ""}
+          </p>
           <Button asChild className="mt-6"><Link to="/travelers">Continue to travellers</Link></Button>
         </div>
       </Shell>
@@ -285,6 +324,11 @@ function CheckoutInner() {
     e.preventDefault();
     if (payerName.trim().length < 2) {
       setErrors({ payerName: "Name on the payment, please." });
+      setShakeKey((k) => k + 1);
+      return;
+    }
+    if (travelers !== namedGuests || travelers < 1) {
+      setErrors({ form: `Add details for every guest. ${namedGuests} of ${travelers} traveller forms are filled.` });
       setShakeKey((k) => k + 1);
       return;
     }
@@ -373,7 +417,7 @@ function CheckoutInner() {
                   },
                 });
                 if (!result.ok) {
-                  clearSensitiveTravelers();
+                  // Keep DOB / ID drafts so the guest (or desk) can retry without re-typing.
                   setErrors({ form: result.message });
                   pushBanner({ title: "Payment received, booking not saved", body: result.message, tone: "danger" });
                   setBusy(false);
@@ -408,11 +452,10 @@ function CheckoutInner() {
                 finishPaid(result.booking, result.stored);
                 resolve();
               } catch (err) {
-                clearSensitiveTravelers();
                 const raw = err instanceof Error ? err.message : "Booking failed";
                 if (raw === "Unauthorized") {
                   saveNext("/checkout");
-                  window.location.assign("/login");
+                  window.location.assign("/login?next=%2Fcheckout");
                   resolve();
                   return;
                 }
@@ -430,7 +473,7 @@ function CheckoutInner() {
             },
           },
           (failure) => {
-            clearSensitiveTravelers();
+            // Failed / declined payment: keep traveller drafts for the retry.
             setBusy(false);
             const msg = failure?.error?.description || failure?.error?.reason || "Payment failed. Try again.";
             setErrors({ form: msg });
@@ -443,7 +486,7 @@ function CheckoutInner() {
       const message = err instanceof Error ? err.message : "Payment failed";
       if (message === "Unauthorized") {
         saveNext("/checkout");
-        window.location.assign("/login");
+        window.location.assign("/login?next=%2Fcheckout");
         return;
       }
       setErrors({ form: message });
@@ -465,8 +508,14 @@ function CheckoutInner() {
           </Stagger>
           <form className="mt-8 grid gap-4" noValidate onSubmit={onPay}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <ShakeField label="Check-in" type="date" value={checkIn} min={todayIso()} error={errors.checkIn} shakeKey={shakeKey} onChange={(e) => { setCheckIn(e.target.value); setErrors((er) => ({ ...er, checkIn: "" })); }} />
-              <ShakeField label="Travelers" type="number" min={1} max={occupancy} value={travelers} onChange={(e) => setTravelers(Math.min(occupancy, Math.max(1, Number(e.target.value) || 1)))} />
+              <ShakeField label="Check-in" type="date" value={checkIn} min={todayIso()} error={errors.checkIn} shakeKey={shakeKey} onChange={(e) => { const v = e.target.value; setCheckIn(v); setErrors((er) => ({ ...er, checkIn: "" })); if (/^\d{4}-\d{2}-\d{2}$/.test(v) && v >= todayIso()) persistCart({ checkIn: v }); }} />
+              <div className="grid gap-1.5">
+                <Label>Travelers</Label>
+                <div className="flex h-10 items-center justify-between rounded-md border border-border bg-elevated px-3 text-sm">
+                  <span className="tabular-nums">{travelers} {travelers === 1 ? "guest" : "guests"}{travelers > occupancy ? ` · room sleeps ${occupancy}` : ""}</span>
+                  <Link to="/travelers" className="text-xs font-medium text-primary underline">Edit guests</Link>
+                </div>
+              </div>
             </div>
             <ShakeField label="Payer name" name="payerName" value={payerName} error={errors.payerName} shakeKey={shakeKey} autoComplete="name" onChange={(e) => { setPayerName(e.target.value); setErrors((er) => ({ ...er, payerName: "" })); }} />
             {travelQuote?.pickup.available ? (
@@ -475,9 +524,10 @@ function CheckoutInner() {
                   <p className="text-sm font-medium">Airport pickup and drop</p>
                   <p className="text-xs text-muted">Ask the hotel to send a car from Bhubaneswar airport and back. The hotel bills it. TripWeave does not add it.</p>
                 </div>
-                <MotionToggle on={plan.includePickup} onChange={(v) => setTravel({ ...plan, includePickup: v })} label="Hotel pickup" />
+                <MotionToggle on={plan.includePickup} onChange={(v) => { const next = { ...plan, includePickup: v }; setTravel(next); persistCart({ travel: next }); }} label="Hotel pickup" />
               </div>
             ) : null}
+            {holdNote ? <p className="rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">{holdNote}</p> : null}
             {errors.form ? <p className="rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">{errors.form}</p> : null}
             <p className="rounded-md border border-border bg-elevated px-3 py-2 text-xs text-muted">
               Refund window before you pay: {refundPolicyFor(checkIn).label}. My trips uses this same rule after you pay.

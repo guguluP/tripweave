@@ -115,6 +115,7 @@ function Plan() {
   });
   const homeCity = typeof window === "undefined" ? "" : loadLocalProfile()?.homeCity?.trim() ?? "";
   const [busy, setBusy] = useState(false);
+  const [cityError, setCityError] = useState<string | null>(null);
   const [dateTouched, setDateTouched] = useState(false);
   const arriveChoices = arriveOptionsFor(brief.origin);
   const checkIn = shownCheckIn(brief.checkIn, explicitCheckIn(search), dateTouched);
@@ -307,6 +308,11 @@ function Plan() {
           className="mt-8 w-full sm:w-auto"
           size="lg"
           onClick={() => {
+            if (brief.origin === "other" && !brief.originCity?.trim()) {
+              setCityError("Type the city you're travelling from, or pick one from the list.");
+              return;
+            }
+            setCityError(null);
             setBusy(true);
             const next = { ...brief, checkIn };
             saveBriefWithDates(next);
@@ -316,6 +322,11 @@ function Plan() {
         >
           <TextSwap text={busy ? "Matching stays" : "Show matches"} shimmer={busy} />
         </Button>
+        {cityError ? (
+          <p className="mt-3 text-sm text-danger" role="alert">
+            {cityError}
+          </p>
+        ) : null}
       </div>
     </Shell>
   );

@@ -6,13 +6,13 @@ import { clearDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user"
 import { BrandWord, WeaveMark } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { ShakeField, SlidingTabs, Stagger, TextSwap } from "@/components/motion";
-import { consumeNext, loadNext } from "@/lib/packages";
+import { consumeNext, loadNext, safeNextPath, saveNext } from "@/lib/packages";
 import { isRealUser } from "@/lib/session-guard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LOGIN_HERO, loginCheckoutBody, loginCheckoutPrompt } from "@/lib/login-copy";
 import { pageHead } from "@/lib/page-title";
 
-type LoginSearch = { error?: string; token?: string };
+type LoginSearch = { error?: string; token?: string; next?: string };
 
 export const Route = createFileRoute("/login")({
   head: () => pageHead("Sign in"),
@@ -20,6 +20,7 @@ export const Route = createFileRoute("/login")({
   validateSearch: (s: Record<string, unknown>): LoginSearch => ({
     error: typeof s.error === "string" ? s.error : undefined,
     token: typeof s.token === "string" ? s.token : undefined,
+    next: safeNextPath(s.next) ?? undefined,
   }),
 });
 
@@ -111,14 +112,23 @@ function Login() {
   const [shakeKey, setShakeKey] = useState(0);
   const [busy, setBusy] = useState(false);
   const [oauthBusy, setOauthBusy] = useState<string | null>(null);
-  const [nextPath] = useState(() => loadNext());
+  // URL ?next= wins (works in a fresh tab / shared link); sessionStorage is the fallback.
+  const [nextPath] = useState(() => {
+    const fromUrl = safeNextPath(search.next);
+    if (fromUrl) {
+      saveNext(fromUrl);
+      return fromUrl;
+    }
+    return loadNext();
+  });
   const redirected = useRef(false);
   clearDemoMode();
 
   const goNext = () => {
     if (redirected.current) return;
     redirected.current = true;
-    window.location.assign(consumeNext());
+    const stored = consumeNext();
+    window.location.assign(safeNextPath(nextPath) ?? stored);
   };
 
   const signedIn = isRealUser(user);
@@ -238,7 +248,7 @@ function Login() {
     setOauthBusy(providerId);
     try {
       await signIn(providerId, {
-        callbackURL: loadNext(),
+        callbackURL: nextPath,
         errorCallbackURL: "/login",
       });
     } catch (err) {

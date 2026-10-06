@@ -51,6 +51,34 @@ describe("dated rates", () => {
     replaceAllotment([]);
   });
 
+  it("does not count a guest's own checkout hold against them", () => {
+    const pkg = getPackage("taj-puri-resort-spa")!;
+    const roomId = "superior-king-balcony";
+    setNightUnits({ packageId: pkg.id, roomId, night: "2026-08-14", units: 1 });
+    recordHold({
+      holdId: "own-soft-hold",
+      packageId: pkg.id,
+      roomId,
+      checkIn: "2026-08-14",
+      nights: 1,
+      status: "held",
+      expiresAt: new Date(Date.now() + 60_000).toISOString(),
+    });
+    const others = quoteStay({ packageId: pkg.id, roomId, checkIn: "2026-08-14", nights: 1 });
+    const mine = quoteStay({
+      packageId: pkg.id,
+      roomId,
+      checkIn: "2026-08-14",
+      nights: 1,
+      ignoreHoldIds: ["own-soft-hold"],
+    });
+    assert.equal(others!.available, false);
+    assert.equal(mine!.available, true);
+    assert.equal(mine!.remaining, 1);
+    releaseHoldById("own-soft-hold");
+    replaceAllotment([]);
+  });
+
   it("marks Rath Yatra nights as festival", () => {
     const s = seasonFor("2026-06-28");
     assert.equal(s.kind, "festival");

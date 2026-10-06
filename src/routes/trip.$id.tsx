@@ -19,7 +19,7 @@ import { recommendRooms } from "@/lib/recommend-rooms";
 import { refundPolicyFor } from "@/lib/refund-policy";
 import { loadBriefWithDates } from "@/lib/brief-persist";
 import { RoomPicker } from "@/components/room-picker";
-import { StayQuoteCard } from "@/components/stay-quote";
+import { formatCheckInLabel, StayQuoteCard } from "@/components/stay-quote";
 import { DigiYatraPanel, TransportPanel, BusGuidePanel } from "@/components/transport-panel";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { computeTrustScore, youtubeSourceCount, type TrustScoreBreakdown } from "@/lib/trust-score";
@@ -41,7 +41,7 @@ import { getSeededConsensus } from "@/lib/youtube/get-seeded";
 import { useStayInventory } from "@/lib/use-occupancy";
 import { cn } from "@/lib/utils";
 import { getJourney } from "@/lib/transport";
-import { writeMeta } from "@/lib/booking-meta";
+import { guestSwaps, writeMeta } from "@/lib/booking-meta";
 import {
   arrivalPinLabel,
   defaultTravelPlan,
@@ -73,24 +73,29 @@ function TripDetail() {
   const [liveTrust, setLiveTrust] = useState<number | null>(null);
   const [liveBreakdown, setLiveBreakdown] = useState<TrustScoreBreakdown | null>(null);
   const [travel, setTravel] = useState<TravelPlan>(EMPTY_TRAVEL);
+  /** Set when a saved / linked check-in had already passed and Stay moved it to today. */
+  const [dateMoved, setDateMoved] = useState<string | null>(null);
   const inventory = useStayInventory(pkg?.id, checkIn, nights);
   const inventoryKnown = inventory === "ready";
 
   useEffect(() => {
     if (!pkg) return;
-    const briefNights = typeof window === "undefined" ? pkg.nights : loadBriefWithDates().nights;
-    const nextNights = clampNights(pkg, briefNights);
-    setNights(nextNights);
-    const briefStyle = loadBriefWithDates().style;
-    const recommended = recommendRooms(pkg.rooms, briefStyle);
-    setRoomId(recommended[0]?.id ?? pkg.rooms[0]!.id);
-    setSwaps({});
-    setBooking(false);
     const briefNow = loadBriefWithDates();
     const pending = loadPending();
-    if (briefNow.checkIn) setCheckIn(checkInOnOrAfterToday(briefNow.checkIn));
-    else if (pending?.checkIn) setCheckIn(checkInOnOrAfterToday(pending.checkIn));
-    setTravel(defaultTravelPlan(pkg.id, briefNow, pending?.packageId === pkg.id ? pending.travel : undefined));
+    // Coming back from Travellers / Checkout: the cart for this stay wins over the brief,
+    // so the guest's room, nights, add-ons, and date survive Back.
+    const cart = pending?.packageId === pkg.id ? pending : null;
+    setNights(clampNights(pkg, cart?.nights ?? briefNow.nights));
+    const recommended = recommendRooms(pkg.rooms, briefNow.style);
+    const cartRoom = cart?.roomId && pkg.rooms.some((r) => r.id === cart.roomId) ? cart.roomId : "";
+    setRoomId(cartRoom || recommended[0]?.id || pkg.rooms[0]!.id);
+    setSwaps(cart ? guestSwaps(cart.swaps) : {});
+    setBooking(false);
+    const wanted = cart?.checkIn ?? briefNow.checkIn ?? pending?.checkIn;
+    const nextCheckIn = checkInOnOrAfterToday(wanted);
+    setCheckIn(nextCheckIn);
+    setDateMoved(wanted && wanted !== nextCheckIn ? wanted : null);
+    setTravel(defaultTravelPlan(pkg.id, briefNow, cart?.travel));
     // Only when the stay changes. Catalog overlays rebuild `pkg` every render,
     // and depending on that object wiped the room the guest had just picked.
   }, [pkg?.id]);
@@ -203,11 +208,15 @@ function TripDetail() {
       checkIn,
       travel: plan,
     });
-    if (isPending) return;
     setBooking(true);
+    // Session still loading: Travellers waits on RequireAuth and sends to sign-in if needed.
+    if (isPending) {
+      void nav({ to: "/travelers" });
+      return;
+    }
     if (!user) {
       saveNext("/travelers");
-      void nav({ to: "/login" });
+      void nav({ to: "/login", search: { next: "/travelers" } });
       return;
     }
     void nav({ to: "/travelers" });
@@ -368,11 +377,20 @@ function TripDetail() {
           </p>
         </div>
 
+        {dateMoved ? (
+          <p className="mt-6 rounded-md border border-border bg-elevated px-3 py-2 text-sm text-muted" role="status">
+            Your saved check-in ({formatCheckInLabel(dateMoved)}) has already passed, so we moved it to{" "}
+            {formatCheckInLabel(checkIn)}. Pick another date below if you prefer.
+          </p>
+        ) : null}
         <StayQuoteCard
           quote={quote}
           checkIn={checkIn}
           minDate={todayIso()}
-          onCheckIn={setCheckIn}
+          onCheckIn={(next) => {
+            setCheckIn(next);
+            setDateMoved(null);
+          }}
         />
 
         <RoomPicker
