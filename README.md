@@ -46,7 +46,7 @@ TanStack Start server functions
 4. **Travellers** collects the guest, phone, email, masked identity, and an emergency contact.
 5. **Checkout** creates a Razorpay order for an amount computed on the server (`computePayable`). The amount is the room for those nights, each selected add-on once, and the car once. Guest count does not multiply it. The count still cannot exceed the number of people the room sleeps. “Today” is the calendar day in India (`Asia/Kolkata`). Before the window opens, `reserveCheckoutHold` asks Postgres for the nights. A sold-out room stops checkout. A missing or rejected service client also stops checkout. The room is not reserved in process memory.
 6. **Verify.** The browser returns the Razorpay signature. The server checks it, reads the payment from Razorpay, then writes the booking. A confirmation code is `TW-` plus 10 characters.
-7. **After pay.** The guest gets a voucher, an HTML pass, and a calendar file. Apple Wallet is added only when pass certificates are configured. Cancellation follows `src/lib/refund-policy.ts`: full refund at least 48 hours before noon IST on check-in, half inside that window, none after. A refund that was saved but not finished is tried again when that guest opens My trips, and on the daily refund cron. It uses the amount already decided and does not send the money twice. When the desk declines a paid stay, Razorpay is refunded in full before the booking is marked refunded; a failed refund leaves the stay paid so the desk can try again.
+7. **After pay.** The guest gets a voucher, an HTML pass, and a calendar file. Apple Wallet is added only when pass certificates are configured. Cancellation follows `src/lib/refund-policy.ts`: full refund at least 48 hours before noon IST on check-in, half inside that window, none after. A refund that was saved but not finished is tried again when that guest opens My trips, and on the daily refund cron. It uses the amount already decided and does not send the money twice. When the desk declines a paid stay, the booking is closed first, then Razorpay is refunded in full; a failed refund is queued as refund_pending so cron/My trips can finish it.
 
 Cookie sessions mint a new Better Auth user id on each login. `tw_claim_subject` maps the sign-in email back to the id that already owns that guest’s bookings, saved stays, and travellers.
 
@@ -125,7 +125,7 @@ Recent product notes that belong in this README (lockup, maps, pickup, desk, and
 | Hotel airport car | Taj, Mayfair Heritage, and Hans only; fly arrivals; ₹0 on TripWeave. |
 | Plan deep-links | Festival `checkIn` / `nights` stay in the URL and on the form. |
 | Stay photo UI | Shorter cover, swipeable viewer, one-line mobile booking bar. |
-| Desk confirm / decline | Works without `tw_desk_transition`; decline refunds in full. |
+| Desk confirm / decline | Works without `tw_desk_transition`; decline closes then refunds (or queues refund_pending). |
 | Desk allotment | `tw_set_allotment` / `deskSetAllotment`: one room one night; apply `partner_desk_ops.sql`. |
 | Vercel Speed Insights | Mounted in `__root.tsx` for production Core Web Vitals. |
 | Session / bookings path | Sign-in email maps back to the account that already owns those trips. |
