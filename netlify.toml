@@ -8,7 +8,7 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
   NITRO_PRESET = "netlify"
   # Browser auth flag — platform injects this on deploy (see scripts/with-app-env.mjs).
   VITE_AUTH_ENABLED = "true"
