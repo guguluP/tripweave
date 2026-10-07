@@ -16,3 +16,6 @@ startup.sh
 .grok/preview.log
 .grok/favicon-candidates.html
 .grok/favicon-candidates.png
+
+# Local Netlify folder
+.netlify
