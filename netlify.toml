@@ -1,0 +1,18 @@
+# TripWeave — Netlify (TanStack Start / Vite + Nitro)
+# Vercel (vercel.json + nitro preset "vercel") stays the default off-Netlify.
+# On Netlify builds, NETLIFY=true + NITRO_PRESET=netlify select the Netlify
+# Nitro output (publish = dist). Easy switch-back when Vercel is healthy.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NITRO_PRESET = "netlify"
+  # Browser auth flag — platform injects this on deploy (see scripts/with-app-env.mjs).
+  VITE_AUTH_ENABLED = "true"
+
+[dev]
+  command = "npm run dev"
+  targetPort = 8080

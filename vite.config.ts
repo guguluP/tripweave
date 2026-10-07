@@ -170,7 +170,12 @@ export default defineConfig(({ command, isPreview }) => ({
     ...(command === "build" || isPreview
       ? [
           nitro({
-            preset: "vercel",
+            // Keep Vercel as the default; Netlify CI sets NETLIFY=true (and
+            // NITRO_PRESET=netlify in netlify.toml) so we do not break the
+            // existing Vercel project when this file is shared.
+            preset:
+              process.env.NITRO_PRESET ||
+              (process.env.NETLIFY ? "netlify" : "vercel"),
             // Auto-registers server/middleware/* (the PWA install page +
             // manifest + head-tag middleware). Nitro v3 defaults serverDir to
             // false, so removing this silently unwires /?install=1 on deploys.
