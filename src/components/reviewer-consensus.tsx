@@ -4,21 +4,14 @@ import {
   Check,
   ChevronDown,
   Minus,
-  RefreshCw,
   Youtube,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Shimmer } from "@/components/motion";
-import {
-  getReviewerConsensus,
-  refreshReviewerConsensus,
-} from "@/lib/youtube/server";
-import { notesNeedACheck, type PackageReviewConsensus, type Sentiment } from "@/lib/youtube/types";
+import { getReviewerConsensus } from "@/lib/youtube/server";
+import type { PackageReviewConsensus, Sentiment } from "@/lib/youtube/types";
 import { getSeededConsensus } from "@/lib/youtube/get-seeded";
-import { captionFailureCopy, isCaptionHostBlock } from "@/lib/youtube/caption-copy";
 import { cn } from "@/lib/utils";
 
 const SENTIMENT_LABEL: Record<Sentiment, string> = {
@@ -84,9 +77,7 @@ export function ReviewerConsensus({
   const [data, setData] = useState<PackageReviewConsensus | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "empty" | "error">("loading");
   const [message, setMessage] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
   const [sourcesOpen, setSourcesOpen] = useState(false);
-  const checked = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -129,32 +120,6 @@ export function ReviewerConsensus({
     if (data) onConsensusRef.current?.(data);
   }, [data]);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    setMessage(null);
-    try {
-      const res = await refreshReviewerConsensus({ data: { packageId } });
-      if (res.consensus && res.consensus.origin !== "empty") {
-        setData(res.consensus);
-        setStatus("ready");
-        if (!res.ok) setMessage(res.message);
-      } else if (!res.ok) {
-        setMessage(res.message);
-      }
-    } catch {
-      setMessage("Rebuild did not finish. The saved notes are still here.");
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!data || checked.current) return;
-    if (!notesNeedACheck(data)) return;
-    checked.current = true;
-    void onRefresh();
-  }, [data]);
-
   if (status === "loading") return <ConsensusSkeleton />;
 
   if (status === "error" && !data) {
@@ -184,11 +149,6 @@ export function ReviewerConsensus({
     count === 0
       ? "No source videos yet"
       : `Based on ${count} YouTube ${count === 1 ? "review" : "reviews"}`;
-  const failedCount = data.failedSources?.length ?? 0;
-  const failedCopy =
-    data.rebuildNote ?? (failedCount > 0 ? captionFailureCopy(data.failedSources ?? []) : null);
-  const blockedAll =
-    failedCount > 0 && (data.failedSources ?? []).every((f) => isCaptionHostBlock(f.reason));
   const roomNotes = roomId ? data.roomNotes?.[roomId] : undefined;
 
   return (
@@ -289,7 +249,6 @@ export function ReviewerConsensus({
         ) : null}
 
         {message ? <p className="mt-4 text-sm text-muted">{message}</p> : null}
-        {!message && failedCopy ? <p className="mt-4 text-sm text-muted">{failedCopy}</p> : null}
 
         <div className="mt-5 border-t border-border pt-4">
           <button
@@ -328,35 +287,11 @@ export function ReviewerConsensus({
               ))}
             </ul>
           ) : null}
-          {failedCount > 0 && !blockedAll && !failedCopy ? (
-            <p className="mt-2 text-xs text-subtle">
-              {failedCount} {failedCount === 1 ? "video had" : "videos had"} no usable captions.
-            </p>
-          ) : null}
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs text-subtle">
-              {refreshing
-                ? "Checking the review videos for anything newer"
-                : data.origin === "live"
-                  ? `Latest from those videos · ${formatUpdated(data.updatedAt)}`
-                  : `Saved notes${data.updatedAt ? ` · ${formatUpdated(data.updatedAt)}` : ""}. A newer check has not replaced them.`}
-            </p>
-            <Button
-              type="button"
-              variant="ghost"
-              size="default"
-              onClick={() => void onRefresh()}
-              disabled={refreshing}
-              className="text-muted"
-            >
-              <RefreshCw className={cn("size-3.5", refreshing && "animate-spin")} />
-              {refreshing ? (
-                <Shimmer>Checking reviews</Shimmer>
-              ) : (
-                "Check again"
-              )}
-            </Button>
-          </div>
+          <p className="mt-3 text-xs text-subtle">
+            {data.origin === "live"
+              ? `Saved from those videos · ${formatUpdated(data.updatedAt)}`
+              : `Saved notes${data.updatedAt ? ` · ${formatUpdated(data.updatedAt)}` : ""}`}
+          </p>
         </div>
       </Card>
     </section>

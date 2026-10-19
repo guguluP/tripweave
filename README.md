@@ -86,7 +86,7 @@ Rath Yatra and Konark (`src/components/rath-carousel.tsx`) advance every frame. 
 
 Chandrabhaga sand stills in the Konark set are stored right-side up (`Sand Face`, `Three Faces`, `Lotus Shrine`).
 
-Reviewer notes are a curated set of YouTube stay videos. A page load reads the saved consensus or the seed. It does not call a model. Rebuilding the notes needs `XAI_API_KEY`.
+Reviewer notes are static, curated notes from a fixed set of YouTube stay videos (`src/lib/youtube/videos.ts`). A page load reads the saved `reviewer_consensus` row for that stay, else the curated seed in `src/lib/youtube/seed.ts`. Nothing calls YouTube or a model, and there is no rebuild button. To change the notes, edit the seed.
 
 The mobile tab bar (`Discover`, `Plan`, `Trips`, `Account`) is `position: fixed`. Long stay names and Razorpay lines must not widen the page or the bar slides sideways.
 
@@ -157,8 +157,6 @@ Set these on the server. Never prefix a secret with `VITE_`. After a change on V
 | `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_SECRET_KEY` | Legacy service-role JWT. Server only. |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Password reset through a mailbox you already have (Gmail: host `smtp.gmail.com`, port `465`). `SMTP_FROM` is that same address. No site domain. |
 | `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `SES_FROM` | Amazon SES for booking mail, stay reminders, and password reset when SMTP is unset. `SES_FROM` must be a verified SES identity. |
-| `XAI_API_KEY` | Rebuild reviewer notes. Not used on ordinary page loads. |
-| `YOUTUBE_API_KEY` | Optional extra stay-review search |
 | `HOTEL_DESKS`, `PARTNER_EMAILS` | Emails allowed to open a hotel desk |
 | `APPLE_PASS_*` | Optional Wallet certificates. The HTML pass works without them. |
 

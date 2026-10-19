@@ -161,7 +161,7 @@ const STAY_PLACES: Record<string, { area: StayArea; nearStation: boolean; hasAir
 
 const liveTrustScores = new Map<string, number>();
 
-/** After a YouTube rebuild, list and detail meters share this score for the session. */
+/** After saved reviewer notes load, list and detail meters share this score for the session. */
 export function rememberLiveTrustScore(packageId: string, score: number) {
   liveTrustScores.set(packageId, score);
 }

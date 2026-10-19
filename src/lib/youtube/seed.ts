@@ -6,8 +6,8 @@ import { SEED_ROOM_NOTES } from "./seed-room-notes.ts";
 /**
  * Curated consensus for demo / offline mode.
  * Written from the actual stay-review videos mapped in `videos.ts`
- * (plus corroborating public guest notes). Live rebuilds overwrite
- * this in memory / Supabase when transcripts and the LLM succeed.
+ * (plus corroborating public guest notes). A saved `reviewer_consensus`
+ * row for the same videos takes precedence; otherwise this is what shows.
  */
 const SEEDED_AT = "2026-09-15T06:00:00.000Z";
 

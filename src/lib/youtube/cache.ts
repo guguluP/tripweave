@@ -1,4 +1,3 @@
-import { twApply } from "@/lib/supabase/rpc";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { PackageReviewConsensus, RoomReviewNotes, Sentiment } from "./types.ts";
@@ -148,33 +147,8 @@ export async function readDurableCache(
   }
 }
 
-export async function writeDurableCache(
-  consensus: PackageReviewConsensus,
-  hash: string,
-) {
-  writeMemoryCache(consensus, hash);
-  if (!isSupabaseConfigured()) return;
-  try {
-    await twApply("upsert_consensus", {
-      package_id: consensus.packageId,
-      overall_sentiment: consensus.overallSentiment,
-      key_positives: consensus.keyPositives,
-      key_negatives: consensus.keyNegatives,
-      caveats: consensus.caveats,
-      consensus_summary: consensus.consensusSummary,
-      sources: consensus.sources,
-      origin: consensus.origin,
-      video_hash: hash,
-      updated_at: consensus.updatedAt,
-      room_notes: consensus.roomNotes ?? {},
-    });
-  } catch (err) {
-    console.warn("[reviewer-consensus] supabase write failed", err);
-  }
-}
-
 export function logConsensusEvent(
-  event: "hit" | "seed" | "live" | "empty" | "fail",
+  event: "hit" | "seed" | "empty",
   packageId: string,
   extra?: Record<string, unknown>,
 ) {
