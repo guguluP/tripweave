@@ -31,7 +31,7 @@ export async function ownHoldIds(input: {
   orderId?: string | null;
 }): Promise<string[]> {
   if (!input.userId) return [];
-  const { publicHoldId } = await import("./hold-id.server");
+  const { publicHoldId } = await import("@/lib/hold-id");
   const raw = holdIdsForCheckout({ ...input, userId: input.userId });
   return [...raw, ...raw.map(publicHoldId)];
 }

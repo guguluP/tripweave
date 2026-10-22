@@ -34,7 +34,7 @@ function mapHolds(data: unknown, hashId: (raw: string) => string): OccupancyHold
 }
 
 async function hashedHolds(data: unknown): Promise<OccupancyHold[]> {
-  const { publicHoldId } = await import("./hold-id.server");
+  const { publicHoldId } = await import("@/lib/hold-id");
   return mapHolds(data, publicHoldId);
 }
 

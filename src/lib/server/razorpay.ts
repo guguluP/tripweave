@@ -181,8 +181,8 @@ export async function settleRazorpayWebhook(rawBody: string, signature: string |
       { status: 401 },
     );
   }
-  const { hmacSha256Hex } = await import("./razorpay-sign.server");
-  const expected = hmacSha256Hex(secret, rawBody);
+  const { hmacSha256Hex } = await import("./razorpay-hmac");
+  const expected = await hmacSha256Hex(secret, rawBody);
   const a = Buffer.from(expected, "utf8");
   const b = Buffer.from(signature, "utf8");
   if (a.length !== b.length || !timingSafeEqual(a, b)) {
@@ -393,8 +393,8 @@ export async function verifyRazorpaySignature(input: {
     return { ok: false, message: "Razorpay is not configured." };
   }
   const payload = `${input.razorpay_order_id}|${input.razorpay_payment_id}`;
-  const { hmacSha256Hex } = await import("./razorpay-sign.server");
-  const expected = hmacSha256Hex(secret, payload);
+  const { hmacSha256Hex } = await import("./razorpay-hmac");
+  const expected = await hmacSha256Hex(secret, payload);
   const a = Buffer.from(expected, "utf8");
   const b = Buffer.from(input.razorpay_signature, "utf8");
   if (a.length !== b.length || !timingSafeEqual(a, b)) {
