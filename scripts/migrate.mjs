@@ -26,6 +26,27 @@ if (!databaseUrl) {
   process.exit(0);
 }
 
+// Same rule as src/lib/db.ts looksLikeBrokenPostgresUrl. On Vercel the app
+// does not use this URL: user "postgres" is a leftover Supabase/pooler login
+// whose password is rejected (28P01). Connecting on every build repeats that
+// failure. Supabase DDL lives in supabase/*.sql and is not these Neon files.
+function brokenVercelPostgresUrl(url) {
+  if (!process.env.VERCEL) return false;
+  try {
+    const user = new URL(url).username;
+    return user === "postgres" || user === "";
+  } catch {
+    return true;
+  }
+}
+
+if (brokenVercelPostgresUrl(databaseUrl)) {
+  console.warn(
+    "[migrate] skipping DATABASE_URL on Vercel. User postgres is rejected (28P01). Reset the database password in Supabase, then apply supabase/*.sql in the SQL editor. This migrator does not create those functions.",
+  );
+  process.exit(0);
+}
+
 const migrationsDir = join(dirname(fileURLToPath(import.meta.url)), "..", "migrations");
 
 async function main() {
