@@ -13,6 +13,19 @@ describe("smtpData", () => {
     assert.match(raw, /\r\n\.\.hidden/);
     assert.match(raw, /https:\/\/tripweave-web.vercel.app\/login/);
     assert.match(raw, /Content-Type: text\/plain; charset=UTF-8/);
+    assert.match(raw, /Content-Transfer-Encoding: 8bit/);
+    assert.match(raw, /Subject: Reset\r\n/);
+  });
+
+  it("encodes a non-ASCII subject and leaves ASCII subjects plain", () => {
+    const raw = smtpData("desk@gmail.com", {
+      to: "guest@example.com",
+      subject: "Stay confirmed \u2014 TW-1",
+      text: "Hello",
+    });
+    assert.match(raw, /Subject: =\?UTF-8\?B\?/);
+    assert.doesNotMatch(raw, /Subject: Stay confirmed \u2014/);
+    assert.match(raw, /Content-Type: text\/plain; charset=UTF-8/);
   });
 
   it("sends multipart when html is provided", () => {

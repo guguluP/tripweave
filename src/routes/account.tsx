@@ -19,6 +19,9 @@ import { bookingToWalletPayload } from "@/lib/apple-wallet";
 import { listWalletPasses } from "@/lib/wallet-store";
 import { useAppleDevice } from "@/lib/apple-device";
 import { walletSigningReady } from "@/lib/server/wallet-status";
+import { PhoneInput } from "@/components/phone-input";
+import { deleteSavedTraveller, listSavedTravellers } from "@/lib/server/saved-travellers";
+import type { SavedTraveller } from "@/lib/saved-travellers";
 import { getProfile, saveProfile } from "@/lib/server/profile";
 import { PartnerDesk } from "@/components/partner-desk";
 import { loadLocalProfile, saveLocalProfile } from "@/lib/profile-local";
@@ -64,11 +67,15 @@ function AccountInner() {
   const [phone, setPhone] = useState("");
   const [homeCity, setHomeCity] = useState("");
   const [saving, setSaving] = useState(false);
+  const [savedPeople, setSavedPeople] = useState<SavedTraveller[]>([]);
 
   useEffect(() => {
     listBookings()
       .then(setBookings)
       .catch(() => setBookings([]));
+    listSavedTravellers()
+      .then(setSavedPeople)
+      .catch(() => setSavedPeople([]));
   }, []);
 
   useEffect(() => {
@@ -162,16 +169,7 @@ function AccountInner() {
                 onChange={(e) => setDisplayName(e.target.value)}
               />
             </Label>
-            <Label>
-              Mobile
-              <Input
-                value={phone}
-                inputMode="tel"
-                autoComplete="tel"
-                placeholder="10-digit mobile"
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-              />
-            </Label>
+            <PhoneInput label="Mobile" value={phone} defaultCountry="IN" onChange={setPhone} />
             <Label>
               Home city
               <Input
@@ -189,6 +187,37 @@ function AccountInner() {
               <TextSwap text={saving ? "Saving" : "Save profile"} shimmer={saving} />
             </Button>
           </form>
+        </Card>
+
+        <Card className="mt-6 p-5 shadow-none">
+          <h2 className="font-display text-xl">Saved people</h2>
+          <p className="mt-1 text-sm text-muted">Name, nationality, phone and the last 4 of an ID. No date of birth.</p>
+          {savedPeople.length === 0 ? (
+            <p className="mt-3 text-sm text-muted">No one saved yet. You can save a guest at checkout.</p>
+          ) : (
+            <ul className="mt-3 grid gap-2">
+              {savedPeople.map((person) => (
+                <li key={person.id} className="flex items-center justify-between gap-3 text-sm">
+                  <span className="min-w-0 truncate">
+                    {person.fullName}
+                    <span className="text-muted"> · {person.nationality}</span>
+                  </span>
+                  <button
+                    type="button"
+                    className="shrink-0 text-xs font-medium underline"
+                    onClick={() => {
+                      void deleteSavedTraveller({ data: { id: person.id } }).then((result) => {
+                        if (result.ok) setSavedPeople((rows) => rows.filter((row) => row.id !== person.id));
+                        else pushBanner({ title: "Could not delete", body: result.message, tone: "info" });
+                      });
+                    }}
+                  >
+                    Delete
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         <div className="mt-8 grid grid-cols-2 gap-3">

@@ -1,5 +1,6 @@
 /** Extra booking fields stored inside swaps.__tw so we do not need a schema bump. */
 
+import { isCountryCode } from "./countries.ts";
 import type { TravelPlan } from "./travel-plan.ts";
 
 export type BookingMeta = {
@@ -23,7 +24,22 @@ export type BookingMeta = {
   razorpayOrderId?: string;
   /** Set when a GST invoice PDF can be generated for this stay. */
   invoiceReady?: boolean;
+  /** Unique ISO alpha-2 codes for the party. At most 12. */
+  guestNationalities?: string[];
 };
+
+export function sanitizeGuestNationalities(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const out: string[] = [];
+  for (const item of value) {
+    if (typeof item !== "string") continue;
+    const code = item.trim().toUpperCase();
+    if (!/^[A-Z]{2}$/.test(code) || !isCountryCode(code)) continue;
+    if (!out.includes(code)) out.push(code);
+    if (out.length >= 12) break;
+  }
+  return out.length > 0 ? out : undefined;
+}
 
 const KEY = "__tw";
 
@@ -44,6 +60,11 @@ export function writeMeta(
 ): Record<string, string> {
   const next = { ...(swaps ?? {}) };
   const merged = { ...readMeta(next), ...patch };
+  if ("guestNationalities" in merged) {
+    const clean = sanitizeGuestNationalities(merged.guestNationalities);
+    if (clean) merged.guestNationalities = clean;
+    else delete merged.guestNationalities;
+  }
   next[KEY] = JSON.stringify(merged);
   return next;
 }

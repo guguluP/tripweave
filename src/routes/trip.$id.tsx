@@ -20,6 +20,7 @@ import { refundPolicyFor } from "@/lib/refund-policy";
 import { loadBriefWithDates } from "@/lib/brief-persist";
 import { RoomPicker } from "@/components/room-picker";
 import { formatCheckInLabel, StayQuoteCard } from "@/components/stay-quote";
+import { ArrivalChecklist } from "@/components/arrival-checklist";
 import { DigiYatraPanel, TransportPanel, BusGuidePanel } from "@/components/transport-panel";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { computeTrustScore, youtubeSourceCount, type TrustScoreBreakdown } from "@/lib/trust-score";
@@ -52,6 +53,8 @@ import {
   type TravelPlan,
 } from "@/lib/travel-plan";
 import { pageTitle } from "@/lib/page-title";
+import { loadTravelers } from "@/lib/travelers";
+import { isAbroadCity } from "@/lib/world-cities";
 
 export const Route = createFileRoute("/trip/$id")({
   component: TripDetail,
@@ -457,6 +460,7 @@ function TripDetail() {
           />
           {journey.showBusGuide ? <BusGuidePanel /> : null}
           {journey.showDigiYatra ? <DigiYatraPanel /> : null}
+          <TripArrival originCity={brief.origin === "other" ? brief.originCity ?? "" : ""} />
         </div>
 
         <h2 className="mt-10 font-display text-2xl">Stay plan</h2>
@@ -531,4 +535,16 @@ function TripDetail() {
       </div>
     </Shell>
   );
+}
+
+function TripArrival({ originCity }: { originCity: string }) {
+  const nationalities = loadTravelers().map((guest) => guest.nationality);
+  const foreign = nationalities.some((code) => (code || "IN").toUpperCase() !== "IN");
+  if (foreign) {
+    return (
+      <ArrivalChecklist nationalities={nationalities} arrivalAirport="BBI" />
+    );
+  }
+  if (!isAbroadCity(originCity)) return null;
+  return <ArrivalChecklist nationalities={["IN"]} promptOnly />;
 }

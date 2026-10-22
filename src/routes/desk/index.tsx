@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label";
 import { getPackage, formatMoney, PACKAGES } from "@/lib/packages";
 import { stayStatusLabel } from "@/lib/refund-policy";
 import { addDays, roomUnits, todayIso } from "@/lib/inventory";
+import { ForeignGuestRegister, foreignCodes } from "@/components/foreign-guest-register";
 import {
+  deskForeignRegister,
   deskListAllotment,
   deskListBookings,
   deskListStopSell,
@@ -18,6 +20,7 @@ import {
   deskTransitionBooking,
   type DeskOpsBooking,
 } from "@/lib/server/desk-ops";
+import type { ForeignGuestRow } from "@/lib/server/guest-arrivals";
 import { pushBanner } from "@/lib/banners";
 import { pageHead } from "@/lib/page-title";
 
@@ -36,6 +39,7 @@ function DeskPortal() {
   const [allowed, setAllowed] = useState<string[] | null>(null);
   const [packageId, setPackageId] = useState(search.packageId);
   const [bookings, setBookings] = useState<DeskOpsBooking[]>([]);
+  const [foreignGuests, setForeignGuests] = useState<ForeignGuestRow[]>([]);
   const [night, setNight] = useState(todayIso());
   const [roomId, setRoomId] = useState("");
   const [units, setUnits] = useState(2);
@@ -78,6 +82,9 @@ function DeskPortal() {
     deskListBookings({ data: { packageId, deskToken: token.trim() } })
       .then(setBookings)
       .catch(() => setBookings([]));
+    deskForeignRegister({ data: { packageId, deskToken } })
+      .then(setForeignGuests)
+      .catch(() => setForeignGuests([]));
     deskListAllotment({ data: { packageId, from, to, deskToken } })
       .then(setAllotment)
       .catch(() => setAllotment([]));
@@ -90,6 +97,7 @@ function DeskPortal() {
     refresh();
   }, [packageId, token]);
 
+  const foreignStay = useMemo(() => foreignCodes(foreignGuests), [foreignGuests]);
   const stays = useMemo(
     () => PACKAGES.filter((s) => allowed?.includes(s.id)),
     [allowed],
@@ -315,6 +323,11 @@ function DeskPortal() {
             <li key={booking.id} className="rounded-lg border border-border p-3 text-sm">
               <p className="font-medium">
                 {booking.payerName} · {booking.confirmationCode}
+                {foreignStay.has(booking.confirmationCode) ? (
+                  <span className="ml-2 rounded-full border border-border px-2 py-0.5 text-xs font-normal text-muted">
+                    Foreign guests
+                  </span>
+                ) : null}
               </p>
               <p className="text-muted">
                 {booking.checkIn} · {booking.nights} nights · {formatMoney(booking.amountInr)} ·{" "}
@@ -398,6 +411,7 @@ function DeskPortal() {
             </li>
           ))}
         </ul>
+        {packageId ? <ForeignGuestRegister packageId={packageId} rows={foreignGuests} /> : null}
       </div>
     </Shell>
   );

@@ -18,6 +18,7 @@ import {
 import { MapplsMap } from "@/components/mappls-map";
 import { stayPin } from "@/lib/places";
 import { TravelShareButtons } from "@/components/travel-planner";
+import { ArrivalChecklist } from "@/components/arrival-checklist";
 import { AddToWallet } from "@/components/wallet-pass";
 import type { OriginId } from "@/lib/origins";
 import { pageHead } from "@/lib/page-title";
@@ -234,6 +235,17 @@ function VoucherPage() {
             <p>भुगतान ₹{booking.amountInr}</p>
             <p>डेस्क {desk.email}</p>
           </div>
+          {(meta.guestNationalities ?? []).some((code) => code !== "IN") ? (
+            <div className="mt-4">
+              <ArrivalChecklist
+                nationalities={meta.guestNationalities ?? []}
+                checkIn={booking.checkIn}
+                arrivalAirport="BBI"
+                showEmail
+                confirmationCode={booking.confirmationCode}
+              />
+            </div>
+          ) : null}
           <p className="mt-4 text-xs text-subtle">
             {booking.status === "paid"
               ? "Payment received. The hotel has not confirmed the room yet — show this code once the desk confirms."

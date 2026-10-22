@@ -1,14 +1,23 @@
 import { useState, type ReactNode } from "react";
+import { PassportScan } from "@/components/passport-scan";
+import { PhoneInput } from "@/components/phone-input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ShakeField, ShakeSelect } from "@/components/motion";
+import { countryOptions } from "@/lib/countries";
+import { guestLabel, useGuestLocale } from "@/lib/guest-locale";
 import type { GuestDetailsPolicy } from "@/lib/hotel-desk";
+import { pushBanner } from "@/lib/banners";
+import { saveSavedTraveller } from "@/lib/server/saved-travellers";
+import { idLast4 } from "@/lib/travelers";
 import {
+  ARRIVAL_PURPOSES,
   GENDER_LABELS,
   ID_LABELS,
   maskAadhaar,
   travelerInitials,
   type AgeBand,
+  type ArrivalPurpose,
   type Gender,
   type IdType,
   type Traveler,
@@ -39,6 +48,8 @@ export function TravelerGuestCard({
   showDigiLocker = false,
   onUpdate,
   onOpenDigi,
+  onCopyFromLead,
+  checkIn,
 }: {
   index: number;
   traveler: Traveler;
@@ -48,18 +59,42 @@ export function TravelerGuestCard({
   showDigiLocker?: boolean;
   onUpdate: (index: number, patch: Partial<Traveler>) => void;
   onOpenDigi: (index: number) => void;
+  onCopyFromLead?: (index: number) => void;
+  checkIn?: string;
 }) {
+  const locale = useGuestLocale();
   const i = index;
   const lead = i === 0 || t.role === "lead";
   const foreign = (t.nationality || "IN").trim().toUpperCase() !== "IN";
+  const digi = showDigiLocker && !foreign;
   const [more, setMore] = useState(false);
   const [emergencyOpen, setEmergencyOpen] = useState(Boolean(t.emergencyName || t.emergencyPhone));
-  const extraError = Object.entries(err).some(
-    ([key, value]) => value && key !== "fullName" && key !== "ageBand",
-  );
+  const extraError = Object.entries(err).some(([key, value]) => value && key !== "fullName" && key !== "ageBand");
   const showFull = lead || more || foreign || extraError;
   const filled = t.identitySource !== "manual";
   const field = (name: string) => `guest-${i}-${name}`;
+  const countries = countryOptions(locale === "hi" ? "hi" : "en");
+  const idTypes = (Object.keys(ID_LABELS) as IdType[]).filter((id) => !foreign || id === "passport");
+
+  const savePerson = () => {
+    if (t.fullName.trim().length < 2) return;
+    void saveSavedTraveller({
+      data: {
+        fullName: t.fullName.trim(),
+        nationality: (t.nationality || "IN").toUpperCase(),
+        phone: t.phone,
+        email: t.email,
+        idType: t.idType,
+        idLast4: t.idNumber ? idLast4(t.idNumber) : "",
+      },
+    }).then((result) => {
+      pushBanner({
+        title: result.ok ? guestLabel(locale, "savedSaved") : "Could not save",
+        body: result.ok ? undefined : result.message,
+        tone: result.ok ? "ok" : "info",
+      });
+    });
+  };
 
   return (
     <Card className="p-5 shadow-none">
@@ -70,10 +105,10 @@ export function TravelerGuestCard({
           </span>
           <div className="min-w-0">
             <h2 className="font-display text-xl">
-              Guest {i + 1}
-              {lead ? " · lead" : ""}
+              {guestLabel(locale, "guest")} {i + 1}
+              {lead ? ` · ${guestLabel(locale, "lead")}` : ""}
             </h2>
-            {filled && showDigiLocker ? (
+            {filled && digi ? (
               <p className="text-xs text-muted">
                 {t.identitySource === "digilocker_demo" ? "Sample DigiLocker — not a verified guest" : "DigiLocker"}
               </p>
@@ -82,17 +117,26 @@ export function TravelerGuestCard({
             )}
           </div>
         </div>
-        {showDigiLocker ? (
-          <Button type="button" size="sm" variant="outline" className="shrink-0" onClick={() => onOpenDigi(i)}>
-            Fill from DigiLocker
-          </Button>
-        ) : null}
+        <div className="flex flex-wrap gap-2">
+          {!lead && onCopyFromLead ? (
+            <Button type="button" size="sm" variant="outline" onClick={() => onCopyFromLead(i)}>
+              {guestLabel(locale, "copyLead")}
+            </Button>
+          ) : null}
+          {digi ? (
+            <Button type="button" size="sm" variant="outline" className="shrink-0" onClick={() => onOpenDigi(i)}>
+              Fill from DigiLocker
+            </Button>
+          ) : null}
+        </div>
       </div>
 
-      <FieldGroup title={lead ? "Identity" : "Guest"}>
+      {foreign ? <p className="mt-3 text-xs text-muted">{guestLabel(locale, "visiting")}</p> : null}
+
+      <FieldGroup title={lead ? "Identity" : guestLabel(locale, "guest")}>
         <ShakeField
           className="sm:col-span-2"
-          label="Full name (as on ID)"
+          label={guestLabel(locale, "fullName")}
           fieldId={field("fullName")}
           value={t.fullName}
           error={err.fullName}
@@ -122,7 +166,7 @@ export function TravelerGuestCard({
           <>
             {lead ? (
               <ShakeField
-                label="Date of birth"
+                label={guestLabel(locale, "dob")}
                 type="date"
                 fieldId={field("dateOfBirth")}
                 value={t.dateOfBirth}
@@ -144,36 +188,42 @@ export function TravelerGuestCard({
                 ))}
               </ShakeSelect>
             ) : null}
-            <ShakeField
-              label="Nationality"
+            <ShakeSelect
+              className="sm:col-span-2"
+              label={guestLabel(locale, "nationality")}
               fieldId={field("nationality")}
-              value={t.nationality}
+              value={t.nationality || "IN"}
               error={err.nationality}
               shakeKey={shakeKey}
               onChange={(e) => {
-                const nationality = e.target.value.toUpperCase().slice(0, 2);
-                onUpdate(i, nationality !== "IN" ? { nationality, idType: "passport" } : { nationality });
+                const nationality = e.target.value.toUpperCase();
+                const patch: Partial<Traveler> = { nationality };
+                if (nationality !== "IN" && t.idType === "aadhaar" && !t.idNumber.trim()) patch.idType = "passport";
+                onUpdate(i, patch);
               }}
-            />
+            >
+              {countries.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {country.name}
+                </option>
+              ))}
+            </ShakeSelect>
             <ShakeSelect
-              label="ID type"
+              label={guestLabel(locale, "idType")}
               fieldId={field("idType")}
               value={foreign ? "passport" : t.idType}
               error={err.idType}
               shakeKey={shakeKey}
               onChange={(e) => onUpdate(i, { idType: e.target.value as IdType })}
             >
-              {(Object.keys(ID_LABELS) as IdType[])
-                .filter((id) => !foreign || id === "passport")
-                .map((id) => (
-                  <option key={id} value={id}>
-                    {ID_LABELS[id]}
-                  </option>
-                ))}
+              {idTypes.map((id) => (
+                <option key={id} value={id}>
+                  {ID_LABELS[id]}
+                </option>
+              ))}
             </ShakeSelect>
             <ShakeField
-              className="sm:col-span-2"
-              label="ID number"
+              label={guestLabel(locale, "idNumber")}
               fieldId={field("idNumber")}
               value={t.idNumber}
               error={err.idNumber}
@@ -183,9 +233,15 @@ export function TravelerGuestCard({
                 if (t.idType === "aadhaar" && !foreign) onUpdate(i, { idNumber: maskAadhaar(t.idNumber) });
               }}
             />
+            {foreign && t.idType === "aadhaar" ? (
+              <p className="text-xs font-normal text-muted sm:col-span-2">{guestLabel(locale, "passportHint")}</p>
+            ) : null}
+            {t.idType === "passport" ? (
+              <PassportScan arrivalDate={checkIn} onApply={(patch) => onUpdate(i, patch)} />
+            ) : null}
             {!lead ? (
               <ShakeField
-                label="Date of birth"
+                label={guestLabel(locale, "dob")}
                 type="date"
                 fieldId={field("dateOfBirth")}
                 value={t.dateOfBirth}
@@ -198,21 +254,20 @@ export function TravelerGuestCard({
         ) : null}
       </FieldGroup>
 
-      {showFull && lead ? (
+      {showFull ? (
         <FieldGroup title="Contact">
-          <ShakeField
-            label="Mobile"
+          <PhoneInput
+            label={guestLabel(locale, "mobile")}
             fieldId={field("phone")}
-            inputMode="tel"
-            placeholder="10-digit mobile"
             value={t.phone}
+            defaultCountry={t.nationality || "IN"}
             error={err.phone}
             shakeKey={shakeKey}
-            autoComplete="tel"
-            onChange={(e) => onUpdate(i, { phone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
+            helper={lead ? guestLabel(locale, "mobileHelp") : undefined}
+            onChange={(phone) => onUpdate(i, { phone })}
           />
           <ShakeField
-            label="Email"
+            label={guestLabel(locale, "email")}
             fieldId={field("email")}
             type="email"
             value={t.email}
@@ -220,6 +275,65 @@ export function TravelerGuestCard({
             shakeKey={shakeKey}
             autoComplete="email"
             onChange={(e) => onUpdate(i, { email: e.target.value })}
+          />
+        </FieldGroup>
+      ) : null}
+
+      {foreign && showFull ? (
+        <FieldGroup title={guestLabel(locale, "arrivalTitle")}>
+          <label className="flex items-start gap-2 text-sm font-normal sm:col-span-2">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={Boolean(t.oci)}
+              onChange={(e) => onUpdate(i, { oci: e.target.checked })}
+            />
+            <span>{guestLabel(locale, "oci")}</span>
+          </label>
+          {(t.nationality || "").toUpperCase() === "AE" ? (
+            <label className="flex items-start gap-2 text-sm font-normal sm:col-span-2">
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={Boolean(t.priorIndianVisa)}
+                onChange={(e) => onUpdate(i, { priorIndianVisa: e.target.checked })}
+              />
+              <span>{guestLabel(locale, "priorVisa")}</span>
+            </label>
+          ) : null}
+          <ShakeField
+            label={guestLabel(locale, "arrivedFrom")}
+            value={t.arrivedFrom ?? ""}
+            onChange={(e) => onUpdate(i, { arrivedFrom: e.target.value })}
+          />
+          <ShakeField
+            label={guestLabel(locale, "arrivalTime")}
+            type="time"
+            value={t.arrivalTime ?? ""}
+            onChange={(e) => onUpdate(i, { arrivalTime: e.target.value })}
+          />
+          <ShakeSelect
+            label={guestLabel(locale, "purpose")}
+            value={t.arrivalPurpose ?? ""}
+            onChange={(e) => onUpdate(i, { arrivalPurpose: e.target.value as ArrivalPurpose | "" })}
+          >
+            <option value="">{guestLabel(locale, "purposeChoose")}</option>
+            {ARRIVAL_PURPOSES.map((purpose) => (
+              <option key={purpose} value={purpose}>
+                {guestLabel(locale, purposeLabel(purpose))}
+              </option>
+            ))}
+          </ShakeSelect>
+          <ShakeField
+            label={guestLabel(locale, "previousStay")}
+            value={t.previousStay ?? ""}
+            onChange={(e) => onUpdate(i, { previousStay: e.target.value })}
+          />
+          <ShakeField
+            className="sm:col-span-2"
+            label={guestLabel(locale, "nextDestination")}
+            value={t.nextDestination ?? ""}
+            onChange={(e) => onUpdate(i, { nextDestination: e.target.value })}
           />
         </FieldGroup>
       ) : null}
@@ -237,24 +351,24 @@ export function TravelerGuestCard({
 
       <div className="mt-5 border-t border-border pt-4">
         <button type="button" className="text-sm font-medium underline" onClick={() => setEmergencyOpen((open) => !open)}>
-          {emergencyOpen ? "Hide emergency contact" : "Add an emergency contact (optional)"}
+          {emergencyOpen ? guestLabel(locale, "emergencyHide") : guestLabel(locale, "emergencyShow")}
         </button>
         {emergencyOpen ? (
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <ShakeField
-              label="Contact name"
+              label={guestLabel(locale, "contactName")}
               value={t.emergencyName}
               autoComplete="off"
               onChange={(e) => onUpdate(i, { emergencyName: e.target.value })}
             />
-            <ShakeField
-              label="Mobile"
+            <PhoneInput
+              label={guestLabel(locale, "mobile")}
               fieldId={field("emergencyPhone")}
-              inputMode="tel"
               value={t.emergencyPhone}
+              defaultCountry={t.nationality || "IN"}
               error={err.emergencyPhone}
               shakeKey={shakeKey}
-              onChange={(e) => onUpdate(i, { emergencyPhone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
+              onChange={(emergencyPhone) => onUpdate(i, { emergencyPhone })}
             />
             <ShakeField
               className="sm:col-span-2"
@@ -265,9 +379,14 @@ export function TravelerGuestCard({
             />
           </div>
         ) : null}
+        {showFull && t.fullName.trim().length >= 2 ? (
+          <button type="button" className="mt-3 text-xs font-medium underline" onClick={savePerson}>
+            {guestLabel(locale, "savedSave")}
+          </button>
+        ) : null}
       </div>
 
-      {showDigiLocker && t.issuedDocs.length > 0 ? (
+      {digi && t.issuedDocs.length > 0 ? (
         <ul className="mt-4 flex flex-wrap gap-2">
           {t.issuedDocs.map((d) => (
             <li key={`${d.label}-${d.idMasked}`} className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
@@ -276,7 +395,16 @@ export function TravelerGuestCard({
           ))}
         </ul>
       ) : null}
-
     </Card>
   );
+}
+
+function purposeLabel(purpose: ArrivalPurpose) {
+  if (purpose === "tourism") return "purposeTourism" as const;
+  if (purpose === "business") return "purposeBusiness" as const;
+  if (purpose === "employment") return "purposeEmployment" as const;
+  if (purpose === "medical") return "purposeMedical" as const;
+  if (purpose === "student") return "purposeStudent" as const;
+  if (purpose === "conference") return "purposeConference" as const;
+  return "purposeOthers" as const;
 }

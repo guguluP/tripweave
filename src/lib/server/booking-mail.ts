@@ -16,6 +16,7 @@ type Notice = {
   roomName?: string;
   swaps?: Record<string, string>;
   guests?: NoticeGuest[];
+  guestNationalities?: string[];
 };
 
 /** Guest and hotel desk. SMTP when configured, otherwise SES. WhatsApp stays a stub. */
@@ -34,6 +35,7 @@ export async function sendBookingNotices(input: Notice) {
     roomName: input.roomName,
     swaps: input.swaps,
     guests: input.guests,
+    guestNationalities: input.guestNationalities,
   };
   await notifyGuestPaid(notice);
   const desk = await notifyDesk(notice);

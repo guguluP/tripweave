@@ -465,7 +465,9 @@ async function runReconcileJob(job: ReconcileJob): Promise<BookingRow | null> {
         role: guest.isLead ? "lead" : "companion",
         ageBand: guest.ageBand,
         isLead: guest.isLead,
+        nationality: guest.nationality,
       })),
+      guestNationalities: meta.guestNationalities,
     }).catch((err) => console.error("[mail] booking", err));
     return { ...booking, userId: job.userId };
   } catch (err) {
@@ -608,6 +610,8 @@ export async function bookCapturedFromNotes(input: {
 }): Promise<void> {
   const pkg = getPackage(input.packageId);
   const units = pkg ? await publishedHoldUnits(pkg, input.roomId, input.checkIn, input.nights) : 1;
+  // No client guestNationalities here. Webhook notes do not carry the party,
+  // so the paid mail omits the abroad checklist block.
   const swaps = writeMeta({}, {
     roomId: input.roomId,
     guestEmail: input.guestEmail,
@@ -727,6 +731,7 @@ export const createBooking = createServerFn({ method: "POST" })
       role: guest.isLead ? "lead" : "companion",
       ageBand: guest.ageBand,
       isLead: guest.isLead,
+      nationality: guest.nationality,
     }));
     const keepGuests = async (booking: BookingRow): Promise<string | null> => {
       if (guestInputs.length === 0) return null;
@@ -909,6 +914,7 @@ export const createBooking = createServerFn({ method: "POST" })
         roomName: room.name,
         swaps: booking.swaps,
         guests: guestNotice,
+        guestNationalities: meta.guestNationalities,
       }).catch((err) => console.error("[mail] booking", err));
       return { ok: true as const, booking, stored };
     };

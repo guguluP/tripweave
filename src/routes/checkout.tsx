@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, MotionToggle, ShakeField, Stagger, TextSwap } from "@/components/motion";
+import { ArrivalChecklist } from "@/components/arrival-checklist";
 import { GuestForms, useGuestForms } from "@/components/guest-forms";
 import { DigilockerFlow } from "@/components/digilocker-flow";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
@@ -32,6 +33,8 @@ import { track } from "@/lib/analytics";
 import { pageHead } from "@/lib/page-title";
 import { createBooking, type BookingRow } from "@/lib/server/bookings-browser";
 import { createRazorpayOrder } from "@/lib/server/razorpay";
+import { isAcceptablePhone } from "@/lib/phone";
+import { saveGuestArrivals } from "@/lib/server/guest-arrivals";
 import { clearSensitiveTravelers, DIGIYATRA_LABELS, type DigiYatraStatus, type Traveler } from "@/lib/travelers";
 import {
   getPublicRazorpayKeyId,
@@ -270,10 +273,16 @@ function CheckoutInner() {
 
   if (!forms.ready || forms.list.length === 0) return <CheckoutSkeleton />;
 
+  const guestNationalities = [
+    ...new Set(forms.list.map((guest) => (guest.nationality || "IN").trim().toUpperCase()).filter(Boolean)),
+  ].slice(0, 12);
+  const anyForeign = guestNationalities.some((code) => code !== "IN");
+  const leadIsIndian = (forms.list[0]?.nationality || "IN").toUpperCase() === "IN";
   const swapsForPay = writeMeta(swaps, {
     travel: plan,
     roomId: room?.id,
     guestEmail: user?.primaryEmail ?? undefined,
+    guestNationalities,
   });
 
   const onPay = async (e: FormEvent) => {
@@ -342,6 +351,8 @@ function CheckoutInner() {
         setBusy(false);
         return;
       }
+      const leadPhone = forms.list[0]?.phone?.trim() ?? "";
+      const contact = leadPhone.startsWith("+") && isAcceptablePhone(leadPhone) ? leadPhone : undefined;
       const guestPayload = forms.list.map((g) => ({
         fullName: g.fullName,
         phone: g.phone,
@@ -366,7 +377,11 @@ function CheckoutInner() {
             name: "TripWeave",
             description: pkg.name,
             order_id: order.orderId,
-            prefill: { name: payingName.trim(), email: user?.primaryEmail ?? forms.list[0]?.email, contact: forms.list[0]?.phone },
+            prefill: {
+              name: payingName.trim(),
+              email: user?.primaryEmail ?? forms.list[0]?.email,
+              ...(contact ? { contact } : {}),
+            },
             notes: { packageId: pkg.id },
             theme: { color: "#1e5853" },
             handler: async (response) => {
@@ -387,6 +402,28 @@ function CheckoutInner() {
                     guests: guestPayload,
                   },
                 });
+                if (result.ok && anyForeign) {
+                  const rows = forms.list
+                    .map((guest, guestIndex) => ({ guest, guestIndex }))
+                    .filter(({ guest }) => (guest.nationality || "IN").toUpperCase() !== "IN")
+                    .map(({ guest, guestIndex }) => ({
+                      guestIndex,
+                      arrivedFrom: guest.arrivedFrom ?? "",
+                      arrivalTime: guest.arrivalTime ?? "",
+                      purpose: guest.arrivalPurpose || "",
+                      previousStay: guest.previousStay ?? "",
+                      nextDestination: guest.nextDestination ?? "",
+                    }));
+                  if (rows.length > 0 && result.booking.id) {
+                    try {
+                      await saveGuestArrivals({
+                        data: { bookingId: result.booking.id, checkIn, nights, rows },
+                      });
+                    } catch {
+                      /* arrival details are optional */
+                    }
+                  }
+                }
                 if (!result.ok) {
                   setFormError(result.message);
                   pushBanner({ title: "Payment received, booking not saved", body: result.message, tone: "danger" });
@@ -514,11 +551,12 @@ function CheckoutInner() {
               shakeKey={forms.shakeKey}
               policy={policy}
               showDigiLocker={digiOn}
+              checkIn={checkIn}
               onUpdate={forms.update}
               onOpenDigi={setDigiGuest}
             />
 
-            {digiOn ? (
+            {digiOn && leadIsIndian ? (
               <div>
                 <button type="button" className="text-sm font-medium underline" onClick={() => setDigiOpen((open) => !open)}>
                   Use DigiLocker (optional)
@@ -536,7 +574,15 @@ function CheckoutInner() {
               </div>
             ) : null}
 
-            {journey?.showDigiYatra ? (
+            {anyForeign ? (
+              <ArrivalChecklist
+                nationalities={forms.list.map((guest) => guest.nationality)}
+                oci={forms.list.map((guest) => Boolean(guest.oci))}
+                priorIndianVisa={forms.list.map((guest) => Boolean(guest.priorIndianVisa))}
+                arrivalAirport="BBI"
+                checkIn={checkIn}
+              />
+            ) : journey?.showDigiYatra ? (
               <div className="rounded-lg border border-border bg-elevated px-4 py-3">
                 <p className="text-sm font-medium">Airport e-gates (DigiYatra)</p>
                 <p className="mt-1 text-xs text-muted">

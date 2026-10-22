@@ -37,6 +37,14 @@ export const WORLD_CITIES: WorldCity[] = [
   ...ABROAD.map(([name, place]) => ({ name, place })),
 ];
 
+const ABROAD_NAMES = new Set(ABROAD.map(([name]) => name.toLowerCase()));
+
+/** True when the plan origin is one of the built-in cities outside India. */
+export function isAbroadCity(name: string): boolean {
+  const key = name.trim().toLowerCase();
+  return key.length > 0 && ABROAD_NAMES.has(key);
+}
+
 export function searchWorldCities(query: string, limit = 12): WorldCity[] {
   const q = query.trim().toLowerCase();
   if (q.length < 1) return [];

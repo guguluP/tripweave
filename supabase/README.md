@@ -22,6 +22,12 @@ Then paste [`ops_durability.sql`](ops_durability.sql) → Run. That file is safe
 
 Then paste [`partner_desk_ops.sql`](partner_desk_ops.sql) → Run. Adds per-night allotment, stop-sell, `desk_confirmed` / `checked_in`, desk RPCs, and catalog helpers. Safe to re-run.
 
+Then paste [`foreign_guests.sql`](foreign_guests.sql) → Run. Comments and an index for E.164 phone numbers and ISO nationality. Safe to re-run.
+
+Then paste [`saved_travellers.sql`](saved_travellers.sql) → Run. Saved co-travellers (name, nationality, phone, email, ID type, last 4). No date of birth and no full ID. Safe to re-run.
+
+Then paste [`guest_arrivals.sql`](guest_arrivals.sql) → Run. Optional arrival details and the desk foreign-guest register for Form III. Safe to re-run.
+
 ## 2. Keys on the live site
 
 [API settings](https://supabase.com/dashboard/project/csegihiepvxezuypsvop/settings/api) → copy into **Vercel → tripweave-web → Environment Variables** (Production + Preview):

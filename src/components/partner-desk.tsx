@@ -3,8 +3,11 @@ import { PACKAGES, formatMoney, getPackage } from "@/lib/packages";
 import { partnerStays } from "@/lib/server/partner";
 import { loadCatalog, saveCatalogOverride, listDeskBookings, confirmDeskBooking, sendStayReminder, type DeskBooking } from "@/lib/server/catalog";
 import { setCatalogOverlays } from "@/lib/catalog-store";
+import { ForeignGuestRegister, foreignCodes } from "@/components/foreign-guest-register";
 import { Button } from "@/components/ui/button";
 import { pushBanner } from "@/lib/banners";
+import { deskForeignRegister } from "@/lib/server/desk-ops";
+import type { ForeignGuestRow } from "@/lib/server/guest-arrivals";
 
 export function PartnerDesk() {
   const [allowed, setAllowed] = useState<string[] | null>(null);
@@ -16,6 +19,7 @@ export function PartnerDesk() {
   const [image, setImage] = useState("");
   const [extras, setExtras] = useState<{ optionId: string; label: string; delta: number }[]>([]);
   const [bookings, setBookings] = useState<DeskBooking[]>([]);
+  const [foreignGuests, setForeignGuests] = useState<ForeignGuestRow[]>([]);
   const [note, setNote] = useState("Room held for this confirmation code.");
   const [busy, setBusy] = useState(false);
 
@@ -39,6 +43,9 @@ export function PartnerDesk() {
 
   const refreshBookings = () => {
     listDeskBookings({ data: packageId }).then(setBookings).catch(() => setBookings([]));
+    deskForeignRegister({ data: { packageId } })
+      .then(setForeignGuests)
+      .catch(() => setForeignGuests([]));
   };
 
   useEffect(() => {
@@ -125,7 +132,14 @@ export function PartnerDesk() {
         {bookings.length === 0 ? <li className="text-sm text-muted">No paid stays for this property.</li> : null}
         {bookings.map((booking) => (
           <li key={booking.id} className="rounded-lg border border-border p-3 text-sm">
-            <p className="font-medium">{booking.payerName} · {booking.confirmationCode}</p>
+            <p className="font-medium">
+              {booking.payerName} · {booking.confirmationCode}
+              {foreignCodes(foreignGuests).has(booking.confirmationCode) ? (
+                <span className="ml-2 rounded-full border border-border px-2 py-0.5 text-xs font-normal text-muted">
+                  Foreign guests
+                </span>
+              ) : null}
+            </p>
             <p className="text-muted">{booking.checkIn} · {booking.nights} nights · {formatMoney(booking.amountInr)} · {booking.status}</p>
             {booking.status === "paid" ? (
               <div className="mt-2 flex flex-wrap gap-2">
@@ -175,6 +189,7 @@ export function PartnerDesk() {
           </li>
         ))}
       </ul>
+      {packageId ? <ForeignGuestRegister packageId={packageId} rows={foreignGuests} /> : null}
     </section>
   );
 }

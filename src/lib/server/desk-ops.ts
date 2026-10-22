@@ -22,6 +22,7 @@ import { bookedOnNight, todayIso } from "@/lib/inventory";
 import { refreshStayInventory } from "@/lib/server/occupancy";
 import { getSql } from "@/lib/db";
 import { readMeta } from "@/lib/booking-meta";
+import { loadForeignRegister, type ForeignGuestRow } from "@/lib/server/guest-arrivals";
 import { notifyGuestCheckedIn, notifyGuestConfirmed } from "@/lib/server/desk-notify";
 import { isDurableDbError, markDurableDbFailed, shouldSkipNeon } from "@/lib/server/db-fallback";
 
@@ -84,6 +85,15 @@ export const deskListBookings = createServerFn({ method: "POST" })
       }
     }
     return [];
+  });
+
+export const deskForeignRegister = createServerFn({ method: "POST" })
+  .validator((data: unknown) =>
+    z.object({ packageId: z.string().min(1).max(80), deskToken: z.string().max(200).optional() }).parse(data),
+  )
+  .handler(async ({ data }): Promise<ForeignGuestRow[]> => {
+    await assertDeskAccess(data.packageId, data.deskToken);
+    return loadForeignRegister(data.packageId);
   });
 
 export const deskListAllotment = createServerFn({ method: "POST" })

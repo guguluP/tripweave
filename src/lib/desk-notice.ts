@@ -1,4 +1,6 @@
+import { foreignDeskLine, foreignNationalCount, paidAbroadLines } from "./arrival-rules.ts";
 import { readMeta } from "./booking-meta.ts";
+import { formatPhone, isAcceptablePhone, toE164 } from "./phone.ts";
 import { parseTravelPlan } from "./travel-plan.ts";
 
 export type NoticeGuest = {
@@ -7,6 +9,7 @@ export type NoticeGuest = {
   role?: string;
   ageBand?: string;
   isLead?: boolean;
+  nationality?: string;
 };
 
 export type DeskNoticeCore = {
@@ -23,7 +26,17 @@ export type DeskNoticeCore = {
   roomName?: string;
   swaps?: Record<string, string>;
   guests?: NoticeGuest[];
+  guestNationalities?: string[];
 };
+
+function formatLeadPhone(phone: string | undefined): string {
+  if (!phone) return "";
+  const e164 = phone.startsWith("+") ? phone : toE164(phone, "IN");
+  if (e164 && isAcceptablePhone(e164) && e164.startsWith("+91")) return ` (+91 ${e164.slice(3)})`;
+  if (e164 && isAcceptablePhone(e164)) return ` (${formatPhone(e164)})`;
+  const digits = phone.replace(/\D/g, "");
+  return digits ? ` (+91 ${digits.slice(-10)})` : "";
+}
 
 export function ageBandLabel(band?: string): string {
   if (band === "adult") return "adult";
@@ -47,8 +60,7 @@ export function guestRosterLines(input: { guests?: NoticeGuest[] | null }): stri
   const lead = leadIndex >= 0 ? guests[leadIndex] : guests[0];
   const lines: string[] = [];
   if (lead?.fullName) {
-    const digits = (lead.phone ?? "").replace(/\D/g, "");
-    const phone = digits ? ` (+91 ${digits.slice(-10)})` : "";
+    const phone = formatLeadPhone(lead.phone);
     lines.push(`Lead: ${lead.fullName}${phone}`);
   }
   guests.forEach((guest, index) => {
@@ -68,6 +80,7 @@ export function deskMessageLines(input: DeskNoticeCore): string[] {
     `Check-in ${input.checkIn} · ${input.nights} nights · ${input.travelers} guests`,
     airportCarLine(input),
     ...guestRosterLines(input),
+    foreignDeskLine(foreignNationalCount(input)),
     `Amount paid ₹${input.amountInr.toLocaleString("en-IN")}`,
     "",
     "Payment succeeded. Please confirm or decline the room.",
@@ -83,6 +96,12 @@ export function guestPaidLines(input: DeskNoticeCore): string[] {
     `Check-in ${input.checkIn} · ${input.nights} nights · ${input.travelers} guests`,
     airportCarLine(input),
     ...guestRosterLines(input),
+    ...paidAbroadLines({
+      guestNationalities: input.guestNationalities,
+      guests: input.guests,
+      confirmationCode: input.confirmationCode,
+      arrivalAirport: "BBI",
+    }),
     "",
     "Your payment succeeded. The hotel desk still needs to confirm the room.",
     "My trips will say Awaiting hotel confirmation until the desk accepts.",

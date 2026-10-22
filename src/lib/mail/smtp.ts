@@ -27,23 +27,44 @@ function smtpPort(): number {
   return Number.isFinite(raw) && raw > 0 ? raw : 465;
 }
 
+function isAscii(value: string) {
+  for (let i = 0; i < value.length; i++) {
+    if (value.charCodeAt(i) > 127) return false;
+  }
+  return true;
+}
+
+/** RFC 2047 encoded-word. ASCII subjects are left untouched. */
+export function encodeSubject(subject: string): string {
+  if (isAscii(subject)) return subject;
+  const b64 = Buffer.from(subject, "utf8").toString("base64");
+  const words: string[] = [];
+  for (let i = 0; i < b64.length; i += 48) {
+    words.push(`=?UTF-8?B?${b64.slice(i, i + 48)}?=`);
+  }
+  return words.join("\r\n ");
+}
+
 export function smtpData(from: string, message: OutboundMail): string {
   const textBody = message.text.replace(/\r?\n/g, "\r\n");
   const htmlBody = message.html?.replace(/\r?\n/g, "\r\n");
+  const subject = encodeSubject(message.subject);
   const lines = htmlBody
     ? [
         `From: ${from}`,
         `To: ${message.to}`,
-        `Subject: ${message.subject}`,
+        `Subject: ${subject}`,
         "MIME-Version: 1.0",
         'Content-Type: multipart/alternative; boundary="tw-alt"',
         "",
         "--tw-alt",
         "Content-Type: text/plain; charset=UTF-8",
+        "Content-Transfer-Encoding: 8bit",
         "",
         textBody,
         "--tw-alt",
         "Content-Type: text/html; charset=UTF-8",
+        "Content-Transfer-Encoding: 8bit",
         "",
         htmlBody,
         "--tw-alt--",
@@ -51,9 +72,10 @@ export function smtpData(from: string, message: OutboundMail): string {
     : [
         `From: ${from}`,
         `To: ${message.to}`,
-        `Subject: ${message.subject}`,
+        `Subject: ${subject}`,
         "MIME-Version: 1.0",
         "Content-Type: text/plain; charset=UTF-8",
+        "Content-Transfer-Encoding: 8bit",
         "",
         textBody,
       ];

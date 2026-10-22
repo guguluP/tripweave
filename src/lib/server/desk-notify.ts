@@ -3,9 +3,9 @@
  * password reset. SES is only the fallback when SMTP is unset.
  * WhatsApp is stubbed unless TW_WHATSAPP_* is configured.
  */
+import { foreignDeskLine, foreignNationalCount } from "@/lib/arrival-rules";
 import { deskFor } from "@/lib/hotel-desk";
-import { mailConfigured, sendMail, type OutboundMail } from "@/lib/mail/ses";
-import { sendSmtpMail, smtpConfigured } from "@/lib/mail/smtp";
+import { bookingMailConfigured, sendBookingMail } from "@/lib/mail/send";
 import {
   deskActionUrl,
   deskSigningReady,
@@ -56,20 +56,6 @@ async function sendWhatsAppStub(toPhone: string | undefined, text: string): Prom
   return false;
 }
 
-function bookingMailConfigured(): boolean {
-  return smtpConfigured() || mailConfigured();
-}
-
-/** Same path as password reset: SMTP first, SES only if SMTP is unset. */
-async function sendBookingMail(message: OutboundMail): Promise<boolean> {
-  if (smtpConfigured()) {
-    await sendSmtpMail(message);
-    return true;
-  }
-  if (mailConfigured()) return sendMail(message);
-  return false;
-}
-
 export async function notifyDesk(input: DeskNotice): Promise<NotifyResult> {
   const desk = deskFor(input.packageId);
   let acceptUrl: string | undefined;
@@ -98,6 +84,7 @@ export async function notifyDesk(input: DeskNotice): Promise<NotifyResult> {
     `Check-in ${input.checkIn} · ${input.nights} nights · ${input.travelers} guests`,
     airportCarLine(input),
     ...guestRosterLines(input),
+    foreignDeskLine(foreignNationalCount(input)),
     `Amount paid ₹${input.amountInr.toLocaleString("en-IN")}`,
     "",
     "Payment succeeded. Please confirm or decline the room.",

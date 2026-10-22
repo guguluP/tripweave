@@ -1,28 +1,52 @@
 import { z } from "zod";
-import type { GuestDetailsPolicy } from "./hotel-desk";
-import { guestErrorBanner } from "./focus-first-error";
+import { isCountryCode } from "./countries.ts";
+import type { GuestDetailsPolicy } from "./hotel-desk.ts";
+import { guestErrorBanner } from "./focus-first-error.ts";
+import { isAcceptablePhone, toE164 } from "./phone.ts";
 import {
+  defaultIdType,
   emptyTraveler,
   orderedGuestErrors,
   validateTravelers,
   type AgeBand,
   type GuestRole,
+  type IdType,
   type Traveler,
-} from "./travelers";
+} from "./travelers.ts";
+
+const idTypes = ["aadhaar", "passport", "dl", "voter", "other"] as const;
+
+const e164Phone = z
+  .string()
+  .max(40)
+  .optional()
+  .default("")
+  .transform((value) => {
+    const trimmed = value.trim();
+    if (!trimmed) return "";
+    return toE164(trimmed, "IN") ?? trimmed;
+  })
+  .refine((value) => value === "" || isAcceptablePhone(value), "Enter a valid mobile number.");
 
 const ageBands = ["adult", "child_5_11", "infant_0_4"] as const;
 
 /** Loose shape. guest-policy.ts decides which fields are actually required. */
 export const travelerInputSchema = z.object({
   fullName: z.string().min(1).max(120),
-  phone: z.string().max(20).optional().default(""),
+  phone: e164Phone,
   email: z.string().max(160).optional().default(""),
   dateOfBirth: z.string().max(20).optional().default(""),
-  nationality: z.string().max(8).optional().default("IN"),
-  idType: z.string().max(20).optional().default(""),
+  nationality: z
+    .string()
+    .max(8)
+    .optional()
+    .default("IN")
+    .transform((value) => (value || "IN").trim().toUpperCase())
+    .refine((value) => /^[A-Z]{2}$/.test(value) && isCountryCode(value), "Pick a nationality from the list."),
+  idType: z.union([z.enum(idTypes), z.literal("")]).optional().default(""),
   idNumber: z.string().max(40).optional().default(""),
   emergencyName: z.string().max(120).optional().default(""),
-  emergencyPhone: z.string().max(20).optional().default(""),
+  emergencyPhone: e164Phone,
   digiYatra: z.string().max(40).optional(),
   role: z.enum(["lead", "companion"]).optional(),
   ageBand: z.enum(ageBands).optional(),
@@ -60,7 +84,7 @@ export function guestRowsFromInput(
         email: row.email || "",
         dateOfBirth: row.dateOfBirth || "",
         nationality: (row.nationality || "IN").toUpperCase(),
-        idType: (row.idType as Traveler["idType"]) || (lead ? "aadhaar" : "aadhaar"),
+        idType: (row.idType as IdType) || defaultIdType(row.nationality || "IN"),
         idNumber: row.idNumber || "",
         emergencyName: row.emergencyName || "",
         emergencyPhone: row.emergencyPhone || "",

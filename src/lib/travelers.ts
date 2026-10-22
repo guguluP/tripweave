@@ -1,11 +1,23 @@
 /** Guest / traveller profile collected before payment. */
 
+import { isCountryCode } from "./countries.ts";
 import { isChildBand, requiredFields, type AgeBand, type GuestField, type GuestRole } from "./guest-policy.ts";
 import type { GuestDetailsPolicy } from "./hotel-desk.ts";
+import { isAcceptablePhone, toE164 } from "./phone.ts";
 
 export type { AgeBand, GuestRole };
 
 export type IdType = "aadhaar" | "passport" | "dl" | "voter" | "other";
+export const ARRIVAL_PURPOSES = [
+  "tourism",
+  "business",
+  "employment",
+  "medical",
+  "student",
+  "conference",
+  "others",
+] as const;
+export type ArrivalPurpose = (typeof ARRIVAL_PURPOSES)[number];
 export type Gender = "female" | "male" | "other" | "prefer_not";
 export type IdentitySource = "manual" | "digilocker_demo" | "digilocker";
 export type DigiYatraStatus = "not_started" | "enrolled" | "shared";
@@ -36,6 +48,15 @@ export type Traveler = {
   digiYatra: DigiYatraStatus;
   role: GuestRole;
   ageBand?: AgeBand;
+  /** Client-only. Not a visa number and not sent to the server. */
+  oci?: boolean;
+  /** Client-only. UAE visa-on-arrival needs a previous Indian visa. Not stored. */
+  priorIndianVisa?: boolean;
+  arrivedFrom?: string;
+  arrivalTime?: string;
+  arrivalPurpose?: ArrivalPurpose | "";
+  previousStay?: string;
+  nextDestination?: string;
 };
 
 export const TRAVELERS_KEY = "tripweave-travelers";
@@ -65,29 +86,54 @@ export function emptyTraveler(overrides: Partial<Traveler> = {}, index = 0): Tra
   };
 }
 
-function normalizeTraveler(raw: unknown): Traveler | null {
+export function defaultIdType(nationality: string): IdType {
+  return (nationality || "IN").trim().toUpperCase() === "IN" ? "aadhaar" : "passport";
+}
+
+function cleanNationality(value: unknown): string {
+  if (typeof value !== "string") return "IN";
+  const upper = value.trim().toUpperCase();
+  return upper || "IN";
+}
+
+function cleanPhone(raw: string, nationality: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  return toE164(trimmed, nationality || "IN") ?? trimmed;
+}
+
+export function coerceTraveler(raw: unknown): Traveler | null {
   if (!raw || typeof raw !== "object") return null;
   const t = raw as Partial<Traveler> & Record<string, unknown>;
+  const nationality = cleanNationality(t.nationality);
+  const idType = (t.idType as IdType) || defaultIdType(nationality);
+  const purpose = ARRIVAL_PURPOSES.includes(t.arrivalPurpose as ArrivalPurpose)
+    ? (t.arrivalPurpose as ArrivalPurpose)
+    : "";
   return emptyTraveler({
     fullName: typeof t.fullName === "string" ? t.fullName : "",
-    phone: typeof t.phone === "string" ? t.phone : "",
+    phone: cleanPhone(typeof t.phone === "string" ? t.phone : "", nationality),
     email: typeof t.email === "string" ? t.email : "",
     dateOfBirth: typeof t.dateOfBirth === "string" ? t.dateOfBirth : "",
     gender: (t.gender as Gender) || "prefer_not",
-    nationality: typeof t.nationality === "string" ? t.nationality : "IN",
-    idType: (t.idType as IdType) || "aadhaar",
-    idNumber: maskStoredId(
-      (t.idType as IdType) || "aadhaar",
-      typeof t.idNumber === "string" ? t.idNumber : "",
-    ),
+    nationality,
+    idType,
+    idNumber: maskStoredId(idType, typeof t.idNumber === "string" ? t.idNumber : ""),
     specialRequests: typeof t.specialRequests === "string" ? t.specialRequests : "",
     emergencyName: typeof t.emergencyName === "string" ? t.emergencyName : "",
-    emergencyPhone: typeof t.emergencyPhone === "string" ? t.emergencyPhone : "",
+    emergencyPhone: cleanPhone(typeof t.emergencyPhone === "string" ? t.emergencyPhone : "", nationality),
     identitySource: (t.identitySource as IdentitySource) || "manual",
     issuedDocs: Array.isArray(t.issuedDocs) ? (t.issuedDocs as IssuedDoc[]) : [],
     digiYatra: (t.digiYatra as DigiYatraStatus) || "not_started",
     role: t.role === "companion" ? "companion" : t.role === "lead" ? "lead" : "lead",
     ageBand: AGE_BANDS.has(t.ageBand as AgeBand) ? (t.ageBand as AgeBand) : undefined,
+    oci: t.oci === true,
+    priorIndianVisa: t.priorIndianVisa === true,
+    arrivedFrom: typeof t.arrivedFrom === "string" ? t.arrivedFrom : "",
+    arrivalTime: typeof t.arrivalTime === "string" ? t.arrivalTime : "",
+    arrivalPurpose: purpose,
+    previousStay: typeof t.previousStay === "string" ? t.previousStay : "",
+    nextDestination: typeof t.nextDestination === "string" ? t.nextDestination : "",
   });
 }
 
@@ -123,7 +169,7 @@ export function loadTravelers(): Traveler[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return [];
-    return parsed.map(normalizeTraveler).filter((t): t is Traveler => t !== null);
+    return parsed.map(coerceTraveler).filter((t): t is Traveler => t !== null);
   } catch {
     return [];
   }
@@ -190,12 +236,10 @@ export function validateTraveler(
   const needed = new Set(requiredFields(role, policy, nat, isChildBand(t.ageBand)));
   const e: TravelerErrors = {};
   if (needed.has("fullName") && t.fullName.trim().length < 2) e.fullName = "Enter the name as on the ID.";
-  if (needed.has("phone")) {
-    const phone = t.phone.replace(/\D/g, "").slice(-10);
-    if (!PHONE_RE.test(phone)) e.phone = "Use a 10-digit Indian mobile number.";
-  } else if (t.phone.trim()) {
-    const phone = t.phone.replace(/\D/g, "").slice(-10);
-    if (!PHONE_RE.test(phone)) e.phone = "Use a 10-digit Indian mobile number.";
+  const phoneRegion = nat || "IN";
+  if (needed.has("phone") || t.phone.trim()) {
+    const problem = phoneProblem(t.phone, phoneRegion);
+    if (problem) e.phone = problem;
   }
   if (needed.has("email")) {
     if (!EMAIL_RE.test(t.email.trim())) e.email = "Enter a valid email.";
@@ -207,6 +251,9 @@ export function validateTraveler(
     if (dob) e.dateOfBirth = dob;
   }
   if (needed.has("nationality") && !t.nationality.trim()) e.nationality = "Nationality is required.";
+  else if ((needed.has("nationality") || t.nationality.trim()) && !isCountryCode(nat)) {
+    e.nationality = "Pick a nationality from the list.";
+  }
   if (needed.has("ageBand") && !t.ageBand) e.ageBand = "Age band is required.";
   if (foreign && needed.has("idType") && t.idType !== "passport") {
     e.idType = "Passport is required.";
@@ -215,11 +262,23 @@ export function validateTraveler(
     const idError = checkId(t, foreign);
     if (idError) e.idNumber = idError;
   }
-  if (t.emergencyPhone) {
-    const ep = t.emergencyPhone.replace(/\D/g, "").slice(-10);
-    if (ep && !PHONE_RE.test(ep)) e.emergencyPhone = "Use a 10-digit mobile.";
+  if (t.emergencyPhone.trim()) {
+    const problem = phoneProblem(t.emergencyPhone, phoneRegion);
+    if (problem) e.emergencyPhone = problem;
   }
   return e;
+}
+
+function phoneProblem(raw: string, region: string): string | null {
+  const trimmed = raw.trim();
+  const indianMessage = "Use a 10-digit Indian mobile number.";
+  const intlMessage = "Enter a mobile number with country code, e.g. +44 7911 123456.";
+  if (!trimmed) return (region || "IN").toUpperCase() === "IN" ? indianMessage : intlMessage;
+  const e164 = toE164(trimmed, region || "IN");
+  if (e164 && isAcceptablePhone(e164)) return null;
+  const digits = trimmed.replace(/\D/g, "");
+  const indian = (region || "IN").toUpperCase() === "IN" || trimmed.startsWith("+91") || PHONE_RE.test(digits);
+  return indian ? indianMessage : intlMessage;
 }
 
 export function validateTravelers(list: Traveler[], policy: GuestDetailsPolicy = "lead_only"): {
