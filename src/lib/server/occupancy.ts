@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { createServerFn } from "@tanstack/react-start";
 import { getSql } from "@/lib/db";
 import { mergeAllotment, mergeStopSell, type NightAllotment, type StopSellRow } from "@/lib/allotment-store";
@@ -18,18 +17,13 @@ type HoldRow = {
   expiresAt?: string | null;
 };
 
-/** Stable dedupe key. The raw id can be a confirmation code and must not reach the browser. */
-function publicHoldId(raw: string) {
-  return createHash("sha256").update(raw).digest("hex").slice(0, 24);
-}
-
-function mapHolds(data: unknown): OccupancyHold[] {
+function mapHolds(data: unknown, hashId: (raw: string) => string): OccupancyHold[] {
   const parsed = typeof data === "string" ? JSON.parse(data) : data;
   if (!Array.isArray(parsed)) return [];
   return (parsed as HoldRow[])
     .filter((row) => row.packageId && row.roomId && row.checkIn && row.nights)
     .map((row, index) => ({
-      holdId: publicHoldId(row.holdId || `booking:${index}:${row.checkIn}:${row.nights}`),
+      holdId: hashId(row.holdId || `booking:${index}:${row.checkIn}:${row.nights}`),
       packageId: row.packageId!,
       roomId: row.roomId!,
       checkIn: String(row.checkIn).slice(0, 10),
@@ -37,6 +31,11 @@ function mapHolds(data: unknown): OccupancyHold[] {
       status: row.status === "held" ? "held" : "paid",
       expiresAt: row.expiresAt ? String(row.expiresAt) : undefined,
     }));
+}
+
+async function hashedHolds(data: unknown): Promise<OccupancyHold[]> {
+  const { publicHoldId } = await import("./hold-id.server");
+  return mapHolds(data, publicHoldId);
 }
 
 export async function refreshOccupancy(): Promise<OccupancyHold[]> {
@@ -48,7 +47,7 @@ export async function refreshOccupancy(): Promise<OccupancyHold[]> {
       console.warn("[inventory] occupancy", error.message);
       return [];
     }
-    const holds = mapHolds(data);
+    const holds = await hashedHolds(data);
     replacePaidHolds(holds);
     return holds;
   }
@@ -56,7 +55,7 @@ export async function refreshOccupancy(): Promise<OccupancyHold[]> {
   try {
     const sql = await getSql();
     const rows = await sql<{ data: unknown }>`select tw_occupancy() as data`;
-    const holds = mapHolds(rows[0]?.data);
+    const holds = await hashedHolds(rows[0]?.data);
     replacePaidHolds(holds);
     return holds;
   } catch (err) {
@@ -112,7 +111,7 @@ export async function refreshStayInventory(
       allotmentResult.error?.message ?? stopResult.error?.message,
     );
   }
-  const holds = mapHolds(holdsResult.data);
+  const holds = await hashedHolds(holdsResult.data);
   replacePaidHolds(holds);
   const allotment: NightAllotment[] = allotmentResult.error
     ? []

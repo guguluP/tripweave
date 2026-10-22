@@ -12,6 +12,8 @@ export type TravelerInput = {
   emergencyName?: string;
   emergencyPhone?: string;
   digiYatra?: string;
+  isLead?: boolean;
+  ageBand?: string;
 };
 
 export async function sbPurgeExpiredTravellers(userId?: string): Promise<void> {
@@ -44,6 +46,8 @@ export async function sbSaveTravellers(
       emergency_phone: t.emergencyPhone || null,
       digiyatra_status: t.digiYatra || null,
       expires_at: expiresAt,
+      is_lead: Boolean(t.isLead),
+      age_band: t.ageBand || null,
     })),
   });
   return true;

@@ -86,7 +86,17 @@ export type Brief = {
   /** Free-text city when origin is "other". Listed cities leave this empty. */
   originCity?: string;
   arriveBy: ArriveBy;
+  adults: number;
+  children: number;
 };
+
+/** Used when a stored brief or link has a style but no headcount. */
+export function guestsFromStyle(style: TravelStyle): { adults: number; children: number } {
+  if (style === "solo") return { adults: 1, children: 0 };
+  if (style === "family") return { adults: 2, children: 2 };
+  if (style === "friends") return { adults: 3, children: 0 };
+  return { adults: 2, children: 0 };
+}
 
 export const DEFAULT_BRIEF: Brief = {
   vibe: "beach",
@@ -96,6 +106,8 @@ export const DEFAULT_BRIEF: Brief = {
   flexible: false,
   origin: "kolkata",
   arriveBy: "fly",
+  adults: 2,
+  children: 0,
 };
 
 export const BRIEF_KEY = "tripweave-brief";
@@ -118,6 +130,10 @@ export type PendingBooking = {
   roomId: string;
   checkIn?: string;
   travel?: PendingTravel;
+  /** Headcount for the room. Old carts omit this and fall back to the brief style. */
+  travelers?: number;
+  adults?: number;
+  children?: number;
 };
 
 export function formatMoney(amount: number, currency = "INR") {
@@ -454,19 +470,31 @@ export function loadBrief(): Brief {
     const arriveBy = allowed.includes(parsed.arriveBy as ArriveBy)
       ? (parsed.arriveBy as ArriveBy)
       : getOrigin(origin).defaultArriveBy;
+    const style = parsed.style ?? DEFAULT_BRIEF.style;
+    const preset = guestsFromStyle(style);
+    const adults = parsed.adults == null ? preset.adults : clampHeadcount(parsed.adults, preset.adults);
+    const children = parsed.children == null ? preset.children : clampHeadcount(parsed.children, preset.children);
     return {
       vibe: parsed.vibe ?? DEFAULT_BRIEF.vibe,
       budget: parsed.budget ?? DEFAULT_BRIEF.budget,
-      style: parsed.style ?? DEFAULT_BRIEF.style,
+      style,
       nights: Number.isFinite(nights) && nights >= 1 ? Math.min(14, nights) : DEFAULT_BRIEF.nights,
       flexible: Boolean(parsed.flexible),
       origin,
       originCity: typeof parsed.originCity === "string" ? parsed.originCity.slice(0, 80) : undefined,
       arriveBy,
+      adults,
+      children,
     };
   } catch {
     return DEFAULT_BRIEF;
   }
+}
+
+function clampHeadcount(value: unknown, fallback: number): number {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0) return fallback;
+  return Math.min(12, Math.round(n));
 }
 
 export function saveBrief(brief: Brief) {
@@ -499,6 +527,16 @@ export function savePending(pending: PendingBooking) {
   window.dispatchEvent(new Event("tripweave-plan"));
 }
 
+/** Old carts have no headcount. Fill from the saved travel style. */
+function pendingParty(parsed: Partial<PendingBooking>): Pick<PendingBooking, "adults" | "children" | "travelers"> {
+  const preset = guestsFromStyle(loadBrief().style);
+  const adults = parsed.adults == null ? preset.adults : clampHeadcount(parsed.adults, preset.adults);
+  const children = parsed.children == null ? preset.children : clampHeadcount(parsed.children, preset.children);
+  const sum = Math.max(1, adults + children);
+  const travelers = parsed.travelers == null ? sum : Math.max(1, clampHeadcount(parsed.travelers, sum));
+  return { adults, children, travelers };
+}
+
 export function loadPending(): PendingBooking | null {
   if (typeof window === "undefined") return null;
   try {
@@ -518,6 +556,7 @@ export function loadPending(): PendingBooking | null {
       roomId: typeof parsed.roomId === "string" && parsed.roomId ? parsed.roomId : (pkg?.rooms[0]?.id ?? ""),
       checkIn: typeof parsed.checkIn === "string" && /^\d{4}-\d{2}-\d{2}$/.test(parsed.checkIn) ? parsed.checkIn : undefined,
       travel: asPendingTravel(parsed.travel),
+      ...pendingParty(parsed),
     };
   } catch {
     return null;

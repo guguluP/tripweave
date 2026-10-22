@@ -65,7 +65,6 @@ export function bookingToWalletPayload(
     arriveBy: plan.arriveBy || DEFAULT_BRIEF.arriveBy,
   };
   const quote = pkg ? quoteTravel(pkg.id, brief, plan) : null;
-  const pickup = readMeta(booking.swaps).pickupInr ?? 0;
   return {
     confirmationCode: booking.confirmationCode,
     packageName: booking.packageName,
@@ -82,12 +81,7 @@ export function bookingToWalletPayload(
     travelLine: quote ? travelSummaryLine(quote, plan) : undefined,
     carrierRef: plan.carrierRef || undefined,
     arrivalTime: plan.arrivalTime || undefined,
-    pickupLine:
-      pickup > 0
-        ? `Hotel pickup ₹${pickup.toLocaleString("en-IN")}`
-        : plan.includePickup
-          ? "Hotel car requested"
-          : undefined,
+    pickupLine: plan.includePickup ? "Hotel car requested (pay the hotel)" : undefined,
     mapUrl: quote?.mapDirectionsUrl,
   };
 }

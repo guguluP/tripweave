@@ -18,7 +18,8 @@ import {
 } from "@/lib/packages";
 import { rankEyebrow, scorePackages } from "@/lib/match-score";
 import { loadBriefWithDates, saveBriefWithDates } from "@/lib/brief-persist";
-import { checkInOnOrAfterToday } from "@/lib/inventory";
+import { checkInOnOrAfterToday, travelersFitRoom } from "@/lib/inventory";
+import { guestsForOccupancy } from "@/lib/occupancy-policy";
 import { useSavedIds } from "@/lib/saved";
 import { getOrigin } from "@/lib/origins";
 import { loadTravelDraft, patchTravelDraft, quoteTravel } from "@/lib/travel-plan";
@@ -66,6 +67,8 @@ function Matches() {
   const [dateMoved, setDateMoved] = useState<string | null>(null);
   const [matches, setMatches] = useState<MatchedStay[]>([]);
   const [rest, setRest] = useState<MatchedStay[]>([]);
+  const [hidden, setHidden] = useState<MatchedStay[]>([]);
+  const [showHidden, setShowHidden] = useState(false);
   const [checkIn, setCheckIn] = useState<string | undefined>(() => {
     const linked = explicitCheckIn(search);
     return linked ? checkInOnOrAfterToday(linked) : undefined;
@@ -89,9 +92,13 @@ function Matches() {
     setDateMoved(wanted && wanted !== next.checkIn ? wanted : null);
     saveBriefWithDates(next);
     setBrief(next);
+    const party = guestsForOccupancy({ adults: next.adults, children: next.children });
     const scored = scorePackages(next);
-    setMatches(scored.slice(0, 3));
-    setRest(scored.slice(3));
+    const fitting = scored.filter((stay) => stay.rooms.some((room) => travelersFitRoom(room.occupancy, party)));
+    setHidden(scored.filter((stay) => !stay.rooms.some((room) => travelersFitRoom(room.occupancy, party))));
+    setShowHidden(false);
+    setMatches(fitting.slice(0, 3));
+    setRest(fitting.slice(3));
     setCheckIn(next.checkIn ?? loadPending()?.checkIn);
     setLastMileByPackage(loadTravelDraft().lastMileByPackage);
     setReady(true);
@@ -138,6 +145,23 @@ function Matches() {
             {checkIn ? `, check-in ${formatCheckInLabel(checkIn)}` : ""}. {rankingBlurb(brief)} Three
             on the short list; the other nine stay visible below.
           </p>
+          {ready && hidden.length > 0 ? (
+            <p className="mt-3 max-w-xl text-sm text-muted">
+              {hidden.length} {hidden.length === 1 ? "stay" : "stays"} hidden: no room sleeps{" "}
+              {guestsForOccupancy({ adults: brief.adults, children: brief.children })}.{" "}
+              <Link to="/plan" search={planSearch} className="font-medium text-primary underline">
+                Adjust the count
+              </Link>
+              {" · "}
+              <button
+                type="button"
+                className="font-medium text-primary underline"
+                onClick={() => setShowHidden((on) => !on)}
+              >
+                {showHidden ? "Hide them" : "Show them anyway"}
+              </button>
+            </p>
+          ) : null}
           {dateMoved && checkIn ? (
             <p className="mt-3 max-w-xl rounded-md border border-border bg-elevated px-3 py-2 text-sm text-muted" role="status">
               The check-in you picked ({formatCheckInLabel(dateMoved)}) has already passed, so prices
@@ -233,6 +257,20 @@ function Matches() {
                 />
               ))}
         </div>
+        {ready && showHidden && tab === "matches" && !query && hidden.length > 0 ? (
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
+            {hidden.map((pkg) => (
+              <PackageCard
+                key={pkg.id}
+                pkg={pkg}
+                nights={brief.nights}
+                checkIn={checkIn}
+                brief={brief}
+                lastMileId={lastMileByPackage[pkg.id]}
+              />
+            ))}
+          </div>
+        ) : null}
         {ready && list.length === 0 ? (
           <p className="mt-6 text-muted">
             {tab === "saved"

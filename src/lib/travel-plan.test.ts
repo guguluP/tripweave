@@ -6,8 +6,6 @@ import {
   formatInrRange,
   lastMileId,
   parseInrRange,
-  parseTravelPlan,
-  pickupChargeInr,
   pickupQuoteFor,
   quoteTravel,
   rankLastMiles,
@@ -59,31 +57,19 @@ describe("travel plan", () => {
   it("offers Taj airport pickup and drop with no TripWeave charge", () => {
     const pickup = pickupQuoteFor("taj-puri-resort-spa", "fly");
     assert.equal(pickup.available, true);
-    assert.equal(pickup.included, true);
-    assert.equal(pickup.price, 0);
+    assert.match(pickup.hotelRateHint ?? "", /paid to the hotel/i);
+    assert.match(pickup.hotelRateHint ?? "", /1,800/);
     assert.equal(pickupQuoteFor("taj-puri-resort-spa", "train").available, false);
     assert.equal(pickupQuoteFor("mayfair-heritage-puri", "fly").available, true);
     assert.equal(pickupQuoteFor("hans-coco-palms", "fly").available, true);
     assert.equal(pickupQuoteFor("mayfair-waves-puri", "fly").available, false);
-    const plan = parseTravelPlan({
-      lastMileId: "x",
-      includePickup: true,
-      arriveBy: "fly",
-    });
-    assert.equal(pickupChargeInr("taj-puri-resort-spa", plan), 0);
   });
 
   it("does not sell a pickup when the hotel does not list its own car", () => {
     const pickup = pickupQuoteFor("empires-hotel-puri", "fly");
     assert.equal(pickup.available, false);
-    assert.equal(pickup.included, false);
-    assert.equal(pickup.price, 0);
-    const plan = parseTravelPlan({
-      lastMileId: lastMileId(lastMileOptions("empires-hotel-puri", "fly")[0]!),
-      includePickup: true,
-      arriveBy: "fly",
-    });
-    assert.equal(pickupChargeInr("empires-hotel-puri", plan), 0);
+    assert.equal(pickup.hotelRateHint, undefined);
+    assert.ok(lastMileId(lastMileOptions("empires-hotel-puri", "fly")[0]!));
   });
 
   it("lists last-mile options for every catalog arrival mode", () => {

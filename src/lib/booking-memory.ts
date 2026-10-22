@@ -120,6 +120,15 @@ export function memoryInsertBooking(
   return booking;
 }
 
+export function memoryDeleteBooking(userId: string, id: number) {
+  const mem = state();
+  const bucket = mem.byUser.get(userId) ?? [];
+  mem.byUser.set(
+    userId,
+    bucket.filter((row) => row.id !== id),
+  );
+}
+
 export function memoryUpdateBooking(
   userId: string,
   id: number,

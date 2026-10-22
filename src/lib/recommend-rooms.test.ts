@@ -39,6 +39,17 @@ describe("recommendRooms", () => {
     assert.equal(ids[1], "family");
   });
 
+  it("drops rooms that are too small and lists the smallest fit first", () => {
+    const picks = recommendRooms(sample, "family", 3);
+    assert.deepEqual(
+      picks.map((r) => r.id),
+      picks.map((r) => r.id).filter((id) => id !== "base" && id !== "sea"),
+    );
+    assert.ok(picks.every((r) => r.occupancy >= 3));
+    assert.equal(picks[0]!.id, "suite");
+    assert.ok(picks[0]!.occupancy <= (picks[1]?.occupancy ?? picks[0]!.occupancy));
+  });
+
   it("does not invent rooms — returns the full short list when few exist", () => {
     const two = sample.slice(0, 2);
     assert.deepEqual(

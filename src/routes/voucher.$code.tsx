@@ -18,19 +18,25 @@ import {
 import { MapplsMap } from "@/components/mappls-map";
 import { stayPin } from "@/lib/places";
 import { TravelShareButtons } from "@/components/travel-planner";
+import { AddToWallet } from "@/components/wallet-pass";
 import type { OriginId } from "@/lib/origins";
 import { pageHead } from "@/lib/page-title";
 
 export const Route = createFileRoute("/voucher/$code")({
   component: VoucherPage,
   head: () => pageHead("Voucher"),
+  validateSearch: (s: Record<string, unknown>): { new?: string } => ({
+    new: s.new === "1" || s.new === 1 ? "1" : undefined,
+  }),
 });
 
 function VoucherPage() {
   const { code } = Route.useParams();
+  const search = Route.useSearch();
   const { user, isPending } = useCurrentUserState();
   const [booking, setBooking] = useState<BookingRow | null>(null);
   const [lookedUp, setLookedUp] = useState(false);
+  const [claimMessage, setClaimMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (isPending) return;
@@ -40,12 +46,15 @@ function VoucherPage() {
       return;
     }
     setLookedUp(false);
+    setClaimMessage(null);
     void listBookings()
       .then((rows) => {
         const found = rows.find((b) => b.confirmationCode === code);
         setBooking(found ?? null);
       })
-      .catch(() => {
+      .catch((err: unknown) => {
+        const message = err instanceof Error ? err.message : "";
+        if (/refresh my trips/i.test(message)) setClaimMessage(message);
         setBooking(null);
       })
       .finally(() => setLookedUp(true));
@@ -57,6 +66,20 @@ function VoucherPage() {
         <div className="mx-auto max-w-lg px-4 py-16">
           <h1 className="font-display text-3xl">Opening voucher…</h1>
           <p className="mt-3 text-sm text-muted">Checking the account that paid for this stay.</p>
+        </div>
+      </Shell>
+    );
+  }
+
+  if (claimMessage) {
+    return (
+      <Shell>
+        <div className="mx-auto max-w-lg px-4 py-16">
+          <h1 className="font-display text-3xl">Refresh My trips</h1>
+          <p className="mt-3 text-sm text-muted">{claimMessage}</p>
+          <Button asChild className="mt-6">
+            <Link to="/trips">My trips</Link>
+          </Button>
         </div>
       </Shell>
     );
@@ -122,6 +145,14 @@ function VoucherPage() {
   return (
     <Shell>
       <div className="mx-auto max-w-lg px-4 py-10">
+        {search.new === "1" ? (
+          <div className="mb-6 rounded-xl border border-border bg-elevated px-4 py-4" role="status">
+            <p className="font-display text-2xl">Booked</p>
+            <p className="mt-1 text-sm text-muted">
+              {booking.confirmationCode} is awaiting hotel desk confirmation.
+            </p>
+          </div>
+        ) : null}
         <p className="eyebrow">Hotel desk copy</p>
         <h1 className="mt-2 font-display text-4xl">{booking.confirmationCode}</h1>
         <Card className="mt-6 p-5 shadow-none">
@@ -179,10 +210,10 @@ function VoucherPage() {
                 <dd>{plan.arrivalTime}</dd>
               </div>
             ) : null}
-            {meta.pickupInr ? (
+            {plan.includePickup ? (
               <div className="flex justify-between gap-3">
-                <dt className="text-muted">Pickup paid</dt>
-                <dd className="tabular-nums">{formatMoney(meta.pickupInr)}</dd>
+                <dt className="text-muted">Airport car</dt>
+                <dd className="text-right">Hotel car requested (pay the hotel)</dd>
               </div>
             ) : null}
           </dl>
@@ -213,6 +244,7 @@ function VoucherPage() {
           </p>
         </Card>
         <div className="mt-6 grid gap-3">
+          <AddToWallet booking={booking} />
           <TravelShareButtons
             hotelName={booking.packageName}
             quote={travelQuote}

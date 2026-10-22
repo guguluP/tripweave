@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import { DEFAULT_BRIEF, getPackage, matchPackages, originFitReason, originFitScore } from "./packages.ts";
 import { setNightUnits, replaceAllotment } from "./allotment-store.ts";
 import { checkInOnOrAfterToday, leftoverForRooms, quoteStay, recordHold, releaseHoldById, roomUnits, seasonFor, todayIso, travelersFitRoom } from "./inventory.ts";
+import { guestsForOccupancy } from "./occupancy-policy.ts";
 import { refundAmountInr, refundPolicyFor } from "./refund-policy.ts";
 
 describe("dated rates", () => {
@@ -148,6 +149,14 @@ describe("occupancy cap", () => {
     assert.equal(travelersFitRoom(2, 2), true);
     assert.equal(travelersFitRoom(2, 3), false);
     assert.equal(travelersFitRoom(4, 1), true);
+  });
+
+  it("counts children toward the room cap", () => {
+    const guests = guestsForOccupancy({ adults: 2, children: 1 });
+    assert.equal(guests, 3);
+    assert.equal(travelersFitRoom(3, guests), true);
+    assert.equal(travelersFitRoom(2, guests), false);
+    assert.equal(travelersFitRoom(2, guestsForOccupancy({ adults: 2, children: 0 })), true);
   });
 });
 

@@ -6,10 +6,12 @@ import { clearDemoMode, useCurrentUserState } from "@/lib/auth/use-current-user"
 import { BrandWord, WeaveMark } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { ShakeField, SlidingTabs, Stagger, TextSwap } from "@/components/motion";
-import { consumeNext, loadNext, safeNextPath, saveNext } from "@/lib/packages";
+import { consumeNext, formatMoney, getPackage, loadNext, loadPending, nightsPhrase, safeNextPath, saveNext, stayTotal } from "@/lib/packages";
+import { guestSwaps } from "@/lib/booking-meta";
 import { isRealUser } from "@/lib/session-guard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LOGIN_HERO, loginCheckoutBody, loginCheckoutPrompt } from "@/lib/login-copy";
+import { HAS_ACCOUNT_KEY, LOGIN_HERO, initialMode, nextCopy } from "@/lib/login-copy";
+import { formatCheckInLabel } from "@/components/stay-quote";
 import { pageHead } from "@/lib/page-title";
 
 type LoginSearch = { error?: string; token?: string; next?: string };
@@ -74,10 +76,38 @@ function isExistingAccountError(raw: string) {
   return lower.includes("already exists") || lower.includes("user already") || lower.includes("email already");
 }
 
-function nextCopy(path: string) {
-  if (path.startsWith("/checkout")) return loginCheckoutPrompt();
-  if (path.startsWith("/account") || path.startsWith("/trips")) return "Sign in to see your trips.";
-  return "Sign in with Google or your email.";
+function markHasAccount() {
+  try {
+    window.localStorage.setItem(HAS_ACCOUNT_KEY, "1");
+  } catch {
+    /* ignore */
+  }
+}
+
+function bookingPath(path: string) {
+  return path.startsWith("/checkout") || path.startsWith("/travelers");
+}
+
+function StaySummary() {
+  if (typeof window === "undefined") return null;
+  const pending = loadPending();
+  if (!pending) return null;
+  const pkg = getPackage(pending.packageId);
+  if (!pkg) return null;
+  const price = stayTotal(pkg, pending.nights, pending.roomId, guestSwaps(pending.swaps));
+  return (
+    <div className="flex gap-3 rounded-xl border border-border bg-elevated p-3 text-left">
+      <img src={pkg.image} alt="" className="h-16 w-16 shrink-0 rounded-md object-cover" />
+      <div className="min-w-0 text-sm">
+        <p className="truncate font-medium text-fg">{pkg.name}</p>
+        <p className="text-muted">
+          {pending.checkIn ? `${formatCheckInLabel(pending.checkIn)} · ` : ""}
+          {nightsPhrase(pending.nights)}
+        </p>
+        <p className="tabular-nums">{formatMoney(price)}</p>
+      </div>
+    </div>
+  );
 }
 
 async function waitForSession(timeoutMs = 8000) {
@@ -97,7 +127,11 @@ async function waitForSession(timeoutMs = 8000) {
 function Login() {
   const search = Route.useSearch();
   const { user, isPending } = useCurrentUserState();
-  const [mode, setMode] = useState<"in" | "up" | "reset">(search.token ? "reset" : "in");
+  const [mode, setMode] = useState<"in" | "up" | "reset">(() => {
+    if (search.token) return "reset";
+    if (typeof window === "undefined") return "up";
+    return initialMode(window.localStorage.getItem(HAS_ACCOUNT_KEY) === "1");
+  });
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -134,7 +168,10 @@ function Login() {
   const signedIn = isRealUser(user);
 
   useEffect(() => {
-    if (!isPending && signedIn) goNext();
+    if (!isPending && signedIn) {
+      markHasAccount();
+      goNext();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signedIn, isPending]);
 
@@ -227,6 +264,7 @@ function Login() {
       if (!hasSession) {
         throw new Error("Signed in, but session did not appear. Try again.");
       }
+      markHasAccount();
       goNext();
     } catch (err) {
       const raw = err instanceof Error ? err.message : "Something went wrong";
@@ -269,6 +307,10 @@ function Login() {
 
   const google = GROK_PROVIDERS.find((p) => p.idp === "google");
   const others = GROK_PROVIDERS.filter((p) => p.idp !== "google");
+  const pendingStay = typeof window === "undefined" ? null : loadPending();
+  const pendingPkg = pendingStay ? getPackage(pendingStay.packageId) : undefined;
+  const copy = nextCopy(nextPath, pendingPkg ? { name: pendingPkg.name, nights: pendingStay?.nights } : null);
+  const showStay = bookingPath(nextPath);
 
   return (
     <div className="grid min-h-dvh bg-bg lg:grid-cols-2">
@@ -282,7 +324,12 @@ function Login() {
         <div className="absolute inset-x-0 bottom-0 p-10">
           <Stagger>
             <p className="font-display text-3xl text-primary-fg">Hold a Puri stay without the noise.</p>
-            <p className="mt-3 max-w-sm text-sm text-primary-fg/80">{nextCopy(nextPath)}</p>
+            <p className="mt-3 max-w-sm text-sm text-primary-fg/80">{copy}</p>
+            {showStay ? (
+              <div className="mt-6 max-w-sm">
+                <StaySummary />
+              </div>
+            ) : null}
           </Stagger>
         </div>
       </div>
@@ -298,8 +345,8 @@ function Login() {
           <p className="mt-2 text-sm text-muted">
             <TextSwap
               text={
-                nextPath.startsWith("/checkout")
-                  ? loginCheckoutBody()
+                showStay
+                  ? copy
                   : mode === "reset"
                     ? search.token
                       ? "Choose a new password for your email account."
@@ -310,6 +357,11 @@ function Login() {
               }
             />
           </p>
+          {showStay ? (
+            <div className="mt-4 lg:hidden">
+              <StaySummary />
+            </div>
+          ) : null}
 
           {authEnabled ? (
             <>

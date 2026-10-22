@@ -41,10 +41,10 @@ export type BookingLink = { label: string; href: string };
 
 export type PickupQuote = {
   available: boolean;
-  included: boolean;
-  price: number;
   label: string;
   duration: string;
+  /** Hotel's own rate card. The hotel bills this. TripWeave does not. */
+  hotelRateHint?: string;
 };
 
 export type TravelQuote = {
@@ -374,25 +374,30 @@ function hotelTransferLeg(packageId: string, arriveBy: ArriveBy): TransportLeg |
   return getTransportForPackage("typical").fromAirport.find((l) => bucketOf(l) === "hotel") ?? null;
 }
 
+function hotelRateHintFrom(leg: TransportLeg | null): string | undefined {
+  if (!leg?.costHint) return undefined;
+  const range = parseInrRange(leg.costHint);
+  if (range.max <= 0 && range.min <= 0) return undefined;
+  return `${formatInrRange(range.min, range.max)}, paid to the hotel`;
+}
+
 export function pickupQuoteFor(packageId: string, arriveBy: ArriveBy): PickupQuote {
   if (arriveBy !== "fly" || !stayOffersAirportCar(packageId)) {
-    return { available: false, included: false, price: 0, label: "Airport pickup and drop", duration: "" };
+    return { available: false, label: "Airport pickup and drop", duration: "" };
   }
   const hotel = hotelTransferLeg(packageId, arriveBy);
   return {
     available: true,
-    included: true,
-    price: 0,
     label: "Airport pickup and drop",
     duration: hotel?.duration ?? "",
+    hotelRateHint: hotelRateHintFrom(hotel),
   };
 }
 
-export function pickupChargeInr(packageId: string, plan: TravelPlan): number {
-  if (!plan.includePickup) return 0;
-  const quote = pickupQuoteFor(packageId, plan.arriveBy);
-  if (!quote.available || quote.included) return 0;
-  return quote.price;
+/** Guest-facing line for a hotel car. Never a TripWeave charge. */
+export function hotelCarRateCopy(pickup: PickupQuote): string {
+  const money = pickup.hotelRateHint?.match(/₹[\d,]+(?:[–-]₹?[\d,]+)?/)?.[0];
+  return money ? `Paid to the hotel · about ${money}` : "Paid to the hotel";
 }
 
 export function rankLastMiles(packageId: string, brief: Brief): RankedLastMile[] {
@@ -505,11 +510,8 @@ export function inboundPreview(brief: Brief & { checkIn?: string }): TravelQuote
   };
 }
 
-function defaultIncludePickup(brief: Brief, pickup: PickupQuote): boolean {
-  if (!pickup.available) return false;
-  if (pickup.included) return true;
-  if (brief.style === "solo" || brief.budget === "value") return false;
-  return brief.style === "family" || brief.style === "couple";
+function defaultIncludePickup(_brief: Brief, pickup: PickupQuote): boolean {
+  return pickup.available;
 }
 
 export function defaultTravelPlan(packageId: string, brief: Brief, stored?: Partial<TravelPlan>): TravelPlan {
@@ -531,10 +533,6 @@ export function defaultTravelPlan(packageId: string, brief: Brief, stored?: Part
     arriveBy: stored?.arriveBy ?? brief.arriveBy,
     origin: stored?.origin ?? brief.origin,
   };
-}
-
-export function pickupAmountFor(packageId: string, brief: Brief, plan: TravelPlan): number {
-  return pickupChargeInr(packageId, { ...plan, arriveBy: plan.arriveBy || brief.arriveBy });
 }
 
 export function loadTravelDraft(): TravelDraft {
@@ -584,7 +582,7 @@ export function travelSummaryLine(quote: TravelQuote, plan: TravelPlan): string 
   if (plan.carrierRef.trim()) bits.push(plan.carrierRef.trim());
   if (plan.arrivalTime.trim()) bits.push(`ETA ${plan.arrivalTime.trim()}`);
   if (plan.includePickup && quote.pickup.available) {
-    bits.push(quote.pickup.included ? "hotel car (hotel bills you)" : `pickup ${formatInrRange(quote.pickup.price, quote.pickup.price)}`);
+    bits.push("hotel car (pay the hotel)");
   }
   return bits.join(" · ");
 }
@@ -608,9 +606,7 @@ export function travelShareText(input: {
       : "Flight / train / bus: TBC",
     input.plan.arrivalTime.trim() ? `ETA: ${input.plan.arrivalTime.trim()}` : "ETA: TBC",
     input.plan.includePickup && input.quote.pickup.available
-      ? input.quote.pickup.included
-        ? "Pickup: please send the hotel car (hotel bills you)"
-        : `Pickup: hotel car paid on TripWeave (${formatInrRange(input.quote.pickup.price, input.quote.pickup.price)})`
+      ? "Pickup: hotel car requested (pay the hotel)"
       : "Pickup: guest making own way",
     input.guests ? `Guests: ${input.guests}` : "",
   ];

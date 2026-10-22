@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Crossfade } from "@/components/crossfade";
+import { travelersFitRoom } from "@/lib/inventory";
 import { formatMoney, type RoomType, type TravelStyle } from "@/lib/packages";
 import { recommendRooms } from "@/lib/recommend-rooms";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ export function RoomPicker({
   leftover,
   gallery = [],
   style,
+  guestCount,
 }: {
   rooms: RoomType[];
   selectedId: string;
@@ -26,8 +28,10 @@ export function RoomPicker({
   gallery?: string[];
   /** Brief travel style biases family into the recommended set. */
   style?: TravelStyle;
+  /** When set, rooms that cannot sleep this many people are disabled. */
+  guestCount?: number;
 }) {
-  const recommended = useMemo(() => recommendRooms(rooms, style), [rooms, style]);
+  const recommended = useMemo(() => recommendRooms(rooms, style, guestCount), [rooms, style, guestCount]);
   const [showAll, setShowAll] = useState(rooms.length <= 3);
   const visible = showAll ? rooms : recommended;
   const compact = visible.length > 6;
@@ -74,6 +78,8 @@ export function RoomPicker({
             pricePerNight={pricePerNight}
             left={leftover?.[room.id]}
             photos={roomPhotos(room, gallery)}
+            tooSmall={guestCount != null && guestCount > 0 && !travelersFitRoom(room.occupancy, guestCount)}
+            guestCount={guestCount}
             onSelect={() => onSelect(room.id)}
             badge={
               !showAll
@@ -98,6 +104,8 @@ function RoomCard({
   photos,
   onSelect,
   badge,
+  tooSmall = false,
+  guestCount,
 }: {
   room: RoomType;
   open: boolean;
@@ -107,6 +115,8 @@ function RoomCard({
   photos: string[];
   onSelect: () => void;
   badge?: string;
+  tooSmall?: boolean;
+  guestCount?: number;
 }) {
   const [shot, setShot] = useState(0);
   const night = pricePerNight + room.deltaPerNight;
@@ -123,9 +133,17 @@ function RoomCard({
         "min-w-0 overflow-hidden rounded-xl border text-left transition-all duration-500 ease-out",
         open ? "col-span-full border-primary bg-surface shadow-sm" : "border-border bg-elevated",
         soldOut && !open && "opacity-70",
+        tooSmall && "opacity-60",
       )}
     >
-      <button type="button" onClick={onSelect} aria-pressed={open} className="block w-full text-left">
+      <button
+        type="button"
+        onClick={tooSmall ? undefined : onSelect}
+        disabled={tooSmall}
+        aria-pressed={open}
+        aria-disabled={tooSmall || undefined}
+        className="block w-full text-left disabled:cursor-not-allowed"
+      >
         <div className="relative">
           <Crossfade
             src={photo}
@@ -144,13 +162,19 @@ function RoomCard({
         </div>
       </button>
       <div className={cn(open ? "grid gap-4 p-4 sm:grid-cols-[1fr_16rem] sm:p-5" : compact ? "p-2.5 sm:p-3" : "p-4")}>
-        <button type="button" onClick={onSelect} className="block min-w-0 text-left">
+        <button
+          type="button"
+          onClick={tooSmall ? undefined : onSelect}
+          disabled={tooSmall}
+          className="block min-w-0 text-left disabled:cursor-not-allowed"
+        >
           <span className={cn("block font-display leading-snug", open ? "text-2xl" : compact ? "line-clamp-2 text-sm sm:text-base" : "text-lg")}>
             {room.name}
           </span>
           <span className="mt-1 block text-xs text-muted">
-            Sleeps {room.occupancy}
-            {left ? (soldOut ? " · sold out" : left.released === false ? " · on request" : ` · ${left.remaining} left`) : ""}
+            {tooSmall && guestCount
+              ? `Sleeps ${room.occupancy} · too small for ${guestCount}`
+              : `Sleeps ${room.occupancy}${left ? (soldOut ? " · sold out" : left.released === false ? " · on request" : ` · ${left.remaining} left`) : ""}`}
           </span>
           <span className={cn("mt-2 block text-muted", open ? "text-sm" : compact ? "line-clamp-2 text-[11px] leading-snug sm:text-xs" : "text-sm")}>
             {room.summary}

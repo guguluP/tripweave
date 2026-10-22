@@ -55,6 +55,8 @@ create table if not exists public.travellers (
 alter table public.travellers add column if not exists id_last4 text;
 alter table public.travellers add column if not exists expires_at timestamptz;
 alter table public.travellers add column if not exists digiyatra_status text;
+alter table public.travellers add column if not exists is_lead boolean not null default false;
+alter table public.travellers add column if not exists age_band text;
 
 create index if not exists travellers_user_id_idx on public.travellers (user_id);
 create index if not exists travellers_booking_id_idx on public.travellers (booking_id);
@@ -308,7 +310,8 @@ begin
         and (rec_id is null or booking_id = rec_id);
     insert into public.travellers (
       user_id, booking_id, full_name, phone, email, nationality, id_type,
-      id_last4, emergency_name, emergency_phone, digiyatra_status, expires_at
+      id_last4, emergency_name, emergency_phone, digiyatra_status, expires_at,
+      is_lead, age_band
     )
     select
       uid,
@@ -322,7 +325,9 @@ begin
       t->>'emergency_name',
       t->>'emergency_phone',
       t->>'digiyatra_status',
-      nullif(t->>'expires_at', '')::timestamptz
+      nullif(t->>'expires_at', '')::timestamptz,
+      coalesce((t->>'is_lead')::boolean, false),
+      nullif(t->>'age_band', '')
     from jsonb_array_elements(coalesce(p_payload->'travelers', '[]'::jsonb)) as t;
     return jsonb_build_object('ok', true);
 

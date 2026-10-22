@@ -26,16 +26,19 @@ export function ShakeField({
   shakeKey = 0,
   className,
   id,
+  fieldId,
   ...inputProps
 }: {
   label?: string;
   error?: string | null;
   shakeKey?: number;
+  fieldId?: string;
 } & ComponentProps<"input">) {
   const isError = Boolean(error);
   const { boxRef, shaking } = useShake(isError, error, shakeKey);
   const autoId = useId();
   const inputId = id ?? autoId;
+  const errorId = `${inputId}-error`;
 
   return (
     <div className={cn("grid gap-1.5 text-sm font-medium text-fg", className)}>
@@ -47,9 +50,15 @@ export function ShakeField({
           ref={boxRef}
           className={cn("t-input", isError && "is-error", shaking && "is-shaking")}
         >
-          <input id={inputId} aria-invalid={isError} {...inputProps} />
+          <input
+            {...inputProps}
+            id={inputId}
+            data-field-id={fieldId}
+            aria-invalid={isError || undefined}
+            aria-describedby={isError ? errorId : undefined}
+          />
         </div>
-        <p className="t-error-msg" role={isError ? "alert" : undefined}>
+        <p id={errorId} className="t-error-msg" role={isError ? "alert" : undefined}>
           {error || "Please check this field."}
         </p>
       </div>
@@ -63,17 +72,20 @@ export function ShakeSelect({
   shakeKey = 0,
   className,
   id,
+  fieldId,
   children,
   ...selectProps
 }: {
   label?: string;
   error?: string | null;
   shakeKey?: number;
+  fieldId?: string;
 } & ComponentProps<"select">) {
   const isError = Boolean(error);
   const { boxRef, shaking } = useShake(isError, error, shakeKey);
   const autoId = useId();
   const selectId = id ?? autoId;
+  const errorId = `${selectId}-error`;
 
   return (
     <div className={cn("grid gap-1.5 text-sm font-medium text-fg", className)}>
@@ -85,11 +97,17 @@ export function ShakeSelect({
           ref={boxRef}
           className={cn("t-input t-select", isError && "is-error", shaking && "is-shaking")}
         >
-          <select id={selectId} aria-invalid={isError} {...selectProps}>
+          <select
+            {...selectProps}
+            id={selectId}
+            data-field-id={fieldId}
+            aria-invalid={isError || undefined}
+            aria-describedby={isError ? errorId : undefined}
+          >
             {children}
           </select>
         </div>
-        <p className="t-error-msg" role={isError ? "alert" : undefined}>
+        <p id={errorId} className="t-error-msg" role={isError ? "alert" : undefined}>
           {error || "Please check this field."}
         </p>
       </div>

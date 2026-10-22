@@ -70,6 +70,25 @@ describe("brief URL", () => {
     assert.equal(searchHasBrief({ nights: "3" }), true);
   });
 
+  it("round-trips adult and child counts", () => {
+    const search = briefToSearch({ ...DEFAULT_BRIEF, adults: 4, children: 1, style: "friends" });
+    assert.equal(search.a, "4");
+    assert.equal(search.c, "1");
+    const merged = mergeBriefUrl(DEFAULT_BRIEF, searchToBrief(search));
+    assert.equal(merged.adults, 4);
+    assert.equal(merged.children, 1);
+  });
+
+  it("falls back to the style when a and c are missing", () => {
+    const merged = mergeBriefUrl({ ...DEFAULT_BRIEF, adults: 9, children: 9 }, searchToBrief({ style: "family" }));
+    assert.equal(merged.style, "family");
+    assert.equal(merged.adults, 2);
+    assert.equal(merged.children, 2);
+    const kept = mergeBriefUrl({ ...DEFAULT_BRIEF, adults: 4, children: 1 }, searchToBrief({ nights: "3" }));
+    assert.equal(kept.adults, 4);
+    assert.equal(kept.children, 1);
+  });
+
   it("clamps arriveBy when origin forbids it", () => {
     const merged = mergeBriefUrl(DEFAULT_BRIEF, {
       origin: "puri",

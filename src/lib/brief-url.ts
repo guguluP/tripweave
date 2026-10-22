@@ -1,5 +1,6 @@
 import {
   DEFAULT_BRIEF,
+  guestsFromStyle,
   type Brief,
   type Budget,
   type TravelStyle,
@@ -61,6 +62,13 @@ function asNights(v: unknown): number | undefined {
   return Math.min(14, Math.round(n));
 }
 
+function asHeadcount(v: unknown): number | undefined {
+  const s = searchScalar(v);
+  const n = s == null ? NaN : Number(s);
+  if (!Number.isFinite(n) || n < 0) return undefined;
+  return Math.min(12, Math.round(n));
+}
+
 /** Check-in written on the link. Kept even when it is before today — Rath Yatra links do this. */
 export function explicitCheckIn(search: Record<string, unknown>): string | undefined {
   return asIsoDate(search.checkIn);
@@ -75,6 +83,8 @@ export function briefToSearch(state: BriefUrlState): Record<string, string> {
     nights: String(state.nights),
     origin: state.origin,
     arriveBy: state.arriveBy,
+    a: String(state.adults ?? guestsFromStyle(state.style).adults),
+    c: String(state.children ?? guestsFromStyle(state.style).children),
   };
   if (state.flexible) out.flexible = "1";
   if (state.origin === "other" && state.originCity?.trim()) {
@@ -103,6 +113,15 @@ export function searchToBrief(search: Record<string, unknown>): Partial<BriefUrl
   if (budget) partial.budget = budget;
   if (style) partial.style = style;
   if (nights != null) partial.nights = nights;
+  const adults = asHeadcount(search.a);
+  const children = asHeadcount(search.c);
+  if (adults != null) partial.adults = adults;
+  if (children != null) partial.children = children;
+  if (style && adults == null && children == null) {
+    const preset = guestsFromStyle(style);
+    partial.adults = preset.adults;
+    partial.children = preset.children;
+  }
   if (checkIn) partial.checkIn = checkIn;
   const flexible = searchScalar(search.flexible);
   if (flexible === "1" || flexible === "true") {
@@ -157,7 +176,9 @@ export function searchHasBrief(search: Record<string, unknown>): boolean {
     asIsoDate(search.checkIn) != null ||
     searchScalar(search.origin) != null ||
     searchScalar(search.flexible) === "1" ||
-    searchScalar(search.flexible) === "0"
+    searchScalar(search.flexible) === "0" ||
+    asHeadcount(search.a) != null ||
+    asHeadcount(search.c) != null
   );
 }
 

@@ -6,6 +6,7 @@ import { DigitPop, MotionToggle, Stagger, TextSwap } from "@/components/motion";
 import { CheckInField } from "@/components/stay-quote";
 import {
   DEFAULT_BRIEF,
+  guestsFromStyle,
   type Brief,
   type Budget,
   type TravelStyle,
@@ -72,6 +73,51 @@ const STYLES: { id: TravelStyle; label: string }[] = [
   { id: "family", label: "Family" },
   { id: "friends", label: "Friends" },
 ];
+
+function PartyStepper({
+  label,
+  value,
+  min,
+  max,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (n: number) => void;
+}) {
+  return (
+    <div>
+      <p className="text-sm font-medium">{label}</p>
+      <div className="mt-2 flex items-center gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => onChange(Math.max(min, value - 1))}
+          aria-label={`Fewer ${label.toLowerCase()}`}
+          disabled={value <= min}
+        >
+          −
+        </Button>
+        <span className="min-w-10 text-center font-display text-2xl tabular-nums">
+          <DigitPop value={value} />
+        </span>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => onChange(Math.min(max, value + 1))}
+          aria-label={`More ${label.toLowerCase()}`}
+          disabled={value >= max}
+        >
+          +
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 function cityAsOrigin(name: string): Pick<Brief, "origin" | "originCity" | "arriveBy"> {
   const trimmed = name.trim().slice(0, 80);
@@ -291,9 +337,33 @@ function Plan() {
                   key={v.id}
                   selected={brief.style === v.id}
                   title={v.label}
-                  onClick={() => update("style", v.id)}
+                  onClick={() => {
+                    const preset = guestsFromStyle(v.id);
+                    setBrief((b) => ({ ...b, style: v.id, adults: preset.adults, children: preset.children }));
+                  }}
                 />
               ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="mt-8">
+            <legend className="text-sm font-medium">Who's going</legend>
+            <p className="mt-1 text-xs text-muted">Everyone counts toward the room, including children.</p>
+            <div className="mt-3 grid gap-4 sm:grid-cols-2">
+              <PartyStepper
+                label="Adults"
+                value={brief.adults}
+                min={1}
+                max={12}
+                onChange={(n) => update("adults", n)}
+              />
+              <PartyStepper
+                label="Children"
+                value={brief.children}
+                min={0}
+                max={12}
+                onChange={(n) => update("children", n)}
+              />
             </div>
           </fieldset>
         </section>

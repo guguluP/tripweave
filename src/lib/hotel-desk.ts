@@ -1,3 +1,6 @@
+/** lead_only: companions give a name and age band. all_adults_id: each adult also gives an ID. */
+export type GuestDetailsPolicy = "lead_only" | "all_adults_id";
+
 export type HotelDesk = {
   packageId: string;
   email: string;
@@ -6,6 +9,8 @@ export type HotelDesk = {
   /** Public GSTIN of the operating entity, when known. */
   gstin?: string;
   legalName?: string;
+  /** Defaults to lead_only in deskFor. Set all_adults_id on one hotel without a form-code deploy. */
+  guestDetails?: GuestDetailsPolicy;
 };
 
 export const HOTEL_DESKS: Record<string, HotelDesk> = {
@@ -94,13 +99,16 @@ export const HOTEL_DESKS: Record<string, HotelDesk> = {
 };
 
 export function deskFor(packageId: string): HotelDesk {
-  return (
-    HOTEL_DESKS[packageId] ?? {
+  const found = HOTEL_DESKS[packageId];
+  if (!found) {
+    return {
       packageId,
       email: "desk@tripweave.app",
       note: "TripWeave will forward this to the hotel",
-    }
-  );
+      guestDetails: "lead_only",
+    };
+  }
+  return { guestDetails: "lead_only", ...found };
 }
 
 export function hotelMailto(input: {

@@ -1,10 +1,12 @@
 import { clampNights, getPackage, getRoom } from "@/lib/packages";
 import { addDays, quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory";
-import { parseTravelPlan, pickupChargeInr } from "@/lib/travel-plan";
+import { parseTravelPlan } from "@/lib/travel-plan";
+import { priceFromQuote } from "@/lib/price-from-quote";
 import { readMeta } from "@/lib/booking-meta";
-import { createHash } from "node:crypto";
 import { refreshStayInventory } from "@/lib/server/occupancy";
 import { holdIdsForCheckout } from "@/lib/server/room-holds";
+
+export { priceFromQuote };
 
 export type PayableInput = {
   packageId: string;
@@ -19,21 +21,17 @@ export type PayableInput = {
   orderId?: string | null;
 };
 
-/** Same hash as occupancy.ts mapHolds, so a hold read back from tw_occupancy matches. */
-export function publicHoldId(raw: string) {
-  return createHash("sha256").update(raw).digest("hex").slice(0, 24);
-}
-
 /** Raw and public (hashed) ids of this guest's checkout holds for one stay. */
-export function ownHoldIds(input: {
+export async function ownHoldIds(input: {
   userId?: string;
   packageId: string;
   roomId: string;
   checkIn: string;
   nights: number;
   orderId?: string | null;
-}): string[] {
+}): Promise<string[]> {
   if (!input.userId) return [];
+  const { publicHoldId } = await import("./hold-id.server");
   const raw = holdIdsForCheckout({ ...input, userId: input.userId });
   return [...raw, ...raw.map(publicHoldId)];
 }
@@ -48,7 +46,8 @@ export type PayableQuote =
       travelers: number;
       checkIn: string;
       amountInr: number;
-      pickupInr: number;
+      /** Always 0 this release. The hotel bills the car. */
+      pickupInr: 0;
       perPerson: number;
       /** Tightest published key count for the stay. The hold uses this, not the catalog guess. */
       units: number;
@@ -93,7 +92,7 @@ export async function computePayable(input: PayableInput): Promise<PayableQuote>
     checkIn: input.checkIn,
     nights,
     swaps: input.swaps ?? {},
-    ignoreHoldIds: ownHoldIds({
+    ignoreHoldIds: await ownHoldIds({
       userId: input.userId,
       packageId: pkg.id,
       roomId: room.id,
@@ -110,9 +109,10 @@ export async function computePayable(input: PayableInput): Promise<PayableQuote>
   }
 
   const travel = parseTravelPlan(readMeta(input.swaps ?? {}).travel);
-  const pickupInr = pickupChargeInr(pkg.id, travel);
   // quote.perPerson is the room total for the stay, including add-ons once.
-  const amountInr = quote.perPerson + pickupInr;
+  const priced = priceFromQuote(quote.perPerson, travel);
+  const amountInr = priced.amountInr;
+  const pickupInr = priced.pickupInr;
   if (!Number.isFinite(amountInr) || amountInr < 1) {
     return { ok: false, message: "Could not price this stay." };
   }

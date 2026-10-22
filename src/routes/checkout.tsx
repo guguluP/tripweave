@@ -1,51 +1,38 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { Lock } from "lucide-react";
 import { Shell } from "@/components/shell";
-import { AddToWallet } from "@/components/wallet-pass";
 import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  DigitPop,
-  MotionToggle,
-  ShakeField,
-  Stagger,
-  SuccessCheck,
-  TextSwap,
-} from "@/components/motion";
+import { DigitPop, MotionToggle, ShakeField, Stagger, TextSwap } from "@/components/motion";
+import { GuestForms, useGuestForms } from "@/components/guest-forms";
+import { DigilockerFlow } from "@/components/digilocker-flow";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { pushBanner } from "@/lib/banners";
 import {
-  clampNights,
   clearPending,
   formatMoney,
   getPackage,
   getRoom,
   loadPending,
   nightsPhrase,
-  stayTotal,
   saveNext,
   savePending,
   loadBrief,
   type PendingBooking,
 } from "@/lib/packages";
-import { addDays, checkInOnOrAfterToday, quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory";
+import { quoteStay, travelersFitRoom } from "@/lib/inventory";
 import { holdCartRoom } from "@/lib/soft-hold-client";
 import { useStayInventory } from "@/lib/use-occupancy";
-import { deskFor, hotelMailto } from "@/lib/hotel-desk";
+import { deskFor } from "@/lib/hotel-desk";
 import { refundPolicyFor } from "@/lib/refund-policy";
-import { loadLocalProfile } from "@/lib/profile-local";
-import { paymentLine } from "@/lib/pay";
 import { track } from "@/lib/analytics";
 import { pageHead } from "@/lib/page-title";
 import { createBooking, type BookingRow } from "@/lib/server/bookings-browser";
-import { bookingToWalletPayload } from "@/lib/apple-wallet";
-import { saveWalletPass } from "@/lib/wallet-store";
 import { createRazorpayOrder } from "@/lib/server/razorpay";
-import { loadTravelers, validateTravelers, clearSensitiveTravelers } from "@/lib/travelers";
-import { saveTravellers } from "@/lib/server/travellers";
+import { clearSensitiveTravelers, DIGIYATRA_LABELS, type DigiYatraStatus, type Traveler } from "@/lib/travelers";
 import {
   getPublicRazorpayKeyId,
   isRazorpayTestMode,
@@ -53,27 +40,31 @@ import {
   openRazorpayCheckout,
 } from "@/lib/razorpay-client";
 import { getOrigin } from "@/lib/origins";
-import { writeMeta, readMeta } from "@/lib/booking-meta";
+import { writeMeta } from "@/lib/booking-meta";
 import {
   defaultTravelPlan,
   EMPTY_TRAVEL,
-  formatInrRange,
-  pickupChargeInr,
+  hotelCarRateCopy,
   quoteTravel,
-  travelShareText,
-  travelSummaryLine,
   type TravelPlan,
 } from "@/lib/travel-plan";
-import { TravelShareButtons } from "@/components/travel-planner";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { formatCheckInLabel } from "@/components/stay-quote";
+import { checkoutReady } from "@/lib/checkout-ready";
+import { checkoutEmptyState } from "@/lib/checkout-empty";
+import { focusFirstError } from "@/lib/focus-first-error";
+import { DIGILOCKER_STATUS, devToolsEnabled, showDigiLocker } from "@/lib/digilocker";
+import { getJourney } from "@/lib/transport";
+import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/checkout")({ component: Checkout, head: () => pageHead("Checkout") });
+const LAST_BOOKING_KEY = "tw-last-booking";
 
-/** Default check-in: tomorrow in India time (min date on the form is still today). */
-function tomorrowIso() {
-  return addDays(todayIso(), 1);
-}
+export const Route = createFileRoute("/checkout")({
+  component: Checkout,
+  head: () => pageHead("Guests & pay"),
+  validateSearch: (s: Record<string, unknown>): { digilocker?: string } => ({
+    digilocker: s.digilocker === "sample" ? "sample" : undefined,
+  }),
+});
 
 function CheckoutSkeleton() {
   return (
@@ -86,6 +77,13 @@ function CheckoutSkeleton() {
   );
 }
 
+function guestPayError(message: string): { text: string; operator: boolean } {
+  if (/KEY_ID|KEY_SECRET|not configured|Vercel|RAZORPAY_KEY/i.test(message)) {
+    return { text: "Payments are temporarily unavailable", operator: true };
+  }
+  return { text: message, operator: false };
+}
+
 function Checkout() {
   return (
     <RequireAuth next="/checkout" fallback={<CheckoutSkeleton />}>
@@ -95,270 +93,225 @@ function Checkout() {
 }
 
 function CheckoutInner() {
+  const nav = useNavigate();
+  const search = Route.useSearch();
   const { user } = useCurrentUserState();
   const [ready, setReady] = useState(false);
+  const [emptyKind, setEmptyKind] = useState<"form" | "empty" | "redirect">("form");
+  const [pendingBase, setPendingBase] = useState<PendingBooking | null>(null);
   const [packageId, setPackageId] = useState<string | null>(null);
   const [swaps, setSwaps] = useState<Record<string, string>>({});
   const [nights, setNights] = useState(1);
   const [roomId, setRoomId] = useState("");
-  const [travelers, setTravelers] = useState(2);
-  const [checkIn, setCheckIn] = useState(tomorrowIso);
-  const [payerName, setPayerName] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [shakeKey, setShakeKey] = useState(0);
-  const [busy, setBusy] = useState(false);
-  const [travelersOk, setTravelersOk] = useState(false);
-  /** Guests with a filled, valid traveller form. Checkout charges for exactly this many. */
-  const [namedGuests, setNamedGuests] = useState(0);
-  const [pendingBase, setPendingBase] = useState<PendingBooking | null>(null);
-  const [holdNote, setHoldNote] = useState<string | null>(null);
+  const [checkIn, setCheckIn] = useState("");
   const [travel, setTravel] = useState<TravelPlan>(EMPTY_TRAVEL);
-  const inventory = useStayInventory(packageId ?? undefined, checkIn, nights);
-  const [held, setHeld] = useState<BookingRow | null>(null);
-  const [confirmation, setConfirmation] = useState<{
-    code: string;
-    amount: number;
-    name: string;
-    method: string;
-    line: string;
-    ref: string | null;
-    stored: "supabase" | "local";
-  } | null>(null);
+  const [payerOther, setPayerOther] = useState(false);
+  const [payerName, setPayerName] = useState("");
+  const [formError, setFormError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [holdNote, setHoldNote] = useState<string | null>(null);
+  const [holdTone, setHoldTone] = useState<"ok" | "danger">("ok");
+  const [digiGuest, setDigiGuest] = useState<number | null>(null);
+  const [devTools, setDevTools] = useState(false);
+  const [digiOpen, setDigiOpen] = useState(false);
+
+  const pkgForPolicy = packageId ? getPackage(packageId) : undefined;
+  const policy = pkgForPolicy ? (deskFor(pkgForPolicy.id).guestDetails ?? "lead_only") : "lead_only";
+  const forms = useGuestForms(pendingBase, policy, user);
 
   useEffect(() => {
-    const pending = loadPending();
-    setPackageId(pending?.packageId ?? null);
-    setSwaps(pending?.swaps ?? {});
-    setNights(pending?.nights ?? 1);
-    setRoomId(pending?.roomId ?? "");
-    setPendingBase(pending);
-    if (pending?.checkIn) setCheckIn(checkInOnOrAfterToday(pending.checkIn));
-    const b = loadBrief();
-    if (pending?.packageId) setTravel(defaultTravelPlan(pending.packageId, b, pending.travel));
     try {
-      // Pay for exactly the guests who have a filled form. A stale stored count must not
-      // let checkout charge for 4 when only 1 traveller was named.
-      const list = loadTravelers();
-      const ok = list.length >= 1 && validateTravelers(list).ok;
-      const stored = Number(window.localStorage.getItem("tripweave-traveler-count") || "0");
-      const countMatches = !(stored >= 1) || stored === list.length;
-      setNamedGuests(ok ? list.length : 0);
-      if (list.length >= 1) setTravelers(list.length);
-      setTravelersOk(ok && countMatches);
+      setDevTools(devToolsEnabled(window.localStorage.getItem("tw-dev-tools")));
     } catch {
-      setTravelersOk(false);
+      setDevTools(false);
     }
+    const pending = loadPending();
+    let last = "";
+    try {
+      last = window.sessionStorage.getItem(LAST_BOOKING_KEY) ?? "";
+    } catch {
+      last = "";
+    }
+    const decision = checkoutEmptyState({ pending: Boolean(pending?.packageId), lastBooking: last });
+    if (decision.kind === "redirect") {
+      setEmptyKind("redirect");
+      setReady(true);
+      void nav({ to: "/voucher/$code", params: { code: decision.code }, replace: true });
+      return;
+    }
+    if (decision.kind === "empty" || !pending) {
+      setEmptyKind("empty");
+      setReady(true);
+      return;
+    }
+    setPendingBase(pending);
+    setPackageId(pending.packageId);
+    setSwaps(pending.swaps ?? {});
+    setNights(pending.nights);
+    setRoomId(pending.roomId);
+    setCheckIn(pending.checkIn ?? "");
+    const brief = loadBrief();
+    setTravel(defaultTravelPlan(pending.packageId, brief, pending.travel));
+    setEmptyKind("form");
     setReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (user?.displayName && !payerName) setPayerName(user.displayName);
-    const local = loadLocalProfile();
-    if (local?.displayName && !payerName) setPayerName(local.displayName);
-  }, [user, payerName]);
+  }, [nav]);
 
   const pkg = packageId ? getPackage(packageId) : undefined;
   const room = pkg ? getRoom(pkg, roomId) : undefined;
-  const stayNights = pkg ? clampNights(pkg, nights) : nights;
+  const inventory = useStayInventory(pkg?.id, checkIn, nights);
   const inventoryKnown = inventory === "ready";
-  const quote = pkg
+  const quote = pkg && checkIn
     ? quoteStay({
         packageId: pkg.id,
         roomId: room?.id,
         checkIn,
-        nights: stayNights,
+        nights,
         swaps,
         inventoryKnown,
       })
     : null;
-  const perPerson = quote?.perPerson ?? (pkg ? stayTotal(pkg, stayNights, room?.id, swaps) : 0);
-  const occupancy = room?.occupancy ?? 8;
+  const stayDue = quote?.perPerson ?? 0;
+  const total = stayDue;
   const brief = loadBrief();
   const plan = { ...travel, arriveBy: brief.arriveBy, origin: brief.origin };
-  const travelQuote = pkg ? quoteTravel(pkg.id, { ...brief, checkIn, nights: stayNights }, plan) : null;
-  const pickupInr = pkg ? pickupChargeInr(pkg.id, plan) : 0;
-  const stayDue = perPerson;
-  const total = stayDue + pickupInr;
-  const swapsForPay = writeMeta(swaps, {
-    travel: plan,
-    pickupInr,
-    roomId: room?.id,
-    guestEmail: user?.primaryEmail ?? undefined,
-  });
-
-  // Keep the cart in step with what the guest edits here, so Back / refresh / sign-in keep it.
-  const persistCart = (patch: { checkIn?: string; travel?: TravelPlan }) => {
-    if (!pendingBase || !pkg) return;
-    const nextTravel = patch.travel ?? plan;
-    const nextCheckIn = patch.checkIn ?? checkIn;
-    const nextPickup = pickupChargeInr(pkg.id, nextTravel);
-    const next: PendingBooking = {
-      ...pendingBase,
-      checkIn: nextCheckIn,
-      travel: { ...nextTravel, origin: getOrigin(nextTravel.origin).id },
-      swaps: writeMeta(pendingBase.swaps, { travel: nextTravel, pickupInr: nextPickup, roomId: room?.id }),
-    };
-    setPendingBase(next);
-    savePending(next);
-  };
-
-  const finishPaid = (booking: BookingRow, stored: "supabase" | "local" = "local") => {
-    saveWalletPass(bookingToWalletPayload(booking));
-    clearSensitiveTravelers();
-    clearPending();
-    pushBanner({ title: `Booked · ${booking.confirmationCode}`, body: pkg?.name ?? booking.packageName, tone: "ok" });
-    setHeld(booking);
-    setConfirmation({
-      code: booking.confirmationCode,
-      amount: booking.amountInr,
-      name: pkg?.name ?? booking.packageName,
-      method: booking.paymentMethod,
-      line: paymentLine(booking),
-      ref: booking.paymentRef,
-      stored,
-    });
-    setBusy(false);
-    track("paid", { packageId: booking.packageId });
-  };
+  const travelQuote = pkg ? quoteTravel(pkg.id, { ...brief, checkIn, nights }, plan) : null;
+  const journey = pkg ? getJourney(pkg.id, brief.origin, brief.arriveBy) : null;
+  const leadName = forms.list[0]?.fullName?.trim() ?? "";
+  const payingName = payerOther ? payerName : leadName || payerName;
+  const digiOn = showDigiLocker(DIGILOCKER_STATUS, { sample: search.digilocker === "sample", devTools });
 
   useEffect(() => {
-    if (!pkg) return;
-    track("checkout_opened", { packageId: pkg.id });
+    if (!payerOther && leadName && payerName !== leadName) setPayerName(leadName);
+  }, [leadName, payerOther, payerName]);
+
+  useEffect(() => {
+    if (pkg) track("checkout_opened", { packageId: pkg.id });
   }, [pkg?.id]);
 
-  // Refresh (or move) the soft room hold for these dates while the guest is on Pay.
   const userId = user?.id;
   const holdRoomId = room?.id;
   useEffect(() => {
-    if (!ready || !userId || !packageId || !travelersOk || confirmation) return;
+    if (!ready || emptyKind !== "form" || !userId || !packageId || !checkIn) return;
     let cancelled = false;
-    void holdCartRoom({ packageId, roomId: holdRoomId, checkIn, nights: stayNights }).then((result) => {
+    void holdCartRoom({ packageId, roomId: holdRoomId, checkIn, nights }).then((result) => {
       if (cancelled || !result) return;
-      setHoldNote(result.ok ? null : result.reason === "sold_out" ? result.message : null);
+      if (result.ok) {
+        const until = new Date(result.expiresAt).toLocaleTimeString("en-IN", {
+          hour: "numeric",
+          minute: "2-digit",
+          timeZone: "Asia/Kolkata",
+        });
+        setHoldTone("ok");
+        setHoldNote(`Room held until ${until} IST`);
+      } else if (result.reason === "sold_out") {
+        setHoldTone("danger");
+        setHoldNote(result.message);
+      }
     });
     return () => {
       cancelled = true;
     };
-  }, [ready, userId, packageId, holdRoomId, checkIn, stayNights, travelersOk, confirmation]);
+  }, [ready, emptyKind, userId, packageId, holdRoomId, checkIn, nights]);
+
+  const persistTravel = (next: TravelPlan) => {
+    if (!pendingBase || !pkg) return;
+    const merged = { ...next, arriveBy: brief.arriveBy, origin: brief.origin };
+    setTravel(merged);
+    const saved: PendingBooking = {
+      ...pendingBase,
+      travel: { ...merged, origin: getOrigin(merged.origin).id },
+      swaps: writeMeta(pendingBase.swaps, { travel: merged, roomId: room?.id }),
+      travelers: forms.count || pendingBase.travelers,
+      adults: pendingBase.adults,
+      children: pendingBase.children,
+    };
+    setPendingBase(saved);
+    savePending(saved);
+  };
+
+  const applyDigi = (index: number, filled: Traveler) => {
+    forms.update(index, {
+      ...filled,
+      role: index === 0 ? "lead" : "companion",
+      identitySource: DIGILOCKER_STATUS.live ? filled.identitySource : "digilocker_demo",
+      specialRequests: forms.list[index]?.specialRequests ?? "",
+      emergencyName: forms.list[index]?.emergencyName ?? "",
+      emergencyPhone: forms.list[index]?.emergencyPhone ?? "",
+      digiYatra: forms.list[index]?.digiYatra ?? "not_started",
+      ageBand: forms.list[index]?.ageBand,
+    });
+  };
 
   if (!ready) return <CheckoutSkeleton />;
 
-  if (!pkg) {
+  if (emptyKind === "redirect") {
+    return (
+      <Shell>
+        <div className="mx-auto max-w-lg px-4 py-16">
+          <h1 className="font-display text-3xl">Opening your voucher…</h1>
+        </div>
+      </Shell>
+    );
+  }
+
+  if (emptyKind === "empty" || !pkg || !checkIn) {
     return (
       <Shell>
         <div className="mx-auto max-w-lg px-4 py-16">
           <h1 className="font-display text-3xl">Nothing to check out</h1>
           <p className="mt-3 text-muted">Pick a stay first, then come back to pay.</p>
-          <Button asChild className="mt-6"><Link to="/plan">Find a hotel</Link></Button>
+          <Button asChild className="mt-6">
+            <Link to="/plan">Find a hotel</Link>
+          </Button>
         </div>
       </Shell>
     );
   }
 
-  if (!travelersOk) {
-    return (
-      <Shell>
-        <div className="mx-auto max-w-lg px-4 py-16">
-          <h1 className="font-display text-3xl">Add traveller details</h1>
-          <p className="mt-3 text-muted">
-            We need a name and ID details for every guest before Razorpay checkout.
-            {namedGuests > 0 ? ` ${namedGuests} filled so far — check the guest count and forms.` : ""}
-          </p>
-          <Button asChild className="mt-6"><Link to="/travelers">Continue to travellers</Link></Button>
-        </div>
-      </Shell>
-    );
-  }
+  if (!forms.ready || forms.list.length === 0) return <CheckoutSkeleton />;
 
-  if (confirmation && held) {
-    const heldPlan = { ...plan, ...readMeta(held.swaps).travel };
-    const heldQuote = quoteTravel(held.packageId, { ...brief, checkIn, nights: stayNights }, heldPlan);
-    const travelText = travelSummaryLine(heldQuote, heldPlan);
-    const mailto = hotelMailto({
-      packageId: held.packageId,
-      packageName: held.packageName,
-      confirmationCode: held.confirmationCode,
-      checkIn: held.checkIn,
-      nights: held.nights,
-      travelers: held.travelers,
-      payerName: held.payerName,
-      amountInr: held.amountInr,
-      travelSummary: travelShareText({
-        confirmationCode: held.confirmationCode,
-        hotelName: held.packageName,
-        checkIn: held.checkIn,
-        quote: heldQuote,
-        plan: heldPlan,
-        guests: held.travelers,
-      }),
-    });
-    return (
-      <Shell>
-        <div className="mx-auto flex max-w-md flex-col items-center px-4 py-16 text-center">
-          <SuccessCheck />
-          <h1 className="mt-6 font-display text-4xl">Payment received</h1>
-          <p className="mt-3 text-muted">{confirmation.name} — awaiting hotel confirmation. Your code is</p>
-          <p className="mt-4 font-display text-3xl tabular-nums tracking-wide"><DigitPop value={confirmation.code} /></p>
-          <p className="mt-2 text-sm text-muted">
-            Charged <DigitPop value={formatMoney(confirmation.amount)} />. Paid via Razorpay · UPI/card
-            {confirmation.line ? ` · ${confirmation.line}` : ""}. The hotel desk still confirms the room.
-          </p>
-          {confirmation.ref ? <p className="mt-1 text-xs text-subtle">Ref {confirmation.ref}</p> : null}
-          <div className="mt-8 w-full text-left"><AddToWallet booking={held} /></div>
-          <Card className="mt-6 w-full space-y-3 p-4 text-left shadow-none">
-            <p className="eyebrow">Travel</p>
-            <p className="text-sm">{travelText}</p>
-            <TravelShareButtons hotelName={held.packageName} quote={heldQuote} plan={heldPlan} confirmationCode={held.confirmationCode} checkIn={held.checkIn} guests={held.travelers} emailHref={mailto} />
-          </Card>
-          <div className="mt-6 flex w-full flex-col gap-3">
-            <Button asChild variant="outline"><Link to="/voucher/$code" params={{ code: confirmation.code }}>Open desk voucher</Link></Button>
-            <Button asChild variant="outline"><a href={`/api/invoice/${encodeURIComponent(confirmation.code)}`}>GST invoice PDF</a></Button>
-            <Button asChild variant="outline"><Link to="/trips">View trips</Link></Button>
-          </div>
-        </div>
-      </Shell>
-    );
-  }
+  const swapsForPay = writeMeta(swaps, {
+    travel: plan,
+    roomId: room?.id,
+    guestEmail: user?.primaryEmail ?? undefined,
+  });
 
   const onPay = async (e: FormEvent) => {
     e.preventDefault();
-    if (payerName.trim().length < 2) {
-      setErrors({ payerName: "Name on the payment, please." });
-      setShakeKey((k) => k + 1);
+    const guestResult = forms.validate();
+    const block = checkoutReady({
+      pending: { packageId: pkg.id, checkIn, travelers: forms.count, roomId: room?.id },
+      guests: forms.list,
+      policy,
+      inventory: {
+        known: inventory === "ready",
+        failed: inventory === "failed" || Boolean(quote?.unknown),
+        released: quote ? quote.released !== false : undefined,
+        available: quote ? quote.available : undefined,
+        occupancy: room?.occupancy,
+      },
+      payerName: payingName,
+    });
+    if (block || !guestResult.ok) {
+      const message = block?.message || "Check guest details.";
+      const ids = guestResult.fields?.map((field) => field.id) ?? [];
+      if (block?.fieldId) ids.push(block.fieldId);
+      setFormError(message);
+      forms.setShakeKey((k) => k + 1);
+      focusFirstError(ids);
       return;
     }
-    if (travelers !== namedGuests || travelers < 1) {
-      setErrors({ form: `Add details for every guest. ${namedGuests} of ${travelers} traveller forms are filled.` });
-      setShakeKey((k) => k + 1);
+    if (room && !travelersFitRoom(room.occupancy, forms.count)) {
+      setFormError(`This room sleeps ${room.occupancy}.`);
+      focusFirstError(["room"]);
       return;
     }
-    if (room && !travelersFitRoom(room.occupancy, travelers)) {
-      setErrors({ form: `This room sleeps ${room.occupancy}.` });
-      setShakeKey((k) => k + 1);
-      return;
-    }
-    if (inventory === "failed" || quote?.unknown) {
-      setErrors({ checkIn: "Couldn't check rooms for these dates. Try again." });
-      setShakeKey((k) => k + 1);
-      return;
-    }
-    if (quote && !quote.released) {
-      setErrors({ checkIn: "The hotel has not released these nights yet." });
-      setShakeKey((k) => k + 1);
-      return;
-    }
-    if (quote && !quote.available) {
-      setErrors({ checkIn: "Those nights are sold out. Pick another date." });
-      setShakeKey((k) => k + 1);
-      return;
-    }
-    setErrors({});
+    setFormError("");
     setBusy(true);
     try {
       const loaded = await loadRazorpayScript();
       if (!loaded) {
-        setErrors({ form: "Could not load Razorpay Checkout. Check your network." });
-        setShakeKey((k) => k + 1);
+        setFormError("Could not load Razorpay Checkout. Check your network.");
         setBusy(false);
         return;
       }
@@ -367,26 +320,43 @@ function CheckoutInner() {
           kind: "stay",
           packageId: pkg.id,
           swaps: swapsForPay,
-          travelers,
+          travelers: forms.count,
           checkIn,
-          nights: stayNights,
+          nights,
           roomId: room?.id,
           receipt: `tw_${pkg.id}_${Date.now()}`.slice(0, 40),
         },
       });
       if (!order.ok) {
-        setErrors({ form: order.message });
-        setShakeKey((k) => k + 1);
-        pushBanner({ title: "Could not start payment", body: order.message, tone: "danger" });
+        const pay = guestPayError(order.message);
+        if (pay.operator) console.error("[pay]", order.message);
+        setFormError(pay.text);
+        if (!pay.operator) pushBanner({ title: "Could not start payment", body: pay.text, tone: "danger" });
         setBusy(false);
         return;
       }
       const key = order.keyId || getPublicRazorpayKeyId();
       if (!key) {
-        setErrors({ form: "Razorpay key missing. Set RAZORPAY_KEY_ID on Vercel and redeploy." });
+        console.error("[pay] Razorpay key missing (KEY_ID).");
+        setFormError("Payments are temporarily unavailable");
         setBusy(false);
         return;
       }
+      const guestPayload = forms.list.map((g) => ({
+        fullName: g.fullName,
+        phone: g.phone,
+        email: g.email,
+        dateOfBirth: g.dateOfBirth,
+        nationality: g.nationality,
+        idType: g.idType,
+        idNumber: g.idNumber,
+        emergencyName: g.emergencyName,
+        emergencyPhone: g.emergencyPhone,
+        digiYatra: g.digiYatra,
+        role: g.role,
+        ageBand: g.ageBand,
+        isLead: g.role === "lead",
+      }));
       await new Promise<void>((resolve) => {
         openRazorpayCheckout(
           {
@@ -396,8 +366,8 @@ function CheckoutInner() {
             name: "TripWeave",
             description: pkg.name,
             order_id: order.orderId,
-            prefill: { name: payerName.trim(), email: user?.primaryEmail ?? undefined },
-            notes: { packageId: pkg.id, pickupInr: String(pickupInr) },
+            prefill: { name: payingName.trim(), email: user?.primaryEmail ?? forms.list[0]?.email, contact: forms.list[0]?.phone },
+            notes: { packageId: pkg.id },
             theme: { color: "#1e5853" },
             handler: async (response) => {
               try {
@@ -405,51 +375,26 @@ function CheckoutInner() {
                   data: {
                     packageId: pkg.id,
                     swaps: swapsForPay,
-                    travelers,
+                    travelers: forms.count,
                     checkIn,
-                    nights: stayNights,
+                    nights,
                     roomId: room?.id,
-                    payerName: payerName.trim(),
+                    payerName: payingName.trim(),
                     method: "razorpay",
                     razorpayOrderId: response.razorpay_order_id,
                     razorpayPaymentId: response.razorpay_payment_id,
                     razorpaySignature: response.razorpay_signature,
+                    guests: guestPayload,
                   },
                 });
                 if (!result.ok) {
-                  // Keep DOB / ID drafts so the guest (or desk) can retry without re-typing.
-                  setErrors({ form: result.message });
+                  setFormError(result.message);
                   pushBanner({ title: "Payment received, booking not saved", body: result.message, tone: "danger" });
                   setBusy(false);
                   resolve();
                   return;
                 }
-                try {
-                  const guests = loadTravelers();
-                  if (guests.length) {
-                    await saveTravellers({
-                      data: {
-                        travelers: guests.map((g) => ({
-                          fullName: g.fullName,
-                          phone: g.phone,
-                          email: g.email,
-                          nationality: g.nationality,
-                          idType: g.idType,
-                          idNumber: g.idNumber,
-                          emergencyName: g.emergencyName,
-                          emergencyPhone: g.emergencyPhone,
-                          digiYatra: g.digiYatra,
-                        })),
-                        bookingId: result.booking.id,
-                        checkIn: result.booking.checkIn,
-                        nights: stayNights,
-                      },
-                    });
-                  }
-                } catch {
-                  /* booking already saved */
-                }
-                finishPaid(result.booking, result.stored);
+                finishPaid(result.booking);
                 resolve();
               } catch (err) {
                 const raw = err instanceof Error ? err.message : "Booking failed";
@@ -459,7 +404,7 @@ function CheckoutInner() {
                   resolve();
                   return;
                 }
-                setErrors({ form: raw });
+                setFormError(raw);
                 setBusy(false);
                 resolve();
               }
@@ -473,11 +418,9 @@ function CheckoutInner() {
             },
           },
           (failure) => {
-            // Failed / declined payment: keep traveller drafts for the retry.
             setBusy(false);
             const msg = failure?.error?.description || failure?.error?.reason || "Payment failed. Try again.";
-            setErrors({ form: msg });
-            setShakeKey((k) => k + 1);
+            setFormError(msg);
             resolve();
           },
         );
@@ -489,70 +432,230 @@ function CheckoutInner() {
         window.location.assign("/login?next=%2Fcheckout");
         return;
       }
-      setErrors({ form: message });
+      const pay = guestPayError(message);
+      if (pay.operator) console.error("[pay]", message);
+      setFormError(pay.text);
       setBusy(false);
     }
   };
+
+  function finishPaid(booking: BookingRow) {
+    clearSensitiveTravelers();
+    clearPending();
+    try {
+      window.sessionStorage.setItem(LAST_BOOKING_KEY, booking.confirmationCode);
+    } catch {
+      /* ignore */
+    }
+    track("paid", { packageId: booking.packageId });
+    void nav({
+      to: "/voucher/$code",
+      params: { code: booking.confirmationCode },
+      search: { new: "1" },
+      replace: true,
+    });
+  }
+
+  const who = brief.children > 0
+    ? `${brief.adults} ${brief.adults === 1 ? "adult" : "adults"} · ${brief.children} ${brief.children === 1 ? "child" : "children"}`
+    : `${forms.count} ${forms.count === 1 ? "guest" : "guests"}`;
 
   return (
     <Shell>
       <div className="mx-auto grid max-w-5xl gap-8 px-4 py-10 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
           <Stagger>
-            <p className="eyebrow">Checkout</p>
-            <h1 className="mt-2 font-display text-4xl">Pay and confirm this stay</h1>
+            <ol className="flex items-center gap-2 text-xs font-medium text-subtle">
+              <li className="text-muted">Stay</li>
+              <li aria-hidden className="h-px w-6 bg-border" />
+              <li className="text-primary">Guests & pay</li>
+              <li aria-hidden className="h-px w-6 bg-border" />
+              <li>Done</li>
+            </ol>
+            <p className="eyebrow mt-6">Checkout</p>
+            <h1 className="mt-2 font-display text-4xl">Guests & pay</h1>
             <p className="mt-3 flex items-center gap-2 text-sm text-muted">
               <Lock className="size-3.5" />
               {isRazorpayTestMode() ? "Secure payment via Razorpay (test mode)." : "Secure payment via Razorpay."}
             </p>
           </Stagger>
-          <form className="mt-8 grid gap-4" noValidate onSubmit={onPay}>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <ShakeField label="Check-in" type="date" value={checkIn} min={todayIso()} error={errors.checkIn} shakeKey={shakeKey} onChange={(e) => { const v = e.target.value; setCheckIn(v); setErrors((er) => ({ ...er, checkIn: "" })); if (/^\d{4}-\d{2}-\d{2}$/.test(v) && v >= todayIso()) persistCart({ checkIn: v }); }} />
-              <div className="grid gap-1.5">
-                <Label>Travelers</Label>
-                <div className="flex h-10 items-center justify-between rounded-md border border-border bg-elevated px-3 text-sm">
-                  <span className="tabular-nums">{travelers} {travelers === 1 ? "guest" : "guests"}{travelers > occupancy ? ` · room sleeps ${occupancy}` : ""}</span>
-                  <Link to="/travelers" className="text-xs font-medium text-primary underline">Edit guests</Link>
+
+          <Card className="mt-6 p-4 shadow-none">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-display text-xl">{pkg.name}</p>
+                <p className="mt-1 text-sm text-muted">
+                  {formatCheckInLabel(checkIn)} · {nightsPhrase(nights)} · {room?.name ?? "Room"} · {who}
+                </p>
+              </div>
+              <Link to="/trip/$id" params={{ id: pkg.id }} className="shrink-0 text-sm font-medium text-primary underline">
+                Change
+              </Link>
+            </div>
+          </Card>
+
+          {holdNote ? (
+            <p
+              className={
+                holdTone === "danger"
+                  ? "mt-4 rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
+                  : "mt-4 rounded-md border border-border bg-elevated px-3 py-2 text-xs text-muted"
+              }
+              role="status"
+            >
+              {holdNote}
+            </p>
+          ) : null}
+
+          <form className="mt-6 grid gap-4" noValidate onSubmit={onPay}>
+            <GuestForms
+              list={forms.list}
+              errors={forms.errors}
+              shakeKey={forms.shakeKey}
+              policy={policy}
+              showDigiLocker={digiOn}
+              onUpdate={forms.update}
+              onOpenDigi={setDigiGuest}
+            />
+
+            {digiOn ? (
+              <div>
+                <button type="button" className="text-sm font-medium underline" onClick={() => setDigiOpen((open) => !open)}>
+                  Use DigiLocker (optional)
+                </button>
+                {digiOpen ? (
+                  <p className="mt-2 text-xs text-muted">
+                    Sample only. It fills the form and is not stored as a verified guest. {DIGILOCKER_STATUS.reason}
+                  </p>
+                ) : null}
+                {digiOpen ? (
+                  <Button type="button" variant="outline" className="mt-3" onClick={() => setDigiGuest(0)}>
+                    Sample DigiLocker
+                  </Button>
+                ) : null}
+              </div>
+            ) : null}
+
+            {journey?.showDigiYatra ? (
+              <div className="rounded-lg border border-border bg-elevated px-4 py-3">
+                <p className="text-sm font-medium">Airport e-gates (DigiYatra)</p>
+                <p className="mt-1 text-xs text-muted">
+                  Optional note for the lead guest only. Not sent to DigiYatra or the hotel.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {(Object.keys(DIGIYATRA_LABELS) as DigiYatraStatus[]).map((status) => (
+                    <button
+                      key={status}
+                      type="button"
+                      className={cn(
+                        "min-h-11 rounded-md border px-3 text-xs font-medium",
+                        (forms.list[0]?.digiYatra ?? "not_started") === status
+                          ? "border-primary/40 bg-primary/5 text-fg"
+                          : "border-border bg-surface text-muted",
+                      )}
+                      onClick={() => forms.update(0, { digiYatra: status })}
+                    >
+                      {DIGIYATRA_LABELS[status]}
+                    </button>
+                  ))}
                 </div>
               </div>
+            ) : null}
+
+            <div>
+              <button
+                type="button"
+                className="text-sm font-medium underline"
+                onClick={() => {
+                  setPayerOther((open) => !open);
+                  if (!payerOther) setPayerName(leadName);
+                }}
+              >
+                Paying for someone else?
+              </button>
+              {payerOther ? (
+                <div className="mt-3">
+                  <ShakeField
+                    label="Payer name"
+                    fieldId="payerName"
+                    name="payerName"
+                    value={payerName}
+                    error={formError && payingName.trim().length < 2 ? "Name on the payment, please." : undefined}
+                    shakeKey={forms.shakeKey}
+                    autoComplete="name"
+                    onChange={(e) => setPayerName(e.target.value)}
+                  />
+                </div>
+              ) : null}
             </div>
-            <ShakeField label="Payer name" name="payerName" value={payerName} error={errors.payerName} shakeKey={shakeKey} autoComplete="name" onChange={(e) => { setPayerName(e.target.value); setErrors((er) => ({ ...er, payerName: "" })); }} />
+
             {travelQuote?.pickup.available ? (
               <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-elevated px-4 py-3">
                 <div>
-                  <p className="text-sm font-medium">Airport pickup and drop</p>
-                  <p className="text-xs text-muted">Ask the hotel to send a car from Bhubaneswar airport and back. The hotel bills it. TripWeave does not add it.</p>
+                  <p className="text-sm font-medium">Ask the hotel for an airport car</p>
+                  <p className="text-xs text-muted">{hotelCarRateCopy(travelQuote.pickup)}</p>
                 </div>
-                <MotionToggle on={plan.includePickup} onChange={(v) => { const next = { ...plan, includePickup: v }; setTravel(next); persistCart({ travel: next }); }} label="Hotel pickup" />
+                <MotionToggle
+                  on={plan.includePickup}
+                  onChange={(v) => persistTravel({ ...plan, includePickup: v })}
+                  label="Hotel pickup"
+                />
               </div>
             ) : null}
-            {holdNote ? <p className="rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">{holdNote}</p> : null}
-            {errors.form ? <p className="rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">{errors.form}</p> : null}
+
             <p className="rounded-md border border-border bg-elevated px-3 py-2 text-xs text-muted">
               Refund window before you pay: {refundPolicyFor(checkIn).label}. My trips uses this same rule after you pay.
             </p>
-            <Button type="submit" size="lg" disabled={busy || inventory !== "ready" || (quote != null && !quote.available)} className="mt-2">
-              <TextSwap shimmer={busy} text={busy ? "Opening Razorpay…" : inventory === "loading" ? "Checking rooms…" : inventory === "failed" || quote?.unknown ? "Couldn't check rooms" : quote && !quote.released ? "Nights not released" : quote && !quote.available ? "Sold out for these nights" : `Pay ${formatMoney(total)} with Razorpay`} />
+            {formError ? (
+              <p className="rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger" role="alert">
+                {formError}
+              </p>
+            ) : null}
+            <Button
+              type="submit"
+              size="lg"
+              disabled={busy || inventory === "loading"}
+              className="mt-2"
+            >
+              <TextSwap
+                shimmer={busy}
+                text={
+                  busy
+                    ? "Opening Razorpay…"
+                    : inventory === "loading"
+                      ? "Checking rooms…"
+                      : `Pay ${formatMoney(total)} with Razorpay`
+                }
+              />
             </Button>
           </form>
         </div>
+
         <Card className="h-fit overflow-hidden">
           <img src={pkg.image} alt="" className="h-40 w-full object-cover" />
           <div className="p-5">
             <h2 className="font-display text-xl">{pkg.name}</h2>
-            <p className="mt-1 text-sm text-muted">{nightsPhrase(stayNights)} · {room?.name ?? "Room"} · {pkg.neighborhood}</p>
+            <p className="mt-1 text-sm text-muted">
+              {nightsPhrase(nights)} · {room?.name ?? "Room"} · {pkg.neighborhood}
+            </p>
             <dl className="mt-5 grid gap-2 text-sm">
-              <div className="flex justify-between"><dt className="text-muted">Room · {nightsPhrase(stayNights)}</dt><dd className="tabular-nums"><DigitPop value={formatMoney(stayDue)} /></dd></div>
+              <div className="flex justify-between">
+                <dt className="text-muted">Room · {nightsPhrase(nights)}</dt>
+                <dd className="tabular-nums">
+                  <DigitPop value={formatMoney(stayDue)} />
+                </dd>
+              </div>
               <p className="text-xs text-muted">
-                {room ? `${formatMoney(Math.round(stayDue / Math.max(stayNights, 1)))} / night for ${room.name} (sleeps ${room.occupancy}). ` : ""}
+                {room ? `${formatMoney(Math.round(stayDue / Math.max(nights, 1)))} / night for ${room.name} (sleeps ${room.occupancy}). ` : ""}
                 One room price — guest count does not multiply it. Taxes included at checkout
                 {deskFor(pkg.id).gstin ? ` · GSTIN ${deskFor(pkg.id).gstin}` : " · GST as billed by the hotel"}.
               </p>
-              {pickupInr > 0 ? (
-                <div className="flex justify-between"><dt className="text-muted">Hotel pickup estimate</dt><dd className="tabular-nums"><DigitPop value={formatMoney(pickupInr)} /></dd></div>
-              ) : null}
-              <div className="flex justify-between border-t border-border pt-2 font-medium"><dt>Total</dt><dd className="tabular-nums"><DigitPop value={formatMoney(total)} /></dd></div>
+              <div className="flex justify-between border-t border-border pt-2 font-medium">
+                <dt>Total</dt>
+                <dd className="tabular-nums">
+                  <DigitPop value={formatMoney(total)} />
+                </dd>
+              </div>
             </dl>
             {inventory === "failed" || quote?.unknown ? (
               <p className="mt-3 text-sm text-danger">Couldn't check rooms for these dates.</p>
@@ -565,6 +668,18 @@ function CheckoutInner() {
           </div>
         </Card>
       </div>
+
+      {digiGuest !== null && digiOn ? (
+        <DigilockerFlow
+          guestIndex={digiGuest}
+          guestLabel={`guest ${digiGuest + 1}`}
+          onClose={() => setDigiGuest(null)}
+          onApply={(filled) => {
+            applyDigi(digiGuest, filled);
+            setDigiGuest(null);
+          }}
+        />
+      ) : null}
     </Shell>
   );
 }

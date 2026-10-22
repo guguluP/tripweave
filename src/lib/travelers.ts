@@ -1,5 +1,10 @@
 /** Guest / traveller profile collected before payment. */
 
+import { isChildBand, requiredFields, type AgeBand, type GuestField, type GuestRole } from "./guest-policy.ts";
+import type { GuestDetailsPolicy } from "./hotel-desk.ts";
+
+export type { AgeBand, GuestRole };
+
 export type IdType = "aadhaar" | "passport" | "dl" | "voter" | "other";
 export type Gender = "female" | "male" | "other" | "prefer_not";
 export type IdentitySource = "manual" | "digilocker_demo" | "digilocker";
@@ -29,11 +34,16 @@ export type Traveler = {
   identitySource: IdentitySource;
   issuedDocs: IssuedDoc[];
   digiYatra: DigiYatraStatus;
+  role: GuestRole;
+  ageBand?: AgeBand;
 };
 
 export const TRAVELERS_KEY = "tripweave-travelers";
 
-export function emptyTraveler(overrides: Partial<Traveler> = {}): Traveler {
+const AGE_BANDS = new Set<AgeBand>(["adult", "child_5_11", "infant_0_4"]);
+
+export function emptyTraveler(overrides: Partial<Traveler> = {}, index = 0): Traveler {
+  const role = overrides.role ?? (index === 0 ? "lead" : "companion");
   return {
     fullName: "",
     phone: "",
@@ -49,7 +59,9 @@ export function emptyTraveler(overrides: Partial<Traveler> = {}): Traveler {
     identitySource: "manual",
     issuedDocs: [],
     digiYatra: "not_started",
+    ageBand: undefined,
     ...overrides,
+    role,
   };
 }
 
@@ -74,6 +86,8 @@ function normalizeTraveler(raw: unknown): Traveler | null {
     identitySource: (t.identitySource as IdentitySource) || "manual",
     issuedDocs: Array.isArray(t.issuedDocs) ? (t.issuedDocs as IssuedDoc[]) : [],
     digiYatra: (t.digiYatra as DigiYatraStatus) || "not_started",
+    role: t.role === "companion" ? "companion" : t.role === "lead" ? "lead" : "lead",
+    ageBand: AGE_BANDS.has(t.ageBand as AgeBand) ? (t.ageBand as AgeBand) : undefined,
   });
 }
 
@@ -129,30 +143,77 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export type TravelerErrors = Partial<Record<keyof Traveler, string>>;
 
-export function validateTraveler(t: Traveler): TravelerErrors {
-  const e: TravelerErrors = {};
-  if (t.fullName.trim().length < 2) e.fullName = "Enter the name as on the ID.";
-  const phone = t.phone.replace(/\D/g, "").slice(-10);
-  if (!PHONE_RE.test(phone)) e.phone = "Use a 10-digit Indian mobile number.";
-  if (!EMAIL_RE.test(t.email.trim())) e.email = "Enter a valid email.";
-  if (!t.dateOfBirth) e.dateOfBirth = "Date of birth is required.";
-  else {
-    const dob = new Date(`${t.dateOfBirth}T12:00:00`);
-    const age = (Date.now() - dob.getTime()) / (365.25 * 24 * 3600 * 1000);
-    if (Number.isNaN(dob.getTime()) || age < 0 || age > 120) {
-      e.dateOfBirth = "Check the date of birth.";
-    }
-  }
-  if (!t.nationality.trim()) e.nationality = "Nationality is required.";
+export const GUEST_FIELD_LABELS: Record<GuestField, string> = {
+  fullName: "full name",
+  phone: "mobile",
+  email: "email",
+  dateOfBirth: "date of birth",
+  nationality: "nationality",
+  idType: "ID type",
+  idNumber: "ID number",
+  ageBand: "age band",
+};
+
+function checkDob(value: string): string | null {
+  if (!value) return "Date of birth is required.";
+  const dob = new Date(`${value}T12:00:00`);
+  const age = (Date.now() - dob.getTime()) / (365.25 * 24 * 3600 * 1000);
+  if (Number.isNaN(dob.getTime()) || age < 0 || age > 120) return "Check the date of birth.";
+  return null;
+}
+
+function checkId(t: Traveler, foreign: boolean): string | null {
   const id = t.idNumber.replace(/\s/g, "").replace(/-/g, "");
+  if (foreign || t.idType === "passport") {
+    if (id.length < 6 && id.length !== 4) return "Enter passport number.";
+    return null;
+  }
   if (t.idType === "aadhaar") {
     if (!/^\d{12}$/.test(id) && !/^\d{4}$/.test(id) && !/^x{8}\d{4}$/i.test(id)) {
-      e.idNumber = "Enter 12-digit Aadhaar or last 4 digits.";
+      return "Enter 12-digit Aadhaar or last 4 digits.";
     }
-  } else if (t.idType === "passport") {
-    if (id.length < 6 && id.length !== 4) e.idNumber = "Enter passport number.";
-  } else if (!id) {
-    e.idNumber = "ID number is required.";
+    return null;
+  }
+  if (!id) return "ID number is required.";
+  return null;
+}
+
+export function validateTraveler(
+  t: Traveler,
+  ctx?: { policy?: GuestDetailsPolicy; index?: number },
+): TravelerErrors {
+  const policy = ctx?.policy ?? "lead_only";
+  const index = ctx?.index ?? 0;
+  const role: GuestRole = index === 0 ? "lead" : t.role === "lead" ? "lead" : "companion";
+  const nat = (t.nationality || "IN").trim().toUpperCase();
+  const foreign = nat !== "IN";
+  const needed = new Set(requiredFields(role, policy, nat, isChildBand(t.ageBand)));
+  const e: TravelerErrors = {};
+  if (needed.has("fullName") && t.fullName.trim().length < 2) e.fullName = "Enter the name as on the ID.";
+  if (needed.has("phone")) {
+    const phone = t.phone.replace(/\D/g, "").slice(-10);
+    if (!PHONE_RE.test(phone)) e.phone = "Use a 10-digit Indian mobile number.";
+  } else if (t.phone.trim()) {
+    const phone = t.phone.replace(/\D/g, "").slice(-10);
+    if (!PHONE_RE.test(phone)) e.phone = "Use a 10-digit Indian mobile number.";
+  }
+  if (needed.has("email")) {
+    if (!EMAIL_RE.test(t.email.trim())) e.email = "Enter a valid email.";
+  } else if (t.email.trim() && !EMAIL_RE.test(t.email.trim())) {
+    e.email = "Enter a valid email.";
+  }
+  if (needed.has("dateOfBirth")) {
+    const dob = checkDob(t.dateOfBirth);
+    if (dob) e.dateOfBirth = dob;
+  }
+  if (needed.has("nationality") && !t.nationality.trim()) e.nationality = "Nationality is required.";
+  if (needed.has("ageBand") && !t.ageBand) e.ageBand = "Age band is required.";
+  if (foreign && needed.has("idType") && t.idType !== "passport") {
+    e.idType = "Passport is required.";
+  }
+  if (needed.has("idNumber") || needed.has("idType")) {
+    const idError = checkId(t, foreign);
+    if (idError) e.idNumber = idError;
   }
   if (t.emergencyPhone) {
     const ep = t.emergencyPhone.replace(/\D/g, "").slice(-10);
@@ -161,14 +222,51 @@ export function validateTraveler(t: Traveler): TravelerErrors {
   return e;
 }
 
-export function validateTravelers(list: Traveler[]): {
+export function validateTravelers(list: Traveler[], policy: GuestDetailsPolicy = "lead_only"): {
   ok: boolean;
   errors: TravelerErrors[];
 } {
   if (list.length < 1) return { ok: false, errors: [{}] };
-  const errors = list.map((t) => validateTraveler(t));
+  const errors = list.map((t, index) =>
+    validateTraveler({ ...t, role: index === 0 ? "lead" : t.role === "lead" ? "companion" : (t.role ?? "companion") }, {
+      policy,
+      index,
+    }),
+  );
   const ok = errors.every((e) => Object.keys(e).length === 0);
   return { ok, errors };
+}
+
+const FIELD_ORDER: GuestField[] = [
+  "fullName",
+  "ageBand",
+  "phone",
+  "email",
+  "dateOfBirth",
+  "nationality",
+  "idType",
+  "idNumber",
+];
+
+export function orderedGuestErrors(
+  list: Traveler[],
+  policy: GuestDetailsPolicy = "lead_only",
+): { id: string; guestIndex: number; label: string; field: GuestField }[] {
+  const { errors } = validateTravelers(list, policy);
+  const out: { id: string; guestIndex: number; label: string; field: GuestField }[] = [];
+  errors.forEach((err, guestIndex) => {
+    for (const field of FIELD_ORDER) {
+      if (err[field]) {
+        out.push({
+          id: `guest-${guestIndex}-${field}`,
+          guestIndex,
+          label: GUEST_FIELD_LABELS[field],
+          field,
+        });
+      }
+    }
+  });
+  return out;
 }
 
 export function travelerInitials(t: Traveler, fallbackIndex: number) {

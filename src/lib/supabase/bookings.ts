@@ -105,6 +105,14 @@ export async function sbInsertBooking(
   return mapSbBooking(data);
 }
 
+export async function sbDeleteBooking(userId: string, id: number): Promise<boolean> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return false;
+  const { error } = await sb.from("bookings").delete().eq("id", id).eq("user_id", userId);
+  if (error) throw new Error(error.message);
+  return true;
+}
+
 export async function sbCancelBooking(
   userId: string,
   id: number,

@@ -42,6 +42,32 @@ export default tseslint.config(
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
+  // node:* in a client-reachable module crashes Vite dev (externalized stub).
+  // Crypto and mail stay in *.server.ts, API routes, or tests.
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: [
+      "**/*.server.ts",
+      "**/*.test.ts",
+      "src/routes/api/**",
+      "src/lib/server/desk-auth.ts",
+      "src/lib/mail/smtp.ts",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["node:*"],
+              message:
+                "Import node:* only from a .server.ts module, src/routes/api, or a test. A client-reachable import crashes Vite dev.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Disable rules that conflict with Prettier formatting.
   prettier,
 );

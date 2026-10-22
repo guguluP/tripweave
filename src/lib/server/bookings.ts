@@ -26,7 +26,10 @@ import {
 import { holdIdsForCheckout, releaseCheckoutHold } from "@/lib/server/room-holds";
 import { writeMeta, readMeta } from "@/lib/booking-meta";
 import { deskFor } from "@/lib/hotel-desk";
+import { guestRowsFromInput, travelerInputSchema } from "@/lib/traveller-schema";
 import { parseTravelPlan } from "@/lib/travel-plan";
+import { persistBookingGuests, removeBooking, travelerToInput } from "@/lib/server/stay-guests";
+import type { TravelerInput } from "@/lib/supabase/travellers";
 import { refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import {
@@ -156,6 +159,9 @@ function applyRefundIntents(userId: string, rows: BookingRow[]): BookingRow[] {
 export const listBookings = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
+    if (context.claimFailed) {
+      throw new Error("Could not link this sign-in to your trips. Refresh My trips or try again in a moment.");
+    }
     try {
       await hydrateRefundIntents(context.userId);
       await drainReconcileJobs(context.userId);
@@ -207,6 +213,7 @@ const createSchema = z.object({
   razorpayOrderId: z.string().optional(),
   razorpayPaymentId: z.string().optional(),
   razorpaySignature: z.string().optional(),
+  guests: z.array(travelerInputSchema).max(12).optional(),
 });
 
 type CaptureLocal = Omit<BookingRow, "id" | "createdAt">;
@@ -214,6 +221,7 @@ type StoredPayload = CaptureLocal & {
   roomId?: string;
   units?: number;
   exceptHoldIds?: string[];
+  guests?: TravelerInput[];
 };
 
 function parsePayload(job: ReconcileJob): StoredPayload | null {
@@ -322,8 +330,9 @@ async function insertCapturedBooking(job: ReconcileJob, payload: StoredPayload):
   const roomId = payload.roomId || readMeta(payload.swaps).roomId || "";
   const units = payload.units || 1;
   const exceptHoldIds = payload.exceptHoldIds ?? [];
+  let booking: BookingRow | null = null;
   if (isSupabaseConfigured()) {
-    return sbInsertBooking({
+    booking = await sbInsertBooking({
       userId: payload.userId || job.userId,
       packageId: payload.packageId,
       packageName: payload.packageName,
@@ -345,14 +354,25 @@ async function insertCapturedBooking(job: ReconcileJob, payload: StoredPayload):
       units,
       exceptHoldIds,
     });
+  } else {
+    if (shouldSkipNeon()) throw new Error("no durable store");
+    const neon = await insertNeonBooking(neonWire(payload, job.userId, roomId, units, exceptHoldIds));
+    if (!neon.ok) {
+      if (neon.soldOut) throw new Error("sold_out");
+      throw new Error(neon.missing ? "no durable store" : "insert returned empty");
+    }
+    booking = neon.booking;
   }
-  if (shouldSkipNeon()) throw new Error("no durable store");
-  const neon = await insertNeonBooking(neonWire(payload, job.userId, roomId, units, exceptHoldIds));
-  if (!neon.ok) {
-    if (neon.soldOut) throw new Error("sold_out");
-    throw new Error(neon.missing ? "no durable store" : "insert returned empty");
+  if (booking && payload.guests?.length) {
+    await persistBookingGuests({
+      userId: booking.userId || job.userId,
+      bookingId: booking.id,
+      checkIn: booking.checkIn,
+      nights: booking.nights,
+      guests: payload.guests,
+    });
   }
-  return neon.booking;
+  return booking;
 }
 
 async function releasePayloadHolds(userId: string, exceptHoldIds: string[] | undefined) {
@@ -438,6 +458,14 @@ async function runReconcileJob(job: ReconcileJob): Promise<BookingRow | null> {
       travelers: booking.travelers,
       amountInr: booking.amountInr,
       payerName: booking.payerName,
+      swaps: booking.swaps,
+      guests: (payload.guests ?? []).map((guest) => ({
+        fullName: guest.fullName,
+        phone: guest.phone,
+        role: guest.isLead ? "lead" : "companion",
+        ageBand: guest.ageBand,
+        isLead: guest.isLead,
+      })),
     }).catch((err) => console.error("[mail] booking", err));
     return { ...booking, userId: job.userId };
   } catch (err) {
@@ -622,6 +650,7 @@ async function queueCaptureReconcile(input: {
   roomId: string;
   units: number;
   exceptHoldIds: string[];
+  guests?: TravelerInput[];
 }): Promise<CreateBookingResult> {
   const now = new Date().toISOString();
   const job: ReconcileJob = {
@@ -638,6 +667,7 @@ async function queueCaptureReconcile(input: {
       roomId: input.roomId,
       units: input.units,
       exceptHoldIds: input.exceptHoldIds,
+      guests: input.guests ?? [],
     }),
   };
   const saved = await persistReconcileJob(job);
@@ -680,8 +710,41 @@ export const createBooking = createServerFn({ method: "POST" })
     const room = getRoom(pkg, payable.roomId);
     const nights = payable.nights;
     const amount = payable.amountInr;
-    const pickupInr = payable.pickupInr;
     const packageName = payable.packageName;
+    const policy = deskFor(pkg.id).guestDetails ?? "lead_only";
+    let guestInputs: TravelerInput[] = [];
+    if (data.guests && data.guests.length > 0) {
+      const prepared = guestRowsFromInput(data.guests, policy);
+      if (!prepared.ok) return { ok: false, message: prepared.message, field: "travelers" };
+      if (prepared.guests.length !== data.travelers) {
+        return { ok: false, message: "Guest list does not match the guest count.", field: "travelers" };
+      }
+      guestInputs = prepared.guests.map(travelerToInput);
+    }
+    const guestNotice = guestInputs.map((guest) => ({
+      fullName: guest.fullName,
+      phone: guest.phone,
+      role: guest.isLead ? "lead" : "companion",
+      ageBand: guest.ageBand,
+      isLead: guest.isLead,
+    }));
+    const keepGuests = async (booking: BookingRow): Promise<string | null> => {
+      if (guestInputs.length === 0) return null;
+      try {
+        await persistBookingGuests({
+          userId: booking.userId || context.userId,
+          bookingId: booking.id,
+          checkIn: booking.checkIn,
+          nights: booking.nights,
+          guests: guestInputs,
+        });
+        return null;
+      } catch (err) {
+        console.error("[bookings] guest insert failed", err);
+        await removeBooking(booking.userId || context.userId, booking.id);
+        return "Could not save guest details with this booking. The stay was not kept. Try again.";
+      }
+    };
     const code = makeCode();
     const travel = parseTravelPlan(readMeta(data.swaps ?? {}).travel);
 
@@ -700,7 +763,7 @@ export const createBooking = createServerFn({ method: "POST" })
         return { ok: false, message: "Missing Razorpay payment details." };
       }
       const { verifyRazorpaySignature, peekOrder, consumeOrder, fetchRazorpayOrder } = await import("@/lib/server/razorpay");
-      const verified = verifyRazorpaySignature({
+      const verified = await verifyRazorpaySignature({
         razorpay_order_id: data.razorpayOrderId,
         razorpay_payment_id: data.razorpayPaymentId,
         razorpay_signature: data.razorpaySignature,
@@ -768,7 +831,6 @@ export const createBooking = createServerFn({ method: "POST" })
         roomId: room.id,
         hotelEmail: deskFor(pkg.id).email,
         travel,
-        pickupInr,
         accountEmail: context.email?.trim().toLowerCase() || undefined,
       }),
       status: "paid",
@@ -813,9 +875,12 @@ export const createBooking = createServerFn({ method: "POST" })
         roomId: room.id,
         units: holdUnits,
         exceptHoldIds: checkoutHoldIds,
+        guests: guestInputs,
       });
 
     const finishStored = async (booking: BookingRow, stored: "supabase" | "local") => {
+      const guestError = await keepGuests(booking);
+      if (guestError) return { ok: false as const, message: guestError };
       await freeCheckoutHolds();
       recordHold({ ...holdBase, holdId: booking.confirmationCode });
       if (stored === "supabase") {
@@ -842,6 +907,8 @@ export const createBooking = createServerFn({ method: "POST" })
         amountInr: booking.amountInr,
         payerName: booking.payerName,
         roomName: room.name,
+        swaps: booking.swaps,
+        guests: guestNotice,
       }).catch((err) => console.error("[mail] booking", err));
       return { ok: true as const, booking, stored };
     };
@@ -873,7 +940,10 @@ export const createBooking = createServerFn({ method: "POST" })
       if (paid.method === "razorpay" && failClosedAfterCapture()) return queuedCapture();
       await freeCheckoutHolds();
       recordHold({ ...holdBase, holdId: code });
-      return { ok: true, booking: memoryInsertBooking(local), stored: "local" };
+      const booking = memoryInsertBooking(local);
+      const guestError = await keepGuests({ ...booking, userId: context.userId });
+      if (guestError) return { ok: false, message: guestError };
+      return { ok: true, booking, stored: "local" };
     }
 
     try {
@@ -890,7 +960,10 @@ export const createBooking = createServerFn({ method: "POST" })
         if (paid.method === "razorpay" && failClosedAfterCapture()) return queuedCapture();
         await freeCheckoutHolds();
         recordHold({ ...holdBase, holdId: code });
-        return { ok: true, booking: memoryInsertBooking(local), stored: "local" };
+        const booking = memoryInsertBooking(local);
+        const guestError = await keepGuests({ ...booking, userId: context.userId });
+        if (guestError) return { ok: false, message: guestError };
+        return { ok: true, booking, stored: "local" };
       }
       const sql = await getSql();
       const swapsJson = JSON.stringify(local.swaps);
@@ -914,7 +987,10 @@ export const createBooking = createServerFn({ method: "POST" })
         if (paid.method === "razorpay" && failClosedAfterCapture()) return queuedCapture();
         await freeCheckoutHolds();
         recordHold({ ...holdBase, holdId: code });
-        return { ok: true, booking: memoryInsertBooking(local), stored: "local" };
+        const booking = memoryInsertBooking(local);
+        const guestError = await keepGuests({ ...booking, userId: context.userId });
+        if (guestError) return { ok: false, message: guestError };
+        return { ok: true, booking, stored: "local" };
       }
       return await finishStored(mapBooking({ ...row, user_id: context.userId }), "local");
     } catch (err) {
@@ -922,7 +998,10 @@ export const createBooking = createServerFn({ method: "POST" })
       if (paid.method === "razorpay" && failClosedAfterCapture()) return queuedCapture();
       await freeCheckoutHolds();
       recordHold({ ...holdBase, holdId: code });
-      return { ok: true, booking: memoryInsertBooking(local), stored: "local" };
+      const booking = memoryInsertBooking(local);
+      const guestError = await keepGuests({ ...booking, userId: context.userId });
+      if (guestError) return { ok: false, message: guestError };
+      return { ok: true, booking, stored: "local" };
     }
   });
 

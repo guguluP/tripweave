@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { LastMilePicker } from "@/components/last-mile-picker";
 import { BUS_GUIDE, DIGIYATRA_GUIDE, type Journey, type TransportLeg } from "@/lib/transport";
 import { getOrigin } from "@/lib/origins";
-import { type TravelPlan, type TravelQuote } from "@/lib/travel-plan";
+import { hotelCarRateCopy, type TravelPlan, type TravelQuote } from "@/lib/travel-plan";
 import { MotionToggle } from "@/components/motion";
 import { cn } from "@/lib/utils";
 
@@ -155,12 +155,8 @@ export function TransportPanel({
       {interactive && quote && plan && onChange && quote.pickup.available ? (
         <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-elevated px-4 py-3">
           <div>
-            <p className="text-sm font-medium">
-              Airport pickup and drop
-            </p>
-            <p className="text-xs text-muted">
-              This hotel can send a car from Bhubaneswar airport and back to the airport. Ask the desk. The hotel bills the car. TripWeave does not add it.
-            </p>
+            <p className="text-sm font-medium">Ask the hotel for an airport car</p>
+            <p className="text-xs text-muted">{hotelCarRateCopy(quote.pickup)}</p>
           </div>
           <MotionToggle
             on={plan.includePickup}

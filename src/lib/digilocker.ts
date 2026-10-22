@@ -11,8 +11,23 @@
  *   DIGILOCKER_CLIENT_SECRET
  *   DIGILOCKER_REDIRECT_URI
  */
-import type { Gender, IdType, IssuedDoc, Traveler } from "@/lib/travelers";
-import { emptyTraveler } from "@/lib/travelers";
+import type { Gender, IdType, IssuedDoc, Traveler } from "./travelers.ts";
+import { emptyTraveler } from "./travelers.ts";
+
+/** Live DigiLocker is shown. A sandbox is hidden unless the sample flag or dev tools are on. */
+export function showDigiLocker(
+  status: { live: boolean },
+  flags: { sample?: boolean; devTools?: boolean } = {},
+): boolean {
+  if (status.live) return true;
+  return flags.sample === true || flags.devTools === true;
+}
+
+export function devToolsEnabled(raw: string | null | undefined): boolean {
+  if (!raw) return false;
+  const value = raw.trim().toLowerCase();
+  return value !== "" && value !== "0" && value !== "false" && value !== "off";
+}
 
 export const DIGILOCKER_STATUS = {
   live: false,

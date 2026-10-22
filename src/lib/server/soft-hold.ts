@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { recordHold } from "@/lib/inventory";
-import { computePayable, publicHoldId } from "@/lib/server/payable";
+import { computePayable } from "@/lib/server/payable";
 import { pendingHoldId, reserveCheckoutHold } from "@/lib/server/room-holds";
 
 /** Same window as the Razorpay pending hold. Re-placing the hold extends it. */
@@ -78,5 +78,6 @@ export const placeSoftHold = createServerFn({ method: "POST" })
       status: "held",
       expiresAt,
     });
+    const { publicHoldId } = await import("./hold-id.server");
     return { ok: true, holdId: publicHoldId(holdId), expiresAt };
   });

@@ -35,7 +35,8 @@ import {
   saveNext,
   savePending,
 } from "@/lib/packages";
-import { checkInOnOrAfterToday, leftoverForRooms, quoteStay, todayIso } from "@/lib/inventory";
+import { checkInOnOrAfterToday, leftoverForRooms, quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory";
+import { guestsForOccupancy } from "@/lib/occupancy-policy";
 import { deskFor } from "@/lib/hotel-desk";
 import { getSeededConsensus } from "@/lib/youtube/get-seeded";
 import { useStayInventory } from "@/lib/use-occupancy";
@@ -47,7 +48,6 @@ import {
   defaultTravelPlan,
   EMPTY_TRAVEL,
   patchTravelDraft,
-  pickupChargeInr,
   quoteTravel,
   type TravelPlan,
 } from "@/lib/travel-plan";
@@ -75,6 +75,7 @@ function TripDetail() {
   const [travel, setTravel] = useState<TravelPlan>(EMPTY_TRAVEL);
   /** Set when a saved / linked check-in had already passed and Stay moved it to today. */
   const [dateMoved, setDateMoved] = useState<string | null>(null);
+  const [fitError, setFitError] = useState<string | null>(null);
   const inventory = useStayInventory(pkg?.id, checkIn, nights);
   const inventoryKnown = inventory === "ready";
 
@@ -86,9 +87,18 @@ function TripDetail() {
     // so the guest's room, nights, add-ons, and date survive Back.
     const cart = pending?.packageId === pkg.id ? pending : null;
     setNights(clampNights(pkg, cart?.nights ?? briefNow.nights));
-    const recommended = recommendRooms(pkg.rooms, briefNow.style);
-    const cartRoom = cart?.roomId && pkg.rooms.some((r) => r.id === cart.roomId) ? cart.roomId : "";
-    setRoomId(cartRoom || recommended[0]?.id || pkg.rooms[0]!.id);
+    const party = guestsForOccupancy({ adults: briefNow.adults, children: briefNow.children });
+    const recommended = recommendRooms(pkg.rooms, briefNow.style, party);
+    const cartRoom =
+      cart?.roomId && pkg.rooms.some((r) => r.id === cart.roomId && travelersFitRoom(r.occupancy, party))
+        ? cart.roomId
+        : "";
+    setRoomId(
+      cartRoom ||
+        recommended[0]?.id ||
+        pkg.rooms.find((r) => travelersFitRoom(r.occupancy, party))?.id ||
+        pkg.rooms[0]!.id,
+    );
     setSwaps(cart ? guestSwaps(cart.swaps) : {});
     setBooking(false);
     const wanted = cart?.checkIn ?? briefNow.checkIn ?? pending?.checkIn;
@@ -104,12 +114,25 @@ function TripDetail() {
     if (!pkg || !inventoryKnown) return;
     const leftover = leftoverForRooms(pkg.id, checkIn, nights, [], true);
     setRoomId((current) => {
-      if (leftover[current] && !leftover[current].soldOut) return current;
-      const briefStyle = loadBriefWithDates().style;
-      const recommended = recommendRooms(pkg.rooms, briefStyle);
+      const briefNow = loadBriefWithDates();
+      const party = guestsForOccupancy({ adults: briefNow.adults, children: briefNow.children });
+      const currentRoom = pkg.rooms.find((r) => r.id === current);
+      if (
+        leftover[current] &&
+        !leftover[current].soldOut &&
+        currentRoom &&
+        travelersFitRoom(currentRoom.occupancy, party)
+      ) {
+        return current;
+      }
+      const recommended = recommendRooms(pkg.rooms, briefNow.style, party);
+      const fits = (id: string) => {
+        const row = pkg.rooms.find((r) => r.id === id);
+        return Boolean(row && travelersFitRoom(row.occupancy, party) && leftover[id] && !leftover[id]!.soldOut);
+      };
       const next =
-        recommended.find((r) => leftover[r.id] && !leftover[r.id]!.soldOut) ??
-        pkg.rooms.find((r) => leftover[r.id] && !leftover[r.id]!.soldOut);
+        recommended.find((r) => fits(r.id)) ??
+        pkg.rooms.find((r) => fits(r.id));
       return next?.id ?? current;
     });
   }, [pkg, inventoryKnown, checkIn, nights]);
@@ -159,7 +182,8 @@ function TripDetail() {
   const amenities = stayAmenityFacts(pkg);
   const journey = getJourney(pkg.id, brief.origin, brief.arriveBy);
   const travelQuote = quoteTravel(pkg.id, { ...brief, checkIn, nights }, travel);
-  const pickupInr = pickupChargeInr(pkg.id, { ...travel, arriveBy: brief.arriveBy, origin: brief.origin });
+  const party = guestsForOccupancy({ adults: brief.adults, children: brief.children });
+  const roomFits = travelersFitRoom(room.occupancy, party);
   const trust = computeTrustScore(pkg);
   const seedConsensus = getSeededConsensus(pkg.id);
   const nightlyRate = quote && quote.nights > 0 ? Math.round(quote.perPerson / quote.nights) : pkg.pricePerNight + (room.deltaPerNight || 0);
@@ -179,7 +203,7 @@ function TripDetail() {
             ? `${formatMoney(nightlyRate)} / night · ${room.name} · ${nightsPhrase(nights)} · sleeps ${room.occupancy}`
             : "Sold out — pick another date";
   const finePrint = quote?.available
-    ? `Stay total ${formatMoney(price)}${pickupInr > 0 ? ` · pickup ${formatMoney(pickupInr)} at checkout` : ""} · ${gstLine} · ${refundLabel}`
+    ? `Stay total ${formatMoney(price)}${travelQuote.pickup.available ? " · Pickup on request, paid to the hotel" : ""} · ${gstLine} · ${refundLabel}`
     : null;
 
   const setTravelAndDraft = (next: TravelPlan) => {
@@ -199,27 +223,34 @@ function TripDetail() {
   };
 
   const goBook = () => {
+    if (!roomFits) {
+      setFitError(`This room sleeps ${room.occupancy}. It's too small for ${party}.`);
+      return;
+    }
+    setFitError(null);
     const plan = { ...travel, arriveBy: brief.arriveBy, origin: brief.origin };
     savePending({
       packageId: pkg.id,
-      swaps: writeMeta(swaps, { travel: plan, pickupInr, roomId: room.id }),
+      swaps: writeMeta(swaps, { travel: plan, roomId: room.id }),
       nights,
       roomId: room.id,
       checkIn,
       travel: plan,
+      travelers: party,
+      adults: brief.adults,
+      children: brief.children,
     });
     setBooking(true);
-    // Session still loading: Travellers waits on RequireAuth and sends to sign-in if needed.
     if (isPending) {
-      void nav({ to: "/travelers" });
+      void nav({ to: "/checkout" });
       return;
     }
     if (!user) {
-      saveNext("/travelers");
-      void nav({ to: "/login", search: { next: "/travelers" } });
+      saveNext("/checkout");
+      void nav({ to: "/login", search: { next: "/checkout" } });
       return;
     }
-    void nav({ to: "/travelers" });
+    void nav({ to: "/checkout" });
   };
 
   const pin = arrivalPinLabel(brief.arriveBy);
@@ -401,6 +432,7 @@ function TripDetail() {
           leftover={leftoverForRooms(pkg.id, checkIn, nights, [], inventoryKnown)}
           gallery={pkg.images}
           style={brief.style}
+          guestCount={party}
         />
 
         <ReviewerConsensus
@@ -471,17 +503,29 @@ function TripDetail() {
               <RollingPrice value={price} />
             </p>
             <p className="mt-1 text-left text-xs leading-snug text-muted">{rateLine}</p>
+            <p className="mt-0.5 text-left text-xs text-muted">
+              For {brief.adults} {brief.adults === 1 ? "adult" : "adults"}
+              {brief.children > 0
+                ? ` · ${brief.children} ${brief.children === 1 ? "child" : "children"}`
+                : ""}{" "}
+              · <Link to="/plan" className="underline">change</Link>
+            </p>
             {finePrint ? (
               <p className="mt-0.5 text-left text-[0.65rem] leading-snug text-subtle">{finePrint}</p>
+            ) : null}
+            {!roomFits || fitError ? (
+              <p className="mt-1 text-left text-xs text-danger" role="alert">
+                {fitError ?? `This room sleeps ${room.occupancy} · too small for ${party}.`}
+              </p>
             ) : null}
           </div>
           <Button
             size="lg"
             className="shrink-0 whitespace-nowrap"
             onClick={goBook}
-            disabled={isPending || !quote?.available}
+            disabled={isPending || !quote?.available || !roomFits}
           >
-            <TextSwap text={booking ? "Traveller details…" : "Book this stay"} shimmer={booking} />
+            <TextSwap text={booking ? "Opening checkout…" : "Book this stay"} shimmer={booking} />
           </Button>
         </div>
       </div>

@@ -491,6 +491,16 @@ async function runTransition(input: {
   return { ok: false as const, message: "Desk transition needs the database." };
 }
 
+function swapRecord(raw: unknown): Record<string, string> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof value === "string") out[key] = value;
+    else if (value != null) out[key] = JSON.stringify(value);
+  }
+  return out;
+}
+
 function guestEmailFromSwaps(swaps: unknown): string {
   if (!swaps || typeof swaps !== "object" || Array.isArray(swaps)) return "";
   const record = swaps as Record<string, unknown>;
@@ -533,6 +543,7 @@ export async function mailGuestAfterDesk(input: {
     travelers: Number(data.travelers) || 1,
     amountInr: Number(data.amount_inr) || 0,
     payerName: String(data.payer_name ?? ""),
+    swaps: swapRecord(data.swaps),
   };
   if (input.action === "desk_confirm") await notifyGuestConfirmed(notice);
   else await notifyGuestCheckedIn(notice);

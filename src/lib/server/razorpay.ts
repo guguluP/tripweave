@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createHmac } from "node:crypto";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { recordHold, releaseHoldById } from "@/lib/inventory";
@@ -182,7 +181,8 @@ export async function settleRazorpayWebhook(rawBody: string, signature: string |
       { status: 401 },
     );
   }
-  const expected = createHmac("sha256", secret).update(rawBody).digest("hex");
+  const { hmacSha256Hex } = await import("./razorpay-sign.server");
+  const expected = hmacSha256Hex(secret, rawBody);
   const a = Buffer.from(expected, "utf8");
   const b = Buffer.from(signature, "utf8");
   if (a.length !== b.length || !timingSafeEqual(a, b)) {
@@ -313,7 +313,6 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
           travelers: String(payable.travelers),
           checkIn: payable.checkIn,
           nights: String(payable.nights),
-          pickupInr: String(payable.pickupInr),
           userId: context.userId,
         },
       );
@@ -384,17 +383,18 @@ function timingSafeEqual(a: Buffer, b: Buffer): boolean {
   return out === 0;
 }
 
-export function verifyRazorpaySignature(input: {
+export async function verifyRazorpaySignature(input: {
   razorpay_order_id: string;
   razorpay_payment_id: string;
   razorpay_signature: string;
-}): { ok: true } | { ok: false; message: string } {
+}): Promise<{ ok: true } | { ok: false; message: string }> {
   const secret = getKeySecret();
   if (!secret) {
     return { ok: false, message: "Razorpay is not configured." };
   }
   const payload = `${input.razorpay_order_id}|${input.razorpay_payment_id}`;
-  const expected = createHmac("sha256", secret).update(payload).digest("hex");
+  const { hmacSha256Hex } = await import("./razorpay-sign.server");
+  const expected = hmacSha256Hex(secret, payload);
   const a = Buffer.from(expected, "utf8");
   const b = Buffer.from(input.razorpay_signature, "utf8");
   if (a.length !== b.length || !timingSafeEqual(a, b)) {
@@ -407,7 +407,7 @@ export const verifyRazorpayPayment = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((data: unknown) => verifySchema.parse(data))
   .handler(async ({ data }): Promise<VerifyPaymentResult> => {
-    const result = verifyRazorpaySignature(data);
+    const result = await verifyRazorpaySignature(data);
     if (!result.ok) return result;
     return {
       ok: true,

@@ -1,4 +1,4 @@
-import { notifyDesk, notifyGuestPaid, type DeskNotice } from "@/lib/server/desk-notify";
+import { notifyDesk, notifyGuestPaid, type DeskNotice, type NoticeGuest } from "@/lib/server/desk-notify";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
@@ -14,6 +14,8 @@ type Notice = {
   amountInr: number;
   payerName: string;
   roomName?: string;
+  swaps?: Record<string, string>;
+  guests?: NoticeGuest[];
 };
 
 /** Guest and hotel desk. SMTP when configured, otherwise SES. WhatsApp stays a stub. */
@@ -30,6 +32,8 @@ export async function sendBookingNotices(input: Notice) {
     amountInr: input.amountInr,
     payerName: input.payerName,
     roomName: input.roomName,
+    swaps: input.swaps,
+    guests: input.guests,
   };
   await notifyGuestPaid(notice);
   const desk = await notifyDesk(notice);

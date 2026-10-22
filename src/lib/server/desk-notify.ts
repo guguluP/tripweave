@@ -11,20 +11,18 @@ import {
   deskSigningReady,
   signDeskAction,
 } from "@/lib/server/desk-auth";
+import {
+  airportCarLine,
+  guestConfirmedLines,
+  guestPaidLines,
+  guestRosterLines,
+  type DeskNoticeCore,
+  type NoticeGuest,
+} from "@/lib/desk-notice";
 
-export type DeskNotice = {
-  bookingId: number;
-  guestEmail?: string | null;
-  packageId: string;
-  packageName: string;
-  confirmationCode: string;
-  checkIn: string;
-  nights: number;
-  travelers: number;
-  amountInr: number;
-  payerName: string;
-  roomName?: string;
-};
+export type { NoticeGuest };
+export type DeskNotice = DeskNoticeCore;
+export { airportCarLine, guestConfirmedLines, guestPaidLines, guestRosterLines };
 
 export type NotifyResult = {
   email: boolean;
@@ -98,6 +96,8 @@ export async function notifyDesk(input: DeskNotice): Promise<NotifyResult> {
     `${input.payerName} · ${input.packageName}`,
     input.roomName ? `Room: ${input.roomName}` : "",
     `Check-in ${input.checkIn} · ${input.nights} nights · ${input.travelers} guests`,
+    airportCarLine(input),
+    ...guestRosterLines(input),
     `Amount paid ₹${input.amountInr.toLocaleString("en-IN")}`,
     "",
     "Payment succeeded. Please confirm or decline the room.",
@@ -129,14 +129,7 @@ export async function notifyDesk(input: DeskNotice): Promise<NotifyResult> {
 
 export async function notifyGuestPaid(input: DeskNotice): Promise<boolean> {
   if (!input.guestEmail || !bookingMailConfigured()) return false;
-  const text = [
-    `Payment received for ${input.packageName}.`,
-    `Confirmation ${input.confirmationCode}`,
-    `Check-in ${input.checkIn} · ${input.nights} nights`,
-    "",
-    "Your payment succeeded. The hotel desk still needs to confirm the room.",
-    "My trips will say Awaiting hotel confirmation until the desk accepts.",
-  ].join("\n");
+  const text = guestPaidLines(input).join("\n");
   try {
     return await sendBookingMail({
       to: input.guestEmail,
@@ -151,13 +144,7 @@ export async function notifyGuestPaid(input: DeskNotice): Promise<boolean> {
 
 export async function notifyGuestConfirmed(input: DeskNotice): Promise<boolean> {
   if (!input.guestEmail || !bookingMailConfigured()) return false;
-  const text = [
-    `${input.packageName} confirmed your stay.`,
-    `Confirmation ${input.confirmationCode}`,
-    `Check-in ${input.checkIn} · ${input.nights} nights · ${input.travelers} guests`,
-    "",
-    "Show this confirmation at the desk when you arrive.",
-  ].join("\n");
+  const text = guestConfirmedLines(input).join("\n");
   try {
     return await sendBookingMail({
       to: input.guestEmail,
