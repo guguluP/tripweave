@@ -87,14 +87,7 @@ begin
   from public.account_subjects s
   where s.email = v_email;
 
-  if canon is null then
-    select p.user_id into canon
-    from public.profiles p
-    where lower(btrim(coalesce(p.email, ''))) = v_email
-    order by p.updated_at asc nulls last
-    limit 1;
-  end if;
-
+  -- profiles.email is not proof of ownership. A signed-in guest can type any address.
   if canon is null then
     select b.user_id into canon
     from public.bookings b
@@ -117,9 +110,6 @@ begin
   from (
     select canon as owner
     union all select v_fresh
-    union all
-    select p.user_id from public.profiles p
-    where lower(btrim(coalesce(p.email, ''))) = v_email
     union all
     select b.user_id from public.bookings b
     where public.tw_booking_owned_by_email(b.id, b.user_id, b.swaps, v_email)

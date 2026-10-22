@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { acceptGroundedReply, fallbackAnswer, groundingPacket } from "./arrival-ask.ts";
+import { acceptGroundedReply, fallbackAnswer, groundingPacket, questionHasDocumentDigits } from "./arrival-ask.ts";
+
+describe("document digits", () => {
+  it("rejects spaced and punctuated numbers", () => {
+    assert.equal(questionHasDocumentDigits("1234567890"), true);
+    assert.equal(questionHasDocumentDigits("passport 1 2 3 4 5 6 7 8"), true);
+    assert.equal(questionHasDocumentDigits("1-2-3-4-5-6"), true);
+    assert.equal(questionHasDocumentDigits("what is an e-visa"), false);
+  });
+});
 
 describe("arrival ask grounding", () => {
   it("builds a packet from the checklist and only those URLs", () => {

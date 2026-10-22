@@ -2,6 +2,11 @@ import { checklistForParty, SOURCES } from "./arrival-rules.ts";
 
 const FALLBACK_START = "Not stated by the official sources TripWeave checked; see ";
 
+/** Six or more digits, even with spaces or punctuation between them. */
+export function questionHasDocumentDigits(question: string): boolean {
+  return question.replace(/\D/g, "").length >= 6;
+}
+
 export type AskGrounding = {
   nationalities: string[];
   oci?: boolean[];

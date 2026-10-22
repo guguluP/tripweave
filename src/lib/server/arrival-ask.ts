@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
-import { acceptGroundedReply, groundingPacket } from "@/lib/arrival-ask";
+import { acceptGroundedReply, groundingPacket, questionHasDocumentDigits } from "@/lib/arrival-ask";
 import { isCountryCode } from "@/lib/countries";
 import { allowRequest } from "@/lib/server/rate-limit";
 
@@ -18,7 +18,7 @@ export const askTripWeave = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((data: unknown) => schema.parse(data))
   .handler(async ({ context, data }) => {
-    if (/\d{6,}/.test(data.question)) {
+    if (questionHasDocumentDigits(data.question)) {
       return { ok: false as const, reason: "no_documents" as const };
     }
     if (!allowRequest(`ask:${context.userId}`, 10, 60 * 60_000)) {

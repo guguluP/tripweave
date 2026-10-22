@@ -59,7 +59,8 @@ export const saveTravellers = createServerFn({ method: "POST" })
       await sql`delete from stay_guests where user_id = ${context.userId} and expires_at < now()`;
       return { ok: true as const, stored: "db" as const };
     } catch (err) {
-      markDurableDbFailed(err);
+      if (isDurableDbError(err)) markDurableDbFailed(err);
+      else console.error("[travellers] save failed", err);
       return { ok: false as const, message: "Could not save guest details." };
     }
   });

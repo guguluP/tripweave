@@ -1,4 +1,4 @@
--- Reservation book: paid/held bookings are the only thing that consumes a key.
+-- Reservation book: paid, held, confirmed, desk-confirmed, and checked-in stays consume a key.
 -- tw_occupancy lists those holds (no guest data).
 -- tw_reserve_insert refuses the sale when any night is already at allotment.
 -- Hold-aware replacements live in ops_durability.sql. Re-running this file
@@ -27,7 +27,7 @@ begin
       'status', b.status
     ))
     from public.bookings b
-    where b.status in ('paid', 'held')
+    where b.status in ('paid', 'held', 'confirmed', 'desk_confirmed', 'checked_in')
       and coalesce(b.swaps->>'roomId', '') <> ''
   ), '[]'::jsonb);
 end;
@@ -67,7 +67,7 @@ begin
   while d < check_in + night_count loop
     select count(*) into taken
     from public.bookings b
-    where b.status in ('paid', 'held')
+    where b.status in ('paid', 'held', 'confirmed', 'desk_confirmed', 'checked_in')
       and b.package_id = pkg
       and coalesce(b.swaps->>'roomId', '') = room
       and b.check_in <= d

@@ -120,7 +120,7 @@ as $$
   select coalesce((
     select count(*)::int
     from public.bookings b
-    where b.status in ('paid', 'held')
+    where b.status in ('paid', 'held', 'confirmed', 'desk_confirmed', 'checked_in')
       and b.package_id = p_package
       and coalesce(b.swaps->>'roomId', '') = p_room
       and b.check_in <= p_day
@@ -353,7 +353,7 @@ begin
         'expiresAt', null
       ) as item
       from public.bookings b
-      where b.status in ('paid', 'held')
+      where b.status in ('paid', 'held', 'confirmed', 'desk_confirmed', 'checked_in')
         and coalesce(b.swaps->>'roomId', '') <> ''
       union all
       select jsonb_build_object(

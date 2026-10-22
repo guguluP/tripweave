@@ -3,6 +3,7 @@ import { addDays, quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory"
 import { parseTravelPlan } from "@/lib/travel-plan";
 import { priceFromQuote } from "@/lib/price-from-quote";
 import { readMeta } from "@/lib/booking-meta";
+import { isRealIsoDate } from "@/lib/check-in";
 import { refreshStayInventory } from "@/lib/server/occupancy";
 import { holdIdsForCheckout } from "@/lib/server/room-holds";
 
@@ -55,7 +56,7 @@ export type PayableQuote =
   | { ok: false; message: string; field?: string };
 
 function validCheckIn(iso: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return false;
+  if (!isRealIsoDate(iso)) return false;
   return iso >= todayIso();
 }
 

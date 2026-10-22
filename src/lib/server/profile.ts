@@ -54,10 +54,15 @@ export const saveProfile = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((data: unknown) => saveSchema.parse(data))
   .handler(async ({ context, data }): Promise<{ ok: true; profile: Profile } | { ok: false; message: string }> => {
+    const sessionEmail = context.email?.trim().toLowerCase() ?? "";
+    const requested = data.email?.trim().toLowerCase() ?? "";
+    if (requested && sessionEmail && requested !== sessionEmail) {
+      return { ok: false, message: "Profile email must match the address you signed in with." };
+    }
     const profile: Profile = {
       displayName: data.displayName,
       phone: data.phone ?? "",
-      email: data.email?.trim() ?? "",
+      email: sessionEmail,
     };
     g.__twProfiles__!.set(context.userId, profile);
     if (isSupabaseConfigured()) {

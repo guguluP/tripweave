@@ -190,6 +190,7 @@ export const listBookings = createServerFn({ method: "GET" })
       `;
       return finishList(context.userId, rows.map((row) => mapBooking({ ...row, user_id: context.userId })));
     } catch (err) {
+      if (!isDurableDbError(err)) throw err;
       markDurableDbFailed(err);
       return finishList(context.userId, memoryBookingsFor(context.userId));
     }
@@ -793,7 +794,10 @@ export const createBooking = createServerFn({ method: "POST" })
         }
       }
       const remote = await fetchRazorpayOrder(data.razorpayOrderId);
-      if (remote && remote.amountPaise !== Math.round(payable.amountInr * 100)) {
+      if (!remote) {
+        return { ok: false, message: "Could not confirm this payment with Razorpay. Try again in a moment." };
+      }
+      if (remote.amountPaise !== Math.round(payable.amountInr * 100)) {
         return { ok: false, message: "Paid amount does not match the current stay price." };
       }
       consumeOrder(data.razorpayOrderId, context.userId);
@@ -1000,14 +1004,20 @@ export const createBooking = createServerFn({ method: "POST" })
       }
       return await finishStored(mapBooking({ ...row, user_id: context.userId }), "local");
     } catch (err) {
-      markDurableDbFailed(err);
+      if (isDurableDbError(err)) {
+        markDurableDbFailed(err);
+        if (paid.method === "razorpay" && failClosedAfterCapture()) return queuedCapture();
+        await freeCheckoutHolds();
+        recordHold({ ...holdBase, holdId: code });
+        const booking = memoryInsertBooking(local);
+        const guestError = await keepGuests({ ...booking, userId: context.userId });
+        if (guestError) return { ok: false, message: guestError };
+        return { ok: true, booking, stored: "local" };
+      }
+      console.error("[bookings] insert failed", err);
       if (paid.method === "razorpay" && failClosedAfterCapture()) return queuedCapture();
       await freeCheckoutHolds();
-      recordHold({ ...holdBase, holdId: code });
-      const booking = memoryInsertBooking(local);
-      const guestError = await keepGuests({ ...booking, userId: context.userId });
-      if (guestError) return { ok: false, message: guestError };
-      return { ok: true, booking, stored: "local" };
+      return { ok: false, message: "Could not save this booking. Try again." };
     }
   });
 
@@ -1123,7 +1133,8 @@ export const cancelBooking = createServerFn({ method: "POST" })
         `;
       } catch (err) {
         statusSaved = false;
-        markDurableDbFailed(err);
+        if (isDurableDbError(err)) markDurableDbFailed(err);
+        else console.error("[bookings] cancel failed", err);
       }
     }
 
