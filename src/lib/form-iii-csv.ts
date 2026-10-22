@@ -20,6 +20,8 @@ export type FormIiiRow = {
 export type FormIiiPremise = {
   name: string;
   phone?: string;
+  /** District and state. The hotel street is not stored. */
+  address?: string;
 };
 
 export const FORM_III_COLUMNS = [
@@ -64,7 +66,7 @@ export function formIiiCsv(rows: FormIiiRow[], premise: FormIiiPremise): string 
   const body = rows.map((row) => {
     const cells = [
       premise.name,
-      "",
+      premise.address ?? "Puri, Odisha",
       premise.phone ?? "",
       row.fullName,
       row.nationality,

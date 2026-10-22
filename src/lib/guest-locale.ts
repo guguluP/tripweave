@@ -62,6 +62,13 @@ const EN = {
   lead: "lead",
   phoneCountry: "Country code",
   nationalNumber: "National number",
+  askTitle: "Ask TripWeave",
+  askPlaceholder: "Ask about the checklist. Do not paste a passport or visa number.",
+  askSend: "Ask",
+  askOff: "Ask TripWeave is off on this server.",
+  askFailed: "Could not answer that.",
+  askLimited: "Try again in an hour.",
+  askNoDocuments: "Leave out passport and visa numbers.",
 } as const;
 
 const HI: Record<keyof typeof EN, string> = {
@@ -121,6 +128,13 @@ const HI: Record<keyof typeof EN, string> = {
   lead: "मुख्य",
   phoneCountry: "देश कोड",
   nationalNumber: "राष्ट्रीय संख्या",
+  askTitle: "ट्रिपवीव से पूछें",
+  askPlaceholder: "सूची के बारे में पूछें। पासपोर्ट या वीज़ा नंबर न लिखें।",
+  askSend: "पूछें",
+  askOff: "इस सर्वर पर ट्रिपवीव से पूछना बंद है।",
+  askFailed: "इसका उत्तर नहीं दे सके।",
+  askLimited: "एक घंटे बाद फिर कोशिश करें।",
+  askNoDocuments: "पासपोर्ट और वीज़ा नंबर न लिखें।",
 };
 
 export type GuestLabel = keyof typeof EN;
@@ -138,6 +152,7 @@ export const CHECKLIST_HI: Record<string, string> = {
   passport: "पासपोर्ट आगमन से कम से कम 6 महीने तक वैध हो और कम से कम 2 खाली पृष्ठ हों।",
   ticket: "वापसी या आगे की टिकट साथ रखें।",
   formiii: "चेक-इन पर पासपोर्ट रखें। होटल को आगमन के 24 घंटे के भीतर फ़ॉर्म III जमा करना होता है।",
+  "india-address": "ई-अराइवल पर भारत का पता इस ठहराव के लिए पुरी, ओडिशा है। सड़क का पता होटल से लिखें।",
   "yellow-fever": "यदि आप पीत ज्वर वाले देश से 6 दिन के भीतर आ रहे हैं, तो टीकाकरण प्रमाणपत्र रखें। देश-सूची आधिकारिक साइट पर देखें।",
   "pk-visa": "ई-वीज़ा नहीं मिलता। भारतीय मिशन से नियमित वीज़ा लें।",
   "not-listed": "19 अक्टूबर 2026 को जाँची गई ई-वीज़ा सूची में यह राष्ट्रीयता नहीं है।",

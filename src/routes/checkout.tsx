@@ -283,6 +283,11 @@ function CheckoutInner() {
     roomId: room?.id,
     guestEmail: user?.primaryEmail ?? undefined,
     guestNationalities,
+    guestFlags: forms.list.slice(0, 12).map((guest) => ({
+      nationality: (guest.nationality || "IN").trim().toUpperCase(),
+      oci: guest.oci === true,
+      priorIndianVisa: guest.priorIndianVisa === true,
+    })),
   });
 
   const onPay = async (e: FormEvent) => {

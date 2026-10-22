@@ -235,10 +235,17 @@ function VoucherPage() {
             <p>भुगतान ₹{booking.amountInr}</p>
             <p>डेस्क {desk.email}</p>
           </div>
-          {(meta.guestNationalities ?? []).some((code) => code !== "IN") ? (
+          {((meta.guestFlags ?? []).some((row) => row.nationality !== "IN") ||
+            (meta.guestNationalities ?? []).some((code) => code !== "IN")) ? (
             <div className="mt-4">
               <ArrivalChecklist
-                nationalities={meta.guestNationalities ?? []}
+                nationalities={
+                  meta.guestFlags?.length
+                    ? meta.guestFlags.map((row) => row.nationality)
+                    : (meta.guestNationalities ?? [])
+                }
+                oci={meta.guestFlags?.map((row) => row.oci)}
+                priorIndianVisa={meta.guestFlags?.map((row) => row.priorIndianVisa)}
                 checkIn={booking.checkIn}
                 arrivalAirport="BBI"
                 showEmail

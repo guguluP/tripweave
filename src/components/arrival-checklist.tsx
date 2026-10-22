@@ -3,6 +3,7 @@ import { checklistForParty, SOURCES, type ChecklistItem } from "@/lib/arrival-ru
 import { CHECKLIST_HI, guestLabel, useGuestLocale } from "@/lib/guest-locale";
 import { emailArrivalChecklist } from "@/lib/server/arrival-mail";
 import { pushBanner } from "@/lib/banners";
+import { AskTripWeave } from "@/components/ask-tripweave";
 import { Button } from "@/components/ui/button";
 
 export function ArrivalChecklist({
@@ -84,6 +85,13 @@ export function ArrivalChecklist({
           {guestLabel(locale, "emailChecklist")}
         </Button>
       ) : null}
+      <AskTripWeave
+        nationalities={codes}
+        oci={oci}
+        priorIndianVisa={priorIndianVisa}
+        arrivalAirport={arrivalAirport}
+        checkIn={checkIn}
+      />
     </section>
   );
 }

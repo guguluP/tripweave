@@ -26,6 +26,14 @@ export type BookingMeta = {
   invoiceReady?: boolean;
   /** Unique ISO alpha-2 codes for the party. At most 12. */
   guestNationalities?: string[];
+  /** Per-guest entry flags. No names, phones, or document numbers. */
+  guestFlags?: GuestEntryFlag[];
+};
+
+export type GuestEntryFlag = {
+  nationality: string;
+  oci: boolean;
+  priorIndianVisa: boolean;
 };
 
 export function sanitizeGuestNationalities(value: unknown): string[] | undefined {
@@ -36,6 +44,26 @@ export function sanitizeGuestNationalities(value: unknown): string[] | undefined
     const code = item.trim().toUpperCase();
     if (!/^[A-Z]{2}$/.test(code) || !isCountryCode(code)) continue;
     if (!out.includes(code)) out.push(code);
+    if (out.length >= 12) break;
+  }
+  return out.length > 0 ? out : undefined;
+}
+
+/** Keeps country codes and two booleans. Drops every other field. */
+export function sanitizeGuestFlags(value: unknown): GuestEntryFlag[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const out: GuestEntryFlag[] = [];
+  for (const item of value) {
+    if (!item || typeof item !== "object") continue;
+    const row = item as { nationality?: unknown; oci?: unknown; priorIndianVisa?: unknown };
+    if (typeof row.nationality !== "string") continue;
+    const nationality = row.nationality.trim().toUpperCase();
+    if (!isCountryCode(nationality)) continue;
+    out.push({
+      nationality,
+      oci: row.oci === true,
+      priorIndianVisa: row.priorIndianVisa === true,
+    });
     if (out.length >= 12) break;
   }
   return out.length > 0 ? out : undefined;
@@ -64,6 +92,11 @@ export function writeMeta(
     const clean = sanitizeGuestNationalities(merged.guestNationalities);
     if (clean) merged.guestNationalities = clean;
     else delete merged.guestNationalities;
+  }
+  if ("guestFlags" in merged) {
+    const flags = sanitizeGuestFlags(merged.guestFlags);
+    if (flags) merged.guestFlags = flags;
+    else delete merged.guestFlags;
   }
   next[KEY] = JSON.stringify(merged);
   return next;

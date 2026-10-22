@@ -163,6 +163,12 @@ function general(): ChecklistItem[] {
       { hours: 24 },
     ),
     item(
+      "india-address",
+      "On the e-Arrival card, the address in India is this stay in Puri, Odisha. TripWeave does not have the hotel street. Copy the street from the hotel.",
+      "earrival",
+      "info",
+    ),
+    item(
       "yellow-fever",
       "If you arrive within 6 days from a yellow-fever endemic country, carry the vaccination certificate. Use the official list on the e-Visa site. TripWeave does not copy that country list.",
       "evisa_faq",
@@ -367,12 +373,19 @@ export function foreignDeskLine(count: number): string {
 export function paidAbroadLines(input: {
   guestNationalities?: string[];
   guests?: { nationality?: string }[];
+  guestFlags?: { nationality: string; oci?: boolean; priorIndianVisa?: boolean }[];
   confirmationCode: string;
   arrivalAirport?: string;
 }): string[] {
-  const codes = nonIndianCodes(input);
+  const flags = (input.guestFlags ?? []).filter((row) => row.nationality && row.nationality !== "IN");
+  const codes = flags.length > 0 ? flags.map((row) => row.nationality) : nonIndianCodes(input);
   if (codes.length === 0) return [];
-  const top = checklistForParty({ nationalities: codes, arrivalAirport: input.arrivalAirport ?? "BBI" }).slice(0, 3);
+  const top = checklistForParty({
+    nationalities: codes,
+    oci: flags.length > 0 ? flags.map((row) => Boolean(row.oci)) : undefined,
+    priorIndianVisa: flags.length > 0 ? flags.map((row) => Boolean(row.priorIndianVisa)) : undefined,
+    arrivalAirport: input.arrivalAirport ?? "BBI",
+  }).slice(0, 3);
   return [
     "Visiting from abroad: before you fly, check your visa, file the e-Arrival card (within 72 h before arrival) and the Air Suvidha health declaration.",
     `Voucher: /voucher/${input.confirmationCode}`,

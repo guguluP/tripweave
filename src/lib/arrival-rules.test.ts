@@ -99,6 +99,12 @@ describe("arrival rules", () => {
     assert.match(text, /Rules checked 19 Oct 2026/);
     assert.equal(text.includes("\u2014"), false);
     assert.match(text, /^[\t\n\r\x20-\x7E]*$/);
+    const ociMail = paidAbroadLines({
+      guestFlags: [{ nationality: "GB", oci: true, priorIndianVisa: false }],
+      confirmationCode: "TW-OCI",
+    });
+    assert.equal(ociMail.some((line) => /at least 4 days/.test(line)), false);
+    assert.ok(ociMail.some((line) => /e-Arrival/.test(line)));
     const mail = paidAbroadLines({ guestNationalities: ["GB"], confirmationCode: "TW-1" });
     assert.match(mail.join("\n"), /e-Arrival card \(within 72 h/);
     assert.match(mail.join("\n"), /\/voucher\/TW-1/);

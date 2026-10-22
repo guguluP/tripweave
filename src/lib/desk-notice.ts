@@ -97,7 +97,8 @@ export function guestPaidLines(input: DeskNoticeCore): string[] {
     airportCarLine(input),
     ...guestRosterLines(input),
     ...paidAbroadLines({
-      guestNationalities: input.guestNationalities,
+      guestNationalities: input.guestNationalities ?? readMeta(input.swaps).guestNationalities,
+      guestFlags: readMeta(input.swaps).guestFlags,
       guests: input.guests,
       confirmationCode: input.confirmationCode,
       arrivalAirport: "BBI",
