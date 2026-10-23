@@ -63,12 +63,17 @@ const EN = {
   phoneCountry: "Country code",
   nationalNumber: "National number",
   askTitle: "Ask TripWeave",
-  askPlaceholder: "Ask about the checklist. Do not paste a passport or visa number.",
+  askPlaceholder: "Ask about this stay or the arrival checklist. Do not paste a passport or visa number.",
   askSend: "Ask",
   askOff: "Ask TripWeave is off on this server.",
   askFailed: "Could not answer that.",
   askLimited: "Try again in an hour.",
   askNoDocuments: "Leave out passport and visa numbers.",
+  askYou: "You",
+  askFly: "What should I do before I fly?",
+  askRefund: "What is the refund if I cancel?",
+  askCar: "Does this hotel include an airport car?",
+  askDesk: "Has the hotel confirmed this stay?",
 } as const;
 
 const HI: Record<keyof typeof EN, string> = {
@@ -129,12 +134,17 @@ const HI: Record<keyof typeof EN, string> = {
   phoneCountry: "देश कोड",
   nationalNumber: "राष्ट्रीय संख्या",
   askTitle: "ट्रिपवीव से पूछें",
-  askPlaceholder: "सूची के बारे में पूछें। पासपोर्ट या वीज़ा नंबर न लिखें।",
+  askPlaceholder: "इस ठहराव या आगमन सूची के बारे में पूछें। पासपोर्ट या वीज़ा नंबर न लिखें।",
   askSend: "पूछें",
   askOff: "इस सर्वर पर ट्रिपवीव से पूछना बंद है।",
   askFailed: "इसका उत्तर नहीं दे सके।",
   askLimited: "एक घंटे बाद फिर कोशिश करें।",
   askNoDocuments: "पासपोर्ट और वीज़ा नंबर न लिखें।",
+  askYou: "आप",
+  askFly: "उड़ान से पहले मुझे क्या करना चाहिए?",
+  askRefund: "रद्द करने पर रिफंड क्या है?",
+  askCar: "क्या इस होटल में एयरपोर्ट कार शामिल है?",
+  askDesk: "क्या होटल ने इस ठहराव की पुष्टि कर दी है?",
 };
 
 export type GuestLabel = keyof typeof EN;

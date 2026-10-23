@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, MotionToggle, ShakeField, Stagger, TextSwap } from "@/components/motion";
 import { ArrivalChecklist } from "@/components/arrival-checklist";
+import { AskTripWeave } from "@/components/ask-tripweave";
 import { GuestForms, useGuestForms } from "@/components/guest-forms";
 import { DigilockerFlow } from "@/components/digilocker-flow";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
@@ -586,8 +587,22 @@ function CheckoutInner() {
                 priorIndianVisa={forms.list.map((guest) => Boolean(guest.priorIndianVisa))}
                 arrivalAirport="BBI"
                 checkIn={checkIn}
+                packageId={pkg.id}
+                roomId={room?.id}
+                nights={nights}
+                arriveBy={brief.arriveBy}
               />
-            ) : journey?.showDigiYatra ? (
+            ) : (
+              <AskTripWeave
+                nationalities={forms.list.map((guest) => guest.nationality)}
+                packageId={pkg.id}
+                roomId={room?.id}
+                checkIn={checkIn}
+                nights={nights}
+                arriveBy={brief.arriveBy}
+              />
+            )}
+            {!anyForeign && journey?.showDigiYatra ? (
               <div className="rounded-lg border border-border bg-elevated px-4 py-3">
                 <p className="text-sm font-medium">Airport e-gates (DigiYatra)</p>
                 <p className="mt-1 text-xs text-muted">

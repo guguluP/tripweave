@@ -15,6 +15,11 @@ export function ArrivalChecklist({
   promptOnly = false,
   showEmail = false,
   confirmationCode,
+  packageId,
+  roomId,
+  nights,
+  arriveBy,
+  hideAsk = false,
 }: {
   nationalities: string[];
   oci?: boolean[];
@@ -24,6 +29,11 @@ export function ArrivalChecklist({
   promptOnly?: boolean;
   showEmail?: boolean;
   confirmationCode?: string;
+  packageId?: string;
+  roomId?: string;
+  nights?: number;
+  arriveBy?: string;
+  hideAsk?: boolean;
 }) {
   const locale = useGuestLocale();
   const [sending, setSending] = useState(false);
@@ -85,13 +95,21 @@ export function ArrivalChecklist({
           {guestLabel(locale, "emailChecklist")}
         </Button>
       ) : null}
-      <AskTripWeave
-        nationalities={codes}
-        oci={oci}
-        priorIndianVisa={priorIndianVisa}
-        arrivalAirport={arrivalAirport}
-        checkIn={checkIn}
-      />
+      {hideAsk ? null : (
+        <AskTripWeave
+          nationalities={codes}
+          oci={oci}
+          priorIndianVisa={priorIndianVisa}
+          arrivalAirport={arrivalAirport}
+          checkIn={checkIn}
+          packageId={packageId}
+          roomId={roomId}
+          nights={nights}
+          arriveBy={arriveBy}
+          confirmationCode={confirmationCode}
+          embedded
+        />
+      )}
     </section>
   );
 }

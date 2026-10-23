@@ -80,6 +80,41 @@ export async function sbFindBookingByOrderId(orderId: string): Promise<BookingRo
   return mapRow(booking as Record<string, unknown>);
 }
 
+/** Stay fields for a confirmation code that belongs to this sign-in. No guest name or payment id. */
+export async function findOwnBookingByCode(
+  userId: string,
+  confirmationCode: string,
+): Promise<{
+  packageId: string;
+  roomId?: string;
+  checkIn: string;
+  nights: number;
+  amountInr: number;
+  status: string;
+} | null> {
+  const code = confirmationCode.trim();
+  if (!userId || !code) return null;
+  const slim = (row: BookingRow) => ({
+    packageId: row.packageId,
+    roomId: readMeta(row.swaps).roomId,
+    checkIn: String(row.checkIn).slice(0, 10),
+    nights: row.nights,
+    amountInr: row.amountInr,
+    status: row.status,
+  });
+  if (isSupabaseConfigured()) {
+    try {
+      const rows = await sbListBookings(userId);
+      const hit = rows?.find((row) => row.confirmationCode === code);
+      if (hit) return slim(hit);
+    } catch {
+      /* fall through to this process */
+    }
+  }
+  const local = memoryBookingsFor(userId).find((row) => row.confirmationCode === code);
+  return local ? slim(local) : null;
+}
+
 export async function findExistingCapturedBooking(opts: {
   userId: string;
   paymentId?: string | null;

@@ -22,6 +22,7 @@ export async function bookCapturedIdempotent(input: {
   amountInr: number;
   payerName: string;
   guestEmail?: string;
+  accountEmail?: string;
 }): Promise<void> {
   const existing = await findExistingCapturedBooking({
     userId: input.userId,

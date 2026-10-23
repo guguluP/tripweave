@@ -21,6 +21,7 @@ import { loadBriefWithDates } from "@/lib/brief-persist";
 import { RoomPicker } from "@/components/room-picker";
 import { formatCheckInLabel, StayQuoteCard } from "@/components/stay-quote";
 import { ArrivalChecklist } from "@/components/arrival-checklist";
+import { AskTripWeave } from "@/components/ask-tripweave";
 import { DigiYatraPanel, TransportPanel, BusGuidePanel } from "@/components/transport-panel";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { computeTrustScore, youtubeSourceCount, type TrustScoreBreakdown } from "@/lib/trust-score";
@@ -461,6 +462,14 @@ function TripDetail() {
           {journey.showBusGuide ? <BusGuidePanel /> : null}
           {journey.showDigiYatra ? <DigiYatraPanel /> : null}
           <TripArrival originCity={brief.origin === "other" ? brief.originCity ?? "" : ""} />
+          <AskTripWeave
+            nationalities={loadTravelers().map((guest) => guest.nationality)}
+            packageId={pkg.id}
+            roomId={room.id}
+            checkIn={checkIn}
+            nights={nights}
+            arriveBy={brief.arriveBy}
+          />
         </div>
 
         <h2 className="mt-10 font-display text-2xl">Stay plan</h2>
@@ -542,7 +551,7 @@ function TripArrival({ originCity }: { originCity: string }) {
   const foreign = nationalities.some((code) => (code || "IN").toUpperCase() !== "IN");
   if (foreign) {
     return (
-      <ArrivalChecklist nationalities={nationalities} arrivalAirport="BBI" />
+      <ArrivalChecklist nationalities={nationalities} arrivalAirport="BBI" hideAsk />
     );
   }
   if (!isAbroadCity(originCity)) return null;
