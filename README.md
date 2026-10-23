@@ -90,6 +90,17 @@ Reviewer notes are static, curated notes from a fixed set of YouTube stay videos
 
 The mobile tab bar (`Discover`, `Plan`, `Trips`, `Account`) is `position: fixed`. Long stay names and Razorpay lines must not widen the page or the bar slides sideways.
 
+## Ask TripWeave
+
+The Ask box on a stay (`src/components/ask-tripweave.tsx`) answers arrival and booking questions without any outside API or AI model. `src/lib/arrival-ask.ts` matches keywords in the question to topics (flying in, ID documents, refunds, the airport car, desk confirmation, check-in) and replies only with lines built from two sources:
+
+- the guest's own stay facts (status, dates, amount paid, refund window from `src/lib/refund-policy.ts`, hotel airport car), and
+- the checklist in `src/lib/arrival-rules.ts`, each line with its official source link.
+
+When nothing matches, the reply is "Not stated by the official sources TripWeave checked" with the closest official link. The server function (`src/lib/server/arrival-ask.ts`) ignores any chat history from the browser, refuses questions that carry passport, Aadhaar, or other document numbers (six or more digits, real ISO dates excepted), and rate-limits typed questions to 10 an hour. Suggestion taps use their own bucket. A booking code that is not the signed-in guest's own gets an owner-only answer. Refund quotes only appear for stays that can still be cancelled (the same `isCancellableStatus` check as cancel in `bookings.ts`).
+
+To review or change what Ask can say, edit `src/lib/arrival-rules.ts` (rule text and official URLs) and the fact lines in `src/lib/arrival-ask.ts`, then run `npm test`.
+
 ## Layout
 
 ```
@@ -105,6 +116,10 @@ src/lib/server/             bookings, holds, Razorpay, desk, mail
 src/lib/supabase/           service client and RPC adapters
 src/lib/auth/               Better Auth session and route guards
 src/lib/travel-plan.ts      arrival, last mile, cab links
+src/lib/arrival-rules.ts    arrival checklist with official source links
+src/lib/arrival-ask.ts      Ask TripWeave: keyword topics, stay facts, answers
+src/lib/server/arrival-ask.ts
+                            Ask server function (rate limit, owner check)
 src/lib/mappls.ts           Mappls direction embeds (Survey of India)
 src/lib/refund-policy.ts    IST refund windows
 src/lib/world-cities.ts     plan-page city search
