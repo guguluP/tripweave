@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { AskSuggestion } from "@/lib/arrival-ask";
 import { askTripWeave } from "@/lib/server/arrival-ask";
 import { guestLabel, useGuestLocale, type GuestLocale } from "@/lib/guest-locale";
 import { Button } from "@/components/ui/button";
@@ -36,21 +37,21 @@ export function AskTripWeave({
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
 
-  const suggestions = [
-    guestLabel(locale, "askFly"),
-    guestLabel(locale, "askRefund"),
-    guestLabel(locale, "askCar"),
-    ...(confirmationCode ? [guestLabel(locale, "askDesk")] : []),
+  const suggestions: { id: AskSuggestion; text: string }[] = [
+    { id: "fly", text: guestLabel(locale, "askFly") },
+    { id: "refund", text: guestLabel(locale, "askRefund") },
+    { id: "car", text: guestLabel(locale, "askCar") },
+    ...(confirmationCode ? [{ id: "desk" as const, text: guestLabel(locale, "askDesk") }] : []),
   ];
 
-  const ask = (next?: string) => {
-    const text = (next ?? question).trim();
+  /** Earlier turns stay on this screen only. They are never sent to the server. */
+  const ask = (tap?: { id: AskSuggestion; text: string }) => {
+    const text = (tap?.text ?? question).trim();
     if (text.length < 3 || busy) return;
     setBusy(true);
-    const history = turns.slice(-4);
     void askTripWeave({
       data: {
-        question: text,
+        ...(tap ? { suggestion: tap.id } : { question: text }),
         nationalities: nationalities.filter((code) => /^[A-Z]{2}$/.test(code)).slice(0, 12),
         oci,
         priorIndianVisa,
@@ -62,13 +63,12 @@ export function AskTripWeave({
         arriveBy: arriveBy === "fly" || arriveBy === "train" || arriveBy === "bus" || arriveBy === "road" ? arriveBy : undefined,
         confirmationCode,
         locale,
-        history,
       },
     })
       .then((result) => {
         const answer = answerFor(locale, result);
         setTurns((prev) => [...prev, { question: text, answer }].slice(-4));
-        if (!next) setQuestion("");
+        if (!tap) setQuestion("");
       })
       .catch(() => {
         setTurns((prev) => [...prev, { question: text, answer: guestLabel(locale, "askFailed") }].slice(-4));
@@ -80,15 +80,15 @@ export function AskTripWeave({
     <div className={embedded ? "mt-4 border-t border-border pt-3" : "mt-4 rounded-lg border border-border bg-elevated px-4 py-3"}>
       <p className="text-sm font-medium">{guestLabel(locale, "askTitle")}</p>
       <div className="mt-2 flex flex-wrap gap-2">
-        {suggestions.map((text) => (
+        {suggestions.map((tap) => (
           <button
-            key={text}
+            key={tap.id}
             type="button"
             className="rounded-md border border-border px-2 py-1 text-left text-xs"
             disabled={busy}
-            onClick={() => ask(text)}
+            onClick={() => ask(tap)}
           >
-            {text}
+            {tap.text}
           </button>
         ))}
       </div>
@@ -96,7 +96,7 @@ export function AskTripWeave({
         <div key={`${index}-${turn.question}`} className="mt-3 text-sm">
           <p className="text-xs text-muted">{guestLabel(locale, "askYou")}</p>
           <p>{turn.question}</p>
-          <p className="mt-1">{turn.answer}</p>
+          <p className="mt-1 whitespace-pre-line break-words">{turn.answer}</p>
         </div>
       ))}
       <label className="mt-3 block text-sm">
@@ -121,10 +121,9 @@ function answerFor(
   locale: GuestLocale,
   result:
     | { ok: true; answer: string }
-    | { ok: false; reason: "not_configured" | "rate_limited" | "no_documents" | "unavailable" },
+    | { ok: false; reason: "rate_limited" | "no_documents" | "unavailable" },
 ): string {
   if (result.ok) return result.answer;
-  if (result.reason === "not_configured") return guestLabel(locale, "askOff");
   if (result.reason === "rate_limited") return guestLabel(locale, "askLimited");
   if (result.reason === "no_documents") return guestLabel(locale, "askNoDocuments");
   return guestLabel(locale, "askFailed");
