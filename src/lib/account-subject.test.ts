@@ -141,4 +141,64 @@ describe("account claim", () => {
     assert.equal(byUser.get("mallory2"), "");
     assert.equal(byUser.get("ok-user"), "OK@example.test");
   });
+  it("drops an old hijacked mapping on re-run and keeps real ones", async () => {
+    const pg = await boot();
+    await pg.query(
+      `insert into public.ba_user (id, name, email) values
+         ('mallory2', 'Mallory', 'mallory2@example.test'),
+         ('guest-a', 'Guest', 'guest@example.test'),
+         ('changed', 'Changed', 'new@example.test')`,
+    );
+    await pg.query(
+      `insert into public.bookings (user_id, swaps) values
+         ('mallory2', $1::jsonb),
+         ('changed', $2::jsonb)`,
+      [
+        JSON.stringify(twMeta({ accountEmail: "mallory2@example.test" })),
+        JSON.stringify(twMeta({ accountEmail: "old@example.test" })),
+      ],
+    );
+    // Rows the old SQL could have written, plus a real mapping and one with no ba_user row.
+    await pg.query(
+      `insert into public.account_subjects (email, user_id) values
+         ('victim2@example.test', 'mallory2'),
+         ('guest@example.test', 'guest-a'),
+         ('old@example.test', 'changed'),
+         ('cookie@example.test', 'cookie-only')`,
+    );
+    const sql = readFileSync(join(root, "supabase/account_subject.sql"), "utf8");
+    await pg.exec(sql);
+    await pg.exec(sql);
+    const rows = await pg.query<{ email: string; user_id: string }>(
+      `select email, user_id from public.account_subjects order by email`,
+    );
+    const byEmail = new Map(rows.rows.map((row) => [row.email, row.user_id]));
+    assert.equal(byEmail.has("victim2@example.test"), false);
+    assert.equal(byEmail.get("guest@example.test"), "guest-a");
+    assert.equal(byEmail.get("old@example.test"), "changed");
+    assert.equal(byEmail.get("cookie@example.test"), "cookie-only");
+    const claimed = await pg.query<{ canon: string }>(
+      `select public.tw_claim_subject('victim2@example.test', 'victim2-uid-new') as canon`,
+    );
+    assert.equal(claimed.rows[0]?.canon, "victim2-uid-new");
+  });
+
+  it("ships a commented read-only select for the A1 cleanup that runs", async () => {
+    const sql = readFileSync(join(root, "supabase/account_subject.sql"), "utf8");
+    const start = sql.indexOf("-- select s.email,");
+    assert.ok(start > 0);
+    const block = sql.slice(start, sql.indexOf(";", start) + 1);
+    const query = block
+      .split("\n")
+      .map((line) => line.replace(/^-- ?/, ""))
+      .join("\n");
+    assert.match(query, /^select /);
+    assert.equal(/\b(delete|update|insert)\b/i.test(query), false);
+    const pg = await boot();
+    await pg.query(`insert into public.ba_user (id, name, email) values ('mallory2', 'Mallory', 'mallory2@example.test')`);
+    await pg.query(`insert into public.account_subjects (email, user_id) values ('victim2@example.test', 'mallory2')`);
+    const rows = await pg.query<{ email: string; would_delete: boolean }>(query);
+    assert.equal(rows.rows.length, 1);
+    assert.equal(rows.rows[0]?.would_delete, true);
+  });
 });
