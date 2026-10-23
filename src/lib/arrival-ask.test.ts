@@ -3,11 +3,14 @@ import { describe, it } from "node:test";
 import { acceptGroundedReply, fallbackAnswer, groundingPacket, questionHasDocumentDigits } from "./arrival-ask.ts";
 
 describe("document digits", () => {
-  it("rejects spaced and punctuated numbers", () => {
+  it("rejects document-like numbers and keeps a dated question", () => {
     assert.equal(questionHasDocumentDigits("1234567890"), true);
     assert.equal(questionHasDocumentDigits("passport 1 2 3 4 5 6 7 8"), true);
     assert.equal(questionHasDocumentDigits("1-2-3-4-5-6"), true);
+    assert.equal(questionHasDocumentDigits("1.2.3.4.5.6"), true);
     assert.equal(questionHasDocumentDigits("what is an e-visa"), false);
+    assert.equal(questionHasDocumentDigits("arrive 2027-06-15 flight 12"), false);
+    assert.equal(questionHasDocumentDigits("check in 2028-02-29"), false);
   });
 });
 

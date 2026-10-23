@@ -2,9 +2,14 @@ import { checklistForParty, SOURCES } from "./arrival-rules.ts";
 
 const FALLBACK_START = "Not stated by the official sources TripWeave checked; see ";
 
-/** Six or more digits, even with spaces or punctuation between them. */
+/**
+ * A document-like run: six or more digits joined only by a single space, hyphen, or dot.
+ * An ISO date is not a document number.
+ */
 export function questionHasDocumentDigits(question: string): boolean {
-  return question.replace(/\D/g, "").length >= 6;
+  const withoutDates = question.replace(/\d{4}-\d{2}-\d{2}/g, " ");
+  const runs = withoutDates.match(/\d+(?:[ .-]\d+)*/g) ?? [];
+  return runs.some((run) => run.replace(/\D/g, "").length >= 6);
 }
 
 export type AskGrounding = {

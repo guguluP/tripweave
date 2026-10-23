@@ -16,6 +16,7 @@ import {
   refundIntentFor,
   type ReconcileJob,
 } from "@/lib/booking-memory";
+import { orderNotesMatchStay } from "@/lib/server/order-notes";
 import { computePayable, sandboxPaymentsAllowed } from "@/lib/server/payable";
 import {
   hydrateRefundIntents,
@@ -223,6 +224,8 @@ type StoredPayload = CaptureLocal & {
   units?: number;
   exceptHoldIds?: string[];
   guests?: TravelerInput[];
+  /** Set when the Razorpay order could not be read before queueing. Confirm notes before insert. */
+  confirmOrder?: boolean;
 };
 
 function parsePayload(job: ReconcileJob): StoredPayload | null {
@@ -417,13 +420,38 @@ async function runReconcileJob(job: ReconcileJob): Promise<BookingRow | null> {
     await touchJob(job.id, { lastError: "bad payload", state: "failed" });
     return null;
   }
-  const { fetchRazorpayPayment } = await import("@/lib/server/razorpay");
+  const { fetchRazorpayOrder, fetchRazorpayPayment } = await import("@/lib/server/razorpay");
   const payment = await fetchRazorpayPayment(job.paymentId);
   if (!payment || (payment.status !== "captured" && payment.status !== "authorized")) {
     await touchJob(job.id, {
       lastError: payment ? `status ${payment.status}` : "payment lookup failed",
     });
     return null;
+  }
+  if (payload.confirmOrder) {
+    const order = job.orderId ? await fetchRazorpayOrder(job.orderId) : null;
+    if (!order) {
+      await touchJob(job.id, { lastError: "order lookup failed" });
+      return null;
+    }
+    if (order.amountPaise !== Math.round(payload.amountInr * 100)) {
+      await touchJob(job.id, { lastError: "amount mismatch", state: "failed" });
+      return null;
+    }
+    const roomId = payload.roomId || readMeta(payload.swaps).roomId || "";
+    if (
+      !orderNotesMatchStay(order.notes, {
+        userId: job.userId,
+        packageId: payload.packageId,
+        roomId,
+        checkIn: payload.checkIn,
+        nights: payload.nights,
+        travelers: payload.travelers,
+      })
+    ) {
+      await touchJob(job.id, { lastError: "stay mismatch", state: "failed" });
+      return null;
+    }
   }
   try {
     const booking = await insertCapturedBooking(job, payload);
@@ -608,6 +636,8 @@ export async function bookCapturedFromNotes(input: {
   amountInr: number;
   payerName: string;
   guestEmail?: string;
+  /** Sign-in email copied from the order notes. Not the address the guest typed. */
+  accountEmail?: string;
 }): Promise<void> {
   const pkg = getPackage(input.packageId);
   const units = pkg ? await publishedHoldUnits(pkg, input.roomId, input.checkIn, input.nights) : 1;
@@ -616,6 +646,7 @@ export async function bookCapturedFromNotes(input: {
   const swaps = writeMeta({}, {
     roomId: input.roomId,
     guestEmail: input.guestEmail,
+    accountEmail: input.accountEmail?.trim().toLowerCase() || undefined,
     hotelEmail: undefined,
   });
   await queueCaptureReconcile({
@@ -656,6 +687,7 @@ async function queueCaptureReconcile(input: {
   units: number;
   exceptHoldIds: string[];
   guests?: TravelerInput[];
+  confirmOrder?: boolean;
 }): Promise<CreateBookingResult> {
   const now = new Date().toISOString();
   const job: ReconcileJob = {
@@ -673,12 +705,19 @@ async function queueCaptureReconcile(input: {
       units: input.units,
       exceptHoldIds: input.exceptHoldIds,
       guests: input.guests ?? [],
+      confirmOrder: input.confirmOrder === true,
     }),
   };
   const saved = await persistReconcileJob(job);
   const booking = await runReconcileJob(job);
   if (booking) return { ok: true, booking, stored: isSupabaseConfigured() ? "supabase" : "local" };
   const current = listReconcileJobs().find((row) => row.id === job.id);
+  if (current?.lastError === "amount mismatch") {
+    return { ok: false, message: "Paid amount does not match the current stay price." };
+  }
+  if (current?.lastError === "stay mismatch") {
+    return { ok: false, message: "Payment does not match this stay. Start checkout again." };
+  }
   if (current?.lastError?.includes("sold_out")) {
     return { ok: false, message: await compensateSoldOut(current, input.local.amountInr) };
   }
@@ -753,6 +792,7 @@ export const createBooking = createServerFn({ method: "POST" })
     };
     const code = makeCode();
     const travel = parseTravelPlan(readMeta(data.swaps ?? {}).travel);
+    let razorpayLookupMissed = false;
 
     let paid: {
       ok: true;
@@ -795,10 +835,26 @@ export const createBooking = createServerFn({ method: "POST" })
       }
       const remote = await fetchRazorpayOrder(data.razorpayOrderId);
       if (!remote) {
-        return { ok: false, message: "Could not confirm this payment with Razorpay. Try again in a moment." };
-      }
-      if (remote.amountPaise !== Math.round(payable.amountInr * 100)) {
-        return { ok: false, message: "Paid amount does not match the current stay price." };
+        // The signature is valid, so the charge may already be captured.
+        // Queue a retry that reads the order notes before it writes a stay.
+        razorpayLookupMissed = true;
+      } else {
+        if (remote.amountPaise !== Math.round(payable.amountInr * 100)) {
+          return { ok: false, message: "Paid amount does not match the current stay price." };
+        }
+        if (
+          !pending &&
+          !orderNotesMatchStay(remote.notes, {
+            userId: context.userId,
+            packageId: payable.packageId,
+            roomId: payable.roomId,
+            checkIn: payable.checkIn,
+            nights: payable.nights,
+            travelers: payable.travelers,
+          })
+        ) {
+          return { ok: false, message: "Payment does not match this stay. Start checkout again." };
+        }
       }
       consumeOrder(data.razorpayOrderId, context.userId);
       paid = {
@@ -885,7 +941,9 @@ export const createBooking = createServerFn({ method: "POST" })
         units: holdUnits,
         exceptHoldIds: checkoutHoldIds,
         guests: guestInputs,
+        confirmOrder: razorpayLookupMissed,
       });
+    if (razorpayLookupMissed) return queuedCapture();
 
     const finishStored = async (booking: BookingRow, stored: "supabase" | "local") => {
       const guestError = await keepGuests(booking);

@@ -23,11 +23,8 @@ immutable
 as $$
   select case
     when swaps is null or not (swaps ? '__tw') or left(coalesce(swaps->>'__tw', ''), 1) <> '{' then ''
-    else lower(btrim(coalesce(
-      (swaps->>'__tw')::jsonb->>'accountEmail',
-      (swaps->>'__tw')::jsonb->>'guestEmail',
-      ''
-    )))
+    -- guestEmail is typed by the booker. Only the server-set sign-in address owns the stay.
+    else lower(btrim(coalesce((swaps->>'__tw')::jsonb->>'accountEmail', '')))
   end;
 $$;
 
@@ -41,25 +38,10 @@ returns boolean
 language sql
 stable
 as $$
-  select public.tw_booking_account_email(swaps) = p_email
-    or exists (
-      select 1 from public.profiles p
-      where p.user_id = p_user_id
-        and lower(btrim(coalesce(p.email, ''))) = p_email
-    )
-    or (
-      exists (
-        select 1 from public.travellers t
-        where t.booking_id = p_booking_id
-          and lower(btrim(coalesce(t.email, ''))) = p_email
-      )
-      and not exists (
-        select 1 from public.profiles p
-        where p.user_id = p_user_id
-          and btrim(coalesce(p.email, '')) <> ''
-          and lower(btrim(p.email)) <> p_email
-      )
-    );
+  -- p_booking_id and p_user_id stay in the signature for existing callers.
+  -- profiles.email and travellers.email are typed by the guest and do not own a stay.
+  select p_email <> ''
+    and public.tw_booking_account_email(swaps) = p_email;
 $$;
 
 create or replace function public.tw_claim_subject(p_email text, p_session_user_id text)
@@ -186,3 +168,19 @@ revoke all on function public.tw_booking_owned_by_email(bigint, text, jsonb, tex
 revoke all on function public.tw_claim_subject(text, text) from public;
 revoke all on function public.tw_claim_subject(text, text) from anon, authenticated;
 grant execute on function public.tw_claim_subject(text, text) to service_role;
+
+-- A profile email that disagrees with the sign-in row was typed by the guest.
+-- Blank it so an older spoof cannot be reused. Safe to re-run.
+-- Vercel db:migrate does not apply this file. Run it in the Supabase SQL editor.
+do $$
+begin
+  if to_regclass('public.profiles') is not null
+     and to_regclass('public.ba_user') is not null then
+    update public.profiles p
+    set email = ''
+    from public.ba_user u
+    where u.id = p.user_id
+      and btrim(coalesce(p.email, '')) <> ''
+      and lower(btrim(p.email)) is distinct from lower(btrim(coalesce(u.email, '')));
+  end if;
+end $$;

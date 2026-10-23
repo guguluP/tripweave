@@ -6,3 +6,10 @@ export function isRealIsoDate(iso: string): boolean {
   const date = new Date(Date.UTC(year, month - 1, day));
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
+
+/** Why a check-in cannot be used, or null when the day is real and not before today. */
+export function checkInRefusal(iso: string, today: string): string | null {
+  if (!isRealIsoDate(iso)) return "That date doesn't exist";
+  if (iso < today) return "Check-in must be today or later.";
+  return null;
+}

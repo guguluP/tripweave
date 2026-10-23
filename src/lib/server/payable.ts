@@ -3,7 +3,7 @@ import { addDays, quoteStay, todayIso, travelersFitRoom } from "@/lib/inventory"
 import { parseTravelPlan } from "@/lib/travel-plan";
 import { priceFromQuote } from "@/lib/price-from-quote";
 import { readMeta } from "@/lib/booking-meta";
-import { isRealIsoDate } from "@/lib/check-in";
+import { checkInRefusal } from "@/lib/check-in";
 import { refreshStayInventory } from "@/lib/server/occupancy";
 import { holdIdsForCheckout } from "@/lib/server/room-holds";
 
@@ -55,18 +55,12 @@ export type PayableQuote =
     }
   | { ok: false; message: string; field?: string };
 
-function validCheckIn(iso: string): boolean {
-  if (!isRealIsoDate(iso)) return false;
-  return iso >= todayIso();
-}
-
 /** Single source of truth for what the guest must pay. Never trust client totals. */
 export async function computePayable(input: PayableInput): Promise<PayableQuote> {
   const pkg = getPackage(input.packageId);
   if (!pkg) return { ok: false, message: "Stay not found." };
-  if (!validCheckIn(input.checkIn)) {
-    return { ok: false, message: "Check-in must be today or later.", field: "checkIn" };
-  }
+  const refused = checkInRefusal(input.checkIn, todayIso());
+  if (refused) return { ok: false, message: refused, field: "checkIn" };
 
   const nights = clampNights(pkg, input.nights ?? pkg.nights);
   const room = getRoom(pkg, input.roomId);

@@ -216,6 +216,7 @@ export async function settleRazorpayWebhook(rawBody: string, signature: string |
     amountInr: Math.round((payment.amount || order?.amountPaise || 0) / 100),
     payerName: payment.email || "Guest",
     guestEmail: payment.email,
+    accountEmail: notes.accountEmail,
   });
   const { recordFunnelEvent } = await import("@/lib/server/funnel");
   await recordFunnelEvent("webhook_booked", packageId);
@@ -314,6 +315,9 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
           checkIn: payable.checkIn,
           nights: String(payable.nights),
           userId: context.userId,
+          ...(context.email?.trim()
+            ? { accountEmail: context.email.trim().toLowerCase() }
+            : {}),
         },
       );
       if (!created.ok) {
