@@ -19,6 +19,7 @@ import { Route as PlanRouteImport } from './routes/plan'
 import { Route as RathYatraRouteImport } from './routes/rath-yatra'
 import { Route as TravelersRouteImport } from './routes/travelers'
 import { Route as TripsRouteImport } from './routes/trips'
+import { Route as ApiAskRouteImport } from './routes/api/ask'
 import { Route as ApiCreateOrderRouteImport } from './routes/api/create-order'
 import { Route as ApiFunnelRouteImport } from './routes/api/funnel'
 import { Route as ApiVerifyPaymentRouteImport } from './routes/api/verify-payment'
@@ -81,6 +82,11 @@ const TravelersRoute = TravelersRouteImport.update({
 const TripsRoute = TripsRouteImport.update({
   id: '/trips',
   path: '/trips',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAskRoute = ApiAskRouteImport.update({
+  id: '/api/ask',
+  path: '/api/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCreateOrderRoute = ApiCreateOrderRouteImport.update({
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/rath-yatra': typeof RathYatraRoute
   '/travelers': typeof TravelersRoute
   '/trips': typeof TripsRoute
+  '/api/ask': typeof ApiAskRoute
   '/api/create-order': typeof ApiCreateOrderRoute
   '/api/funnel': typeof ApiFunnelRoute
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/rath-yatra': typeof RathYatraRoute
   '/travelers': typeof TravelersRoute
   '/trips': typeof TripsRoute
+  '/api/ask': typeof ApiAskRoute
   '/api/create-order': typeof ApiCreateOrderRoute
   '/api/funnel': typeof ApiFunnelRoute
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/rath-yatra': typeof RathYatraRoute
   '/travelers': typeof TravelersRoute
   '/trips': typeof TripsRoute
+  '/api/ask': typeof ApiAskRoute
   '/api/create-order': typeof ApiCreateOrderRoute
   '/api/funnel': typeof ApiFunnelRoute
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
     | '/rath-yatra'
     | '/travelers'
     | '/trips'
+    | '/api/ask'
     | '/api/create-order'
     | '/api/funnel'
     | '/api/verify-payment'
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
     | '/rath-yatra'
     | '/travelers'
     | '/trips'
+    | '/api/ask'
     | '/api/create-order'
     | '/api/funnel'
     | '/api/verify-payment'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/rath-yatra'
     | '/travelers'
     | '/trips'
+    | '/api/ask'
     | '/api/create-order'
     | '/api/funnel'
     | '/api/verify-payment'
@@ -315,6 +327,7 @@ export interface RootRouteChildren {
   RathYatraRoute: typeof RathYatraRoute
   TravelersRoute: typeof TravelersRoute
   TripsRoute: typeof TripsRoute
+  ApiAskRoute: typeof ApiAskRoute
   ApiCreateOrderRoute: typeof ApiCreateOrderRoute
   ApiFunnelRoute: typeof ApiFunnelRoute
   ApiVerifyPaymentRoute: typeof ApiVerifyPaymentRoute
@@ -400,6 +413,13 @@ declare module '@tanstack/react-router' {
       path: '/trips'
       fullPath: '/trips'
       preLoaderRoute: typeof TripsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ask': {
+      id: '/api/ask'
+      path: '/api/ask'
+      fullPath: '/api/ask'
+      preLoaderRoute: typeof ApiAskRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/create-order': {
@@ -507,6 +527,7 @@ const rootRouteChildren: RootRouteChildren = {
   RathYatraRoute: RathYatraRoute,
   TravelersRoute: TravelersRoute,
   TripsRoute: TripsRoute,
+  ApiAskRoute: ApiAskRoute,
   ApiCreateOrderRoute: ApiCreateOrderRoute,
   ApiFunnelRoute: ApiFunnelRoute,
   ApiVerifyPaymentRoute: ApiVerifyPaymentRoute,

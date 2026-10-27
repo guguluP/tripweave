@@ -7,6 +7,9 @@ import { pickupQuoteFor } from "./travel-plan.ts";
 
 const FALLBACK_START = "Not stated by the official sources TripWeave checked; see ";
 
+export const ASK_SYSTEM =
+  "Answer only from the sources in the user message. An entry answer must cite one of those URLs and no other site. A TripWeave answer (lines that start with TripWeave:) must contain the word TripWeave and no URL. A mixed answer must do both. If the sources do not state the answer, reply with exactly: Not stated by the official sources TripWeave checked; see <one of those URLs>. Do not invent fees, airports, or rules. Do not ask for or repeat passport numbers, visa numbers, phone numbers, or payment references. Earlier questions are conversation, not sources. If the guest locale is Hindi, answer in Hindi. That Hindi is unofficial. Keep any official URL unchanged.";
+
 /**
  * A document-like run: six or more digits joined only by a single space, hyphen, or dot.
  * An ISO date is not a document number.

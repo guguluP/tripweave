@@ -28,6 +28,8 @@ Then paste [`saved_travellers.sql`](saved_travellers.sql) → Run. Saved co-trav
 
 Then paste [`guest_arrivals.sql`](guest_arrivals.sql) → Run. Optional arrival details and the desk foreign-guest register for Form III. Safe to re-run.
 
+Then paste [`ask_turns.sql`](ask_turns.sql) → Run. Ask TripWeave threads and the 10-an-hour cap. No passport numbers. Safe to re-run.
+
 ## 2. Keys on the live site
 
 [API settings](https://supabase.com/dashboard/project/csegihiepvxezuypsvop/settings/api) → copy into **Vercel → tripweave-web → Environment Variables** (Production + Preview):

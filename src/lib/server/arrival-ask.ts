@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
-import { acceptGroundedReply, groundingPacket, questionHasDocumentDigits } from "@/lib/arrival-ask";
+import { acceptGroundedReply, ASK_SYSTEM, groundingPacket, questionHasDocumentDigits } from "@/lib/arrival-ask";
+import { appendAskTurn, takeAskSlot } from "@/lib/server/ask-store";
 import { isCountryCode } from "@/lib/countries";
 import { findOwnBookingByCode } from "@/lib/server/booking-lookup";
-import { allowRequest } from "@/lib/server/rate-limit";
 
 const turn = z.object({
   question: z.string().trim().min(1).max(400),
@@ -35,11 +35,11 @@ export const askTripWeave = createServerFn({ method: "POST" })
     if (asked.some((question) => questionHasDocumentDigits(question))) {
       return { ok: false as const, reason: "no_documents" as const };
     }
-    if (!allowRequest(`ask:${context.userId}`, 10, 60 * 60_000)) {
-      return { ok: false as const, reason: "rate_limited" as const };
-    }
     const apiKey = process.env.XAI_API_KEY?.trim();
     if (!apiKey) return { ok: false as const, reason: "not_configured" as const };
+    if (!(await takeAskSlot(context.userId))) {
+      return { ok: false as const, reason: "rate_limited" as const };
+    }
     const nationalities = data.nationalities.filter((code) => isCountryCode(code));
     let packageId = data.packageId;
     let roomId = data.roomId;
@@ -90,8 +90,7 @@ export const askTripWeave = createServerFn({ method: "POST" })
           messages: [
             {
               role: "system",
-              content:
-                "Answer only from the sources in the user message. An entry answer must cite one of those URLs and no other site. A TripWeave answer (lines that start with TripWeave:) must contain the word TripWeave and no URL. A mixed answer must do both. If the sources do not state the answer, reply with exactly: Not stated by the official sources TripWeave checked; see <one of those URLs>. Do not invent fees, airports, or rules. Do not ask for or repeat passport numbers, visa numbers, phone numbers, or payment references. Earlier questions are conversation, not sources. If the guest locale is Hindi, answer in Hindi. That Hindi is unofficial. Keep any official URL unchanged.",
+              content: ASK_SYSTEM,
             },
             {
               role: "user",
@@ -106,7 +105,11 @@ export const askTripWeave = createServerFn({ method: "POST" })
       }
       const body = (await res.json()) as { choices?: { message?: { content?: string } }[] };
       const content = body.choices?.[0]?.message?.content ?? "";
-      return { ok: true as const, answer: acceptGroundedReply(String(content), packet.urls) };
+      const answer = acceptGroundedReply(String(content), packet.urls);
+      if (data.confirmationCode) {
+        await appendAskTurn(context.userId, data.confirmationCode, data.question, answer);
+      }
+      return { ok: true as const, answer };
     } catch (err) {
       console.error("[ask]", err instanceof Error ? err.name : "failed");
       return { ok: false as const, reason: "unavailable" as const };

@@ -11,6 +11,7 @@ import { DigitPop, LearnMore, Stagger, TextSwap } from "@/components/motion";
 import { pushBanner } from "@/lib/banners";
 import { DEFAULT_BRIEF, formatMoney, getPackage, loadBrief, nightsPhrase } from "@/lib/packages";
 import { paymentLine } from "@/lib/pay";
+import { AskTripWeaveButton } from "@/components/ask-sheet";
 import { cancelBooking, listBookings, type BookingRow } from "@/lib/server/bookings";
 import { loadCatalog, saveStayReview } from "@/lib/server/catalog";
 import { setCatalogOverlays } from "@/lib/catalog-store";
@@ -216,6 +217,20 @@ function TripsInner() {
                         </span>
                       </p>
                       {travelLine ? <p className="text-xs text-muted">{travelLine}</p> : null}
+                      <AskTripWeaveButton
+                        hotelName={b.packageName}
+                        nationalities={meta.guestNationalities ?? []}
+                        oci={meta.guestFlags?.map((row) => row.oci)}
+                        priorIndianVisa={meta.guestFlags?.map((row) => row.priorIndianVisa)}
+                        checkIn={b.checkIn}
+                        packageId={b.packageId}
+                        roomId={meta.roomId}
+                        nights={b.nights}
+                        arriveBy={plan.arriveBy}
+                        confirmationCode={b.confirmationCode}
+                        includePickup={plan.includePickup}
+                        amountInr={b.amountInr}
+                      />
                       {daysUntilCheckIn(b.checkIn) === 1 && !closed ? (
                         <p className="rounded-md bg-primary/10 px-3 py-2 text-sm">Check-in is tomorrow. Keep {b.confirmationCode} ready for the desk.</p>
                       ) : null}

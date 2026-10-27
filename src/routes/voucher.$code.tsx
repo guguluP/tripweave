@@ -19,7 +19,7 @@ import { MapplsMap } from "@/components/mappls-map";
 import { stayPin } from "@/lib/places";
 import { TravelShareButtons } from "@/components/travel-planner";
 import { ArrivalChecklist } from "@/components/arrival-checklist";
-import { AskTripWeave } from "@/components/ask-tripweave";
+import { AskTripWeaveButton } from "@/components/ask-sheet";
 import { AddToWallet } from "@/components/wallet-pass";
 import type { OriginId } from "@/lib/origins";
 import { pageHead } from "@/lib/page-title";
@@ -259,22 +259,27 @@ function VoucherPage() {
               />
             </div>
           ) : null}
-          <AskTripWeave
-            nationalities={
-              meta.guestFlags?.length
-                ? meta.guestFlags.map((row) => row.nationality)
-                : (meta.guestNationalities ?? [])
-            }
-            oci={meta.guestFlags?.map((row) => row.oci)}
-            priorIndianVisa={meta.guestFlags?.map((row) => row.priorIndianVisa)}
-            checkIn={booking.checkIn}
-            arrivalAirport="BBI"
-            packageId={booking.packageId}
-            roomId={meta.roomId}
-            nights={booking.nights}
-            arriveBy={plan.arriveBy || brief.arriveBy}
-            confirmationCode={booking.confirmationCode}
-          />
+          <p className="mt-4">
+            <AskTripWeaveButton
+              hotelName={booking.packageName}
+              nationalities={
+                meta.guestFlags?.length
+                  ? meta.guestFlags.map((row) => row.nationality)
+                  : (meta.guestNationalities ?? [])
+              }
+              oci={meta.guestFlags?.map((row) => row.oci)}
+              priorIndianVisa={meta.guestFlags?.map((row) => row.priorIndianVisa)}
+              checkIn={booking.checkIn}
+              arrivalAirport="BBI"
+              packageId={booking.packageId}
+              roomId={meta.roomId}
+              nights={booking.nights}
+              arriveBy={plan.arriveBy || brief.arriveBy}
+              confirmationCode={booking.confirmationCode}
+              includePickup={plan.includePickup}
+              amountInr={booking.amountInr}
+            />
+          </p>
           <p className="mt-4 text-xs text-subtle">
             {booking.status === "paid"
               ? "Payment received. The hotel has not confirmed the room yet — show this code once the desk confirms."
