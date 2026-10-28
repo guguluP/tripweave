@@ -1316,6 +1316,22 @@ export const cancelBooking = createServerFn({ method: "POST" })
       } catch {
         /* memory */
       }
+    } else if (!useMemoryStore()) {
+      // DATABASE_URL (Postgres) store: the stay lives in SQL, not in this process's memory.
+      try {
+        const sql = await getSql();
+        const found = await sql<DbBooking>`
+          select id, package_id, package_name, nights, travelers, check_in, amount_inr,
+                 swaps, status, card_last4, card_brand, payer_name, confirmation_code,
+                 payment_method, payment_ref, upi_handle, bank_name, created_at
+          from bookings
+          where user_id = ${context.userId} and id = ${id}
+        `;
+        if (found.length) rows = found.map((row) => mapBooking({ ...row, user_id: context.userId }));
+      } catch (err) {
+        if (isDurableDbError(err)) markDurableDbFailed(err);
+        else console.error("[bookings] cancel lookup failed", err);
+      }
     }
     const target = rows.find((b) => b.id === id);
     if (!target || !isCancellableStatus(target.status)) {
