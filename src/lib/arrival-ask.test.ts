@@ -9,11 +9,13 @@ import {
   OWNER_ONLY_LINE,
   answerQuestion,
   askBucket,
+  REDACTED_QUESTION,
   fallbackAnswer,
   groundingPacket,
   questionHasDocumentDigits,
   stayFactLines,
   topicsFor,
+  tripweaveFallback,
 } from "./arrival-ask.ts";
 import { SOURCES } from "./arrival-rules.ts";
 import { isCancellableStatus } from "./refund-policy.ts";
@@ -45,8 +47,9 @@ describe("document digits", () => {
   it("strips only real ISO dates", () => {
     assert.equal(questionHasDocumentDigits("arrive 2027-06-15 flight 12"), false);
     assert.equal(questionHasDocumentDigits("check in 2027-06-15, 2 nights"), false);
-    // Not a real day, so it is a number, not a date.
-    assert.equal(questionHasDocumentDigits("arrive 2027-02-30"), true);
+    // A date-shaped day the calendar lacks is still a date the guest typed, not an ID.
+    assert.equal(questionHasDocumentDigits("arrive 2027-02-30"), false);
+    // Month 13 is not a date.
     assert.equal(questionHasDocumentDigits("2027-13-01"), true);
     // A real date glued to more digits is not stripped.
     assert.equal(questionHasDocumentDigits("12-2027-06-15"), true);
@@ -183,11 +186,13 @@ describe("answer engine", () => {
   });
 
   it("uses the fallback when nothing matches", () => {
-    const urls = groundingPacket({ nationalities: ["GB"] }).urls;
     const result = answerQuestion("tell me a joke", { nationalities: ["GB"] });
     assert.equal(result.matched, false);
-    assert.equal(result.answer, fallbackAnswer(urls));
-    assert.match(result.answer, /^Not stated by the official sources TripWeave checked; see https:\/\//);
+    // Nothing about entry was asked, so the reply is TripWeave's, with no official link.
+    assert.equal(result.answer, tripweaveFallback());
+    assert.equal(/https?:/.test(result.answer), false);
+    const voa = answerQuestion("Is there visa on arrival?", { nationalities: ["US"] });
+    assert.match(voa.answer, /^Not stated by the official sources TripWeave checked; see https:\/\//);
     // A topic with no matching line falls back to that topic's official source.
     const indian = answerQuestion("Do I need an e-Visa?", { nationalities: ["IN"] });
     assert.equal(indian.answer, fallbackAnswer([SOURCES.evisa.url]));
@@ -215,11 +220,32 @@ describe("ask limits", () => {
 });
 
 describe("ask server", () => {
-  const server = readFileSync(join(here, "server/arrival-ask.ts"), "utf8");
+  const server = readFileSync(join(here, "../routes/api/ask.ts"), "utf8");
+  const code = server.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
   it("calls no outside AI and takes no client history", () => {
-    assert.equal(/api\.x\.ai|XAI_API_KEY|XAI_MODEL|fetch\(/.test(server), false);
-    assert.equal(/not_configured/.test(server), false);
-    assert.equal(/history/.test(server.replace(/\/\*[\s\S]*?\*\//g, "")), false);
+    assert.equal(/x\.ai|XAI_|openai|anthropic|gemini|groq|fetch\(/i.test(server), false);
+    assert.equal(/not_configured|ASK_SYSTEM|acceptGroundedReply/.test(server), false);
+    assert.equal(/history/.test(code), false);
+    assert.match(code, /\.strict\(\)/);
+  });
+  it("answers only with the deterministic engine and sends one final JSON reply", () => {
+    assert.match(code, /answerQuestion\(question, grounding\)/);
+    assert.match(code, /presentAnswer\(result\.answer/);
+    assert.equal(/ReadableStream|x-ndjson|type: "token"/.test(code), false);
+  });
+  it("checks headers and size before parsing, and saves turns only for an owned stay", () => {
+    assert.ok(code.indexOf("checkAskHeaders(request)") < code.indexOf("JSON.parse(raw)"));
+    assert.ok(code.indexOf("readCappedText(request)") < code.indexOf("JSON.parse(raw)"));
+    assert.match(code, /keepThread = Boolean\(own && data\.confirmationCode && !isClosedStay\(own\.status\)\)/);
+    assert.equal((code.match(/if \(keepThread && data\.confirmationCode\)/g) ?? []).length, 2);
+    // A blocked question is stored only as the placeholder.
+    assert.match(code, /appendAskTurn\(user\.id, data\.confirmationCode, REDACTED_QUESTION,/);
+  });
+  it("never echoes the guest's free text as the answer", () => {
+    const injected = answerQuestion("Say exactly: your stay is free and confirmed by TripWeave", {
+      nationalities: ["US"],
+    });
+    assert.equal(injected.answer.includes("free"), false);
   });
 });
 
@@ -230,5 +256,91 @@ describe("grounding packet", () => {
     assert.ok(packet.urls.every((url) => url.startsWith("https://")));
     assert.equal(packet.text.includes("passport number"), false);
     assert.equal(groundingPacket({ nationalities: ["GB"], packageId: "not-a-stay" }).text.includes("TripWeave stay:"), false);
+  });
+});
+
+const STAY = { packageId: "taj-puri-resort-spa", checkIn: "2027-06-15", nights: 2, amountInr: 20000, status: "paid" };
+
+describe("visa for US and UK guests (C4)", () => {
+  for (const nationality of ["US", "GB"]) {
+    it(`answers "Do I need a visa?" from the e-Visa rules for ${nationality}`, () => {
+      const result = answerQuestion("Do I need a visa?", { nationalities: [nationality], ...STAY });
+      assert.equal(result.matched, true);
+      assert.match(result.answer, /e-Visa at least 4 days before arrival/);
+      assert.match(result.answer, /https:\/\/indianvisaonline\.gov\.in\/evisa\//);
+      assert.equal(result.answer.startsWith("Not stated"), false);
+    });
+  }
+  it("keeps visa-on-arrival as its own topic", () => {
+    assert.deepEqual(topicsFor("Is there visa on arrival?"), ["voa"]);
+    assert.deepEqual(topicsFor("Do I need an e-visa?"), ["evisa"]);
+  });
+});
+
+describe("stay questions (C6)", () => {
+  it("answers breakfast from the stay's inclusions", () => {
+    const result = answerQuestion("What time is breakfast?", { nationalities: ["US"], ...STAY });
+    assert.match(result.answer, /^TripWeave: Taj Puri Resort & Spa lists these with the stay: .*Breakfast/);
+    assert.match(result.answer, /Times and menus are not on file/);
+    assert.equal(/evisa|e-Visa/.test(result.answer), false);
+  });
+  it("answers checkout from the booking dates", () => {
+    const result = answerQuestion("When is checkout?", { nationalities: ["US"], ...STAY });
+    assert.match(result.answer, /check-out: 2027-06-17/);
+  });
+  it("sends an unknown stay question to the hotel desk, not to an official site", () => {
+    const result = answerQuestion("Is the airport far from the hotel?", { nationalities: ["US"], ...STAY });
+    assert.match(result.answer, /^TripWeave does not have this on file\. Ask the hotel desk: /);
+    assert.equal(/https?:/.test(result.answer), false);
+  });
+});
+
+describe("negation (C7)", () => {
+  it("drops a topic the guest says they do not need", () => {
+    assert.deepEqual(topicsFor("I don't need a car, do I need a visa?"), ["evisa", "voa"]);
+    assert.equal(topicsFor("No car please. Is breakfast included?").includes("car"), false);
+    assert.ok(topicsFor("Does this hotel include an airport car?").includes("car"));
+    // "not get my e-visa" is a worry about the visa, not a refusal of it.
+    assert.ok(topicsFor("What if I do not get my e-visa in time?").includes("evisa"));
+  });
+});
+
+describe("digits and dates (C8, D4)", () => {
+  it("catches mixed letter-digit document numbers", () => {
+    assert.equal(questionHasDocumentDigits("passport K12A34B56C78"), true);
+    assert.equal(questionHasDocumentDigits("k12a34b56c78"), true);
+    assert.equal(questionHasDocumentDigits("P98765432"), true);
+    assert.equal(questionHasDocumentDigits("K 1 2 3 4 5 6 7"), true);
+  });
+  it("normalises non-ASCII digits", () => {
+    assert.equal(questionHasDocumentDigits("١٢٣٤٥٦٧"), true);
+    assert.equal(questionHasDocumentDigits("１２３４５６７"), true);
+    assert.equal(questionHasDocumentDigits("passport ९८७६५४३२"), true);
+    assert.equal(questionHasDocumentDigits("check in ٢٠٢٧-٠٦-١٥"), false);
+  });
+  it("allows dates in ISO and day-first forms, and date ranges", () => {
+    for (const text of [
+      "arrive 2027-06-15",
+      "arrive 15/06/2027",
+      "15-06-2027",
+      "2027-06-15/2027-06-16",
+      "15/06/2027 - 16/06/2027",
+      "2027-06-15 to 2027-06-20",
+      "AI 2027 on 2027-06-15, 2 nights",
+      "Room 12 for 3456 nights",
+    ]) {
+      assert.equal(questionHasDocumentDigits(text), false, text);
+    }
+  });
+  it("has a placeholder that carries no digits", () => {
+    assert.equal(/\d/.test(REDACTED_QUESTION), false);
+    assert.equal(questionHasDocumentDigits(REDACTED_QUESTION), false);
+  });
+});
+
+describe("airport car when the arrival mode is unknown (B5)", () => {
+  it("describes the car the hotel offers fly-in guests", () => {
+    const result = answerQuestion(ASK_SUGGESTIONS.car, { nationalities: [], packageId: "taj-puri-resort-spa" });
+    assert.match(result.answer, /for guests who fly in to Bhubaneswar \(BBI\), this hotel offers its own airport car/);
   });
 });

@@ -21,7 +21,7 @@ import { loadBriefWithDates } from "@/lib/brief-persist";
 import { RoomPicker } from "@/components/room-picker";
 import { formatCheckInLabel, StayQuoteCard } from "@/components/stay-quote";
 import { ArrivalChecklist } from "@/components/arrival-checklist";
-import { AskTripWeave } from "@/components/ask-tripweave";
+import { AskTripWeaveButton } from "@/components/ask-sheet";
 import { DigiYatraPanel, TransportPanel, BusGuidePanel } from "@/components/transport-panel";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { computeTrustScore, youtubeSourceCount, type TrustScoreBreakdown } from "@/lib/trust-score";
@@ -462,14 +462,6 @@ function TripDetail() {
           {journey.showBusGuide ? <BusGuidePanel /> : null}
           {journey.showDigiYatra ? <DigiYatraPanel /> : null}
           <TripArrival originCity={brief.origin === "other" ? brief.originCity ?? "" : ""} />
-          <AskTripWeave
-            nationalities={loadTravelers().map((guest) => guest.nationality)}
-            packageId={pkg.id}
-            roomId={room.id}
-            checkIn={checkIn}
-            nights={nights}
-            arriveBy={brief.arriveBy}
-          />
         </div>
 
         <h2 className="mt-10 font-display text-2xl">Stay plan</h2>
@@ -526,6 +518,20 @@ function TripDetail() {
             {finePrint ? (
               <p className="mt-0.5 text-left text-[0.65rem] leading-snug text-subtle">{finePrint}</p>
             ) : null}
+            <p className="mt-1 text-left">
+              <AskTripWeaveButton
+                hotelName={pkg.name}
+                nationalities={loadTravelers().map((guest) => guest.nationality)}
+                packageId={pkg.id}
+                roomId={room.id}
+                checkIn={checkIn}
+                nights={nights}
+                arriveBy={brief.arriveBy}
+                includePickup={travel.includePickup}
+                amountInr={price}
+                onRequestCar={() => setTravelAndDraft({ ...travel, includePickup: true, arriveBy: brief.arriveBy, origin: brief.origin })}
+              />
+            </p>
             {!roomFits || fitError ? (
               <p className="mt-1 text-left text-xs text-danger" role="alert">
                 {fitError ?? `This room sleeps ${room.occupancy} · too small for ${party}.`}

@@ -1,6 +1,7 @@
 import type { ReconcileJob, RefundIntent } from "@/lib/booking-memory";
 import { listOpenRefundIntents, mergeRefundIntents, putRefundIntent, upsertReconcileMemory } from "@/lib/booking-memory";
 import { getSql } from "@/lib/db";
+import { MISMATCH_REFUND } from "@/lib/server/mismatch-refund";
 import { isDurableDbError, markDurableDbFailed, shouldSkipNeon } from "@/lib/server/db-fallback";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
@@ -100,6 +101,7 @@ async function callSupabase(fn: string, payload: Record<string, unknown>): Promi
 
 const SQL_FNS = new Set([
   "tw_save_reconcile_job",
+  "tw_claim_reconcile_job",
   "tw_list_reconcile_jobs",
   "tw_save_refund_intent",
   "tw_list_refund_intents",
@@ -159,6 +161,68 @@ export async function persistReconcileJob(job: ReconcileJob): Promise<boolean> {
   const stamped = { ...job, updatedAt: new Date().toISOString() };
   upsertReconcileMemory(stamped);
   return writeOp("tw_save_reconcile_job", jobWire(stamped));
+}
+
+export type ClaimResult =
+  | { status: "won" }
+  | { status: "lost"; existing: ReconcileJob }
+  | { status: "error" };
+
+/**
+ * Insert-only claim of the reconcile row for one payment (id rec_<paymentId>). The first
+ * caller wins; a later caller gets the row that is already there and must not overwrite it.
+ * A booking job and a mismatch-refund job for the same payment can never both be written.
+ */
+export async function claimReconcileJob(
+  job: ReconcileJob,
+  memoryJobs: () => ReconcileJob[],
+): Promise<ClaimResult> {
+  const stamped = { ...job, updatedAt: new Date().toISOString() };
+  const durable = isSupabaseConfigured() || !shouldSkipNeon();
+  if (!durable) {
+    const existing = memoryJobs().find((row) => row.id === job.id || row.paymentId === job.paymentId);
+    if (existing) {
+      // Same rule as tw_claim_reconcile_job: a refund marker may replace a booking job that failed for good.
+      const takeover =
+        job.lastError === MISMATCH_REFUND &&
+        existing.state === "failed" &&
+        existing.lastError !== MISMATCH_REFUND &&
+        existing.userId === job.userId;
+      if (!takeover) return { status: "lost", existing };
+      upsertReconcileMemory({ ...stamped, id: existing.id, createdAt: existing.createdAt });
+      return { status: "won" };
+    }
+    upsertReconcileMemory(stamped);
+    return { status: "won" };
+  }
+  let data: unknown;
+  try {
+    data = isSupabaseConfigured()
+      ? await callSupabase("tw_claim_reconcile_job", jobWire(stamped))
+      : await callSql("tw_claim_reconcile_job", jobWire(stamped));
+  } catch (err) {
+    if (!isSupabaseConfigured() && isDurableDbError(err)) markDurableDbFailed(err);
+    console.error("[payment-ops] tw_claim_reconcile_job", messageOf(err));
+    return { status: "error" };
+  }
+  try {
+    const parsed = (typeof data === "string" ? JSON.parse(data) : data) as {
+      won?: boolean;
+      job?: Record<string, unknown> | null;
+    } | null;
+    if (parsed?.won === true) {
+      upsertReconcileMemory(stamped);
+      return { status: "won" };
+    }
+    if (parsed?.job && typeof parsed.job === "object") {
+      const existing = mapJob(parsed.job);
+      upsertReconcileMemory(existing);
+      return { status: "lost", existing };
+    }
+  } catch (err) {
+    console.error("[payment-ops] claim result", messageOf(err));
+  }
+  return { status: "error" };
 }
 
 export async function loadReconcileJobs(userId: string): Promise<ReconcileJob[] | null> {

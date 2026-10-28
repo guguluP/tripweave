@@ -204,12 +204,12 @@ end $$;
 --        exists (
 --          select 1 from public.bookings b
 --          where b.user_id = s.user_id
---            and public.tw_booking_account_email(b.swaps) = s.email
+--            and public.tw_booking_account_email(b.swaps) = lower(btrim(s.email))
 --        ) as owns_matching_booking,
 --        not exists (
 --          select 1 from public.bookings b
 --          where b.user_id = s.user_id
---            and public.tw_booking_account_email(b.swaps) = s.email
+--            and public.tw_booking_account_email(b.swaps) = lower(btrim(s.email))
 --        ) as would_delete,
 --        (select count(*) from public.bookings b where b.user_id = s.user_id) as bookings_on_user
 -- from public.account_subjects s

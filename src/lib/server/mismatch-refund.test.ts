@@ -86,5 +86,56 @@ test("bookings.ts wires the refund into the cold path and never books a refund j
   assert.match(run, /isMismatchRefundJob\(job\)\) return null/);
   const queue = src.slice(src.indexOf("async function queueCaptureReconcile"), src.indexOf("async function queueCaptureReconcile") + 500);
   assert.match(queue, /isMismatchRefundJob\(earlier\)/);
-  assert.match(src, /if \(isMismatchRefundJob\(job\)\) \{\s*await sendMismatchRefund\(job\);/);
+  const drain = src.slice(src.indexOf("async function drainReconcileJobs"), src.indexOf("/** Cap stored on a paid booking."));
+  assert.match(drain, /if \(isMismatchRefundJob\(job\)\) \{/);
+  assert.match(drain, /await sendMismatchRefund\(job\);/);
+});
+
+const bookings = readFileSync(new URL("./bookings.ts", import.meta.url), "utf8");
+function fnBody(name: string, end: string) {
+  return bookings.slice(bookings.indexOf(name), bookings.indexOf(end, bookings.indexOf(name) + name.length));
+}
+
+test("C2: a failed booked/prior lookup queues a retry instead of a refund", () => {
+  assert.equal(decideMismatchRefund({ ...base, bookedAlready: "unknown" }).action, "retry");
+  assert.equal(decideMismatchRefund({ ...base, priorUnknown: true }).action, "retry");
+  assert.equal(decideMismatchRefund({ ...base, bookedAlready: true }).action, "refuse");
+  const booked = fnBody("async function paymentAlreadyBooked", "\n}\n");
+  assert.match(booked, /"unknown"/);
+  assert.equal(/catch \{\s*return false;/.test(booked), false);
+  const lookup = readFileSync(new URL("./booking-lookup.ts", import.meta.url), "utf8");
+  const state = lookup.slice(lookup.indexOf("export async function sbPaymentBookedState"));
+  assert.match(state.slice(0, 600), /if \(error\) return "unknown";/);
+});
+
+test("C1/C3: the refund is sent only after an insert-only claim of rec_<paymentId>", () => {
+  const cold = fnBody("async function refundMismatchedCapture", "async function queueCaptureReconcile");
+  const claim = cold.indexOf("await claimReconcileJob(job");
+  assert.ok(claim > 0);
+  assert.ok(cold.indexOf('claim.status === "error"') > claim);
+  assert.ok(cold.indexOf("sendMismatchRefund(") > cold.indexOf('claim.status === "error"'));
+  assert.equal(cold.includes("persistReconcileJob("), false, "no plain upsert of a refund marker");
+  // A refund marker never replaces a live booking job.
+  assert.match(cold, /if \(!isMismatchRefundJob\(existing\)\)/);
+  const queue = fnBody("async function queueCaptureReconcile", "export const createBooking");
+  assert.ok(queue.indexOf("claimReconcileJob(job") < queue.indexOf("runReconcileJob(job)"));
+  assert.match(queue, /claim\.status === "lost" && isMismatchRefundJob\(claim\.existing\)/);
+  for (const file of ["../../../supabase/reconcile_claim.sql", "../../../migrations/0015_reconcile_claim.sql"]) {
+    const sql = readFileSync(new URL(file, import.meta.url), "utf8");
+    assert.match(sql, /on conflict do nothing/);
+    assert.match(sql, /pg_advisory_xact_lock/);
+    assert.match(sql, /reconcile_job_is_refund/);
+    assert.match(sql, /before update on (public\.)?payment_reconcile_jobs/);
+  }
+});
+
+test("C5: the fifth failed refund marks the job failed and alerts ops", () => {
+  const send = fnBody("async function sendMismatchRefund", "\n}\n");
+  assert.match(send, /attempts >= MAX_REFUND_ATTEMPTS\) await failMismatchRefund/);
+  const fail = fnBody("async function failMismatchRefund", "\n}\n");
+  assert.match(fail, /state: "failed"/);
+  assert.match(fail, /console\.error/);
+  assert.match(fail, /to: opsAlertEmail\(\)/);
+  const drain = fnBody("async function drainReconcileJobs", "/** Cap stored on a paid booking.");
+  assert.match(drain, /job\.attempts >= MAX_REFUND_ATTEMPTS\) \{\s*await failMismatchRefund/);
 });

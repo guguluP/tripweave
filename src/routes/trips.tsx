@@ -11,6 +11,7 @@ import { DigitPop, LearnMore, Stagger, TextSwap } from "@/components/motion";
 import { pushBanner } from "@/lib/banners";
 import { DEFAULT_BRIEF, formatMoney, getPackage, loadBrief, nightsPhrase } from "@/lib/packages";
 import { paymentLine } from "@/lib/pay";
+import { AskTripWeaveButton } from "@/components/ask-sheet";
 import { cancelBooking, listBookings, type BookingRow } from "@/lib/server/bookings";
 import { loadCatalog, saveStayReview } from "@/lib/server/catalog";
 import { setCatalogOverlays } from "@/lib/catalog-store";
@@ -28,6 +29,7 @@ import {
 } from "@/lib/travel-plan";
 import type { OriginId } from "@/lib/origins";
 import {
+  isCancellableStatus,
   isClosedStay,
   refundAmountInr,
   refundPolicyFor,
@@ -216,6 +218,21 @@ function TripsInner() {
                         </span>
                       </p>
                       {travelLine ? <p className="text-xs text-muted">{travelLine}</p> : null}
+                      <AskTripWeaveButton
+                        hotelName={b.packageName}
+                        nationalities={meta.guestNationalities ?? []}
+                        oci={meta.guestFlags?.map((row) => row.oci)}
+                        priorIndianVisa={meta.guestFlags?.map((row) => row.priorIndianVisa)}
+                        checkIn={b.checkIn}
+                        packageId={b.packageId}
+                        roomId={meta.roomId}
+                        nights={b.nights}
+                        arriveBy={plan.arriveBy}
+                        confirmationCode={b.confirmationCode}
+                        includePickup={plan.includePickup}
+                        amountInr={b.amountInr}
+                        status={b.status}
+                      />
                       {daysUntilCheckIn(b.checkIn) === 1 && !closed ? (
                         <p className="rounded-md bg-primary/10 px-3 py-2 text-sm">Check-in is tomorrow. Keep {b.confirmationCode} ready for the desk.</p>
                       ) : null}
@@ -243,7 +260,11 @@ function TripsInner() {
                       ) : null}
                       {!closed ? (
                         <div className="grid gap-3">
-                          <p className="text-xs text-subtle">{policy.label}.</p>
+                          {b.status === "refund_pending" ? (
+                            <p className="text-xs text-subtle">Refund in progress.</p>
+                          ) : isCancellableStatus(b.status) ? (
+                            <p className="text-xs text-subtle">{policy.label}.</p>
+                          ) : null}
                           <AddToWallet booking={b} compact className="contents" />
                           <div className="flex flex-wrap gap-2">
                             <Button asChild size="sm">
@@ -278,6 +299,7 @@ function TripsInner() {
                                 GST invoice
                               </a>
                             </Button>
+                            {isCancellableStatus(b.status) ? (
                             <Button
                               variant="outline"
                               size="sm"
@@ -322,6 +344,7 @@ function TripsInner() {
                                 shimmer={cancelling === b.id}
                               />
                             </Button>
+                            ) : null}
                           </div>
                         </div>
                       ) : null}

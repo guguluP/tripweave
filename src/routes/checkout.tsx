@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DigitPop, MotionToggle, ShakeField, Stagger, TextSwap } from "@/components/motion";
 import { ArrivalChecklist } from "@/components/arrival-checklist";
-import { AskTripWeave } from "@/components/ask-tripweave";
+import { AskTripWeaveButton } from "@/components/ask-sheet";
 import { GuestForms, useGuestForms } from "@/components/guest-forms";
 import { DigilockerFlow } from "@/components/digilocker-flow";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
@@ -591,17 +591,26 @@ function CheckoutInner() {
                 roomId={room?.id}
                 nights={nights}
                 arriveBy={brief.arriveBy}
+                hideAsk
               />
-            ) : (
-              <AskTripWeave
+            ) : null}
+            <p className="mt-2">
+              <AskTripWeaveButton
+                hotelName={pkg.name}
                 nationalities={forms.list.map((guest) => guest.nationality)}
+                oci={forms.list.map((guest) => Boolean(guest.oci))}
+                priorIndianVisa={forms.list.map((guest) => Boolean(guest.priorIndianVisa))}
+                arrivalAirport="BBI"
+                checkIn={checkIn}
                 packageId={pkg.id}
                 roomId={room?.id}
-                checkIn={checkIn}
                 nights={nights}
                 arriveBy={brief.arriveBy}
+                includePickup={plan.includePickup}
+                amountInr={stayDue}
+                onRequestCar={() => persistTravel({ ...plan, includePickup: true })}
               />
-            )}
+            </p>
             {!anyForeign && journey?.showDigiYatra ? (
               <div className="rounded-lg border border-border bg-elevated px-4 py-3">
                 <p className="text-sm font-medium">Airport e-gates (DigiYatra)</p>

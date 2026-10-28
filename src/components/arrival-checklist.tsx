@@ -19,7 +19,7 @@ export function ArrivalChecklist({
   roomId,
   nights,
   arriveBy,
-  hideAsk = false,
+  hideAsk = true,
 }: {
   nationalities: string[];
   oci?: boolean[];

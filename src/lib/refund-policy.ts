@@ -62,3 +62,13 @@ const CANCELLABLE = new Set(["paid", "held", "confirmed", "refund_pending"]);
 export function isCancellableStatus(status: string | null | undefined): boolean {
   return typeof status === "string" && CANCELLABLE.has(status);
 }
+
+/**
+ * A stay that is still live for the guest: booked and not cancelled, refunded, refund pending,
+ * checked in or completed. Hotel requests (airport car) are only sent for these.
+ */
+const ACTIVE = new Set(["paid", "held", "confirmed", "desk_confirmed"]);
+
+export function isActiveStayStatus(status: string | null | undefined): boolean {
+  return typeof status === "string" && ACTIVE.has(status);
+}

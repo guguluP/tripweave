@@ -1,5 +1,6 @@
 import { checklistForParty, SOURCES, type ChecklistItem, type SourceId } from "./arrival-rules.ts";
 import { isRealIsoDate } from "./check-in.ts";
+import { deskFor } from "./hotel-desk.ts";
 import { getPackage } from "./packages.ts";
 import { isCancellableStatus, refundAmountInr, refundPolicyFor, stayStatusLabel } from "./refund-policy.ts";
 import type { ArriveBy } from "./origins.ts";
@@ -18,21 +19,61 @@ const RULES_CHECKED = "Rules checked 19 Oct 2026.";
 
 /* ---------------------------------------------------------------- documents */
 
+const ND = /\p{Nd}/u;
+
+/** Map every Unicode decimal digit (Arabic-Indic, Devanagari, fullwidth, ...) to ASCII 0-9. */
+export function asciiDigits(text: string): string {
+  let out = "";
+  for (const ch of text.normalize("NFKC")) {
+    if (ch >= "0" && ch <= "9") {
+      out += ch;
+      continue;
+    }
+    if (!ND.test(ch)) {
+      out += ch;
+      continue;
+    }
+    // Unicode digits come in runs of ten starting at zero. Walk back to the start of the run.
+    const cp = ch.codePointAt(0)!;
+    let start = cp;
+    while (start > 0 && ND.test(String.fromCodePoint(start - 1))) start -= 1;
+    out += String((cp - start) % 10);
+  }
+  return out;
+}
+
 /** Separators that may sit between digit groups of one number. Repeats count as one join. */
-const JOINER = "[\\s.,/_-]";
-/** An ISO date that is not glued to another digit by nothing or by a single non-space separator. */
-const ISO_DATE = /(?<!\d[.,/_-]?)(\d{4}-\d{2}-\d{2})(?![.,/_-]?\d)/g;
-const DIGIT_RUN = new RegExp(`\\d+(?:${JOINER}+\\d+)*`, "g");
+const JOINER = "[\\s.,/_\\-\u2010-\u2015]";
+/** A date-shaped token: YYYY-MM-DD or DD-MM-YYYY with -, / or . (the day may be a typo such as 30 Feb). */
+const DATE =
+  "(?:(?:19|20)\\d{2}[-/.](?:0?[1-9]|1[0-2])[-/.](?:0?[1-9]|[12]\\d|3[01])|(?:0?[1-9]|[12]\\d|3[01])[-/.](?:0?[1-9]|1[0-2])[-/.](?:19|20)\\d{2})";
+/** Two dates joined as a range: 2027-06-15/2027-06-16, 15/06/2027 - 16/06/2027, 2027-06-15 to 2027-06-20. */
+const DATE_RANGE = new RegExp(
+  `(?<![\\dA-Za-z])${DATE}\\s*(?:[-/~\u2013\u2014]|to|till|until)\\s*${DATE}(?![\\dA-Za-z])`,
+  "gi",
+);
+/** One date that is not glued to another digit or letter by nothing or by a single separator. */
+const ONE_DATE = new RegExp(`(?<![\\dA-Za-z][.,/_-]?)${DATE}(?![.,/_-]?[\\dA-Za-z])`, "g");
+/** A token that holds at least one digit (letters glued to digits count, e.g. K12A34B56C78). */
+const DIGIT_TOKEN = "[A-Za-z]*\\d[A-Za-z\\d]*";
+const DOC_RUN = new RegExp(`${DIGIT_TOKEN}(?:${JOINER}+${DIGIT_TOKEN})*`, "g");
 
 /**
- * A document-like run: six or more digits joined by any run of spaces, hyphens, dots,
- * commas, slashes or underscores. Only a real calendar ISO date (YYYY-MM-DD) is ignored.
+ * True when the text looks like it holds a passport, visa, ID, phone or card number:
+ * six or more digits in one run, where a run is digit-bearing tokens (letters may be glued
+ * to the digits) joined by spaces, hyphens, dots, commas, slashes or underscores.
+ * Unicode digits are mapped to ASCII first. Date-shaped tokens and date ranges are ignored.
  */
 export function questionHasDocumentDigits(question: string): boolean {
-  const withoutDates = question.replace(ISO_DATE, (match) => (isRealIsoDate(match) ? " " : match));
-  const runs = withoutDates.match(DIGIT_RUN) ?? [];
+  const text = asciiDigits(question)
+    .replace(DATE_RANGE, " | ")
+    .replace(ONE_DATE, " | ");
+  const runs = text.match(DOC_RUN) ?? [];
   return runs.some((run) => run.replace(/\D/g, "").length >= 6);
 }
+
+/** Stored in place of a question that was blocked as a document number. Never the original text. */
+export const REDACTED_QUESTION = "[Question not saved: it looked like a passport, visa or ID number.]";
 
 /* ---------------------------------------------------------------- inputs */
 
@@ -63,6 +104,10 @@ export type AskTopic =
   | "room"
   | "paid"
   | "stay"
+  | "includes"
+  | "checkout"
+  | "desk"
+  | "distance"
   | "evisa"
   | "voa"
   | "earrival"
@@ -87,6 +132,25 @@ export const OWNER_ONLY_LINE =
 
 /* ---------------------------------------------------------------- stay facts */
 
+function checkOutDate(checkIn: string, nights: number): string {
+  const day = new Date(`${checkIn}T00:00:00Z`);
+  day.setUTCDate(day.getUTCDate() + nights);
+  return day.toISOString().slice(0, 10);
+}
+
+function deskLine(packageId: string): string {
+  const desk = deskFor(packageId);
+  return `TripWeave: the hotel desk is ${desk.note}, ${desk.email}${desk.phone ? `, ${desk.phone}` : ""}.`;
+}
+
+/** The reply for a stay question TripWeave has no fact for. Never an official visa link. */
+export function tripweaveFallback(packageId?: string): string {
+  const pkg = packageId ? getPackage(packageId) : undefined;
+  if (!pkg) return "TripWeave does not have this on file. Ask the hotel desk; the contact is on your voucher.";
+  const desk = deskFor(pkg.id);
+  return `TripWeave does not have this on file. Ask the hotel desk: ${desk.note}, ${desk.email}${desk.phone ? `, ${desk.phone}` : ""}.`;
+}
+
 function stayFacts(input: AskGrounding): Fact[] {
   if (!input.packageId) return [];
   const pkg = getPackage(input.packageId);
@@ -96,6 +160,20 @@ function stayFacts(input: AskGrounding): Fact[] {
   add(`TripWeave stay: ${pkg.name}, Puri. The street address is not on file.`, "stay");
   const room = input.roomId ? pkg.rooms.find((row) => row.id === input.roomId) : undefined;
   if (room) add(`TripWeave room: ${room.name}.`, "room");
+  if (pkg.includes.length > 0) {
+    add(
+      `TripWeave: ${pkg.name} lists these with the stay: ${pkg.includes.join(", ")}. Times and menus are not on file. Ask the hotel desk.`,
+      "includes",
+    );
+  }
+  const nightsOk = input.nights != null && Number.isInteger(input.nights) && input.nights >= 1 && input.nights <= 14;
+  if (input.checkIn && isRealIsoDate(input.checkIn) && nightsOk) {
+    add(
+      `TripWeave check-out: ${checkOutDate(input.checkIn, input.nights!)}. The check-out time is not on file. Ask the hotel desk.`,
+      "checkout",
+    );
+  }
+  add(deskLine(pkg.id), "desk");
   const status = input.status ?? null;
   const hasAmount = input.amountInr != null && Number.isFinite(input.amountInr) && input.amountInr > 0;
   if (input.checkIn && isRealIsoDate(input.checkIn)) {
@@ -222,9 +300,13 @@ const TOPIC_WORDS: [AskTopic, RegExp][] = [
   ["nights", /\bnights?\b|how long|how many days|रातें|रात/],
   ["room", /\brooms?\b|कमरा|कमरे/],
   ["paid", /\b(paid|amount|price|cost|charged?|how much)\b|भुगतान|कितना/],
+  ["includes", /\b(breakfast|lunch|dinner|meals?|food|buffet|pool|spa|gym|parking|wi-?fi|amenit(y|ies)|facilit(y|ies))\b|what('?s| is) included|what comes with|नाश्ता/],
+  ["checkout", /\bcheck[ -]?out\b|\bcheckout\b|leave the (hotel|room)|चेक[- ]?आउट/],
+  ["desk", /\b(contact|email|phone|call|reach) (the )?(hotel|desk|reception)\b|hotel (desk|email|phone|contact)/],
+  ["distance", /\bhow far\b|\bfar (from|to)\b|\bdistance\b|\bkms?\b|kilomet/],
   ["stay", /\b(which|what) hotel\b|hotel name|where (am|do|will) i stay|where i('| a)?m staying|\baddress\b|\bstreet\b|पता/],
   ["evisa", /\be[- ]?visa\b|\bevisa\b|ई-?वीज़ा|ई-?वीजा/],
-  ["voa", /visa[- ]on[- ]arrival|\bvoa\b|arrival visa|visa[- ]free|without a visa|need a visa/],
+  ["voa", /visa[- ]on[- ]arrival|\bvoa\b|arrival visa/],
   ["earrival", /\be[- ]?arrival\b|arrival card|landing card|disembarkation|ई-?अराइवल/],
   ["airsuvidha", /air ?suvidha|health (self[- ])?declaration|self[- ]declaration|health form|एयर सुविधा/],
   ["formiii", /\bform ?(iii|3|c)\b|\bfrro\b|\bc[- ]form\b|report\w* (to )?(the )?(police|frro|foreign)/],
@@ -250,19 +332,69 @@ const TOPIC_SOURCE: Partial<Record<AskTopic, SourceId>> = {
   fly: "evisa",
 };
 
+/**
+ * Wording right before a keyword (same clause) that means the guest does not want it:
+ * "don't need a car", "do not want a pickup", "no taxi", "won't book a cab".
+ * Plain "not" elsewhere ("what if I do not get my e-Visa") does not negate.
+ */
+const NEGATION =
+  /(?:\b(?:don'?t|do not|doesn'?t|does not|didn'?t|did not|won'?t|will not|not|never)\s+(?:need|want|require|use|book|take)\b(?:\s+\S+){0,2}|\bno(?:\s+(?:need for|thanks to))?(?:\s+(?:a|an|the|any))?)\s*$/;
+
+/** Split into clauses so "I don't need a car, do I need a visa?" negates only the car. */
+function clauses(text: string): string[] {
+  return text.split(/[,.;!?]|\bbut\b|\balso\b|\band\b|\bthough\b|लेकिन/).map((part) => part.trim()).filter(Boolean);
+}
+
+/** True when every match of `words` in this clause sits right after a negation (within four words). */
+function onlyNegated(clause: string, words: RegExp): boolean {
+  const flags = words.flags.includes("g") ? words.flags : `${words.flags}g`;
+  const all = [...clause.matchAll(new RegExp(words.source, flags))];
+  if (all.length === 0) return false;
+  return all.every((match) => {
+    const before = clause.slice(0, match.index).trim().split(/\s+/).slice(-5).join(" ");
+    return NEGATION.test(before);
+  });
+}
+
+function matches(text: string, words: RegExp): boolean {
+  return clauses(text).some((clause) => words.test(clause) && !onlyNegated(clause, words));
+}
+
+const VISA_WORD = /\bvisas?\b|वीज़ा|वीजा/;
+const AIRPORT_WORD = /\bairport\b/;
+
 export function topicsFor(question: string): AskTopic[] {
   const text = question.toLowerCase().replace(/\s+/g, " ");
   const found = new Set<AskTopic>();
-  for (const [topic, words] of TOPIC_WORDS) if (words.test(text)) found.add(topic);
+  for (const [topic, words] of TOPIC_WORDS) if (matches(text, words)) found.add(topic);
   // "airport" alone means arrival airports, unless the guest is asking about a car.
-  if (/\bairport\b/.test(text) && !found.has("car")) found.add("airports");
-  // A bare "visa" covers both the e-Visa and visa-on-arrival lines.
-  if (/\bvisa\b|वीज़ा|वीजा/.test(text) && !found.has("evisa") && !found.has("voa")) {
+  if (matches(text, AIRPORT_WORD) && !found.has("car") && !found.has("distance") && !/\b(car|cab|taxi|pick)/.test(text)) {
+    found.add("airports");
+  }
+  // A generic visa question ("Do I need a visa?", "visa-free?", "without a visa") covers
+  // both the e-Visa and visa-on-arrival lines.
+  if (matches(text, VISA_WORD) && !found.has("evisa") && !found.has("voa")) {
     found.add("evisa");
     found.add("voa");
   }
   return [...found];
 }
+
+/** Topics TripWeave answers from its own booking data. Anything else is an entry-rule topic. */
+const STAY_TOPICS = new Set<AskTopic>([
+  "refund",
+  "car",
+  "status",
+  "checkin",
+  "nights",
+  "room",
+  "paid",
+  "stay",
+  "includes",
+  "checkout",
+  "desk",
+  "distance",
+]);
 
 /* ---------------------------------------------------------------- suggestions and limits */
 
@@ -319,7 +451,11 @@ export function answerQuestion(question: string, input: AskGrounding): AskAnswer
     }
   }
   if (lines.length === 0) {
-    const first = topics.map((topic) => TOPIC_SOURCE[topic]).find(Boolean);
+    // Nothing matched, or only TripWeave stay topics with no fact on file (breakfast time,
+    // check-out time, distance): answer as TripWeave, never with an e-Visa link.
+    const entryTopics = topics.filter((topic) => !STAY_TOPICS.has(topic));
+    if (entryTopics.length === 0) return { answer: tripweaveFallback(input.packageId), topics, matched: false };
+    const first = entryTopics.map((topic) => TOPIC_SOURCE[topic]).find(Boolean);
     const urls = first ? [SOURCES[first].url] : groundingPacket(input).urls;
     return { answer: fallbackAnswer(urls), topics, matched: false };
   }

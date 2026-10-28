@@ -69,11 +69,21 @@ const EN = {
   askFailed: "Could not answer that.",
   askLimited: "Try again in an hour.",
   askNoDocuments: "Leave out passport and visa numbers.",
+  askRefundPending: "A refund for this stay is already in progress.",
   askYou: "You",
   askFly: "What should I do before I fly?",
   askRefund: "What is the refund if I cancel?",
   askCar: "Does this hotel include an airport car?",
   askDesk: "Has the hotel confirmed this stay?",
+  askClose: "Close",
+  askWorking: "Answering…",
+  askFromStay: "From your TripWeave booking",
+  askEmail: "Email me this checklist",
+  askEmailSent: "Sent to the email on your sign-in.",
+  askCarButton: "Ask the hotel for the airport car",
+  askCarDone: "Requested. TripWeave adds ₹0. The hotel bills the car.",
+  askOpenVoucher: "Open voucher",
+  askRefundNow: "Refund if you cancel now:",
 } as const;
 
 const HI: Record<keyof typeof EN, string> = {
@@ -140,11 +150,21 @@ const HI: Record<keyof typeof EN, string> = {
   askFailed: "इसका उत्तर नहीं दे सके।",
   askLimited: "एक घंटे बाद फिर कोशिश करें।",
   askNoDocuments: "पासपोर्ट और वीज़ा नंबर न लिखें।",
+  askRefundPending: "इस ठहराव का रिफंड पहले से चल रहा है।",
   askYou: "आप",
   askFly: "उड़ान से पहले मुझे क्या करना चाहिए?",
   askRefund: "रद्द करने पर रिफंड क्या है?",
   askCar: "क्या इस होटल में एयरपोर्ट कार शामिल है?",
   askDesk: "क्या होटल ने इस ठहराव की पुष्टि कर दी है?",
+  askClose: "बंद करें",
+  askWorking: "उत्तर आ रहा है…",
+  askFromStay: "आपके ट्रिपवीव ठहराव से",
+  askEmail: "यह सूची मुझे ईमेल करें",
+  askEmailSent: "आपके साइन-इन ईमेल पर भेज दिया।",
+  askCarButton: "होटल से हवाई अड्डे की कार माँगें",
+  askCarDone: "माँग भेज दी। ट्रिपवीव ₹0 जोड़ता है। होटल कार का बिल देता है।",
+  askOpenVoucher: "वाउचर खोलें",
+  askRefundNow: "अभी रद्द करने पर रिफंड:",
 };
 
 export type GuestLabel = keyof typeof EN;

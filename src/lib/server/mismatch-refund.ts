@@ -16,7 +16,7 @@ export type MismatchDecision =
   | { action: "refund"; amountInr: number }
   | { action: "retry"; message: string };
 
-const ALREADY_REFUNDED =
+export const ALREADY_REFUNDED =
   "Payment does not match this stay, so no stay was booked. The charge was sent back. Start checkout again.";
 
 export function refundQueuedMessage(paymentId: string): string {
@@ -37,9 +37,11 @@ export function decideMismatchRefund(input: {
   paymentId: string;
   /** userId written in the Razorpay order notes when the order was created. */
   notesUserId: string | null | undefined;
-  /** Any stay already stored for this payment id, for any user. */
-  bookedAlready: boolean;
+  /** Any stay already stored for this payment id, for any user. "unknown" when the lookup failed. */
+  bookedAlready: boolean | "unknown";
   prior: { state: string; lastError?: string } | null;
+  /** True when the durable reconcile-job read failed, so `prior` may be missing a row. */
+  priorUnknown?: boolean;
   payment: { status: string; amountPaise: number; amountRefundedPaise: number } | null;
 }): MismatchDecision {
   // Not this guest's order, or already a stay: a replay. Keep the old answer and refund nothing.
@@ -47,6 +49,10 @@ export function decideMismatchRefund(input: {
     return { action: "refuse", message: MISMATCH_MESSAGE };
   }
   if (!input.paymentId.startsWith("pay_")) return { action: "refuse", message: MISMATCH_MESSAGE };
+  // A failed lookup is not "not booked": queue the refund marker and decide on the retry.
+  if (input.bookedAlready === "unknown" || input.priorUnknown === true) {
+    return { action: "retry", message: refundQueuedMessage(input.paymentId) };
+  }
   if (input.bookedAlready) {
     return { action: "refuse", message: "This payment is already booked. Check My trips. Do not pay again." };
   }
@@ -74,4 +80,11 @@ export function decideMismatchRefund(input: {
     return { action: "already_refunded", message: ALREADY_REFUNDED };
   }
   return { action: "refund", amountInr: left / 100 };
+}
+
+/** Refund attempts before a mismatch refund is marked failed and ops is alerted. */
+export const MAX_REFUND_ATTEMPTS = 5;
+
+export function refundDeskMessage(paymentId: string): string {
+  return `Payment ${paymentId} does not match this stay, so no stay was booked. Automatic refund failed. Do not pay again. Quote payment ${paymentId} to the desk.`;
 }

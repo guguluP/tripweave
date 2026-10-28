@@ -5,6 +5,8 @@ import {
   memoryFindByPaymentRef,
 } from "@/lib/booking-memory";
 import type { BookingRow } from "@/lib/server/bookings";
+import { getSql } from "@/lib/db";
+import { shouldSkipNeon } from "@/lib/server/db-fallback";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { sbListBookings } from "@/lib/supabase/bookings";
@@ -58,6 +60,27 @@ export async function sbFindBookingByPaymentRef(paymentRef: string): Promise<Boo
   return mapRow(data as Record<string, unknown>);
 }
 
+/**
+ * Three-way lookup for refund decisions: "booked", "not_booked", or "unknown" when the
+ * database read failed. An error must never count as "not booked".
+ */
+export async function sbPaymentBookedState(paymentRef: string): Promise<"booked" | "not_booked" | "unknown"> {
+  const sb = getSupabaseAdmin();
+  if (!sb || !paymentRef) return "unknown";
+  try {
+    const { data, error } = await sb
+      .from("bookings")
+      .select("id")
+      .eq("payment_ref", paymentRef)
+      .limit(1)
+      .maybeSingle();
+    if (error) return "unknown";
+    return data ? "booked" : "not_booked";
+  } catch {
+    return "unknown";
+  }
+}
+
 export async function sbFindBookingByOrderId(orderId: string): Promise<BookingRow | null> {
   const sb = getSupabaseAdmin();
   if (!sb || !orderId) return null;
@@ -80,6 +103,43 @@ export async function sbFindBookingByOrderId(orderId: string): Promise<BookingRo
   return mapRow(booking as Record<string, unknown>);
 }
 
+/** Local Postgres is the store when Supabase is off and DATABASE_URL works (not on Vercel). */
+function localSqlStore(): boolean {
+  return !isSupabaseConfigured() && !shouldSkipNeon() && !process.env.VERCEL;
+}
+
+/** The full booking row for a confirmation code that belongs to this sign-in, or null. */
+export async function findOwnBookingRowByCode(userId: string, confirmationCode: string): Promise<BookingRow | null> {
+  const code = confirmationCode.trim();
+  if (!userId || !code) return null;
+  if (isSupabaseConfigured()) {
+    try {
+      const rows = await sbListBookings(userId);
+      const hit = rows?.find((row) => row.confirmationCode === code);
+      if (hit) return { ...hit, userId: hit.userId ?? userId };
+    } catch {
+      /* fall through to this process */
+    }
+  } else if (localSqlStore()) {
+    try {
+      const sql = await getSql();
+      const rows = await sql.query<Record<string, unknown>>(
+        `select id, user_id, package_id, package_name, nights, travelers,
+                to_char(check_in, 'YYYY-MM-DD') as check_in, amount_inr, swaps, status,
+                card_last4, card_brand, payer_name, confirmation_code, payment_method,
+                payment_ref, upi_handle, bank_name, created_at
+         from bookings where user_id = $1 and confirmation_code = $2 limit 1`,
+        [userId, code],
+      );
+      if (rows[0]) return mapRow(rows[0]);
+    } catch {
+      /* fall through to this process */
+    }
+  }
+  const local = memoryBookingsFor(userId).find((row) => row.confirmationCode === code);
+  return local ? { ...local, userId: local.userId ?? userId } : null;
+}
+
 /** Stay fields for a confirmation code that belongs to this sign-in. No guest name or payment id. */
 export async function findOwnBookingByCode(
   userId: string,
@@ -92,27 +152,16 @@ export async function findOwnBookingByCode(
   amountInr: number;
   status: string;
 } | null> {
-  const code = confirmationCode.trim();
-  if (!userId || !code) return null;
-  const slim = (row: BookingRow) => ({
+  const row = await findOwnBookingRowByCode(userId, confirmationCode);
+  if (!row) return null;
+  return {
     packageId: row.packageId,
     roomId: readMeta(row.swaps).roomId,
     checkIn: String(row.checkIn).slice(0, 10),
     nights: row.nights,
     amountInr: row.amountInr,
     status: row.status,
-  });
-  if (isSupabaseConfigured()) {
-    try {
-      const rows = await sbListBookings(userId);
-      const hit = rows?.find((row) => row.confirmationCode === code);
-      if (hit) return slim(hit);
-    } catch {
-      /* fall through to this process */
-    }
-  }
-  const local = memoryBookingsFor(userId).find((row) => row.confirmationCode === code);
-  return local ? slim(local) : null;
+  };
 }
 
 export async function findExistingCapturedBooking(opts: {

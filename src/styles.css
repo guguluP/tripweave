@@ -61,12 +61,42 @@
   display: none;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .ask-sheet {
+    animation: ask-rise 180ms ease-out;
+  }
+  .ask-chip {
+    animation: ask-fade 160ms ease-out;
+  }
+}
+@keyframes ask-rise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes ask-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .page-rise,
   .roll-digit-strip,
   .story-caption,
   .story-progress,
-  .stay-cover-sheet {
+  .stay-cover-sheet,
+  .ask-sheet,
+  .ask-chip {
+    animation: none;
     transition: none;
   }
   .story-frame img,
