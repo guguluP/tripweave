@@ -56,9 +56,10 @@ export function stayStatusLabel(status: string) {
  * How the guest may cancel a stay from My trips.
  * - "refund": not yet confirmed by the hotel desk (paid, held, legacy confirmed, refund_pending).
  *   The time-based refund policy above applies.
- * - "no_refund": the hotel desk confirmed the room (desk_confirmed). The guest may still cancel,
- *   but no refund is issued (product decision, Oct 2026).
- * - null: nothing to cancel (checked in, completed, cancelled, refunded, failed, ...).
+ * - "no_refund": the hotel desk confirmed the room (desk_confirmed) or the guest has checked in
+ *   (checked_in). The guest may still cancel, but no refund is issued (Piyush's decision,
+ *   Oct 2026: "confirmed (or checked in) may cancel, no refund").
+ * - null: nothing to cancel (completed, cancelled, refunded, failed, ...).
  *
  * Legacy "confirmed" rows predate the desk flow (desk_confirmed_at is empty on every one of them),
  * so they keep the refund policy.
@@ -66,16 +67,22 @@ export function stayStatusLabel(status: string) {
 export type GuestCancelMode = "refund" | "no_refund";
 
 const REFUND_CANCEL = new Set(["paid", "held", "confirmed", "refund_pending"]);
+/** Statuses the guest may cancel without a refund. Same list as the SQL / Supabase writes. */
+export const NO_REFUND_CANCEL_STATUSES = ["desk_confirmed", "checked_in"] as const;
+const NO_REFUND_CANCEL = new Set<string>(NO_REFUND_CANCEL_STATUSES);
 
 export function guestCancelMode(status: string | null | undefined): GuestCancelMode | null {
   if (typeof status !== "string") return null;
   if (REFUND_CANCEL.has(status)) return "refund";
-  if (status === "desk_confirmed") return "no_refund";
+  if (NO_REFUND_CANCEL.has(status)) return "no_refund";
   return null;
 }
 
 export const NO_REFUND_CANCEL_WARNING =
   "The hotel has confirmed this room. If you cancel now, no refund will be issued.";
+
+export const NO_REFUND_CANCEL_WARNING_CHECKED_IN =
+  "You have checked in at the hotel. If you cancel now, no refund will be issued.";
 
 export const NO_REFUND_CANCEL_NEEDS_CONFIRM =
   "The hotel has confirmed this stay, so cancelling it now gives no refund. Refresh My trips and use Cancel (no refund) to go ahead.";

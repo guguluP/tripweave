@@ -134,8 +134,8 @@ export async function sbCancelBooking(
 }
 
 /**
- * Guest cancel of a hotel-confirmed stay (no refund). A plain conditional update: it only
- * matches a row that is still desk_confirmed, so no money moves and a repeat is a no-op.
+ * Guest cancel of a hotel-confirmed or checked-in stay (no refund). A plain conditional update:
+ * it only matches a row that is still desk_confirmed or checked_in, so no money moves and a repeat is a no-op.
  * Returns false when no row matched (already cancelled, checked in, or not this guest's).
  */
 export async function sbCancelConfirmedNoRefund(
@@ -150,7 +150,7 @@ export async function sbCancelConfirmedNoRefund(
     .update({ status: "cancelled", swaps })
     .eq("id", id)
     .eq("user_id", userId)
-    .eq("status", "desk_confirmed")
+    .in("status", ["desk_confirmed", "checked_in"])
     .select("id");
   if (error) throw new Error(error.message);
   return Array.isArray(data) && data.length > 0;

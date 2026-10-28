@@ -1038,8 +1038,8 @@ export const createBooking = createServerFn({ method: "POST" })
   });
 
 /**
- * Guest cancel of a hotel-confirmed stay: status cancelled, refund 0, no Razorpay call.
- * Each store's write only matches a row that is still desk_confirmed, so a parallel cancel or a
+ * Guest cancel of a hotel-confirmed or checked-in stay: status cancelled, refund 0, no Razorpay
+ * call. Each store's write only matches a row that is still desk_confirmed or checked_in, so a parallel cancel or a
  * desk check-in in between makes this one a no-op instead of a second write.
  */
 async function cancelConfirmedNoRefund(
@@ -1072,7 +1072,7 @@ async function cancelConfirmedNoRefund(
       const updated = await sql`
         update bookings
         set status = ${status}, swaps = ${swapsJson}
-        where id = ${id} and user_id = ${userId} and status = 'desk_confirmed'
+        where id = ${id} and user_id = ${userId} and status in ('desk_confirmed', 'checked_in')
         returning id
       `;
       if (fromSql && !updated.length) {
