@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import {
   ASK_LIMITS,
   ASK_SUGGESTIONS,
+  INDIAN_PARTY_LINE,
   OWNER_ONLY_LINE,
   answerQuestion,
   askBucket,
@@ -198,8 +199,11 @@ describe("answer engine", () => {
     const voa = answerQuestion("Is there visa on arrival?", { nationalities: ["US"] });
     assert.match(voa.answer, /^Not stated by the official sources TripWeave checked; see https:\/\//);
     // A topic with no matching line falls back to that topic's official source.
+    const unknown = answerQuestion("Do I need an e-Visa?", { nationalities: [] });
+    assert.equal(unknown.answer, fallbackAnswer([SOURCES.evisa.url]));
+    // An all-Indian party gets the TripWeave line instead of an e-Visa link.
     const indian = answerQuestion("Do I need an e-Visa?", { nationalities: ["IN"] });
-    assert.equal(indian.answer, fallbackAnswer([SOURCES.evisa.url]));
+    assert.equal(indian.answer, INDIAN_PARTY_LINE);
   });
 
   it("cannot be steered by the question text", () => {
@@ -346,5 +350,23 @@ describe("airport car when the arrival mode is unknown (B5)", () => {
   it("describes the car the hotel offers fly-in guests", () => {
     const result = answerQuestion(ASK_SUGGESTIONS.car, { nationalities: [], packageId: "taj-puri-resort-spa" });
     assert.match(result.answer, /for guests who fly in to Bhubaneswar \(BBI\), this hotel offers its own airport car/);
+  });
+});
+
+describe("all-Indian party", () => {
+  const base = { packageId: "taj-puri-resort-spa", checkIn: FAR, nights: 2, amountInr: 20000, status: "paid" };
+  it("answers entry questions with the Indian-party line, not an e-Visa link", () => {
+    for (const q of ["What should I do before I fly?", "Do I need a visa?", "How much is the e-Visa fee?"]) {
+      const out = answerQuestion(q, { ...base, nationalities: ["IN", "IN"] });
+      assert.equal(out.answer, INDIAN_PARTY_LINE, q);
+      assert.ok(!out.answer.includes("indianvisaonline"), q);
+    }
+  });
+  it("keeps the official checklist when any traveller is foreign or nationality is unknown", () => {
+    assert.match(answerQuestion("Do I need a visa?", { ...base, nationalities: ["IN", "US"] }).answer, /e-Visa/);
+    assert.notEqual(answerQuestion("Do I need a visa?", { ...base, nationalities: [] }).answer, INDIAN_PARTY_LINE);
+  });
+  it("still answers stay questions for an Indian party", () => {
+    assert.match(answerQuestion("How much did I pay?", { ...base, nationalities: ["IN"] }).answer, /amount paid/);
   });
 });

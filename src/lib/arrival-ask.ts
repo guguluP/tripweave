@@ -144,6 +144,14 @@ function deskLine(packageId: string): string {
 }
 
 /** The reply for a stay question TripWeave has no fact for. Never an official visa link. */
+/** Every traveller on file is an Indian national, so no foreign-arrival checklist line applies. */
+export const INDIAN_PARTY_LINE =
+  "TripWeave: everyone on this booking is listed as an Indian national, so the foreign-arrival steps (e-Visa, e-Arrival card, Form III) do not apply. Carry the ID you entered at checkout for hotel check-in.";
+
+function allIndianParty(nationalities: string[]): boolean {
+  return nationalities.length > 0 && nationalities.every((code) => code === "IN");
+}
+
 export function tripweaveFallback(packageId?: string): string {
   const pkg = packageId ? getPackage(packageId) : undefined;
   if (!pkg) return "TripWeave does not have this on file. Ask the hotel desk; the contact is on your voucher.";
@@ -461,6 +469,9 @@ export function answerQuestion(question: string, input: AskGrounding): AskAnswer
     // check-out time, distance): answer as TripWeave, never with an e-Visa link.
     const entryTopics = topics.filter((topic) => !STAY_TOPICS.has(topic));
     if (entryTopics.length === 0) return { answer: tripweaveFallback(input.packageId), topics, matched: false };
+    if (checklist.length === 0 && allIndianParty(input.nationalities)) {
+      return { answer: INDIAN_PARTY_LINE, topics, matched: true };
+    }
     const first = entryTopics.map((topic) => TOPIC_SOURCE[topic]).find(Boolean);
     const urls = first ? [SOURCES[first].url] : groundingPacket(input).urls;
     return { answer: fallbackAnswer(urls), topics, matched: false };
