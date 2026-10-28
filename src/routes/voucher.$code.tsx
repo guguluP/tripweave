@@ -233,7 +233,7 @@ function VoucherPage() {
             <p>
               चेक-इन {booking.checkIn} · {booking.nights} रातें · {booking.travelers} अतिथि
             </p>
-            <p>भुगतान ₹{booking.amountInr}</p>
+            <p>भुगतान {formatMoney(booking.amountInr)}</p>
             <p>डेस्क {desk.email}</p>
           </div>
           {((meta.guestFlags ?? []).some((row) => row.nationality !== "IN") ||

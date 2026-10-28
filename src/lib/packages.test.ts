@@ -7,6 +7,7 @@ import {
   PACKAGES,
   clampNights,
   daysForStay,
+  formatMoney,
   getPackage,
   getRoom,
   nightsPhrase,
@@ -176,5 +177,19 @@ describe("login next path", () => {
     assert.equal(safeNextPath("/login"), null);
     assert.equal(safeNextPath("/login?next=/checkout"), null);
     assert.equal(safeNextPath(undefined), null);
+  });
+});
+
+describe("formatMoney", () => {
+  it("groups rupees the Indian way with no paise", () => {
+    assert.equal(formatMoney(14632), "₹14,632");
+    assert.equal(formatMoney(1234567), "₹12,34,567");
+    assert.equal(formatMoney(0), "₹0");
+  });
+
+  it("is used for the voucher's Hindi desk slip amount", () => {
+    const voucher = readFileSync(path.join(process.cwd(), "src/routes/voucher.$code.tsx"), "utf8");
+    assert.ok(!voucher.includes("₹{booking.amountInr}"), "raw ₹{booking.amountInr} skips digit grouping");
+    assert.ok(voucher.includes("भुगतान {formatMoney(booking.amountInr)}"));
   });
 });
