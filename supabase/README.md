@@ -30,6 +30,8 @@ Then paste [`guest_arrivals.sql`](guest_arrivals.sql) → Run. Optional arrival 
 
 Then paste [`ask_turns.sql`](ask_turns.sql) → Run. Ask TripWeave threads and the 10-an-hour cap. No passport numbers. Safe to re-run.
 
+Then paste [`cancel_claim.sql`](cancel_claim.sql) → Run. Claims a stay in one atomic update before a cancel refunds it, so two servers cannot refund the same stay twice; also lets a queued (`refund_pending`) refund mark the stay refunded. Replaces `tw_cancel_open` (same signature). Safe to re-run.
+
 ## 2. Keys on the live site
 
 [API settings](https://supabase.com/dashboard/project/csegihiepvxezuypsvop/settings/api) → copy into **Vercel → tripweave-web → Environment Variables** (Production + Preview):

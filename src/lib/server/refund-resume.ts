@@ -60,7 +60,7 @@ export async function resumePendingRefundsForUser(userId: string, rows: BookingR
     let statusSaved = true;
     if (isSupabaseConfigured()) {
       try {
-        await sbCancelBooking(userId, booking.id, { status: "refunded", swaps: meta });
+        if (!(await sbCancelBooking(userId, booking.id, { status: "refunded", swaps: meta }))) statusSaved = false;
       } catch (err) {
         statusSaved = false;
         if (isDurableDbError(err)) markDurableDbFailed(err);

@@ -26,7 +26,7 @@ import {
 } from "@/lib/server/payment-ops";
 import { holdIdsForCheckout, releaseCheckoutHold } from "@/lib/server/room-holds";
 import { withCancelLock } from "@/lib/server/cancel-lock";
-import { CANCEL_IN_PROGRESS_MESSAGE, claimedSwaps, hasFreshCancelClaim } from "@/lib/server/cancel-claim";
+import { CANCEL_CLAIM_TTL_MS, CANCEL_IN_PROGRESS_MESSAGE, claimedSwaps, hasFreshCancelClaim } from "@/lib/server/cancel-claim";
 import { writeMeta, readMeta } from "@/lib/booking-meta";
 import { deskFor } from "@/lib/hotel-desk";
 import { guestRowsFromInput, travelerInputSchema } from "@/lib/traveller-schema";
@@ -43,6 +43,8 @@ import {
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import {
   sbCancelBooking,
+  sbClaimCancel,
+  sbReleaseCancel,
   sbCancelConfirmedNoRefund,
   sbInsertBooking,
   sbListBookings,
@@ -1205,6 +1207,30 @@ export const cancelBooking = createServerFn({ method: "POST" })
             console.error("[bookings] cancel claim release failed", err);
           }
         };
+      } else if (isSupabaseConfigured()) {
+        // Same guard on Supabase, through tw_cancel_claim (supabase/cancel_claim.sql). Until that
+        // SQL is applied the RPC is missing and the cancel runs as before (in-process lock only).
+        if (hasFreshCancelClaim(target.swaps)) return { ok: false, message: CANCEL_IN_PROGRESS_MESSAGE };
+        try {
+          const claim = await sbClaimCancel(context.userId, id, Math.round(CANCEL_CLAIM_TTL_MS / 1000));
+          if (claim.kind === "busy") return { ok: false, message: CANCEL_IN_PROGRESS_MESSAGE };
+          if (claim.kind === "claimed") {
+            const claimAt = claim.claimAt;
+            release = async () => {
+              try {
+                await sbReleaseCancel(context.userId, id, claimAt);
+              } catch (err) {
+                console.error("[bookings] supabase cancel claim release failed", err);
+              }
+            };
+          } else {
+            console.warn("[bookings] tw_cancel_claim missing: apply supabase/cancel_claim.sql");
+          }
+        } catch (err) {
+          if (isDurableDbError(err)) markDurableDbFailed(err);
+          console.error("[bookings] supabase cancel claim failed", err);
+          return { ok: false, message: "Could not start the cancel. Nothing was sent back. Try again." };
+        }
       }
       const giveUp = async (result: CancelResult): Promise<CancelResult> => {
         if (release) await release();
@@ -1263,7 +1289,10 @@ export const cancelBooking = createServerFn({ method: "POST" })
       let statusSaved = true;
       if (isSupabaseConfigured()) {
         try {
-          await sbCancelBooking(context.userId, id, { status, swaps: meta });
+          // null from tw_cancel_open means no open row matched: the status did not save.
+          if (!(await sbCancelBooking(context.userId, id, { status, swaps: meta }))) {
+            throw new Error("tw_cancel_open matched no open stay");
+          }
           await sbInsertPaymentEvent({
             userId: context.userId,
             bookingId: id,

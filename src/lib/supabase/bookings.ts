@@ -120,7 +120,7 @@ export async function sbCancelBooking(
 ): Promise<boolean | null> {
   const sb = getSupabaseAdmin();
   if (!sb) return null;
-  const { error } = await sb.rpc("tw_cancel_open", {
+  const { data, error } = await sb.rpc("tw_cancel_open", {
     p_gate: SUPABASE_WRITE_GATE,
     p_payload: {
       user_id: userId,
@@ -130,7 +130,53 @@ export async function sbCancelBooking(
     },
   });
   if (error) throw new Error(error.message);
-  return true;
+  // tw_cancel_open returns null when no open row matched (already closed, or not this guest's).
+  // That is not a saved status: the caller must not report success.
+  return data != null;
+}
+
+/** Result of claiming a stay for one cancel (supabase/cancel_claim.sql). */
+export type SbCancelClaim =
+  | { kind: "claimed"; claimAt: string; booking: BookingRow }
+  | { kind: "busy" }
+  /** tw_cancel_claim is not on the database yet: cancel runs as before, without the claim. */
+  | { kind: "unsupported" };
+
+function isMissingFunction(error: { code?: string; message?: string }): boolean {
+  return error.code === "PGRST202" || error.code === "42883" || /could not find the function/i.test(error.message ?? "");
+}
+
+/**
+ * Atomic claim before any refund, so a second server (or a retry) cannot refund the same stay.
+ * Only one caller gets "claimed"; the claim ages out after ttlSeconds.
+ */
+export async function sbClaimCancel(userId: string, id: number, ttlSeconds = 360): Promise<SbCancelClaim> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return { kind: "unsupported" };
+  const { data, error } = await sb.rpc("tw_cancel_claim", {
+    p_gate: SUPABASE_WRITE_GATE,
+    p_payload: { user_id: userId, id, ttl_seconds: ttlSeconds },
+  });
+  if (error) {
+    if (isMissingFunction(error)) return { kind: "unsupported" };
+    throw new Error(error.message);
+  }
+  if (!data || typeof data !== "object") return { kind: "busy" };
+  const out = data as { claim_at?: string; booking?: SbBooking };
+  if (!out.claim_at || !out.booking) return { kind: "busy" };
+  return { kind: "claimed", claimAt: out.claim_at, booking: mapSbBooking(out.booking) };
+}
+
+/** Give the claim back after a failed refund (only if it is still ours). */
+export async function sbReleaseCancel(userId: string, id: number, claimAt: string): Promise<boolean> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return false;
+  const { data, error } = await sb.rpc("tw_cancel_release", {
+    p_gate: SUPABASE_WRITE_GATE,
+    p_payload: { user_id: userId, id, claim_at: claimAt },
+  });
+  if (error) throw new Error(error.message);
+  return data === true;
 }
 
 /**

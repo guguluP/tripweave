@@ -424,6 +424,17 @@ export type RefundResult =
   | { ok: true; refundId: string; amountInr: number }
   | { ok: false; message: string };
 
+/**
+ * Razorpay idempotency key for a refund (header X-Refund-Idempotency, see
+ * https://razorpay.com/docs/api/refunds/normal-refunds-idempotent). Same payment + same amount
+ * gives the same key, so a retry, a second server, or a guest cancel racing a desk decline for the
+ * full amount cannot create a second refund at the gateway. Razorpay allows letters, digits,
+ * hyphens and underscores, at least 10 characters, and the retry body must match the first one.
+ */
+export function refundIdempotencyKey(paymentId: string, amountPaise: number): string {
+  return `twr_${paymentId.replace(/[^A-Za-z0-9_-]/g, "-")}_${Math.round(amountPaise)}`;
+}
+
 export async function refundRazorpayPayment(
   paymentId: string,
   amountInr: number,
@@ -441,6 +452,7 @@ export async function refundRazorpayPayment(
       headers: {
         Authorization: authHeader(),
         "Content-Type": "application/json",
+        "X-Refund-Idempotency": refundIdempotencyKey(paymentId, amountPaise),
       },
       body: JSON.stringify({ amount: amountPaise }),
     });
@@ -449,6 +461,11 @@ export async function refundRazorpayPayment(
       amount?: number;
       error?: { description?: string };
     };
+    if (res.status === 409) {
+      // The same refund is still being processed (another server or a retry). Not a failure to
+      // report as money lost; the intent stays pending and the next resume picks it up.
+      return { ok: false, message: "A refund for this payment is already being processed. Refresh in a minute." };
+    }
     if (!res.ok || !json.id) {
       return { ok: false, message: json.error?.description ?? `Refund failed (${res.status})` };
     }
