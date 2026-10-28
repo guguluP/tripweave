@@ -9,6 +9,7 @@ import { getSql } from "@/lib/db";
 import { readMeta, writeMeta } from "@/lib/booking-meta";
 import { releaseHoldById } from "@/lib/inventory";
 import { persistRefundIntent } from "@/lib/server/payment-ops";
+import { hasFreshCancelClaim } from "@/lib/server/cancel-claim";
 
 /** The statuses the desk works on. Same list as tw_desk_bookings in supabase/partner_desk_ops.sql. */
 export const DESK_LIST_STATUSES = ["paid", "confirmed", "desk_confirmed", "checked_in", "held"] as const;
@@ -130,7 +131,18 @@ export async function pgRefundDeclinedStay(input: { id: number; packageId: strin
     amountInr,
     createdAt: now(),
   };
-  if (userId) await persistRefundIntent({ ...intentBase, status: "pending", refundId: undefined, updatedAt: now() });
+  if (userId) {
+    await persistRefundIntent({ ...intentBase, status: "pending", refundId: undefined, updatedAt: now() });
+    // Mark the money as owed before calling the gateway. If this request dies mid-refund, the
+    // stay is refund_pending with a pending intent, and refund resume / cron finish it. Left at
+    // cancelled, resume would close the intent as done and the guest would never be refunded.
+    await sql`
+      update bookings set status = 'refund_pending'
+      where id = ${input.id} and package_id = ${input.packageId} and status = 'cancelled'
+    `;
+  }
+  /** The status the stay sits in while the refund is out. */
+  const owedStatus = userId ? "refund_pending" : "cancelled";
 
   const { fetchRazorpayPayment, refundRazorpayPayment } = await import("@/lib/server/razorpay");
   const payment = await fetchRazorpayPayment(ref);
@@ -156,7 +168,7 @@ export async function pgRefundDeclinedStay(input: { id: number; packageId: strin
   const meta = writeMeta(parseSwaps(row.swaps), { refundId, refundAmount: amountInr, refundedAt: now() });
   const updated = await sql`
     update bookings set status = 'refunded', swaps = ${JSON.stringify(meta)}
-    where id = ${input.id} and package_id = ${input.packageId} and status = 'cancelled'
+    where id = ${input.id} and package_id = ${input.packageId} and status = ${owedStatus}
     returning id
   `;
   if (!updated.length) {
@@ -172,4 +184,51 @@ export async function pgRefundDeclinedStay(input: { id: number; packageId: strin
     status: "refunded",
     message: `Declined. ₹${amountInr.toLocaleString("en-IN")} will return to the original payment.`,
   };
+}
+
+export const DESK_NOT_OPEN_MESSAGE = "That stay is not waiting for this action.";
+export const DESK_NOT_FOUND_MESSAGE = "That stay is not booked at this property.";
+export const DESK_GUEST_CANCELLING_MESSAGE =
+  "The guest is cancelling this stay right now. Refresh in a minute.";
+
+/** Desk-friendly text for a tw_desk_transition error (same wording as the Supabase path). */
+export function deskTransitionErrorMessage(message: string): string {
+  if (/not_open/.test(message)) return DESK_NOT_OPEN_MESSAGE;
+  if (/not_found/.test(message)) return DESK_NOT_FOUND_MESSAGE;
+  return message;
+}
+
+/**
+ * tw_desk_transition on Postgres, but never while the guest is cancelling the same stay.
+ *
+ * The guest cancel claims the stay by rewriting its swaps (status stays paid until the refund is
+ * done), so tw_desk_transition alone would let the desk decline (and refund) or confirm a stay
+ * whose refund is already going out. Here the row is locked only if its swaps still match what
+ * was read, so a claim that lands first stops the desk, and a desk lock that lands first makes the
+ * guest's claim fail (its status check no longer matches).
+ */
+export async function pgDeskTransition(payload: {
+  id: number;
+  package_id: string;
+  action: string;
+  note: string;
+}): Promise<{ ok: true; status?: string } | { ok: false; message: string }> {
+  const sql = await getSql();
+  const found = await sql<{ swaps: string | null }>`
+    select swaps from bookings where id = ${payload.id} and package_id = ${payload.package_id}
+  `;
+  if (!found.length) return { ok: false, message: DESK_NOT_FOUND_MESSAGE };
+  const swapsText = found[0].swaps;
+  if (hasFreshCancelClaim(parseSwaps(swapsText))) return { ok: false, message: DESK_GUEST_CANCELLING_MESSAGE };
+  const rows = await sql<{ result: { status?: string } | null }>`
+    with locked as (
+      select id from bookings
+      where id = ${payload.id} and package_id = ${payload.package_id}
+        and swaps is not distinct from ${swapsText}
+      for update
+    )
+    select tw_desk_transition(${JSON.stringify(payload)}::jsonb) as result from locked
+  `;
+  if (!rows.length) return { ok: false, message: DESK_GUEST_CANCELLING_MESSAGE };
+  return { ok: true, status: rows[0]?.result?.status };
 }

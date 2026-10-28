@@ -19,7 +19,9 @@ export async function resumePendingRefundsForUser(userId: string, rows: BookingR
       await persistRefundIntent({ ...intent, status: "applied", updatedAt: new Date().toISOString() });
       continue;
     }
-    if (intent.status === "pending" && intent.updatedAt !== intent.createdAt) {
+    // A refund_pending stay with a pending intent touched in the last minute may have its refund
+    // in flight on another request (desk decline marks the stay before calling the gateway).
+    if (intent.status === "pending" && (intent.updatedAt !== intent.createdAt || booking.status === "refund_pending")) {
       const updated = Date.parse(intent.updatedAt);
       if (Number.isFinite(updated) && now - updated < 60_000) continue;
     }
