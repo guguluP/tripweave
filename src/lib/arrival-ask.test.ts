@@ -95,7 +95,7 @@ describe("answer engine", () => {
     const { answer, matched } = answerQuestion(ASK_SUGGESTIONS.refund, stay);
     assert.equal(matched, true);
     assert.match(answer, /Full refund/);
-    assert.match(answer, /refund if cancelled now: ₹10000/);
+    assert.match(answer, /refund if cancelled now: ₹10,000\./);
     const lines = stayFactLines(stay);
     for (const line of answer.split("\n")) assert.ok(lines.includes(line), `not a stay fact: ${line}`);
   });
@@ -157,7 +157,7 @@ describe("answer engine", () => {
     }).answer;
     assert.match(answer, new RegExp(`check-in: ${FAR}`));
     assert.match(answer, /nights: 2/);
-    assert.match(answer, /amount paid: ₹10000/);
+    assert.match(answer, /amount paid: ₹10,000\./);
   });
 
   it("answers arrival topics with the checklist line and its official URL", () => {

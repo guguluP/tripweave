@@ -189,7 +189,7 @@ function stayFacts(input: AskGrounding): Fact[] {
       const policy = refundPolicyFor(input.checkIn);
       let refund = `TripWeave: ${policy.label}.`;
       if (status && hasAmount) {
-        refund += ` TripWeave refund if cancelled now: ₹${refundAmountInr(input.amountInr!, input.checkIn)}.`;
+        refund += ` TripWeave refund if cancelled now: ₹${refundAmountInr(input.amountInr!, input.checkIn).toLocaleString("en-IN")}.`;
       }
       add(refund, "refund");
     }
@@ -197,7 +197,7 @@ function stayFacts(input: AskGrounding): Fact[] {
   if (input.nights != null && Number.isInteger(input.nights) && input.nights >= 1 && input.nights <= 14) {
     add(`TripWeave nights: ${input.nights}.`, "nights");
   }
-  if (status && hasAmount) add(`TripWeave amount paid: ₹${input.amountInr}.`, "paid");
+  if (status && hasAmount) add(`TripWeave amount paid: ₹${input.amountInr!.toLocaleString("en-IN")}.`, "paid");
   const mode = asArriveBy(input.arriveBy);
   const hotelCar = pickupQuoteFor(pkg.id, "fly").available;
   if (mode === "fly" && hotelCar) {
