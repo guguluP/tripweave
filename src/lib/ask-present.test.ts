@@ -36,6 +36,25 @@ describe("presentAnswer fallback text (D9)", () => {
   });
 });
 
+describe("presentAnswer with nested source URLs", () => {
+  const TVOA = "https://indianvisaonline.gov.in/evisa/tvoa.html";
+  it("removes the longer link whole and chips both sources", () => {
+    const view = presentAnswer(`Apply online (${EVISA}). Read the FAQ (${TVOA}).`, [EVISA, TVOA]);
+    assert.equal(view.prose.includes("tvoa"), false);
+    assert.equal(view.prose.includes("http"), false);
+    assert.equal(view.prose, "Apply online. Read the FAQ.");
+    assert.deepEqual(
+      view.chips.map((chip) => chip.url),
+      [EVISA, TVOA],
+    );
+  });
+  it("files a longer link under the most specific allowed source", () => {
+    const view = presentAnswer(`FAQ: ${TVOA}`, [EVISA, TVOA]);
+    assert.equal(view.chips.length, 1);
+    assert.equal(view.chips[0]?.url, TVOA);
+  });
+});
+
 describe("takeQuota", () => {
   it("allows ten asks in an hour and blocks the eleventh", () => {
     const now = 1_000_000;

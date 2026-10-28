@@ -63,13 +63,18 @@ export const requestHotelCar = createServerFn({ method: "POST" })
     }
     if (plan.includePickup) return { ok: true as const, already: true };
 
+    const desk = deskFor(booking.packageId);
+    // Failed sends count too (so a flapping mailer cannot be retried forever), so do not claim
+    // the car "was requested": it may never have reached the desk.
     const slot = await takeAskSlot(context.userId, "car", booking.confirmationCode);
     if (slot === "limited") {
-      return { ok: false as const, message: "The car was already requested today. Contact the hotel desk directly." };
+      return {
+        ok: false as const,
+        message: `Today's car requests for this stay are used up. Contact the hotel desk directly: ${desk.email}.`,
+      };
     }
     if (slot === "error") return { ok: false as const, message: "Could not send the car request. Try again later." };
 
-    const desk = deskFor(booking.packageId);
     let sent = false;
     try {
       sent = await sendBookingMail({

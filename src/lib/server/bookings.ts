@@ -30,6 +30,7 @@ import {
   decideMismatchRefund,
   isMismatchRefundJob,
   refundDeskMessage,
+  mismatchJobMessage,
   refundQueuedMessage,
   refundSentMessage,
 } from "@/lib/server/mismatch-refund";
@@ -879,9 +880,9 @@ async function queueCaptureReconcile(input: {
   confirmOrder?: boolean;
 }): Promise<CreateBookingResult> {
   const earlier = (await priorJobFor(input.userId, input.paymentId)).job;
-  if (isMismatchRefundJob(earlier)) {
+  if (earlier && isMismatchRefundJob(earlier)) {
     // A verify already decided to send this payment back. Never book it now.
-    return { ok: false, message: refundQueuedMessage(input.paymentId) };
+    return { ok: false, message: mismatchJobMessage(earlier, input.paymentId) };
   }
   const now = new Date().toISOString();
   const job: ReconcileJob = {
@@ -906,7 +907,7 @@ async function queueCaptureReconcile(input: {
   // overwritten by this booking job (or the other way round).
   const claim = await claimReconcileJob(job, listReconcileJobs);
   if (claim.status === "lost" && isMismatchRefundJob(claim.existing)) {
-    return { ok: false, message: refundQueuedMessage(input.paymentId) };
+    return { ok: false, message: mismatchJobMessage(claim.existing, input.paymentId) };
   }
   // Lost to another booking job, or the claim function is not installed yet: keep the earlier
   // upsert so the booking still goes through (the DB guard trigger blocks a marker overwrite).
@@ -1019,8 +1020,9 @@ export const createBooking = createServerFn({ method: "POST" })
       if (!verified.ok) {
         return { ok: false, message: verified.message || "Payment verification failed." };
       }
-      if (isMismatchRefundJob((await priorJobFor(context.userId, data.razorpayPaymentId)).job)) {
-        return { ok: false, message: refundQueuedMessage(data.razorpayPaymentId) };
+      const refundJob = (await priorJobFor(context.userId, data.razorpayPaymentId)).job;
+      if (refundJob && isMismatchRefundJob(refundJob)) {
+        return { ok: false, message: mismatchJobMessage(refundJob, data.razorpayPaymentId) };
       }
       const pending = peekOrder(data.razorpayOrderId);
       if (pending) {

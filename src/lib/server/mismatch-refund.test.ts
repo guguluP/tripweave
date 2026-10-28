@@ -5,7 +5,10 @@ import {
   MISMATCH_MESSAGE,
   MISMATCH_REFUND,
   decideMismatchRefund,
+  ALREADY_REFUNDED,
   isMismatchRefundJob,
+  mismatchJobMessage,
+  refundDeskMessage,
   refundQueuedMessage,
 } from "./mismatch-refund.ts";
 
@@ -138,4 +141,12 @@ test("C5: the fifth failed refund marks the job failed and alerts ops", () => {
   assert.match(fail, /to: opsAlertEmail\(\)/);
   const drain = fnBody("async function drainReconcileJobs", "/** Cap stored on a paid booking.");
   assert.match(drain, /job\.attempts >= MAX_REFUND_ATTEMPTS\) \{\s*await failMismatchRefund/);
+});
+
+test("a replay is told the refund's real state, not always 'queued'", () => {
+  assert.equal(mismatchJobMessage({ state: "refunded" }, "pay_abc"), ALREADY_REFUNDED);
+  assert.equal(mismatchJobMessage({ state: "failed" }, "pay_abc"), refundDeskMessage("pay_abc"));
+  assert.equal(mismatchJobMessage({ state: "queued" }, "pay_abc"), refundQueuedMessage("pay_abc"));
+  const verify = fnBody("export const createBooking", "const pending = peekOrder");
+  assert.match(verify, /mismatchJobMessage\(refundJob, data\.razorpayPaymentId\)/);
 });

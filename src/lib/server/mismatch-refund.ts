@@ -88,3 +88,10 @@ export const MAX_REFUND_ATTEMPTS = 5;
 export function refundDeskMessage(paymentId: string): string {
   return `Payment ${paymentId} does not match this stay, so no stay was booked. Automatic refund failed. Do not pay again. Quote payment ${paymentId} to the desk.`;
 }
+
+/** What a replay of a payment that already has a mismatch refund job should be told. */
+export function mismatchJobMessage(job: { state: string }, paymentId: string): string {
+  if (job.state === "refunded") return ALREADY_REFUNDED;
+  if (job.state === "failed") return refundDeskMessage(paymentId);
+  return refundQueuedMessage(paymentId);
+}
