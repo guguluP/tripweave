@@ -1,7 +1,7 @@
 import { checklistForParty, SOURCES } from "./arrival-rules.ts";
 import { isRealIsoDate } from "./check-in.ts";
 import { getPackage } from "./packages.ts";
-import { refundAmountInr, refundPolicyFor } from "./refund-policy.ts";
+import { guestCancelMode, refundAmountInr, refundPolicyFor } from "./refund-policy.ts";
 import type { ArriveBy } from "./origins.ts";
 import { pickupQuoteFor } from "./travel-plan.ts";
 
@@ -51,12 +51,18 @@ export function stayFactLines(input: AskGrounding): string[] {
   if (room) lines.push(`TripWeave room: ${room.name}.`);
   if (input.checkIn && isRealIsoDate(input.checkIn)) {
     lines.push(`TripWeave check-in: ${input.checkIn}.`);
-    const policy = refundPolicyFor(input.checkIn);
-    let refund = `TripWeave: ${policy.label}.`;
-    if (input.amountInr != null && Number.isFinite(input.amountInr) && input.amountInr > 0) {
-      refund += ` TripWeave refund if cancelled now: ₹${refundAmountInr(input.amountInr, input.checkIn)}.`;
+    // No status means no booking yet: quote the policy. A booked stay is quoted by its status.
+    const cancelMode = input.status ? guestCancelMode(input.status) : "refund";
+    if (cancelMode === "refund") {
+      const policy = refundPolicyFor(input.checkIn);
+      let refund = `TripWeave: ${policy.label}.`;
+      if (input.amountInr != null && Number.isFinite(input.amountInr) && input.amountInr > 0) {
+        refund += ` TripWeave refund if cancelled now: ₹${refundAmountInr(input.amountInr, input.checkIn)}.`;
+      }
+      lines.push(refund);
+    } else if (cancelMode === "no_refund") {
+      lines.push("TripWeave: the hotel has confirmed this stay. The guest can still cancel it on My trips, but no refund is issued.");
     }
-    lines.push(refund);
   }
   if (input.nights != null && Number.isInteger(input.nights) && input.nights >= 1 && input.nights <= 14) {
     lines.push(`TripWeave nights: ${input.nights}.`);
@@ -75,8 +81,10 @@ export function stayFactLines(input: AskGrounding): string[] {
     lines.push("TripWeave: the hotel has confirmed this stay.");
   } else if (input.status === "checked_in" || input.status === "completed") {
     lines.push("TripWeave: this stay is checked in.");
-  } else if (input.status === "cancelled" || input.status === "refunded") {
-    lines.push("TripWeave: this stay is closed.");
+  } else if (input.status === "cancelled") {
+    lines.push("TripWeave: this stay is cancelled. Do not use its voucher at the hotel.");
+  } else if (input.status === "refunded") {
+    lines.push("TripWeave: this stay is cancelled and refunded. Do not use its voucher at the hotel.");
   }
   return lines;
 }

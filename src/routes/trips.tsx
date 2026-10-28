@@ -29,6 +29,8 @@ import {
 } from "@/lib/travel-plan";
 import type { OriginId } from "@/lib/origins";
 import {
+  NO_REFUND_CANCEL_WARNING,
+  guestCancelMode,
   isClosedStay,
   refundAmountInr,
   refundPolicyFor,
@@ -125,6 +127,8 @@ function Trips() {
 function TripsInner() {
   const [bookings, setBookings] = useState<BookingRow[] | null>(null);
   const [cancelling, setCancelling] = useState<number | null>(null);
+  /** Stay whose "Cancel (no refund)" warning is open. */
+  const [confirmNoRefund, setConfirmNoRefund] = useState<number | null>(null);
   const [cloud, setCloud] = useState<boolean | null>(null);
 
   const refresh = () => {
@@ -167,6 +171,7 @@ function TripsInner() {
               const pkg = getPackage(b.packageId);
               const closed = isClosedStay(b.status);
               const policy = refundPolicyFor(b.checkIn);
+              const cancelMode = guestCancelMode(b.status);
               const refundInr = refundAmountInr(b.amountInr, b.checkIn);
               const meta = readMeta(b.swaps);
               const refundedAmount = meta.refundAmount ?? (b.status === "refunded" ? refundInr : 0);
@@ -230,6 +235,7 @@ function TripsInner() {
                         confirmationCode={b.confirmationCode}
                         includePickup={plan.includePickup}
                         amountInr={b.amountInr}
+                        status={b.status}
                       />
                       {daysUntilCheckIn(b.checkIn) === 1 && !closed ? (
                         <p className="rounded-md bg-primary/10 px-3 py-2 text-sm">Check-in is tomorrow. Keep {b.confirmationCode} ready for the desk.</p>
@@ -251,6 +257,11 @@ function TripsInner() {
                       {daysUntilCheckIn(b.checkIn) <= 0 && !closed ? (
                         <ReviewStay booking={b} />
                       ) : null}
+                      {b.status === "cancelled" && meta.cancelNoRefund ? (
+                        <p className="text-xs text-muted">
+                          You cancelled this stay after the hotel confirmed it. No refund was issued.
+                        </p>
+                      ) : null}
                       {closed && refundedAmount > 0 ? (
                         <p className="text-xs text-muted">
                           Refund {formatMoney(refundedAmount)} to the original payment.
@@ -258,7 +269,11 @@ function TripsInner() {
                       ) : null}
                       {!closed ? (
                         <div className="grid gap-3">
-                          <p className="text-xs text-subtle">{policy.label}.</p>
+                          {cancelMode === "no_refund" ? (
+                            <p className="text-xs text-subtle">Hotel confirmed: you can still cancel, but no refund is issued.</p>
+                          ) : cancelMode === "refund" ? (
+                            <p className="text-xs text-subtle">{policy.label}.</p>
+                          ) : null}
                           <AddToWallet booking={b} compact className="contents" />
                           <div className="flex flex-wrap gap-2">
                             <Button asChild size="sm">
@@ -293,51 +308,112 @@ function TripsInner() {
                                 GST invoice
                               </a>
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              disabled={cancelling === b.id || policy.fraction <= 0}
-                              onClick={async () => {
-                                setCancelling(b.id);
-                                try {
-                                  const remote = await cancelBooking({ data: b.id });
-                                  if (!remote.ok) {
+                            {cancelMode === "refund" ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={cancelling === b.id || policy.fraction <= 0}
+                                onClick={async () => {
+                                  setCancelling(b.id);
+                                  try {
+                                    const remote = await cancelBooking({ data: b.id });
+                                    if (!remote.ok) {
+                                      pushBanner({
+                                        title: "Could not refund",
+                                        body: remote.message,
+                                        tone: "danger",
+                                      });
+                                      refresh();
+                                      return;
+                                    }
                                     pushBanner({
-                                      title: "Could not refund",
+                                      title: "Stay refunded",
                                       body: remote.message,
-                                      tone: "danger",
+                                      tone: "info",
                                     });
                                     refresh();
-                                    return;
+                                  } catch {
+                                    pushBanner({
+                                      title: "Could not cancel",
+                                      tone: "danger",
+                                    });
+                                  } finally {
+                                    setCancelling(null);
                                   }
-                                  pushBanner({
-                                    title: "Stay refunded",
-                                    body: remote.message,
-                                    tone: "info",
-                                  });
-                                  refresh();
-                                } catch {
-                                  pushBanner({
-                                    title: "Could not cancel",
-                                    tone: "danger",
-                                  });
-                                } finally {
-                                  setCancelling(null);
-                                }
-                              }}
-                            >
-                              <TextSwap
-                                text={
-                                  cancelling === b.id
-                                    ? "Refunding"
-                                    : policy.fraction <= 0
-                                      ? "Past check-in"
-                                      : `Cancel & refund ${formatMoney(refundInr)}`
-                                }
-                                shimmer={cancelling === b.id}
-                              />
-                            </Button>
+                                }}
+                              >
+                                <TextSwap
+                                  text={
+                                    cancelling === b.id
+                                      ? "Refunding"
+                                      : policy.fraction <= 0
+                                        ? "Past check-in"
+                                        : `Cancel & refund ${formatMoney(refundInr)}`
+                                  }
+                                  shimmer={cancelling === b.id}
+                                />
+                              </Button>
+                          ) : cancelMode === "no_refund" ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={cancelling === b.id || confirmNoRefund === b.id}
+                                aria-expanded={confirmNoRefund === b.id}
+                                onClick={() => setConfirmNoRefund(b.id)}
+                              >
+                                Cancel (no refund)
+                              </Button>
+                            ) : null}
                           </div>
+                          {cancelMode === "no_refund" && confirmNoRefund === b.id ? (
+                            <div
+                              role="alertdialog"
+                              aria-label="Cancel without refund"
+                              className="grid gap-2 rounded-md border border-danger/40 bg-danger/5 px-3 py-3 text-sm"
+                            >
+                              <p className="font-medium">{NO_REFUND_CANCEL_WARNING}</p>
+                              <p className="text-muted">
+                                You paid {formatMoney(b.amountInr)}. TripWeave will not send any of it back.
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                <Button
+                                  variant="danger"
+                                  size="sm"
+                                  disabled={cancelling === b.id}
+                                  onClick={async () => {
+                                    setCancelling(b.id);
+                                    try {
+                                      const remote = await cancelBooking({ data: { id: b.id, acceptNoRefund: true } });
+                                      pushBanner(
+                                        remote.ok
+                                          ? { title: "Stay cancelled", body: remote.message, tone: "info" }
+                                          : { title: "Could not cancel", body: remote.message, tone: "danger" },
+                                      );
+                                      refresh();
+                                    } catch {
+                                      pushBanner({ title: "Could not cancel", tone: "danger" });
+                                    } finally {
+                                      setCancelling(null);
+                                      setConfirmNoRefund(null);
+                                    }
+                                  }}
+                                >
+                                  <TextSwap
+                                    text={cancelling === b.id ? "Cancelling" : "Yes, cancel without refund"}
+                                    shimmer={cancelling === b.id}
+                                  />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={cancelling === b.id}
+                                  onClick={() => setConfirmNoRefund(null)}
+                                >
+                                  Keep my stay
+                                </Button>
+                              </div>
+                            </div>
+                          ) : null}
                         </div>
                       ) : null}
                     </div>
