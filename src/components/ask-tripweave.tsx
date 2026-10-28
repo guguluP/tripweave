@@ -2,9 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { emailArrivalChecklist } from "@/lib/server/arrival-mail";
 import { requestHotelCar } from "@/lib/server/ask-actions";
-import { SOURCES } from "@/lib/arrival-rules";
 import { REDACTED_QUESTION, type AskSuggestion } from "@/lib/arrival-ask";
-import { presentAnswer, type AskChip } from "@/lib/ask-present";
+import { OFFICIAL_URLS, presentAnswer, type AskChip } from "@/lib/ask-present";
 import { getBearerToken } from "@/lib/auth/client";
 import { guestLabel, useGuestLocale, type GuestLocale } from "@/lib/guest-locale";
 import { isActiveStayStatus, isCancellableStatus, refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
@@ -86,10 +85,9 @@ export function AskTripWeave({
       .then((body: { turns?: { question: string; answer: string }[] } | null) => {
         const saved = body?.turns ?? [];
         if (saved.length === 0 || controller.signal.aborted) return;
-        const allowed = Object.values(SOURCES).map((source) => source.url);
         setTurns(
           saved.map((row) => {
-            const view = presentAnswer(row.answer, allowed);
+            const view = presentAnswer(row.answer, OFFICIAL_URLS);
             return { question: row.question, answer: view.prose || row.answer, chips: view.chips, tripweave: view.tripweave };
           }),
         );

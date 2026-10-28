@@ -9,6 +9,9 @@ export type PresentedAnswer = {
   tripweave: boolean;
 };
 
+/** Every official source Ask may cite. Answers come only from arrival-ask.ts, never a model. */
+export const OFFICIAL_URLS: string[] = Object.values(SOURCES).map((source) => source.url);
+
 const TITLES = new Map<string, string>(Object.values(SOURCES).map((source) => [source.url, source.title]));
 
 /** Pull official links out of a grounded reply so the sentence and the chips are separate. */

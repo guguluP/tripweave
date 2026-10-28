@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { presentAnswer, takeQuota } from "./ask-present.ts";
+import { readFileSync } from "node:fs";
+import { answerQuestion } from "./arrival-ask.ts";
+import { OFFICIAL_URLS, presentAnswer, takeQuota } from "./ask-present.ts";
 
 const EVISA = "https://indianvisaonline.gov.in/evisa/";
 
@@ -52,6 +54,35 @@ describe("presentAnswer with nested source URLs", () => {
     const view = presentAnswer(`FAQ: ${TVOA}`, [EVISA, TVOA]);
     assert.equal(view.chips.length, 1);
     assert.equal(view.chips[0]?.url, TVOA);
+  });
+});
+
+describe("every cited URL becomes a chip", () => {
+  const questions = [
+    "I'm an OCI card holder, what do I need?",
+    "Can I get a visa on arrival?",
+    "Which airports accept e-Visa?",
+    "Do I need e-Arrival?",
+    "What should I do before I fly?",
+  ];
+  for (const nationalities of [[], ["GB"], ["JP"], ["IN"]]) {
+    for (const question of questions) {
+      it(`${nationalities.join(",") || "no nationality"}: ${question}`, () => {
+        const { answer } = answerQuestion(question, { nationalities, arrivalAirport: "BBI", checkIn: "2027-01-10" });
+        const view = presentAnswer(answer, OFFICIAL_URLS);
+        assert.equal(/https?:|\.html|\(\s*\)/.test(view.prose), false, view.prose);
+        if (/https?:\/\//.test(answer)) {
+          assert.ok(view.chips.length > 0, answer);
+          assert.equal(view.tripweave, false, "an official-source answer is not labelled as a booking fact");
+        }
+      });
+    }
+  }
+  it("the live reply and the saved thread use the same allowed list", () => {
+    const route = readFileSync(new URL("../routes/api/ask.ts", import.meta.url), "utf8");
+    const sheet = readFileSync(new URL("../components/ask-tripweave.tsx", import.meta.url), "utf8");
+    assert.match(route, /presentAnswer\(result\.answer, OFFICIAL_URLS\)/);
+    assert.match(sheet, /presentAnswer\(row\.answer, OFFICIAL_URLS\)/);
   });
 });
 

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { ASK_SUGGESTIONS, answerQuestion, groundingPacket, questionHasDocumentDigits, REDACTED_QUESTION } from "@/lib/arrival-ask";
-import { presentAnswer } from "@/lib/ask-present";
+import { ASK_SUGGESTIONS, answerQuestion, questionHasDocumentDigits, REDACTED_QUESTION } from "@/lib/arrival-ask";
+import { OFFICIAL_URLS, presentAnswer } from "@/lib/ask-present";
 import { getSessionUser } from "@/lib/auth/verify.server";
 import { isCountryCode } from "@/lib/countries";
 import { isClosedStay } from "@/lib/refund-policy";
@@ -115,7 +115,9 @@ export const Route = createFileRoute("/api/ask")({
             notOwner: Boolean(data.confirmationCode) && !own,
           };
           const result = answerQuestion(question, grounding);
-          const view = presentAnswer(result.answer, groundingPacket(grounding).urls);
+          // Same list the sheet uses for saved turns: a fallback can cite a source outside this
+          // guest's checklist (an OCI question with no nationality on file cites BOI).
+          const view = presentAnswer(result.answer, OFFICIAL_URLS);
           if (keepThread && data.confirmationCode) {
             await appendAskTurn(user.id, data.confirmationCode, question, result.answer);
           }
