@@ -499,19 +499,20 @@ async function runTransition(input: {
   }
   if (!shouldSkipNeon()) {
     try {
-      const sql = await getSql();
-      const rows = await sql`select tw_desk_transition(${JSON.stringify(payload)}::jsonb) as result`;
-      const result = rows[0]?.result as { status?: string } | undefined;
-      if (input.action === "desk_decline" && result?.status === "cancelled") {
+      const { pgDeskTransition } = await import("@/lib/server/desk-pg");
+      const result = await pgDeskTransition(payload);
+      if (!result.ok) return result;
+      if (input.action === "desk_decline" && result.status === "cancelled") {
         // The hotel said no: send the guest's money back (Postgres store; Supabase does this above).
         const { pgRefundDeclinedStay } = await import("@/lib/server/desk-pg");
         return await pgRefundDeclinedStay(input);
       }
-      return { ok: true as const, status: result?.status };
+      return { ok: true as const, status: result.status };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       if (isDurableDbError(err)) markDurableDbFailed(err);
-      return { ok: false as const, message };
+      const { deskTransitionErrorMessage } = await import("@/lib/server/desk-pg");
+      return { ok: false as const, message: deskTransitionErrorMessage(message) };
     }
   }
   return { ok: false as const, message: "Desk transition needs the database." };
