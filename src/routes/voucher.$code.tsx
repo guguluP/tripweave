@@ -8,6 +8,7 @@ import { DEFAULT_BRIEF, formatMoney, loadBrief, nightsPhrase } from "@/lib/packa
 import { listBookings, type BookingRow } from "@/lib/server/bookings";
 import { deskFor, hotelMailto } from "@/lib/hotel-desk";
 import { readMeta } from "@/lib/booking-meta";
+import { voucherClosedState } from "@/lib/refund-policy";
 import {
   mapMarkers,
   parseTravelPlan,
@@ -113,6 +114,8 @@ function VoucherPage() {
 
   const desk = deskFor(booking.packageId);
   const meta = readMeta(booking.swaps);
+  // Cancelled / refunded / refund pending: not valid at the hotel.
+  const closedState = voucherClosedState(booking.status, meta);
   const brief = typeof window === "undefined" ? DEFAULT_BRIEF : loadBrief();
   const plan = parseTravelPlan(meta.travel);
   const travelQuote = quoteTravel(
@@ -155,8 +158,20 @@ function VoucherPage() {
             </p>
           </div>
         ) : null}
-        <p className="eyebrow">Hotel desk copy</p>
-        <h1 className="mt-2 font-display text-4xl">{booking.confirmationCode}</h1>
+        {closedState ? (
+          <div
+            className="mb-6 rounded-xl border border-danger/40 bg-danger/5 px-4 py-4"
+            role="alert"
+            data-testid="voucher-closed"
+          >
+            <p className="font-display text-2xl">Not valid at the hotel</p>
+            <p className="mt-1 text-sm text-muted">{closedState.notice}</p>
+          </div>
+        ) : null}
+        <p className="eyebrow">{closedState ? "Cancelled stay" : "Hotel desk copy"}</p>
+        <h1 className={`mt-2 font-display text-4xl${closedState ? " text-muted line-through" : ""}`}>
+          {booking.confirmationCode}
+        </h1>
         <Card className="mt-6 p-5 shadow-none">
           <p className="font-display text-2xl">{booking.packageName}</p>
           <dl className="mt-4 grid gap-2 text-sm">
@@ -174,6 +189,12 @@ function VoucherPage() {
               <dt className="text-muted">Paid</dt>
               <dd className="tabular-nums">{formatMoney(booking.amountInr)}</dd>
             </div>
+            {closedState?.refundLine ? (
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted">Refund</dt>
+                <dd className="text-right">{closedState.refundLine}</dd>
+              </div>
+            ) : null}
             <div className="flex justify-between gap-3">
               <dt className="text-muted">Guest</dt>
               <dd>{booking.payerName}</dd>
@@ -226,16 +247,18 @@ function VoucherPage() {
               markers={mapMarkers(plan.arriveBy || brief.arriveBy, stayPin(booking.packageId, booking.packageName))}
             />
           </div>
-          <div className="mt-4 rounded-md border border-border bg-surface px-3 py-3 text-sm" lang="hi">
-            <p className="text-xs font-medium text-muted">डेस्क स्लिप</p>
-            <p className="mt-1">पुष्टि कोड {booking.confirmationCode}</p>
-            <p>{booking.packageName}</p>
-            <p>
-              चेक-इन {booking.checkIn} · {booking.nights} रातें · {booking.travelers} अतिथि
-            </p>
-            <p>भुगतान {formatMoney(booking.amountInr)}</p>
-            <p>डेस्क {desk.email}</p>
-          </div>
+          {closedState ? null : (
+            <div className="mt-4 rounded-md border border-border bg-surface px-3 py-3 text-sm" lang="hi">
+              <p className="text-xs font-medium text-muted">डेस्क स्लिप</p>
+              <p className="mt-1">पुष्टि कोड {booking.confirmationCode}</p>
+              <p>{booking.packageName}</p>
+              <p>
+                चेक-इन {booking.checkIn} · {booking.nights} रातें · {booking.travelers} अतिथि
+              </p>
+              <p>भुगतान {formatMoney(booking.amountInr)}</p>
+              <p>डेस्क {desk.email}</p>
+            </div>
+          )}
           {((meta.guestFlags ?? []).some((row) => row.nationality !== "IN") ||
             (meta.guestNationalities ?? []).some((code) => code !== "IN")) ? (
             <div className="mt-4">
@@ -282,13 +305,9 @@ function VoucherPage() {
             />
           </p>
           <p className="mt-4 text-xs text-subtle">
-            {booking.status === "cancelled"
-              ? meta.cancelNoRefund
-                ? "Cancelled. You cancelled this stay after the hotel confirmed it, so no refund was issued. Do not use this voucher at the hotel."
-                : "Cancelled. Do not use this voucher at the hotel."
-              : booking.status === "refunded"
-                ? "Cancelled and refunded. Do not use this voucher at the hotel."
-                : booking.status === "paid"
+            {closedState
+              ? closedState.notice
+              : booking.status === "paid"
               ? "Payment received. The hotel has not confirmed the room yet — show this code once the desk confirms."
               : booking.status === "desk_confirmed" || booking.status === "confirmed" || booking.status === "checked_in"
                 ? "Hotel confirmed. Show this at the desk on arrival."
@@ -297,20 +316,26 @@ function VoucherPage() {
           </p>
         </Card>
         <div className="mt-6 grid gap-3">
-          <AddToWallet booking={booking} />
-          <TravelShareButtons
-            hotelName={booking.packageName}
-            quote={travelQuote}
-            plan={plan}
-            confirmationCode={booking.confirmationCode}
-            checkIn={booking.checkIn}
-            guests={booking.travelers}
-            emailHref={mailto}
-          />
+          {closedState ? null : (
+            <>
+              <AddToWallet booking={booking} />
+              <TravelShareButtons
+                hotelName={booking.packageName}
+                quote={travelQuote}
+                plan={plan}
+                confirmationCode={booking.confirmationCode}
+                checkIn={booking.checkIn}
+                guests={booking.travelers}
+                emailHref={mailto}
+              />
+            </>
+          )}
           <div className="flex flex-wrap gap-3">
-            <Button type="button" variant="outline" onClick={() => window.print()}>
-              Print pass
-            </Button>
+            {closedState ? null : (
+              <Button type="button" variant="outline" onClick={() => window.print()}>
+                Print pass
+              </Button>
+            )}
             <Button asChild variant="outline">
               <a href={`/api/invoice/${encodeURIComponent(booking.confirmationCode)}`}>
                 Download GST invoice

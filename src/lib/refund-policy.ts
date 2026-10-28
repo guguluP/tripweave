@@ -82,3 +82,52 @@ export const NO_REFUND_CANCEL_NEEDS_CONFIRM =
 
 export const NO_REFUND_CANCELLED_MESSAGE =
   "Stay cancelled. The hotel had already confirmed it, so no refund was issued.";
+
+export type VoucherClosedState = {
+  /** Shown at the top of the voucher and in its footer. */
+  notice: string;
+  /** Value for the voucher's "Refund" row, or null to leave the row out. */
+  refundLine: string | null;
+};
+
+/**
+ * A voucher for a stay that is no longer valid at the hotel (cancelled, refunded, or cancelled
+ * with the refund still pending). Returns null for a live stay. The voucher uses this to put the
+ * notice on top and hide the desk slip and pass, so it cannot be shown at the desk as if paid.
+ */
+export function voucherClosedState(
+  status: string,
+  meta: { cancelNoRefund?: boolean; refundAmount?: number },
+): VoucherClosedState | null {
+  const inr = (n: number) => `\u20b9${n.toLocaleString("en-IN")}`;
+  const refunded =
+    typeof meta.refundAmount === "number" && meta.refundAmount > 0 ? meta.refundAmount : null;
+  if (status === "cancelled") {
+    if (meta.cancelNoRefund) {
+      return {
+        notice:
+          "Cancelled. You cancelled this stay after the hotel confirmed it, so no refund was issued. Do not use this voucher at the hotel.",
+        refundLine: "None (cancelled after the hotel confirmed)",
+      };
+    }
+    return {
+      notice: "Cancelled. Do not use this voucher at the hotel.",
+      refundLine: refunded ? inr(refunded) : null,
+    };
+  }
+  if (status === "refunded") {
+    return {
+      notice: "Cancelled and refunded. Do not use this voucher at the hotel.",
+      refundLine: refunded
+        ? `${inr(refunded)} to the original payment`
+        : "Refunded to the original payment",
+    };
+  }
+  if (status === "refund_pending") {
+    return {
+      notice: "Cancelled. The refund is being processed. Do not use this voucher at the hotel.",
+      refundLine: refunded ? `${inr(refunded)}, pending` : "Pending",
+    };
+  }
+  return null;
+}
