@@ -32,9 +32,9 @@ export async function ownHoldIds(input: {
   orderId?: string | null;
 }): Promise<string[]> {
   if (!input.userId) return [];
-  const { publicHoldId } = await import("@/lib/hold-id");
+  const { publicHoldIds } = await import("@/lib/hold-id");
   const raw = holdIdsForCheckout({ ...input, userId: input.userId });
-  return [...raw, ...raw.map(publicHoldId)];
+  return [...raw, ...(await publicHoldIds(raw))];
 }
 
 export type PayableQuote =

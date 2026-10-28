@@ -11,3 +11,11 @@ export async function publicHoldId(raw: string) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
   return hex(digest).slice(0, 24);
 }
+
+/**
+ * Hash a list of raw ids. publicHoldId is async: map it through this (or await each one),
+ * because a Promise never equals a string id and an un-awaited hold never matches its owner.
+ */
+export async function publicHoldIds(raws: readonly string[]): Promise<string[]> {
+  return Promise.all(raws.map((raw) => publicHoldId(raw)));
+}
