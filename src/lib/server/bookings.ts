@@ -26,6 +26,7 @@ import {
 } from "@/lib/server/payment-ops";
 import { holdIdsForCheckout, releaseCheckoutHold } from "@/lib/server/room-holds";
 import { withCancelLock } from "@/lib/server/cancel-lock";
+import { CANCEL_IN_PROGRESS_MESSAGE, claimedSwaps, hasFreshCancelClaim } from "@/lib/server/cancel-claim";
 import { writeMeta, readMeta } from "@/lib/booking-meta";
 import { deskFor } from "@/lib/hotel-desk";
 import { guestRowsFromInput, travelerInputSchema } from "@/lib/traveller-schema";
@@ -1097,6 +1098,8 @@ export const cancelBooking = createServerFn({ method: "POST" })
       }
       let rows: BookingRow[] = memoryBookingsFor(context.userId);
       let fromSql = false;
+      /** The stored swaps text, for the compare-and-swap claim below. */
+      let sqlSwapsText: string | null = null;
       if (isSupabaseConfigured()) {
         try {
           const cloud = await sbListBookings(context.userId);
@@ -1118,6 +1121,7 @@ export const cancelBooking = createServerFn({ method: "POST" })
           if (found.length) {
             rows = found.map((row) => mapBooking({ ...row, user_id: context.userId }));
             fromSql = true;
+            sqlSwapsText = String(found[0].swaps ?? "{}");
           }
         } catch (err) {
           if (isDurableDbError(err)) markDurableDbFailed(err);
@@ -1139,6 +1143,46 @@ export const cancelBooking = createServerFn({ method: "POST" })
         return { ok: false, message: policy.label };
       }
 
+      // Cross-instance guard (Postgres store): claim the stay before any refund. withCancelLock
+      // only covers this process; a second server could otherwise refund the same stay again.
+      let release: (() => Promise<void>) | null = null;
+      if (fromSql && sqlSwapsText !== null) {
+        if (hasFreshCancelClaim(target.swaps)) return { ok: false, message: CANCEL_IN_PROGRESS_MESSAGE };
+        const claimText = JSON.stringify(claimedSwaps(target.swaps));
+        const fromText = sqlSwapsText;
+        try {
+          const sql = await getSql();
+          const won = await sql`
+            update bookings
+            set swaps = ${claimText}
+            where id = ${id} and user_id = ${context.userId}
+              and status in ('paid', 'held', 'confirmed', 'refund_pending')
+              and swaps = ${fromText}
+            returning id
+          `;
+          if (!won.length) return { ok: false, message: CANCEL_IN_PROGRESS_MESSAGE };
+        } catch (err) {
+          if (isDurableDbError(err)) markDurableDbFailed(err);
+          console.error("[bookings] cancel claim failed", err);
+          return { ok: false, message: "Could not start the cancel. Nothing was sent back. Try again." };
+        }
+        release = async () => {
+          try {
+            const sql = await getSql();
+            await sql`
+              update bookings set swaps = ${fromText}
+              where id = ${id} and user_id = ${context.userId} and swaps = ${claimText}
+            `;
+          } catch (err) {
+            console.error("[bookings] cancel claim release failed", err);
+          }
+        };
+      }
+      const giveUp = async (result: CancelResult): Promise<CancelResult> => {
+        if (release) await release();
+        return result;
+      };
+
       const prior = refundIntentFor(context.userId, id);
       let refundId = prior?.refundId;
       const ref = target.paymentRef ?? "";
@@ -1158,7 +1202,7 @@ export const cancelBooking = createServerFn({ method: "POST" })
         refundId,
       });
       if (!pendingSaved && durableRequired && prior?.status !== "gateway_done" && prior?.status !== "applied") {
-        return { ok: false, message: "Could not record the refund. Nothing was sent back. Try again." };
+        return giveUp({ ok: false, message: "Could not record the refund. Nothing was sent back. Try again." });
       }
 
       if (target.paymentMethod === "razorpay" && ref.startsWith("pay_") && prior?.status !== "gateway_done" && prior?.status !== "applied") {
@@ -1170,7 +1214,7 @@ export const cancelBooking = createServerFn({ method: "POST" })
           await persistRefundIntent({ ...intentBase, status: "gateway_done", refundId });
         } else {
           const refunded = await refundRazorpayPayment(ref, amount);
-          if (!refunded.ok) return { ok: false, message: refunded.message };
+          if (!refunded.ok) return giveUp({ ok: false, message: refunded.message });
           refundId = refunded.refundId;
           await persistRefundIntent({ ...intentBase, status: "gateway_done", refundId });
         }
@@ -1181,6 +1225,7 @@ export const cancelBooking = createServerFn({ method: "POST" })
         refundId,
         refundAmount: amount,
         refundedAt: new Date().toISOString(),
+        cancelClaimAt: undefined,
       });
       memoryUpdateBooking(context.userId, id, { status, swaps: meta });
       releaseHoldById(target.confirmationCode);
