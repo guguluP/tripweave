@@ -34,8 +34,12 @@ function mapHolds(data: unknown, hashId: (raw: string) => string): OccupancyHold
 }
 
 async function hashedHolds(data: unknown): Promise<OccupancyHold[]> {
-  const { publicHoldId } = await import("@/lib/hold-id");
-  return mapHolds(data, publicHoldId);
+  const { publicHoldIds } = await import("@/lib/hold-id");
+  // publicHoldId is async. Hash after mapping so every holdId is a string, not a Promise:
+  // a Promise id never matches the guest's own hold, so their last room read as sold out.
+  const rows = mapHolds(data, (raw) => raw);
+  const ids = await publicHoldIds(rows.map((row) => row.holdId ?? ""));
+  return rows.map((row, index) => ({ ...row, holdId: ids[index] }));
 }
 
 export async function refreshOccupancy(): Promise<OccupancyHold[]> {

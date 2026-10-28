@@ -79,5 +79,5 @@ export const placeSoftHold = createServerFn({ method: "POST" })
       expiresAt,
     });
     const { publicHoldId } = await import("@/lib/hold-id");
-    return { ok: true, holdId: publicHoldId(holdId), expiresAt };
+    return { ok: true, holdId: await publicHoldId(holdId), expiresAt };
   });

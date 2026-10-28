@@ -11,7 +11,7 @@ export const ALLOTMENT_LABEL = "TripWeave allotment";
 /** Last night covered by the hardcoded festival list. */
 export const FESTIVAL_CALENDAR_END = "2027-06-25";
 import { overlayFor } from "./catalog-store.ts";
-import { clampNights, getPackage, getRoom, stayTotal, type StayPackage } from "./packages.ts";
+import { clampNights, formatMoney, getPackage, getRoom, stayTotal, type StayPackage } from "./packages.ts";
 import { isDateStopSell, unitsOverride } from "./allotment-store.ts";
 import { consumesInventory } from "./booking-status.ts";
 
@@ -354,6 +354,28 @@ export function quoteStay(input: {
     unknown: !known,
     soldOutNights,
   };
+}
+
+/**
+ * Summary line for the "Dates and leftover rooms" card. While the occupancy read is still in
+ * flight (`checking`) the quote is marked unknown too, so say we are checking instead of
+ * reporting a failure.
+ */
+export function stayQuoteLine(quote: StayQuote, checking = false): string {
+  if (quote.unknown) return checking ? "Checking rooms for these dates…" : "Couldn't check rooms for these dates.";
+  if (quote.available) {
+    return `${ALLOTMENT_LABEL}: ${quote.remaining} of ${quote.units} ${quote.occupancy}-guest rooms left for these nights.`;
+  }
+  if (quote.released) return `${ALLOTMENT_LABEL}: sold out on at least one of these nights. Change the date or room.`;
+  return "On request. The hotel has not released a key count for these nights.";
+}
+
+/** Right-hand cell for one night. An unknown quote must not claim "On request" or a count. */
+export function nightQuoteLabel(night: NightQuote, unknown: boolean, checking = false): string {
+  if (unknown) return checking ? `${formatMoney(night.rate)} · checking` : formatMoney(night.rate);
+  if (!night.released) return "On request";
+  if (night.remaining <= 0) return "Sold out";
+  return `${formatMoney(night.rate)} · ${night.remaining} left`;
 }
 
 export type RoomLeftover = {
