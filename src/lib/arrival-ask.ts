@@ -257,10 +257,10 @@ const ITEM_TOPICS: Record<string, AskTopic[]> = {
   "yellow-fever": ["yellowfever", "fly"],
 };
 
-function checklistFacts(input: AskGrounding): Fact[] {
+function checklistFacts(input: AskGrounding, ociOverride?: boolean[]): Fact[] {
   const items: ChecklistItem[] = checklistForParty({
     nationalities: input.nationalities,
-    oci: input.oci,
+    oci: ociOverride ?? input.oci,
     priorIndianVisa: input.priorIndianVisa,
     arrivalAirport: input.arrivalAirport ?? "BBI",
     arrivalDate: input.checkIn,
@@ -284,6 +284,22 @@ export function groundingPacket(input: AskGrounding): { text: string; urls: stri
   if (!input.packageId) lines.push("- Stay: a hotel in Puri, Odisha. The street address is not on file.");
   lines.push(RULES_CHECKED);
   return { text: lines.join("\n"), urls };
+}
+
+/** Every guest on file is Indian: arrival-rules lists no foreign-entry step for them. */
+export const INDIAN_PARTY_LINE =
+  "TripWeave: every guest entered is an Indian citizen. TripWeave lists no e-Visa, e-Arrival, or foreign guest registration step for Indian citizens. Bring the photo ID entered for each guest; names must match it at the hotel desk.";
+
+/** No nationality on file yet, so TripWeave cannot pick the official steps. */
+export const NO_NATIONALITY_LINE =
+  "TripWeave: entry steps depend on each guest's nationality, and none is on file yet. TripWeave lists no e-Visa or e-Arrival step for Indian citizens. For other passports, enter each guest's nationality in the traveller details to see the official checklist.";
+
+/** An OCI question when no guest is marked as an OCI cardholder. */
+export const OCI_ASSUMED_LINE =
+  "TripWeave: no guest entered is marked \"I hold an OCI card\". These are the steps for OCI cardholders; tick that box in the guest's details so the arrival checklist matches.";
+
+function partyCodes(input: AskGrounding): string[] {
+  return input.nationalities.map((code) => (code || "IN").trim().toUpperCase());
 }
 
 export function fallbackAnswer(urls: string[]): string {
@@ -431,7 +447,12 @@ export type AskAnswer = { answer: string; topics: AskTopic[]; matched: boolean }
  */
 export function answerQuestion(question: string, input: AskGrounding): AskAnswer {
   const topics = topicsFor(question);
-  const checklist = checklistFacts(input);
+  const codes = partyCodes(input);
+  // "I have OCI, what do I need?" with no guest marked OCI: answer with the OCI cardholder
+  // lines (not the e-Visa lines), and say so.
+  const ociAssumed =
+    topics.includes("oci") && codes.some((code) => code !== "IN") && !(input.oci ?? []).some((flag) => flag === true);
+  const checklist = checklistFacts(input, ociAssumed ? codes.map((code) => code !== "IN") : undefined);
   const stay = stayFacts(input);
   const lines: string[] = [];
   let official = false;
@@ -442,6 +463,7 @@ export function answerQuestion(question: string, input: AskGrounding): AskAnswer
     if (ownerOnly && fact.topics.some((topic) => topic === "status" || topic === "paid")) continue;
     if (fact.topics.some((topic) => want.has(topic)) && !lines.includes(fact.text)) lines.push(fact.text);
   }
+  const beforeChecklist = lines.length;
   for (const fact of checklist) {
     if (!fact.topics.some((topic) => want.has(topic))) continue;
     const line = `${fact.text} (${fact.url})`;
@@ -455,10 +477,18 @@ export function answerQuestion(question: string, input: AskGrounding): AskAnswer
     // check-out time, distance): answer as TripWeave, never with an e-Visa link.
     const entryTopics = topics.filter((topic) => !STAY_TOPICS.has(topic));
     if (entryTopics.length === 0) return { answer: tripweaveFallback(input.packageId), topics, matched: false };
+    // Entry question, but arrival-rules has no line for this party: say why, as TripWeave.
+    if (codes.length > 0 && codes.every((code) => code === "IN")) {
+      return { answer: INDIAN_PARTY_LINE, topics, matched: true };
+    }
+    if (codes.length === 0 && !entryTopics.includes("oci")) {
+      return { answer: NO_NATIONALITY_LINE, topics, matched: false };
+    }
     const first = entryTopics.map((topic) => TOPIC_SOURCE[topic]).find(Boolean);
     const urls = first ? [SOURCES[first].url] : groundingPacket(input).urls;
     return { answer: fallbackAnswer(urls), topics, matched: false };
   }
+  if (ociAssumed && lines.length > beforeChecklist) lines.splice(beforeChecklist, 0, OCI_ASSUMED_LINE);
   if (official) lines.push(RULES_CHECKED);
   return { answer: lines.join("\n"), topics, matched: true };
 }
