@@ -420,6 +420,7 @@ function TripDetail() {
         ) : null}
         <StayQuoteCard
           quote={quote}
+          checking={inventory === "loading"}
           checkIn={checkIn}
           minDate={todayIso()}
           onCheckIn={(next) => {
