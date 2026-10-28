@@ -1,13 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { authClient, authEnabled } from "./client";
+import { appUserFromKey, appUserKey, type AppUser } from "./app-user";
 
-export type AppUser = {
-  id: string;
-  displayName: string | null;
-  primaryEmail: string | null;
-  profileImageUrl: string | null;
-  isDevFallback: boolean;
-};
+export type { AppUser } from "./app-user";
 
 export const DEV_USER: AppUser = {
   id: "dev-user",
@@ -52,24 +47,17 @@ export function useCurrentUserState(): CurrentUserState {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const session = authEnabled ? authClient.useSession() : { data: null, isPending: false };
 
+  // Same AppUser object until the id, name, email or picture really change. useSession()
+  // returns a new user object every render; effects keyed on `user` must not loop on that.
+  const key = appUserKey(session.data?.user);
+  const user = useMemo(() => appUserFromKey(key), [key]);
+
   if (!authEnabled) {
     if (import.meta.env.PROD) return { user: null, isPending: false };
     return { user: DEV_USER, isPending: false };
   }
 
-  const user = session.data?.user;
-  return {
-    user: user
-      ? {
-          id: user.id,
-          displayName: user.name ?? null,
-          primaryEmail: user.email ?? null,
-          profileImageUrl: user.image ?? null,
-          isDevFallback: false,
-        }
-      : null,
-    isPending: session.isPending,
-  };
+  return { user, isPending: session.isPending };
 }
 
 export function useCurrentUser(): AppUser | null {
