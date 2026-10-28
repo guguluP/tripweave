@@ -11,6 +11,9 @@ import {
   askBucket,
   REDACTED_QUESTION,
   fallbackAnswer,
+  INDIAN_PARTY_LINE,
+  NO_NATIONALITY_LINE,
+  OCI_ASSUMED_LINE,
   groundingPacket,
   questionHasDocumentDigits,
   stayFactLines,
@@ -194,8 +197,43 @@ describe("answer engine", () => {
     const voa = answerQuestion("Is there visa on arrival?", { nationalities: ["US"] });
     assert.match(voa.answer, /^Not stated by the official sources TripWeave checked; see https:\/\//);
     // A topic with no matching line falls back to that topic's official source.
+    // An all-Indian party gets TripWeave's own line, not a dead-end e-Visa link.
     const indian = answerQuestion("Do I need an e-Visa?", { nationalities: ["IN"] });
-    assert.equal(indian.answer, fallbackAnswer([SOURCES.evisa.url]));
+    assert.equal(indian.answer, INDIAN_PARTY_LINE);
+    assert.notEqual(indian.answer, fallbackAnswer([SOURCES.evisa.url]));
+  });
+
+  it("answers the fly chip for Indian and unknown parties as TripWeave", () => {
+    for (const nationalities of [["IN"], ["IN", "in"]]) {
+      const fly = answerQuestion(ASK_SUGGESTIONS.fly, { nationalities });
+      assert.equal(fly.answer, INDIAN_PARTY_LINE);
+      assert.equal(/https?:/.test(fly.answer), false);
+    }
+    const unknown = answerQuestion(ASK_SUGGESTIONS.fly, { nationalities: [] });
+    assert.equal(unknown.answer, NO_NATIONALITY_LINE);
+    assert.equal(unknown.answer.startsWith("Not stated"), false);
+    // A foreign guest still gets the official lines.
+    const us = answerQuestion(ASK_SUGGESTIONS.fly, { nationalities: ["US"] });
+    assert.match(us.answer, /https:\/\//);
+    assert.equal(us.answer.includes(INDIAN_PARTY_LINE), false);
+    // A mixed party is answered for the foreign guest.
+    const mixed = answerQuestion(ASK_SUGGESTIONS.fly, { nationalities: ["IN", "GB"] });
+    assert.equal(mixed.answer.includes(INDIAN_PARTY_LINE), false);
+    assert.match(mixed.answer, /https:\/\//);
+  });
+
+  it("answers an OCI question with OCI lines when no guest is marked OCI", () => {
+    const asked = answerQuestion("I have OCI, what do I need?", { nationalities: ["US"] });
+    assert.ok(asked.answer.startsWith(OCI_ASSUMED_LINE));
+    assert.equal(/e-Visa eligibility|indianvisaonline\.gov\.in\/evisa/i.test(asked.answer), false);
+    assert.match(asked.answer, /e-Arrival/);
+    // Same lines as a guest marked OCI on the form, minus the note.
+    const marked = answerQuestion("I have OCI, what do I need?", { nationalities: ["US"], oci: [true] });
+    assert.equal(marked.answer.includes(OCI_ASSUMED_LINE), false);
+    assert.equal(asked.answer, `${OCI_ASSUMED_LINE}\n${marked.answer}`);
+    // Not an OCI question: unchanged e-Visa lines, no note.
+    const visa = answerQuestion("Do I need a visa?", { nationalities: ["US"] });
+    assert.equal(visa.answer.includes(OCI_ASSUMED_LINE), false);
   });
 
   it("cannot be steered by the question text", () => {
