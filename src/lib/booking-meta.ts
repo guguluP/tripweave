@@ -10,6 +10,8 @@ export type BookingMeta = {
   refundId?: string;
   refundAmount?: number;
   refundedAt?: string;
+  /** Set while a guest cancel is refunding this stay (cross-instance claim). Cleared on finish. */
+  cancelClaimAt?: string;
   travel?: TravelPlan;
   pickupInr?: number;
   guestEmail?: string;
