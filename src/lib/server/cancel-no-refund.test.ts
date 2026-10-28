@@ -82,5 +82,5 @@ test("My trips: hotel-confirmed stays get 'Cancel (no refund)' and a warning ste
   assert.match(trips, /Yes, cancel without refund/);
   assert.match(trips, /Keep my stay/);
   assert.match(trips, /No refund was issued/);
-  assert.match(voucher, /Do not use this voucher at the hotel/);
+  assert.match(voucher, /voucherClosedState\(booking.status, meta\)/);
 });
