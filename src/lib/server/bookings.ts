@@ -26,7 +26,7 @@ import {
 } from "@/lib/server/payment-ops";
 import { holdIdsForCheckout, releaseCheckoutHold } from "@/lib/server/room-holds";
 import { withCancelLock } from "@/lib/server/cancel-lock";
-import { CANCEL_IN_PROGRESS_MESSAGE, claimedSwaps, hasFreshCancelClaim } from "@/lib/server/cancel-claim";
+import { CANCEL_IN_PROGRESS_MESSAGE, claimedSwaps, hasFreshCancelClaim, owedRefundInr } from "@/lib/server/cancel-claim";
 import { writeMeta, readMeta } from "@/lib/booking-meta";
 import { deskFor } from "@/lib/hotel-desk";
 import { guestRowsFromInput, travelerInputSchema } from "@/lib/traveller-schema";
@@ -1165,11 +1165,17 @@ export const cancelBooking = createServerFn({ method: "POST" })
         return cancelConfirmedNoRefund(context.userId, target, fromSql, useMemoryStore());
       }
 
+      const prior = refundIntentFor(context.userId, id);
+      // A refund_pending stay already owes a decided amount (a hotel decline owes the full
+      // price). Pressing Cancel & refund finishes that refund; it must not re-price it with the
+      // guest's 48-hour policy.
+      const owedInr = owedRefundInr(target.status, prior);
       const policy = refundPolicyFor(target.checkIn);
-      const amount = refundAmountInr(target.amountInr, target.checkIn);
-      if (policy.fraction <= 0) {
+      const amount = owedInr ?? refundAmountInr(target.amountInr, target.checkIn);
+      if (owedInr == null && policy.fraction <= 0) {
         return { ok: false, message: policy.label };
       }
+      const doneLabel = owedInr == null ? policy.label : "Refund finished";
 
       // Cross-instance guard (Postgres store): claim the stay before any refund. withCancelLock
       // only covers this process; a second server could otherwise refund the same stay again.
@@ -1211,7 +1217,6 @@ export const cancelBooking = createServerFn({ method: "POST" })
         return result;
       };
 
-      const prior = refundIntentFor(context.userId, id);
       let refundId = prior?.refundId;
       const ref = target.paymentRef ?? "";
       const intentBase = {
@@ -1307,7 +1312,7 @@ export const cancelBooking = createServerFn({ method: "POST" })
         ok: true,
         status,
         refundAmount: amount,
-        message: `${policy.label}. \u20b9${amount.toLocaleString("en-IN")} will return to the original payment.`,
+        message: `${doneLabel}. \u20b9${amount.toLocaleString("en-IN")} will return to the original payment.`,
       };
     }));
   });

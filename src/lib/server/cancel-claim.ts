@@ -37,3 +37,18 @@ export function claimedSwaps(
 ): Record<string, string> {
   return writeMeta(swaps, { cancelClaimAt: new Date(now).toISOString() });
 }
+
+/**
+ * The amount a refund_pending stay already owes, from its open refund intent.
+ * A desk decline (or a cancel whose gateway call failed) decided the amount when the stay left
+ * paid. Finishing that refund must use the same amount, not the guest policy for today.
+ */
+export function owedRefundInr(
+  status: string | null | undefined,
+  intent: { status: string; amountInr: number } | null | undefined,
+): number | null {
+  if (status !== "refund_pending" || !intent) return null;
+  if (intent.status !== "pending" && intent.status !== "gateway_done") return null;
+  const amount = Number(intent.amountInr);
+  return Number.isFinite(amount) && amount > 0 ? Math.round(amount) : null;
+}
