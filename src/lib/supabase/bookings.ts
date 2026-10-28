@@ -132,3 +132,26 @@ export async function sbCancelBooking(
   if (error) throw new Error(error.message);
   return true;
 }
+
+/**
+ * Guest cancel of a hotel-confirmed stay (no refund). A plain conditional update: it only
+ * matches a row that is still desk_confirmed, so no money moves and a repeat is a no-op.
+ * Returns false when no row matched (already cancelled, checked in, or not this guest's).
+ */
+export async function sbCancelConfirmedNoRefund(
+  userId: string,
+  id: number,
+  swaps: Record<string, string>,
+): Promise<boolean | null> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return null;
+  const { data, error } = await sb
+    .from("bookings")
+    .update({ status: "cancelled", swaps })
+    .eq("id", id)
+    .eq("user_id", userId)
+    .eq("status", "desk_confirmed")
+    .select("id");
+  if (error) throw new Error(error.message);
+  return Array.isArray(data) && data.length > 0;
+}

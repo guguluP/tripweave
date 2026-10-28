@@ -278,10 +278,17 @@ function VoucherPage() {
               confirmationCode={booking.confirmationCode}
               includePickup={plan.includePickup}
               amountInr={booking.amountInr}
+              status={booking.status}
             />
           </p>
           <p className="mt-4 text-xs text-subtle">
-            {booking.status === "paid"
+            {booking.status === "cancelled"
+              ? meta.cancelNoRefund
+                ? "Cancelled. You cancelled this stay after the hotel confirmed it, so no refund was issued. Do not use this voucher at the hotel."
+                : "Cancelled. Do not use this voucher at the hotel."
+              : booking.status === "refunded"
+                ? "Cancelled and refunded. Do not use this voucher at the hotel."
+                : booking.status === "paid"
               ? "Payment received. The hotel has not confirmed the room yet — show this code once the desk confirms."
               : booking.status === "desk_confirmed" || booking.status === "confirmed" || booking.status === "checked_in"
                 ? "Hotel confirmed. Show this at the desk on arrival."
