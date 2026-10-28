@@ -6,7 +6,7 @@ import { SOURCES } from "@/lib/arrival-rules";
 import { presentAnswer, type AskChip } from "@/lib/ask-present";
 import { getBearerToken } from "@/lib/auth/client";
 import { guestLabel, useGuestLocale, type GuestLocale } from "@/lib/guest-locale";
-import { refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
+import { guestCancelMode, refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
 import { pickupQuoteFor } from "@/lib/travel-plan";
 import { Button } from "@/components/ui/button";
 
@@ -25,6 +25,7 @@ export function AskTripWeave({
   confirmationCode,
   includePickup = false,
   amountInr,
+  status,
   onRequestCar,
   embedded = false,
 }: {
@@ -40,6 +41,8 @@ export function AskTripWeave({
   confirmationCode?: string;
   includePickup?: boolean;
   amountInr?: number;
+  /** The booking's status. Only a stay that can be cancelled with a refund gets a refund quote. */
+  status?: string;
   /** Before a booking exists, the page turns the car on in the travel draft. */
   onRequestCar?: () => void;
   embedded?: boolean;
@@ -177,8 +180,13 @@ export function AskTripWeave({
 
   const foreign = nationalities.some((code) => (code || "IN").toUpperCase() !== "IN");
   const carAvailable = arriveBy === "fly" && packageId ? pickupQuoteFor(packageId, "fly").available : false;
+  const cancelMode = status ? guestCancelMode(status) : "refund";
   const refund =
-    checkIn && amountInr != null && amountInr > 0
+    cancelMode === "no_refund"
+      ? "₹0. The hotel has confirmed this stay. You can still cancel on My trips, but no refund is issued."
+      : cancelMode === null
+        ? ""
+        : checkIn && amountInr != null && amountInr > 0
       ? `₹${refundAmountInr(amountInr, checkIn).toLocaleString("en-IN")}. ${refundPolicyFor(checkIn).label}.`
       : checkIn
         ? refundPolicyFor(checkIn).label

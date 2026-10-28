@@ -17,6 +17,8 @@ type AskProps = {
   confirmationCode?: string;
   includePickup?: boolean;
   amountInr?: number;
+  /** The booking's status, so a confirmed or cancelled stay is not quoted a refund. */
+  status?: string;
   onRequestCar?: () => void;
   hotelName?: string;
 };

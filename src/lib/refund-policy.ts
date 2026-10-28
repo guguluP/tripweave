@@ -51,3 +51,34 @@ export function stayStatusLabel(status: string) {
   if (status === "paid") return "Awaiting hotel confirmation";
   return "Paid";
 }
+
+/**
+ * How the guest may cancel a stay from My trips.
+ * - "refund": not yet confirmed by the hotel desk (paid, held, legacy confirmed, refund_pending).
+ *   The time-based refund policy above applies.
+ * - "no_refund": the hotel desk confirmed the room (desk_confirmed). The guest may still cancel,
+ *   but no refund is issued (product decision, Oct 2026).
+ * - null: nothing to cancel (checked in, completed, cancelled, refunded, failed, ...).
+ *
+ * Legacy "confirmed" rows predate the desk flow (desk_confirmed_at is empty on every one of them),
+ * so they keep the refund policy.
+ */
+export type GuestCancelMode = "refund" | "no_refund";
+
+const REFUND_CANCEL = new Set(["paid", "held", "confirmed", "refund_pending"]);
+
+export function guestCancelMode(status: string | null | undefined): GuestCancelMode | null {
+  if (typeof status !== "string") return null;
+  if (REFUND_CANCEL.has(status)) return "refund";
+  if (status === "desk_confirmed") return "no_refund";
+  return null;
+}
+
+export const NO_REFUND_CANCEL_WARNING =
+  "The hotel has confirmed this room. If you cancel now, no refund will be issued.";
+
+export const NO_REFUND_CANCEL_NEEDS_CONFIRM =
+  "The hotel has confirmed this stay, so cancelling it now gives no refund. Refresh My trips and use Cancel (no refund) to go ahead.";
+
+export const NO_REFUND_CANCELLED_MESSAGE =
+  "Stay cancelled. The hotel had already confirmed it, so no refund was issued.";

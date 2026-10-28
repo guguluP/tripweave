@@ -33,10 +33,17 @@ import { guestRowsFromInput, travelerInputSchema } from "@/lib/traveller-schema"
 import { parseTravelPlan } from "@/lib/travel-plan";
 import { persistBookingGuests, removeBooking, travelerToInput } from "@/lib/server/stay-guests";
 import type { TravelerInput } from "@/lib/supabase/travellers";
-import { refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
+import {
+  NO_REFUND_CANCEL_NEEDS_CONFIRM,
+  NO_REFUND_CANCELLED_MESSAGE,
+  guestCancelMode,
+  refundAmountInr,
+  refundPolicyFor,
+} from "@/lib/refund-policy";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import {
   sbCancelBooking,
+  sbCancelConfirmedNoRefund,
   sbInsertBooking,
   sbListBookings,
 } from "@/lib/supabase/bookings";
@@ -1081,14 +1088,80 @@ export const createBooking = createServerFn({ method: "POST" })
     }
   });
 
+/**
+ * Guest cancel of a hotel-confirmed stay: status cancelled, refund 0, no Razorpay call.
+ * Each store's write only matches a row that is still desk_confirmed, so a parallel cancel or a
+ * desk check-in in between makes this one a no-op instead of a second write.
+ */
+async function cancelConfirmedNoRefund(
+  userId: string,
+  target: BookingRow,
+  fromSql: boolean,
+  memoryOnly: boolean,
+): Promise<CancelResult> {
+  const id = target.id;
+  const status = "cancelled";
+  const meta = writeMeta(target.swaps, {
+    refundAmount: 0,
+    cancelledAt: new Date().toISOString(),
+    cancelNoRefund: true,
+    cancelClaimAt: undefined,
+  });
+  if (isSupabaseConfigured()) {
+    try {
+      const saved = await sbCancelConfirmedNoRefund(userId, id, meta);
+      if (saved === false) return { ok: false, message: "That stay is not open to cancel. Refresh My trips." };
+    } catch (err) {
+      if (isDurableDbError(err)) markDurableDbFailed(err);
+      console.error("[bookings] supabase no-refund cancel failed", err);
+      return { ok: false, message: "Could not cancel the stay. Nothing changed. Try again." };
+    }
+  } else if (!memoryOnly) {
+    try {
+      const sql = await getSql();
+      const swapsJson = JSON.stringify(meta);
+      const updated = await sql`
+        update bookings
+        set status = ${status}, swaps = ${swapsJson}
+        where id = ${id} and user_id = ${userId} and status = 'desk_confirmed'
+        returning id
+      `;
+      if (fromSql && !updated.length) {
+        return { ok: false, message: "That stay is not open to cancel. Refresh My trips." };
+      }
+    } catch (err) {
+      if (isDurableDbError(err)) markDurableDbFailed(err);
+      else console.error("[bookings] no-refund cancel failed", err);
+      return { ok: false, message: "Could not cancel the stay. Nothing changed. Try again." };
+    }
+  }
+  memoryUpdateBooking(userId, id, { status, swaps: meta });
+  releaseHoldById(target.confirmationCode);
+  const roomId = readMeta(meta).roomId ?? "";
+  if (roomId) releaseHoldById(`${target.packageId}:${roomId}:${target.checkIn}`);
+  return { ok: true, status, refundAmount: 0, message: NO_REFUND_CANCELLED_MESSAGE };
+}
+
 export type CancelResult =
   | { ok: true; status: string; refundAmount: number; message: string }
   | { ok: false; message: string };
 
 export const cancelBooking = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator((id: number) => id)
-  .handler(({ context, data: id }): Promise<CancelResult> =>
+  // A bare id is the refund cancel. { id, acceptNoRefund: true } is the guest's explicit
+  // "cancel without refund" for a stay the hotel already confirmed.
+  .validator((data: number | { id: number; acceptNoRefund?: boolean }) =>
+    z
+      .union([
+        z.number().int().positive(),
+        z.object({ id: z.number().int().positive(), acceptNoRefund: z.boolean().optional() }),
+      ])
+      .parse(data),
+  )
+  .handler(({ context, data }): Promise<CancelResult> => {
+    const id = typeof data === "number" ? data : data.id;
+    const acceptNoRefund = typeof data === "number" ? false : data.acceptNoRefund === true;
+    return (
     // One cancel per stay at a time, so a double click cannot send two refunds.
     withCancelLock(`${context.userId}:${id}`, async (): Promise<CancelResult> => {
       try {
@@ -1129,12 +1202,18 @@ export const cancelBooking = createServerFn({ method: "POST" })
         }
       }
       const target = rows.find((b) => b.id === id);
-      const openStatus = target?.status === "paid" || target?.status === "held" || target?.status === "confirmed" || target?.status === "refund_pending";
-      if (!target || !openStatus) {
+      const mode = guestCancelMode(target?.status);
+      if (!target || !mode) {
         return { ok: false, message: "That stay is not open to cancel." };
       }
       if (target.userId && target.userId !== context.userId) {
         return { ok: false, message: "That stay is not open to cancel." };
+      }
+      if (mode === "no_refund") {
+        // The hotel confirmed the room: the guest may cancel, but nothing is refunded and the
+        // gateway is never called. The page must have shown the no-refund warning first.
+        if (!acceptNoRefund) return { ok: false, message: NO_REFUND_CANCEL_NEEDS_CONFIRM };
+        return cancelConfirmedNoRefund(context.userId, target, fromSql, useMemoryStore());
       }
 
       const policy = refundPolicyFor(target.checkIn);
@@ -1281,7 +1360,7 @@ export const cancelBooking = createServerFn({ method: "POST" })
         refundAmount: amount,
         message: `${policy.label}. \u20b9${amount.toLocaleString("en-IN")} will return to the original payment.`,
       };
-    }),
-  );
+    }));
+  });
 
 export { methodLabel };
