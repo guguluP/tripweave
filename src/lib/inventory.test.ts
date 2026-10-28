@@ -248,3 +248,37 @@ describe("origin ranking", () => {
     assert.match(why, /station|temple/i);
   });
 });
+
+describe("stay quote card copy", () => {
+  it("says it is checking, not that it failed, while occupancy is loading", async () => {
+    const { quoteStay, stayQuoteLine, nightQuoteLabel } = await import("./inventory.ts");
+    const quote = quoteStay({ packageId: "hans-coco-palms", roomId: "", checkIn: "2027-02-10", nights: 2, inventoryKnown: false });
+    assert.ok(quote);
+    assert.equal(quote.unknown, true);
+    assert.equal(stayQuoteLine(quote, true), "Checking rooms for these dates…");
+    assert.equal(stayQuoteLine(quote, false), "Couldn't check rooms for these dates.");
+    for (const n of quote.nightsQuoted) {
+      assert.doesNotMatch(nightQuoteLabel(n, true, true), /On request|left|Sold out/);
+      assert.match(nightQuoteLabel(n, true, true), /checking$/);
+      assert.doesNotMatch(nightQuoteLabel(n, true, false), /On request|left|Sold out|checking/);
+    }
+  });
+
+  it("keeps the known-inventory lines unchanged", async () => {
+    const { quoteStay, stayQuoteLine, nightQuoteLabel, ALLOTMENT_LABEL } = await import("./inventory.ts");
+    const quote = quoteStay({ packageId: "hans-coco-palms", roomId: "", checkIn: "2027-02-10", nights: 2 });
+    assert.ok(quote);
+    assert.equal(quote.unknown, false);
+    // `checking` is ignored once the quote is known.
+    assert.equal(stayQuoteLine(quote, true), stayQuoteLine(quote, false));
+    if (quote.available) {
+      assert.equal(
+        stayQuoteLine(quote),
+        `${ALLOTMENT_LABEL}: ${quote.remaining} of ${quote.units} ${quote.occupancy}-guest rooms left for these nights.`,
+      );
+    }
+    assert.equal(nightQuoteLabel({ date: "2027-02-10", rate: 1000, label: "", remaining: 0, released: false }, false), "On request");
+    assert.equal(nightQuoteLabel({ date: "2027-02-10", rate: 1000, label: "", remaining: 0, released: true }, false), "Sold out");
+    assert.match(nightQuoteLabel({ date: "2027-02-10", rate: 1000, label: "", remaining: 3, released: true }, false), /· 3 left$/);
+  });
+});

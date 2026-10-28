@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { formatMoney } from "@/lib/packages";
-import { ALLOTMENT_LABEL, type StayQuote } from "@/lib/inventory";
+import { nightQuoteLabel, stayQuoteLine, type StayQuote } from "@/lib/inventory";
 import { cn } from "@/lib/utils";
 
 function monthCells(cursor: string) {
@@ -117,11 +116,14 @@ export function StayQuoteCard({
   checkIn,
   onCheckIn,
   minDate,
+  checking = false,
 }: {
   quote: StayQuote | null;
   checkIn: string;
   onCheckIn: (iso: string) => void;
   minDate: string;
+  /** Occupancy is still loading; the quote is unknown only because it has not arrived yet. */
+  checking?: boolean;
 }) {
   return (
     <section className="mt-8 rounded-xl border border-border bg-elevated p-4">
@@ -132,15 +134,7 @@ export function StayQuoteCard({
       </div>
       {quote ? (
         <div className="mt-4">
-          <p className="text-sm text-muted">
-            {quote.unknown
-              ? "Couldn't check rooms for these dates."
-              : quote.available
-                ? `${ALLOTMENT_LABEL}: ${quote.remaining} of ${quote.units} ${quote.occupancy}-guest rooms left for these nights.`
-                : quote.released
-                  ? `${ALLOTMENT_LABEL}: sold out on at least one of these nights. Change the date or room.`
-                  : "On request. The hotel has not released a key count for these nights."}
-          </p>
+          <p className="text-sm text-muted" aria-live="polite">{stayQuoteLine(quote, checking)}</p>
           <ul className="mt-3 grid gap-1.5">
             {quote.nightsQuoted.map((n) => (
               <li
@@ -155,7 +149,7 @@ export function StayQuoteCard({
                   <span className="ml-2 text-xs text-muted">{n.label}</span>
                 </span>
                 <span className="tabular-nums">
-                  {!n.released ? "On request" : n.remaining <= 0 ? "Sold out" : `${formatMoney(n.rate)} · ${n.remaining} left`}
+                  {nightQuoteLabel(n, quote.unknown, checking)}
                 </span>
               </li>
             ))}
