@@ -2,6 +2,7 @@ import { memoryBookingsFor } from "@/lib/booking-memory";
 import { resumePendingRefundsForUser } from "@/lib/server/refund-resume";
 import { hydrateRefundIntents, loadAllOpenRefundIntents } from "@/lib/server/payment-ops";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { shouldSkipNeon } from "@/lib/server/db-fallback";
 import { sbListBookings } from "@/lib/supabase/bookings";
 
 export type RefundCronResult = {
@@ -29,6 +30,14 @@ export async function runRefundRetryCron(): Promise<RefundCronResult> {
           }
         } catch (err) {
           console.error("[refund-cron] list bookings", userId, err);
+        }
+      } else if (!shouldSkipNeon()) {
+        try {
+          const { pgBookingsFor } = await import("@/lib/server/bookings");
+          const stored = await pgBookingsFor(userId);
+          if (stored.length) rows = stored;
+        } catch (err) {
+          console.error("[refund-cron] list bookings (sql)", userId, err);
         }
       }
       await resumePendingRefundsForUser(userId, rows);

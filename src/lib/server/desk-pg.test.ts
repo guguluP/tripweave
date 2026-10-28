@@ -90,3 +90,13 @@ test("pgRefundDeclinedStay: full refund once, then refunded; gateway failure lea
   assert.match(fn, /set status = 'refunded', swaps = /);
   assert.ok(fn.indexOf('status: "pending"') < fn.indexOf("refundRazorpayPayment("), "refund intent saved before the gateway");
 });
+
+test("refund resume writes the refunded status on Postgres too (desk decline that hit a gateway error)", () => {
+  const resume = readFileSync(new URL("./refund-resume.ts", import.meta.url), "utf8");
+  assert.match(resume, /else if \(!shouldSkipNeon\(\)\)[\s\S]*update bookings set status = 'refunded'[\s\S]*status in \('refund_pending'/);
+  assert.match(resume, /if \(!updated\.length\) statusSaved = false;/, "intent stays open when no row changed");
+  const bookings = readFileSync(new URL("./bookings.ts", import.meta.url), "utf8");
+  assert.match(bookings, /resumePendingRefundsForUser\(userId, rows\)/, "one shared resume, not a second copy");
+  const cron = readFileSync(new URL("./refund-cron.ts", import.meta.url), "utf8");
+  assert.match(cron, /pgBookingsFor\(userId\)/, "cron reads Postgres stays");
+});
