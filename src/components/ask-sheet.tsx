@@ -17,6 +17,8 @@ type AskProps = {
   confirmationCode?: string;
   includePickup?: boolean;
   amountInr?: number;
+  /** Booking status, when a booking exists. Gates the refund line and the car request. */
+  status?: string;
   onRequestCar?: () => void;
   hotelName?: string;
 };

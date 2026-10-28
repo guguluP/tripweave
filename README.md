@@ -90,6 +90,29 @@ Reviewer notes are static, curated notes from a fixed set of YouTube stay videos
 
 The mobile tab bar (`Discover`, `Plan`, `Trips`, `Account`) is `position: fixed`. Long stay names and Razorpay lines must not widen the page or the bar slides sideways.
 
+## Ask TripWeave
+
+The Ask panel on a stay (`src/components/ask-tripweave.tsx`, opened from `ask-sheet.tsx`) answers arrival and booking questions with **no outside API or AI model**. Nothing in Ask calls the network beyond TripWeave's own database. `answerQuestion` in `src/lib/arrival-ask.ts` matches keywords to topics and replies only with lines built from two sources:
+
+- the guest's own stay facts (`stayFactLines`): status, dates and check-out day, amount paid, the refund window from `src/lib/refund-policy.ts`, inclusions such as breakfast, the hotel desk, and the hotel airport car. When the arrival mode is not known yet, the car line describes the car the hotel offers guests who fly in.
+- the checklist in `src/lib/arrival-rules.ts`, each line with its official source link. US and UK guests asking "Do I need a visa?" get the e-Visa rules.
+
+Negated phrases ("I don't need a car") drop that topic. A stay question with no fact on file gets "TripWeave does not have this on file. Ask the hotel desk: …". An entry question with no matching rule gets "Not stated by the official sources TripWeave checked" and the closest official link as a chip. The guest's own words are never sent back as an answer.
+
+`POST /api/ask` (`src/routes/api/ask.ts`):
+
+- needs `Content-Type: application/json`, an `Origin` from this site, and a body under 8 KB. These are checked before parsing. The schema is strict and takes no chat history; the server loads the saved thread itself.
+- returns one final JSON reply `{ ok, answer, chips, tripweave }`. There is no streaming.
+- refuses questions that carry passport, Aadhaar, visa or other ID numbers (`questionHasDocumentDigits`). This covers six or more digits even with separators, letter-and-digit runs like `K12A34B56C78`, and non-ASCII digits. Dates (`2027-06-15`, `15/06/2027`) and date ranges are allowed. A refused question is saved only as "[Question not saved: …]".
+- caps typed questions at 10 an hour and suggestion taps at 60 an hour, per user. The cap is taken atomically in Postgres (`tw_ask` op `take`, advisory lock). If the store cannot be reached in production, Ask refuses instead of answering without a cap.
+- saves the thread (last 20 turns, 90 days) only for a booking the signed-in guest owns that is not cancelled or refunded. `GET /api/ask?confirmationCode=…` returns that thread.
+
+Storage: Supabase `ask_turns` / `ask_hits` through `tw_ask(p_op, p_payload)` (service role only), local Postgres through `migrations/0013`–`0014`, or the in-process store when neither is configured. Turns are deleted when a stay is cancelled or refunded, when the booking row is deleted, and when the account is deleted (triggers, plus `forgetAskThread` / `forgetAskUser` in the app). Memory entries also expire after 90 days.
+
+The airport-car button (`requestHotelCar` in `src/lib/server/ask-actions.ts`) is shown and accepted only for the guest's own active stay (`paid`, `held`, `confirmed`, `desk_confirmed`). It is capped at 3 per booking per day. It emails the hotel desk first and reports a failure if that email does not go out. Refund lines appear only for stays that can still be cancelled (`isCancellableStatus`, the same check as the Trips page).
+
+To review or change what Ask can say, edit `src/lib/arrival-rules.ts` (rule text and official URLs) and the fact lines in `src/lib/arrival-ask.ts`, then run `npm test`. Node 22.18 or newer is required (`.nvmrc`, `engines`).
+
 ## Layout
 
 ```
@@ -105,6 +128,10 @@ src/lib/server/             bookings, holds, Razorpay, desk, mail
 src/lib/supabase/           service client and RPC adapters
 src/lib/auth/               Better Auth session and route guards
 src/lib/travel-plan.ts      arrival, last mile, cab links
+src/lib/arrival-rules.ts    arrival checklist with official source links
+src/lib/arrival-ask.ts      Ask TripWeave: keyword topics, stay facts, answers
+src/routes/api/ask.ts       Ask endpoint (headers, cap, owner check, thread)
+src/lib/server/ask-store.ts Ask threads and caps (Supabase, Postgres, memory)
 src/lib/mappls.ts           Mappls direction embeds (Survey of India)
 src/lib/refund-policy.ts    IST refund windows
 src/lib/world-cities.ts     plan-page city search

@@ -1,76 +1,51 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { acceptGroundedReply, ASK_SYSTEM, groundingPacket, questionHasDocumentDigits } from "@/lib/arrival-ask";
-import { presentAnswer } from "@/lib/ask-present";
+import { ASK_SUGGESTIONS, answerQuestion, questionHasDocumentDigits, REDACTED_QUESTION } from "@/lib/arrival-ask";
+import { OFFICIAL_URLS, presentAnswer } from "@/lib/ask-present";
 import { getSessionUser } from "@/lib/auth/verify.server";
 import { isCountryCode } from "@/lib/countries";
-import { appendAskTurn, listAskTurns, takeAskSlot } from "@/lib/server/ask-store";
+import { isClosedStay } from "@/lib/refund-policy";
+import { appendAskTurn, forgetAskThread, listAskTurns, takeAskSlot } from "@/lib/server/ask-store";
+import { checkAskHeaders, readCappedText } from "@/lib/server/ask-request";
 import { findOwnBookingByCode } from "@/lib/server/booking-lookup";
 
-const turn = z.object({
-  question: z.string().trim().min(1).max(400),
-  answer: z.string().trim().min(1).max(1200),
-});
+/**
+ * Ask TripWeave. Answers come only from this stay's facts (stayFactLines) and the arrival
+ * rules in src/lib/arrival-rules.ts, through the deterministic answerQuestion. No outside API
+ * or AI model is called. The client never sends earlier turns: the saved thread is loaded
+ * here, and only for a booking this user owns.
+ */
+const schema = z
+  .object({
+    question: z.string().trim().min(3).max(400).optional(),
+    /** A fixed suggestion tap. The server picks the question text, so it cannot carry free text. */
+    suggestion: z.enum(["fly", "refund", "car", "desk"]).optional(),
+    nationalities: z.array(z.string().regex(/^[A-Z]{2}$/)).max(12).optional().default([]),
+    oci: z.array(z.boolean()).max(12).optional(),
+    priorIndianVisa: z.array(z.boolean()).max(12).optional(),
+    arrivalAirport: z.string().regex(/^[A-Z]{3}$/).optional(),
+    checkIn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    packageId: z.string().trim().max(80).optional(),
+    roomId: z.string().trim().max(40).optional(),
+    nights: z.number().int().min(1).max(14).optional(),
+    arriveBy: z.enum(["fly", "train", "bus", "road"]).optional(),
+    confirmationCode: z.string().trim().regex(/^[A-Za-z0-9-]{3,40}$/).optional(),
+    locale: z.enum(["en", "hi"]).optional(),
+  })
+  .strict()
+  .refine((data) => Boolean(data.suggestion || data.question), { message: "Ask a question." });
 
-const schema = z.object({
-  question: z.string().trim().min(3).max(400),
-  nationalities: z.array(z.string().regex(/^[A-Z]{2}$/)).max(12).optional().default([]),
-  oci: z.array(z.boolean()).max(12).optional(),
-  priorIndianVisa: z.array(z.boolean()).max(12).optional(),
-  arrivalAirport: z.string().regex(/^[A-Z]{3}$/).optional(),
-  checkIn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  packageId: z.string().trim().max(80).optional(),
-  roomId: z.string().trim().max(40).optional(),
-  nights: z.number().int().min(1).max(14).optional(),
-  arriveBy: z.enum(["fly", "train", "bus", "road"]).optional(),
-  confirmationCode: z.string().trim().max(40).optional(),
-  locale: z.enum(["en", "hi"]).optional(),
-  history: z.array(turn).max(4).optional(),
-});
+/** Saved with the redacted placeholder when a question looked like a document number. */
+const NO_DOCUMENTS_REPLY = "Leave out passport and visa numbers.";
 
 function json(body: unknown, status = 200) {
-  return Response.json(body, { status });
+  return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 }
 
 async function sessionUser(request: Request) {
   const header = request.headers.get("authorization");
   const bearer = header?.toLowerCase().startsWith("bearer ") ? header.slice(7).trim() : undefined;
   return getSessionUser(bearer);
-}
-
-async function readXaiStream(
-  res: Response,
-  write: (text: string) => void,
-): Promise<string> {
-  const reader = res.body?.getReader();
-  if (!reader) return "";
-  const decoder = new TextDecoder();
-  let buf = "";
-  let full = "";
-  while (true) {
-    const step = await reader.read();
-    if (step.done) break;
-    buf += decoder.decode(step.value, { stream: true });
-    const lines = buf.split("\n");
-    buf = lines.pop() ?? "";
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("data:")) continue;
-      const payload = trimmed.slice(5).trim();
-      if (!payload || payload === "[DONE]") continue;
-      try {
-        const json = JSON.parse(payload) as { choices?: { delta?: { content?: string } }[] };
-        const delta = json.choices?.[0]?.delta?.content;
-        if (delta) {
-          full += delta;
-          write(delta);
-        }
-      } catch {
-        /* ignore a partial SSE line */
-      }
-    }
-  }
-  return full;
 }
 
 export const Route = createFileRoute("/api/ask")({
@@ -81,118 +56,76 @@ export const Route = createFileRoute("/api/ask")({
         if (!user) return json({ ok: false, reason: "unauthorized" }, 401);
         const code = new URL(request.url).searchParams.get("confirmationCode")?.trim() ?? "";
         if (!/^[A-Za-z0-9-]{3,40}$/.test(code)) return json({ turns: [] });
-        const turns = await listAskTurns(user.id, code);
-        return json({ turns });
+        try {
+          const own = await findOwnBookingByCode(user.id, code);
+          if (!own) return json({ turns: [] });
+          if (isClosedStay(own.status)) {
+            await forgetAskThread(user.id, code);
+            return json({ turns: [] });
+          }
+          return json({ turns: await listAskTurns(user.id, code) });
+        } catch (err) {
+          console.error("[ask] thread", err instanceof Error ? err.name : "failed");
+          return json({ turns: [] });
+        }
       },
       POST: async ({ request }) => {
+        const guard = checkAskHeaders(request);
+        if (guard) return json({ ok: false, reason: guard.reason }, guard.status);
         const user = await sessionUser(request);
         if (!user) return json({ ok: false, reason: "unauthorized" }, 401);
+        const raw = await readCappedText(request);
+        if (raw === null) return json({ ok: false, reason: "too_large" }, 413);
         let data: z.infer<typeof schema>;
         try {
-          data = schema.parse(await request.json());
+          data = schema.parse(JSON.parse(raw));
         } catch {
           return json({ ok: false, reason: "unavailable" }, 400);
         }
-        const asked = [data.question, ...(data.history ?? []).map((row) => row.question)];
-        if (asked.some((question) => questionHasDocumentDigits(question))) {
-          return json({ ok: false, reason: "no_documents" });
-        }
-        const apiKey = process.env.XAI_API_KEY?.trim();
-        if (!apiKey) return json({ ok: false, reason: "not_configured" });
-        if (!(await takeAskSlot(user.id))) return json({ ok: false, reason: "rate_limited" });
+        const question = data.suggestion ? ASK_SUGGESTIONS[data.suggestion] : (data.question ?? "");
 
-        const nationalities = data.nationalities.filter((code) => isCountryCode(code));
-        let packageId = data.packageId;
-        let roomId = data.roomId;
-        let checkIn = data.checkIn;
-        let nights = data.nights;
-        let amountInr: number | null = null;
-        let status: string | null = null;
-        if (data.confirmationCode) {
-          const own = await findOwnBookingByCode(user.id, data.confirmationCode);
-          if (own) {
-            packageId = own.packageId;
-            roomId = own.roomId || roomId;
-            checkIn = own.checkIn;
-            nights = own.nights;
-            amountInr = own.amountInr;
-            status = own.status;
-          }
-        }
-        const packet = groundingPacket({
-          nationalities,
-          oci: data.oci,
-          priorIndianVisa: data.priorIndianVisa,
-          arrivalAirport: data.arrivalAirport,
-          checkIn,
-          packageId,
-          roomId,
-          nights,
-          arriveBy: data.arriveBy,
-          amountInr,
-          status,
-        });
-        const locale = data.locale === "hi" ? "hi" : "en";
-        const earlier = (data.history ?? [])
-          .map((row) => `Earlier question: ${row.question}\nEarlier answer: ${row.answer}`)
-          .join("\n\n");
-        const model = process.env.XAI_MODEL?.trim() || "grok-4.7";
+        const slot = await takeAskSlot(user.id, data.suggestion ? "suggest" : "typed");
+        if (slot === "limited") return json({ ok: false, reason: "rate_limited" });
+        if (slot === "error") return json({ ok: false, reason: "unavailable" });
 
-        let upstream: Response;
         try {
-          upstream = await fetch("https://api.x.ai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-              model,
-              stream: true,
-              temperature: 0,
-              messages: [
-                { role: "system", content: ASK_SYSTEM },
-                {
-                  role: "user",
-                  content: `${earlier ? `Conversation so far (not a source):\n${earlier}\n\n` : ""}Guest locale: ${locale}\nQuestion: ${data.question}\n\nSources:\n${packet.text}`,
-                },
-              ],
-            }),
-          });
+          const own = data.confirmationCode ? await findOwnBookingByCode(user.id, data.confirmationCode) : null;
+          const keepThread = Boolean(own && data.confirmationCode && !isClosedStay(own.status));
+
+          if (!data.suggestion && questionHasDocumentDigits(question)) {
+            // Never stored as typed: the thread gets a placeholder instead.
+            if (keepThread && data.confirmationCode) {
+              await appendAskTurn(user.id, data.confirmationCode, REDACTED_QUESTION, NO_DOCUMENTS_REPLY);
+            }
+            return json({ ok: false, reason: "no_documents" });
+          }
+
+          const grounding = {
+            nationalities: data.nationalities.filter((code) => isCountryCode(code)),
+            oci: data.oci,
+            priorIndianVisa: data.priorIndianVisa,
+            arrivalAirport: data.arrivalAirport,
+            checkIn: own?.checkIn ?? data.checkIn,
+            packageId: own?.packageId ?? data.packageId,
+            roomId: own?.roomId || data.roomId,
+            nights: own?.nights ?? data.nights,
+            arriveBy: data.arriveBy,
+            amountInr: own?.amountInr ?? null,
+            status: own?.status ?? null,
+            notOwner: Boolean(data.confirmationCode) && !own,
+          };
+          const result = answerQuestion(question, grounding);
+          // Same list the sheet uses for saved turns: a fallback can cite a source outside this
+          // guest's checklist (an OCI question with no nationality on file cites BOI).
+          const view = presentAnswer(result.answer, OFFICIAL_URLS);
+          if (keepThread && data.confirmationCode) {
+            await appendAskTurn(user.id, data.confirmationCode, question, result.answer);
+          }
+          return json({ ok: true, answer: view.prose, chips: view.chips, tripweave: view.tripweave });
         } catch (err) {
           console.error("[ask]", err instanceof Error ? err.name : "failed");
           return json({ ok: false, reason: "unavailable" });
         }
-        if (!upstream.ok || !upstream.body) {
-          console.error("[ask] xAI", upstream.status);
-          return json({ ok: false, reason: "unavailable" });
-        }
-
-        const encoder = new TextEncoder();
-        const stream = new ReadableStream({
-          async start(controller) {
-            const send = (value: unknown) => {
-              controller.enqueue(encoder.encode(`${JSON.stringify(value)}\n`));
-            };
-            try {
-              const raw = await readXaiStream(upstream, (text) => send({ type: "token", text }));
-              const answer = acceptGroundedReply(raw, packet.urls);
-              const view = presentAnswer(answer, packet.urls);
-              if (data.confirmationCode) {
-                await appendAskTurn(user.id, data.confirmationCode, data.question, answer);
-              }
-              send({ type: "done", answer: view.prose, chips: view.chips, tripweave: view.tripweave });
-            } catch (err) {
-              console.error("[ask]", err instanceof Error ? err.name : "failed");
-              send({ type: "error", reason: "unavailable" });
-            } finally {
-              controller.close();
-            }
-          },
-        });
-        return new Response(stream, {
-          headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" },
-        });
       },
     },
   },

@@ -184,3 +184,51 @@ begin
       and lower(btrim(p.email)) is distinct from lower(btrim(coalesce(u.email, '')));
   end if;
 end $$;
+
+-- A1: mappings written by the old claim bug.
+-- Before the fix, a typed profile email could map a victim's sign-in email to another
+-- user id in account_subjects, and tw_claim_subject reads that row first.
+-- Delete a mapping when the mapped user's sign-in email (ba_user.email) is a different
+-- address AND that user owns no booking whose server-set accountEmail is the mapped email.
+-- The next sign-in for that email then gets its own id again. Safe to re-run.
+--
+-- Run this read-only check in the Supabase SQL editor FIRST to see what changes.
+-- would_delete = true rows are removed by the block below. Rows with
+-- would_delete = false but owns_matching_booking = true keep their mapping; review
+-- those by hand, because a booking may have been moved to the wrong user.
+--
+-- select s.email,
+--        s.user_id,
+--        u.email as sign_in_email,
+--        s.created_at,
+--        exists (
+--          select 1 from public.bookings b
+--          where b.user_id = s.user_id
+--            and public.tw_booking_account_email(b.swaps) = lower(btrim(s.email))
+--        ) as owns_matching_booking,
+--        not exists (
+--          select 1 from public.bookings b
+--          where b.user_id = s.user_id
+--            and public.tw_booking_account_email(b.swaps) = lower(btrim(s.email))
+--        ) as would_delete,
+--        (select count(*) from public.bookings b where b.user_id = s.user_id) as bookings_on_user
+-- from public.account_subjects s
+-- join public.ba_user u on u.id = s.user_id
+-- where lower(btrim(coalesce(u.email, ''))) is distinct from lower(btrim(s.email))
+-- order by s.created_at;
+do $$
+begin
+  if to_regclass('public.account_subjects') is not null
+     and to_regclass('public.ba_user') is not null
+     and to_regclass('public.bookings') is not null then
+    delete from public.account_subjects s
+    using public.ba_user u
+    where u.id = s.user_id
+      and lower(btrim(coalesce(u.email, ''))) is distinct from lower(btrim(s.email))
+      and not exists (
+        select 1 from public.bookings b
+        where b.user_id = s.user_id
+          and public.tw_booking_account_email(b.swaps) = lower(btrim(s.email))
+      );
+  end if;
+end $$;

@@ -51,3 +51,24 @@ export function stayStatusLabel(status: string) {
   if (status === "paid") return "Awaiting hotel confirmation";
   return "Paid";
 }
+
+/**
+ * Statuses the guest cancel flow accepts. Ask TripWeave and cancelBooking share this,
+ * so a stay that cannot be cancelled is never quoted a refund.
+ * desk_confirmed and checked_in go through the hotel desk, not the guest cancel button.
+ */
+const CANCELLABLE = new Set(["paid", "held", "confirmed", "refund_pending"]);
+
+export function isCancellableStatus(status: string | null | undefined): boolean {
+  return typeof status === "string" && CANCELLABLE.has(status);
+}
+
+/**
+ * A stay that is still live for the guest: booked and not cancelled, refunded, refund pending,
+ * checked in or completed. Hotel requests (airport car) are only sent for these.
+ */
+const ACTIVE = new Set(["paid", "held", "confirmed", "desk_confirmed"]);
+
+export function isActiveStayStatus(status: string | null | undefined): boolean {
+  return typeof status === "string" && ACTIVE.has(status);
+}

@@ -29,6 +29,7 @@ import {
 } from "@/lib/travel-plan";
 import type { OriginId } from "@/lib/origins";
 import {
+  isCancellableStatus,
   isClosedStay,
   refundAmountInr,
   refundPolicyFor,
@@ -230,6 +231,7 @@ function TripsInner() {
                         confirmationCode={b.confirmationCode}
                         includePickup={plan.includePickup}
                         amountInr={b.amountInr}
+                        status={b.status}
                       />
                       {daysUntilCheckIn(b.checkIn) === 1 && !closed ? (
                         <p className="rounded-md bg-primary/10 px-3 py-2 text-sm">Check-in is tomorrow. Keep {b.confirmationCode} ready for the desk.</p>
@@ -258,7 +260,11 @@ function TripsInner() {
                       ) : null}
                       {!closed ? (
                         <div className="grid gap-3">
-                          <p className="text-xs text-subtle">{policy.label}.</p>
+                          {b.status === "refund_pending" ? (
+                            <p className="text-xs text-subtle">Refund in progress.</p>
+                          ) : isCancellableStatus(b.status) ? (
+                            <p className="text-xs text-subtle">{policy.label}.</p>
+                          ) : null}
                           <AddToWallet booking={b} compact className="contents" />
                           <div className="flex flex-wrap gap-2">
                             <Button asChild size="sm">
@@ -293,6 +299,7 @@ function TripsInner() {
                                 GST invoice
                               </a>
                             </Button>
+                            {isCancellableStatus(b.status) ? (
                             <Button
                               variant="outline"
                               size="sm"
@@ -337,6 +344,7 @@ function TripsInner() {
                                 shimmer={cancelling === b.id}
                               />
                             </Button>
+                            ) : null}
                           </div>
                         </div>
                       ) : null}

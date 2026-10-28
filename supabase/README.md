@@ -28,7 +28,20 @@ Then paste [`saved_travellers.sql`](saved_travellers.sql) → Run. Saved co-trav
 
 Then paste [`guest_arrivals.sql`](guest_arrivals.sql) → Run. Optional arrival details and the desk foreign-guest register for Form III. Safe to re-run.
 
-Then paste [`ask_turns.sql`](ask_turns.sql) → Run. Ask TripWeave threads and the 10-an-hour cap. No passport numbers. Safe to re-run.
+Then paste [`ask_turns.sql`](ask_turns.sql) → Run. Ask TripWeave threads (90 days, owned stays only) and the atomic caps (10 typed / 60 taps an hour, 3 car requests per booking per day). It replaces the older `tw_ask(p_gate, …)` with `tw_ask(p_op, p_payload)` and adds triggers that delete a booking's Ask turns when it is cancelled, refunded or deleted, and a user's turns when the account is deleted. No passport numbers. **Re-run it** if you ran an earlier version. Safe to re-run.
+
+Then paste [`reconcile_claim.sql`](reconcile_claim.sql) → Run (after `ops_durability.sql`). `tw_claim_reconcile_job` makes the `rec_<paymentId>` job insert-only: the first booking or refund claim wins, and a guard trigger stops a refund marker and a booking job from overwriting each other. Until it is run, a refund for a mismatched payment is not sent. Safe to re-run.
+
+Then [`account_subject.sql`](account_subject.sql) (see the main README). The end of the file has an A1 cleanup that **deletes** stale `account_subjects` mappings. First run the commented read-only preview query on its own (it compares e-mails with `lower(btrim())`, the same as the delete). Then run the whole file.
+
+### What to run for PR #33, in order
+
+1. `ops_durability.sql` (only if not already run)
+2. `ask_turns.sql` (re-run)
+3. `reconcile_claim.sql` (new)
+4. `account_subject.sql`: run the commented preview `select` first and review the `would_delete` rows, then run the whole file. Its final block deletes those mappings.
+
+Local Postgres applies the same changes through `npm run db:migrate` (`migrations/0013_ask_turns.sql`, `0014_ask_store.sql`, `0015_reconcile_claim.sql`).
 
 ## 2. Keys on the live site
 

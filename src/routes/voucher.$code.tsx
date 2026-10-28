@@ -278,6 +278,7 @@ function VoucherPage() {
               confirmationCode={booking.confirmationCode}
               includePickup={plan.includePickup}
               amountInr={booking.amountInr}
+              status={booking.status}
             />
           </p>
           <p className="mt-4 text-xs text-subtle">

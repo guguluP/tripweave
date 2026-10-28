@@ -1,17 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { emailArrivalChecklist } from "@/lib/server/arrival-mail";
 import { requestHotelCar } from "@/lib/server/ask-actions";
-import { SOURCES } from "@/lib/arrival-rules";
-import { presentAnswer, type AskChip } from "@/lib/ask-present";
+import { REDACTED_QUESTION, type AskSuggestion } from "@/lib/arrival-ask";
+import { OFFICIAL_URLS, presentAnswer, type AskChip } from "@/lib/ask-present";
 import { getBearerToken } from "@/lib/auth/client";
 import { guestLabel, useGuestLocale, type GuestLocale } from "@/lib/guest-locale";
-import { refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
+import { isActiveStayStatus, isCancellableStatus, refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
 import { pickupQuoteFor } from "@/lib/travel-plan";
 import { Button } from "@/components/ui/button";
 
 type Turn = { question: string; answer: string; chips: AskChip[]; tripweave: boolean };
+type Tap = { id: AskSuggestion; text: string };
 
+/**
+ * Ask TripWeave panel. Answers come from /api/ask, which uses only this stay's facts and the
+ * arrival rules (no AI model). The client sends one question or one suggestion id, never the
+ * earlier turns: the server loads the saved thread itself.
+ */
 export function AskTripWeave({
   nationalities = [],
   oci,
@@ -25,6 +31,7 @@ export function AskTripWeave({
   confirmationCode,
   includePickup = false,
   amountInr,
+  status,
   onRequestCar,
   embedded = false,
 }: {
@@ -40,6 +47,8 @@ export function AskTripWeave({
   confirmationCode?: string;
   includePickup?: boolean;
   amountInr?: number;
+  /** Booking status. Without one, a booked stay shows no refund line and no car button. */
+  status?: string;
   /** Before a booking exists, the page turns the car on in the travel draft. */
   onRequestCar?: () => void;
   embedded?: boolean;
@@ -47,138 +56,124 @@ export function AskTripWeave({
   const locale = useGuestLocale();
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
-  const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [carOn, setCarOn] = useState(includePickup);
   const [carNote, setCarNote] = useState("");
   const [mailNote, setMailNote] = useState("");
+  const inflight = useRef<AbortController | null>(null);
 
   useEffect(() => {
     setCarOn(includePickup);
   }, [includePickup]);
 
+  // Abort any open request when the panel closes.
+  useEffect(() => () => inflight.current?.abort(), []);
+
   useEffect(() => {
     const code = confirmationCode?.trim();
     if (!code) return;
+    const controller = new AbortController();
     const headers: Record<string, string> = {};
     const token = getBearerToken();
     if (token) headers.Authorization = `Bearer ${token}`;
-    void fetch(`/api/ask?confirmationCode=${encodeURIComponent(code)}`, { headers, credentials: "same-origin" })
+    fetch(`/api/ask?confirmationCode=${encodeURIComponent(code)}`, {
+      headers,
+      credentials: "same-origin",
+      signal: controller.signal,
+    })
       .then((res) => (res.ok ? res.json() : null))
       .then((body: { turns?: { question: string; answer: string }[] } | null) => {
         const saved = body?.turns ?? [];
-        if (saved.length === 0) return;
-        const allowed = Object.values(SOURCES).map((source) => source.url);
+        if (saved.length === 0 || controller.signal.aborted) return;
         setTurns(
           saved.map((row) => {
-            const view = presentAnswer(row.answer, allowed);
+            const view = presentAnswer(row.answer, OFFICIAL_URLS);
             return { question: row.question, answer: view.prose || row.answer, chips: view.chips, tripweave: view.tripweave };
           }),
         );
       })
       .catch(() => undefined);
+    return () => controller.abort();
   }, [confirmationCode]);
 
-  const suggestions = [
-    guestLabel(locale, "askFly"),
-    guestLabel(locale, "askRefund"),
-    guestLabel(locale, "askCar"),
-    ...(confirmationCode ? [guestLabel(locale, "askDesk")] : []),
+  const suggestions: Tap[] = [
+    { id: "fly", text: guestLabel(locale, "askFly") },
+    { id: "refund", text: guestLabel(locale, "askRefund") },
+    { id: "car", text: guestLabel(locale, "askCar") },
+    ...(confirmationCode ? [{ id: "desk" as const, text: guestLabel(locale, "askDesk") }] : []),
   ];
 
-  const ask = (next?: string) => {
-    const text = (next ?? question).trim();
+  const pushTurn = (asked: string, answer: string, chips: AskChip[], tripweave: boolean) => {
+    setTurns((prev) => [...prev, { question: asked, answer, chips, tripweave }].slice(-8));
+  };
+
+  const ask = (tap?: Tap) => {
+    const text = (tap?.text ?? question).trim();
     if (text.length < 3 || busy) return;
     setBusy(true);
-    setDraft("");
-    const history = turns.slice(-4).map((row) => ({ question: row.question, answer: row.answer }));
+    inflight.current?.abort();
+    const controller = new AbortController();
+    inflight.current = controller;
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     const token = getBearerToken();
     if (token) headers.Authorization = `Bearer ${token}`;
-    void fetch("/api/ask", {
+    fetch("/api/ask", {
       method: "POST",
       credentials: "same-origin",
       headers,
+      signal: controller.signal,
       body: JSON.stringify({
-        question: text,
+        ...(tap ? { suggestion: tap.id } : { question: text }),
         nationalities: nationalities.filter((code) => /^[A-Z]{2}$/.test(code)).slice(0, 12),
-        oci,
-        priorIndianVisa,
-        arrivalAirport,
-        checkIn,
+        oci: oci?.slice(0, 12),
+        priorIndianVisa: priorIndianVisa?.slice(0, 12),
+        arrivalAirport: arrivalAirport && /^[A-Z]{3}$/.test(arrivalAirport) ? arrivalAirport : undefined,
+        checkIn: checkIn && /^\d{4}-\d{2}-\d{2}$/.test(checkIn) ? checkIn : undefined,
         packageId,
         roomId,
         nights,
         arriveBy: arriveBy === "fly" || arriveBy === "train" || arriveBy === "bus" || arriveBy === "road" ? arriveBy : undefined,
         confirmationCode,
         locale,
-        history,
       }),
     })
       .then(async (res) => {
-        const type = res.headers.get("content-type") ?? "";
-        if (type.includes("application/json")) {
-          const body = (await res.json()) as { reason?: TurnReason };
-          pushTurn(text, answerFor(locale, body.reason ?? "unavailable"), [], false);
+        const body = (await res.json().catch(() => null)) as
+          | { ok: true; answer: string; chips?: AskChip[]; tripweave?: boolean }
+          | { ok: false; reason?: string }
+          | null;
+        if (controller.signal.aborted) return;
+        if (body && body.ok === true && typeof body.answer === "string" && body.answer) {
+          pushTurn(text, body.answer, body.chips ?? [], Boolean(body.tripweave));
           return;
         }
-        if (!res.body) {
-          pushTurn(text, guestLabel(locale, "askFailed"), [], false);
-          return;
-        }
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buf = "";
-        let live = "";
-        while (true) {
-          const step = await reader.read();
-          if (step.done) break;
-          buf += decoder.decode(step.value, { stream: true });
-          const lines = buf.split("\n");
-          buf = lines.pop() ?? "";
-          for (const line of lines) {
-            if (!line.trim()) continue;
-            let event: {
-              type?: string;
-              text?: string;
-              answer?: string;
-              chips?: AskChip[];
-              tripweave?: boolean;
-              reason?: TurnReason;
-            };
-            try {
-              event = JSON.parse(line) as typeof event;
-            } catch {
-              continue;
-            }
-            if (event.type === "token" && event.text) {
-              live += event.text;
-              setDraft(live);
-            } else if (event.type === "done") {
-              pushTurn(text, event.answer || live, event.chips ?? [], Boolean(event.tripweave));
-              live = "";
-            } else if (event.type === "error") {
-              pushTurn(text, guestLabel(locale, "askFailed"), [], false);
-            }
-          }
-        }
+        const reason = body && body.ok === false ? body.reason : undefined;
+        // A question that looked like a passport number is not shown back either.
+        pushTurn(reason === "no_documents" ? REDACTED_QUESTION : text, answerFor(locale, reason), [], false);
       })
-      .catch(() => pushTurn(text, guestLabel(locale, "askFailed"), [], false))
+      .catch((err: unknown) => {
+        if (controller.signal.aborted || (err instanceof DOMException && err.name === "AbortError")) return;
+        pushTurn(text, guestLabel(locale, "askFailed"), [], false);
+      })
       .finally(() => {
-        setDraft("");
+        if (inflight.current === controller) inflight.current = null;
+        if (controller.signal.aborted) return;
         setBusy(false);
-        if (!next) setQuestion("");
+        if (!tap) setQuestion("");
       });
   };
 
-  const pushTurn = (asked: string, answer: string, chips: AskChip[], tripweave: boolean) => {
-    setTurns((prev) => [...prev, { question: asked, answer, chips, tripweave }].slice(-8));
-  };
-
+  const booked = Boolean(confirmationCode);
   const foreign = nationalities.some((code) => (code || "IN").toUpperCase() !== "IN");
-  const carAvailable = arriveBy === "fly" && packageId ? pickupQuoteFor(packageId, "fly").available : false;
-  const refund =
-    checkIn && amountInr != null && amountInr > 0
+  // A booked stay only offers the car while it is live (not cancelled, refunded or past).
+  const carAllowed = booked ? isActiveStayStatus(status) : Boolean(onRequestCar);
+  const carAvailable = carAllowed && arriveBy === "fly" && packageId ? pickupQuoteFor(packageId, "fly").available : false;
+  const refundPending = booked && status === "refund_pending";
+  // Before booking, the line is a quote. After booking, only statuses the cancel flow accepts get one.
+  const quoteRefund = !booked || (isCancellableStatus(status) && !refundPending);
+  const refund = !quoteRefund
+    ? ""
+    : checkIn && amountInr != null && amountInr > 0
       ? `₹${refundAmountInr(amountInr, checkIn).toLocaleString("en-IN")}. ${refundPolicyFor(checkIn).label}.`
       : checkIn
         ? refundPolicyFor(checkIn).label
@@ -222,15 +217,15 @@ export function AskTripWeave({
   return (
     <div className={embedded ? "" : "mt-4 rounded-lg border border-border bg-elevated px-4 py-3"}>
       <div className="mt-2 flex flex-wrap gap-2">
-        {suggestions.map((text) => (
+        {suggestions.map((tap) => (
           <button
-            key={text}
+            key={tap.id}
             type="button"
             className="rounded-md border border-border px-2 py-1 text-left text-xs"
             disabled={busy}
-            onClick={() => ask(text)}
+            onClick={() => ask(tap)}
           >
-            {text}
+            {tap.text}
           </button>
         ))}
       </div>
@@ -239,7 +234,7 @@ export function AskTripWeave({
           <div key={`${index}-${turn.question}`} className="mt-3 text-sm">
             <p className="text-xs text-muted">{guestLabel(locale, "askYou")}</p>
             <p>{turn.question}</p>
-            <p className="mt-1">{turn.answer}</p>
+            <p className="mt-1 whitespace-pre-line">{turn.answer}</p>
             {turn.tripweave ? <p className="mt-1 text-xs text-muted">{guestLabel(locale, "askFromStay")}</p> : null}
             {turn.chips.length > 0 ? (
               <div className="mt-2 flex flex-wrap gap-2">
@@ -252,7 +247,6 @@ export function AskTripWeave({
             ) : null}
           </div>
         ))}
-        {draft ? <p className="mt-3 text-sm">{draft}</p> : null}
       </div>
       <label className="mt-3 block text-sm">
         <span className="sr-only">{guestLabel(locale, "askTitle")}</span>
@@ -282,6 +276,7 @@ export function AskTripWeave({
             </Button>
           ) : null}
           {carNote ? <p className="text-xs text-muted">{carNote}</p> : null}
+          {refundPending ? <p className="text-xs text-muted">{guestLabel(locale, "askRefundPending")}</p> : null}
           {refund ? <p className="text-xs text-muted">{guestLabel(locale, "askRefundNow")} {refund}</p> : null}
           {confirmationCode ? (
             <Link to="/voucher/$code" params={{ code: confirmationCode }} className="text-sm font-medium underline">
@@ -294,10 +289,7 @@ export function AskTripWeave({
   );
 }
 
-type TurnReason = "not_configured" | "rate_limited" | "no_documents" | "unavailable";
-
-function answerFor(locale: GuestLocale, reason: TurnReason): string {
-  if (reason === "not_configured") return guestLabel(locale, "askOff");
+function answerFor(locale: GuestLocale, reason: string | undefined): string {
   if (reason === "rate_limited") return guestLabel(locale, "askLimited");
   if (reason === "no_documents") return guestLabel(locale, "askNoDocuments");
   return guestLabel(locale, "askFailed");

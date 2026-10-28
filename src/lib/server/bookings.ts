@@ -10,6 +10,7 @@ import {
   listReconcileJobs,
   listRefundIntents,
   memoryBookingsFor,
+  memoryFindByPaymentRef,
   memoryInsertBooking,
   memoryUpdateBooking,
   mergeReconcileJobs,
@@ -17,8 +18,25 @@ import {
   type ReconcileJob,
 } from "@/lib/booking-memory";
 import { orderNotesMatchStay } from "@/lib/server/order-notes";
+import { sbPaymentBookedState } from "@/lib/server/booking-lookup";
+import { forgetAskThread } from "@/lib/server/ask-store";
+import { opsAlertEmail } from "@/lib/server/cron-auth";
+import { mailConfigured, sendMail } from "@/lib/mail/ses";
+import {
+  ALREADY_REFUNDED,
+  MAX_REFUND_ATTEMPTS,
+  MISMATCH_MESSAGE,
+  MISMATCH_REFUND,
+  decideMismatchRefund,
+  isMismatchRefundJob,
+  refundDeskMessage,
+  mismatchJobMessage,
+  refundQueuedMessage,
+  refundSentMessage,
+} from "@/lib/server/mismatch-refund";
 import { computePayable, sandboxPaymentsAllowed } from "@/lib/server/payable";
 import {
+  claimReconcileJob,
   hydrateRefundIntents,
   loadReconcileJobs,
   persistReconcileJob,
@@ -32,7 +50,7 @@ import { guestRowsFromInput, travelerInputSchema } from "@/lib/traveller-schema"
 import { parseTravelPlan } from "@/lib/travel-plan";
 import { persistBookingGuests, removeBooking, travelerToInput } from "@/lib/server/stay-guests";
 import type { TravelerInput } from "@/lib/supabase/travellers";
-import { refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
+import { isCancellableStatus, refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import {
   sbCancelBooking,
@@ -414,6 +432,7 @@ async function compensateSoldOut(job: ReconcileJob, amountInr: number): Promise<
 async function runReconcileJob(job: ReconcileJob): Promise<BookingRow | null> {
   if (job.state === "done" || job.state === "refunded" || job.state === "failed") return null;
   if (job.lastError?.includes("sold_out")) return null;
+  if (isMismatchRefundJob(job)) return null;
   const attempt = job.attempts + 1;
   await touchJob(job.id, { attempts: attempt });
   const payload = parsePayload(job);
@@ -578,6 +597,7 @@ async function resumePendingRefunds(userId: string, rows: BookingRow[]) {
     if (!statusSaved) continue;
     booking.status = "refunded";
     booking.swaps = meta;
+    await forgetAskThread(userId, booking.confirmationCode);
     await persistRefundIntent({
       ...intent,
       status: "applied",
@@ -602,6 +622,15 @@ async function drainReconcileJobs(userId: string) {
   const now = Date.now();
   for (const job of listReconcileJobs()) {
     if (job.userId !== userId || job.state !== "queued") continue;
+    if (isMismatchRefundJob(job)) {
+      if (job.attempts >= MAX_REFUND_ATTEMPTS) {
+        await failMismatchRefund(job, "attempt limit reached");
+        continue;
+      }
+      if (job.attempts > 0 && now - Date.parse(job.updatedAt) < 60_000) continue;
+      await sendMismatchRefund(job);
+      continue;
+    }
     if (job.attempts >= 5) continue;
     if (job.lastError?.includes("sold_out")) {
       const payload = parsePayload(job);
@@ -679,6 +708,167 @@ export async function bookCapturedFromNotes(input: {
   });
 }
 
+/**
+ * The reconcile job for one payment, from this process or the durable store.
+ * `unknown` is true when a durable store is configured but its read failed.
+ */
+async function priorJobFor(userId: string, paymentId: string): Promise<{ job: ReconcileJob | null; unknown: boolean }> {
+  let unknown = false;
+  try {
+    const loaded = await loadReconcileJobs(userId);
+    if (loaded) mergeReconcileJobs(loaded);
+    else unknown = isSupabaseConfigured() || !shouldSkipNeon();
+  } catch {
+    unknown = isSupabaseConfigured() || !shouldSkipNeon();
+  }
+  const job = listReconcileJobs().find((row) => row.id === `rec_${paymentId}` || row.paymentId === paymentId) ?? null;
+  return { job, unknown: unknown && !job };
+}
+
+/** Whether any stay holds this payment. A failed lookup is "unknown", never "not_booked". */
+async function paymentAlreadyBooked(paymentId: string): Promise<"booked" | "not_booked" | "unknown"> {
+  if (memoryFindByPaymentRef(paymentId)) return "booked";
+  if (isSupabaseConfigured()) return sbPaymentBookedState(paymentId);
+  if (shouldSkipNeon() || process.env.VERCEL) return "not_booked";
+  try {
+    const sql = await getSql();
+    const rows = await sql.query<{ id: number }>("select id from bookings where payment_ref = $1 limit 1", [paymentId]);
+    return rows.length > 0 ? "booked" : "not_booked";
+  } catch (err) {
+    if (isDurableDbError(err)) markDurableDbFailed(err);
+    return "unknown";
+  }
+}
+
+/** Five failed refund attempts: mark the job failed, log it, and email ops. */
+async function failMismatchRefund(job: ReconcileJob, reason: string): Promise<void> {
+  await touchJob(job.id, { state: "failed", lastError: MISMATCH_REFUND, attempts: Math.max(job.attempts, MAX_REFUND_ATTEMPTS) });
+  console.error("[bookings] mismatch refund failed", job.paymentId, reason);
+  if (!mailConfigured()) return;
+  try {
+    await sendMail({
+      to: opsAlertEmail(),
+      subject: `TripWeave: refund failed for ${job.paymentId}`,
+      text: [
+        `Automatic refund for payment ${job.paymentId} failed ${MAX_REFUND_ATTEMPTS} times (${reason}).`,
+        "No stay was booked for this payment. Refund it by hand in the Razorpay dashboard.",
+        `Reconcile job: ${job.id} (state failed).`,
+      ].join("\n"),
+    });
+  } catch (err) {
+    console.error("[bookings] refund alert mail", err instanceof Error ? err.name : "failed");
+  }
+}
+
+/**
+ * Send back the rest of a mismatched capture. Leaves the job queued for a retry when the
+ * gateway fails; the fifth failure marks it failed and alerts ops. Never refunds a payment
+ * that has a stay, and waits when that cannot be checked.
+ */
+async function sendMismatchRefund(job: ReconcileJob): Promise<{ sent: boolean; amountInr: number }> {
+  const booked = await paymentAlreadyBooked(job.paymentId);
+  if (booked === "booked") {
+    await touchJob(job.id, { state: "done", lastError: MISMATCH_REFUND });
+    return { sent: false, amountInr: 0 };
+  }
+  if (booked === "unknown") return { sent: false, amountInr: 0 };
+  const failAttempt = async (amountInr: number) => {
+    const attempts = job.attempts + 1;
+    if (attempts >= MAX_REFUND_ATTEMPTS) await failMismatchRefund({ ...job, attempts }, "gateway refund failed");
+    else await touchJob(job.id, { attempts, lastError: MISMATCH_REFUND });
+    return { sent: false, amountInr };
+  };
+  const { fetchRazorpayPayment, refundRazorpayPayment } = await import("@/lib/server/razorpay");
+  const payment = await fetchRazorpayPayment(job.paymentId);
+  if (!payment) return failAttempt(0);
+  const leftPaise = payment.amountPaise - payment.amountRefundedPaise;
+  if (leftPaise <= 0) {
+    await touchJob(job.id, { state: "refunded", lastError: MISMATCH_REFUND });
+    return { sent: true, amountInr: 0 };
+  }
+  const amountInr = leftPaise / 100;
+  const refunded = await refundRazorpayPayment(job.paymentId, amountInr);
+  if (refunded.ok) {
+    await touchJob(job.id, { state: "refunded", lastError: MISMATCH_REFUND });
+    return { sent: true, amountInr };
+  }
+  return failAttempt(amountInr);
+}
+
+/**
+ * Cold path: the order exists but does not match this stay. Queue a refund for this
+ * guest's own captured payment instead of keeping the charge. Never books, and never
+ * refunds a payment that already has a stay or belongs to another guest's order.
+ */
+async function refundMismatchedCapture(input: {
+  userId: string;
+  paymentId: string;
+  orderId: string | null;
+  notesUserId: string | undefined;
+}): Promise<CreateBookingResult> {
+  if (!input.notesUserId || input.notesUserId !== input.userId) return { ok: false, message: MISMATCH_MESSAGE };
+  const { fetchRazorpayPayment } = await import("@/lib/server/razorpay");
+  const prior = await priorJobFor(input.userId, input.paymentId);
+  const decision = decideMismatchRefund({
+    userId: input.userId,
+    paymentId: input.paymentId,
+    notesUserId: input.notesUserId,
+    bookedAlready: await paymentAlreadyBooked(input.paymentId).then((state) =>
+      state === "unknown" ? "unknown" : state === "booked",
+    ),
+    prior: prior.job,
+    priorUnknown: prior.unknown,
+    payment: await fetchRazorpayPayment(input.paymentId),
+  });
+  if (decision.action === "refuse" || decision.action === "already_refunded") {
+    return { ok: false, message: decision.message };
+  }
+  const now = new Date().toISOString();
+  const job: ReconcileJob = {
+    id: `rec_${input.paymentId}`,
+    userId: input.userId,
+    paymentId: input.paymentId,
+    orderId: input.orderId,
+    attempts: 0,
+    createdAt: prior.job?.createdAt ?? now,
+    updatedAt: now,
+    state: "queued",
+    lastError: MISMATCH_REFUND,
+    payloadJson: JSON.stringify({ refundOnly: true }),
+  };
+  // Insert-only: the first writer of rec_<paymentId> wins. A booking job never gets overwritten.
+  const claim = await claimReconcileJob(job, listReconcileJobs);
+  if (claim.status === "error") {
+    return {
+      ok: false,
+      message: `Payment ${input.paymentId} does not match this stay, so no stay was booked. The refund could not be queued. Do not pay again. Quote payment ${input.paymentId} to the desk.`,
+    };
+  }
+  let target = job;
+  if (claim.status === "lost") {
+    const existing = claim.existing;
+    if (!isMismatchRefundJob(existing)) {
+      return {
+        ok: false,
+        message:
+          existing.state === "done"
+            ? "This payment is already booked. Check My trips. Do not pay again."
+            : "This payment is already being booked from its order. Check My trips in a few minutes. Do not pay again.",
+      };
+    }
+    if (existing.state === "refunded") return { ok: false, message: ALREADY_REFUNDED };
+    if (existing.state !== "queued") return { ok: false, message: refundDeskMessage(input.paymentId) };
+    target = existing;
+  }
+  // Only a saved (claimed) refund job is ever sent to the gateway.
+  if (decision.action === "retry") return { ok: false, message: decision.message };
+  const result = await sendMismatchRefund(target);
+  if (result.sent) return { ok: false, message: refundSentMessage(result.amountInr || decision.amountInr) };
+  const after = listReconcileJobs().find((row) => row.id === target.id);
+  if (after?.state === "failed") return { ok: false, message: refundDeskMessage(input.paymentId) };
+  return { ok: false, message: refundQueuedMessage(input.paymentId) };
+}
+
 async function queueCaptureReconcile(input: {
   userId: string;
   paymentId: string;
@@ -690,6 +880,11 @@ async function queueCaptureReconcile(input: {
   guests?: TravelerInput[];
   confirmOrder?: boolean;
 }): Promise<CreateBookingResult> {
+  const earlier = (await priorJobFor(input.userId, input.paymentId)).job;
+  if (earlier && isMismatchRefundJob(earlier)) {
+    // A verify already decided to send this payment back. Never book it now.
+    return { ok: false, message: mismatchJobMessage(earlier, input.paymentId) };
+  }
   const now = new Date().toISOString();
   const job: ReconcileJob = {
     id: `rec_${input.paymentId}`,
@@ -709,7 +904,15 @@ async function queueCaptureReconcile(input: {
       confirmOrder: input.confirmOrder === true,
     }),
   };
-  const saved = await persistReconcileJob(job);
+  // Insert-only claim first, so a refund marker written at the same moment cannot be
+  // overwritten by this booking job (or the other way round).
+  const claim = await claimReconcileJob(job, listReconcileJobs);
+  if (claim.status === "lost" && isMismatchRefundJob(claim.existing)) {
+    return { ok: false, message: mismatchJobMessage(claim.existing, input.paymentId) };
+  }
+  // Lost to another booking job, or the claim function is not installed yet: keep the earlier
+  // upsert so the booking still goes through (the DB guard trigger blocks a marker overwrite).
+  const saved = claim.status === "won" ? true : await persistReconcileJob(job);
   const booking = await runReconcileJob(job);
   if (booking) return { ok: true, booking, stored: isSupabaseConfigured() ? "supabase" : "local" };
   const current = listReconcileJobs().find((row) => row.id === job.id);
@@ -818,6 +1021,10 @@ export const createBooking = createServerFn({ method: "POST" })
       if (!verified.ok) {
         return { ok: false, message: verified.message || "Payment verification failed." };
       }
+      const refundJob = (await priorJobFor(context.userId, data.razorpayPaymentId)).job;
+      if (refundJob && isMismatchRefundJob(refundJob)) {
+        return { ok: false, message: mismatchJobMessage(refundJob, data.razorpayPaymentId) };
+      }
       const pending = peekOrder(data.razorpayOrderId);
       if (pending) {
         if (pending.userId !== context.userId) {
@@ -840,7 +1047,16 @@ export const createBooking = createServerFn({ method: "POST" })
         // Queue a retry that reads the order notes before it writes a stay.
         razorpayLookupMissed = true;
       } else {
+        const mismatchRefund = () =>
+          refundMismatchedCapture({
+            userId: context.userId,
+            paymentId: data.razorpayPaymentId!,
+            orderId: data.razorpayOrderId ?? null,
+            notesUserId: remote.notes?.userId,
+          });
         if (remote.amountPaise !== Math.round(payable.amountInr * 100)) {
+          const refunded = await mismatchRefund();
+          if (refunded.ok || refunded.message !== MISMATCH_MESSAGE) return refunded;
           return { ok: false, message: "Paid amount does not match the current stay price." };
         }
         if (
@@ -854,7 +1070,7 @@ export const createBooking = createServerFn({ method: "POST" })
             travelers: payable.travelers,
           })
         ) {
-          return { ok: false, message: "Payment does not match this stay. Start checkout again." };
+          return mismatchRefund();
         }
       }
       consumeOrder(data.razorpayOrderId, context.userId);
@@ -1125,8 +1341,7 @@ export const cancelBooking = createServerFn({ method: "POST" })
         }
       }
       const target = rows.find((b) => b.id === id);
-      const openStatus = target?.status === "paid" || target?.status === "held" || target?.status === "confirmed" || target?.status === "refund_pending";
-      if (!target || !openStatus) {
+      if (!target || !isCancellableStatus(target.status)) {
         return { ok: false, message: "That stay is not open to cancel." };
       }
       if (target.userId && target.userId !== context.userId) {
@@ -1183,6 +1398,8 @@ export const cancelBooking = createServerFn({ method: "POST" })
         refundedAt: new Date().toISOString(),
       });
       memoryUpdateBooking(context.userId, id, { status, swaps: meta });
+      // A refunded stay keeps no Ask TripWeave thread (the database trigger does the same).
+      await forgetAskThread(context.userId, target.confirmationCode);
       releaseHoldById(target.confirmationCode);
       const roomId = readMeta(meta).roomId ?? "";
       if (roomId) releaseHoldById(`${target.packageId}:${roomId}:${target.checkIn}`);
