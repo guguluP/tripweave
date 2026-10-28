@@ -75,6 +75,10 @@ describe("topics", () => {
     assert.ok(topicsFor("How many nights is my stay?").includes("nights"));
     assert.ok(topicsFor("Which room did I book?").includes("room"));
     assert.ok(topicsFor("How much did I pay?").includes("paid"));
+    // An entry-rule fee question is not the booking amount.
+    assert.ok(!topicsFor("How much is the e-Visa fee?").includes("paid"));
+    assert.ok(!topicsFor("How much does the visa cost?").includes("paid"));
+    assert.ok(topicsFor("How much did I pay for the hotel and do I need an e-Visa?").includes("paid"));
     assert.ok(topicsFor("What is my check-in date?").includes("checkin"));
     assert.deepEqual(topicsFor("tell me a joke"), []);
   });

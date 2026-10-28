@@ -360,6 +360,7 @@ function matches(text: string, words: RegExp): boolean {
   return clauses(text).some((clause) => words.test(clause) && !onlyNegated(clause, words));
 }
 
+const BOOKING_WORD = /\b(paid|charged|booking|stay|room|hotel|tripweave)\b|भुगतान/;
 const VISA_WORD = /\bvisas?\b|वीज़ा|वीजा/;
 const AIRPORT_WORD = /\bairport\b/;
 
@@ -376,6 +377,11 @@ export function topicsFor(question: string): AskTopic[] {
   if (matches(text, VISA_WORD) && !found.has("evisa") && !found.has("voa")) {
     found.add("evisa");
     found.add("voa");
+  }
+  // "How much is the e-Visa fee?" asks about an entry rule, not the booking. Keep the
+  // amount-paid line only when the question also names the booking.
+  if (found.has("paid") && [...found].some((topic) => !STAY_TOPICS.has(topic)) && !BOOKING_WORD.test(text)) {
+    found.delete("paid");
   }
   return [...found];
 }
