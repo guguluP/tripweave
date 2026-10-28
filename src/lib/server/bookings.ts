@@ -43,6 +43,7 @@ import {
   persistRefundIntent,
 } from "@/lib/server/payment-ops";
 import { holdIdsForCheckout, releaseCheckoutHold } from "@/lib/server/room-holds";
+import { withCancelLock } from "@/lib/server/cancel-lock";
 import { writeMeta, readMeta } from "@/lib/booking-meta";
 import { deskFor } from "@/lib/hotel-desk";
 import { guestRowsFromInput, travelerInputSchema } from "@/lib/traveller-schema";
@@ -1302,147 +1303,157 @@ export type CancelResult =
 export const cancelBooking = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((id: number) => id)
-  .handler(async ({ context, data: id }): Promise<CancelResult> => {
-    try {
-      await hydrateRefundIntents(context.userId);
-    } catch (err) {
-      console.error("[bookings] refund hydrate", err);
-    }
-    let rows: BookingRow[] = memoryBookingsFor(context.userId);
-    if (isSupabaseConfigured()) {
+  .handler(({ context, data: id }): Promise<CancelResult> =>
+    // One cancel per stay at a time, so a double click cannot send two refunds.
+    withCancelLock(`${context.userId}:${id}`, async (): Promise<CancelResult> => {
       try {
-        const cloud = await sbListBookings(context.userId);
-        if (cloud?.length) rows = cloud.map((row) => ({ ...row, userId: row.userId ?? context.userId }));
-      } catch {
-        /* memory */
-      }
-    } else if (!useMemoryStore()) {
-      // DATABASE_URL (Postgres) store: the stay lives in SQL, not in this process's memory.
-      try {
-        const sql = await getSql();
-        const found = await sql<DbBooking>`
-          select id, package_id, package_name, nights, travelers, check_in, amount_inr,
-                 swaps, status, card_last4, card_brand, payer_name, confirmation_code,
-                 payment_method, payment_ref, upi_handle, bank_name, created_at
-          from bookings
-          where user_id = ${context.userId} and id = ${id}
-        `;
-        if (found.length) rows = found.map((row) => mapBooking({ ...row, user_id: context.userId }));
+        await hydrateRefundIntents(context.userId);
       } catch (err) {
-        if (isDurableDbError(err)) markDurableDbFailed(err);
-        else console.error("[bookings] cancel lookup failed", err);
+        console.error("[bookings] refund hydrate", err);
       }
-    }
-    const target = rows.find((b) => b.id === id);
-    if (!target || !isCancellableStatus(target.status)) {
-      return { ok: false, message: "That stay is not open to cancel." };
-    }
-    if (target.userId && target.userId !== context.userId) {
-      return { ok: false, message: "That stay is not open to cancel." };
-    }
-
-    const policy = refundPolicyFor(target.checkIn);
-    const amount = refundAmountInr(target.amountInr, target.checkIn);
-    if (policy.fraction <= 0) {
-      return { ok: false, message: policy.label };
-    }
-
-    const prior = refundIntentFor(context.userId, id);
-    let refundId = prior?.refundId;
-    const ref = target.paymentRef ?? "";
-    const intentBase = {
-      id: prior?.id ?? `refund_${context.userId}_${id}`,
-      userId: context.userId,
-      bookingId: id,
-      paymentRef: ref,
-      amountInr: amount,
-      createdAt: prior?.createdAt ?? new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    const durableRequired = isSupabaseConfigured() || process.env.VERCEL_ENV === "production";
-    const pendingSaved = await persistRefundIntent({
-      ...intentBase,
-      status: prior?.status === "gateway_done" || prior?.status === "applied" ? prior.status : "pending",
-      refundId,
-    });
-    if (!pendingSaved && durableRequired && prior?.status !== "gateway_done" && prior?.status !== "applied") {
-      return { ok: false, message: "Could not record the refund. Nothing was sent back. Try again." };
-    }
-
-    if (target.paymentMethod === "razorpay" && ref.startsWith("pay_") && prior?.status !== "gateway_done" && prior?.status !== "applied") {
-      const { fetchRazorpayPayment, refundRazorpayPayment } = await import("@/lib/server/razorpay");
-      const payment = await fetchRazorpayPayment(ref);
-      const already = (payment?.amountRefundedPaise ?? 0) >= Math.round(amount * 100);
-      if (already) {
-        refundId = refundId ?? "already_refunded";
-        await persistRefundIntent({ ...intentBase, status: "gateway_done", refundId });
-      } else {
-        const refunded = await refundRazorpayPayment(ref, amount);
-        if (!refunded.ok) return { ok: false, message: refunded.message };
-        refundId = refunded.refundId;
-        await persistRefundIntent({ ...intentBase, status: "gateway_done", refundId });
+      let rows: BookingRow[] = memoryBookingsFor(context.userId);
+      let fromSql = false;
+      if (isSupabaseConfigured()) {
+        try {
+          const cloud = await sbListBookings(context.userId);
+          if (cloud?.length) rows = cloud.map((row) => ({ ...row, userId: row.userId ?? context.userId }));
+        } catch {
+          /* memory */
+        }
+      } else if (!useMemoryStore()) {
+        // DATABASE_URL (Postgres) store: the stay lives in SQL, not in this process's memory.
+        try {
+          const sql = await getSql();
+          const found = await sql<DbBooking>`
+            select id, package_id, package_name, nights, travelers, check_in, amount_inr,
+                   swaps, status, card_last4, card_brand, payer_name, confirmation_code,
+                   payment_method, payment_ref, upi_handle, bank_name, created_at
+            from bookings
+            where user_id = ${context.userId} and id = ${id}
+          `;
+          if (found.length) {
+            rows = found.map((row) => mapBooking({ ...row, user_id: context.userId }));
+            fromSql = true;
+          }
+        } catch (err) {
+          if (isDurableDbError(err)) markDurableDbFailed(err);
+          else console.error("[bookings] cancel lookup failed", err);
+        }
       }
-    }
-
-    const status = "refunded";
-    const meta = writeMeta(target.swaps, {
-      refundId,
-      refundAmount: amount,
-      refundedAt: new Date().toISOString(),
-    });
-    memoryUpdateBooking(context.userId, id, { status, swaps: meta });
-    // A refunded stay keeps no Ask TripWeave thread (the database trigger does the same).
-    await forgetAskThread(context.userId, target.confirmationCode);
-    releaseHoldById(target.confirmationCode);
-    const roomId = readMeta(meta).roomId ?? "";
-    if (roomId) releaseHoldById(`${target.packageId}:${roomId}:${target.checkIn}`);
-
-    let statusSaved = true;
-    if (isSupabaseConfigured()) {
-      try {
-        await sbCancelBooking(context.userId, id, { status, swaps: meta });
-        await sbInsertPaymentEvent({
-          userId: context.userId,
-          bookingId: id,
-          eventType: "refunded",
-          paymentId: refundId ?? target.paymentRef,
-          payload: { amount, refundId, confirmation: target.confirmationCode },
-        });
-      } catch (err) {
-        statusSaved = false;
-        if (isDurableDbError(err)) markDurableDbFailed(err);
-        console.error("[bookings] supabase cancel failed", err);
+      const target = rows.find((b) => b.id === id);
+      if (!target || !isCancellableStatus(target.status)) {
+        return { ok: false, message: "That stay is not open to cancel." };
       }
-    } else if (!useMemoryStore()) {
-      try {
-        const sql = await getSql();
-        const swapsJson = JSON.stringify(meta);
-        await sql`
-          update bookings
-          set status = ${status}, swaps = ${swapsJson}
-          where id = ${id} and user_id = ${context.userId} and status in ('paid', 'held', 'confirmed')
-        `;
-      } catch (err) {
-        statusSaved = false;
-        if (isDurableDbError(err)) markDurableDbFailed(err);
-        else console.error("[bookings] cancel failed", err);
+      if (target.userId && target.userId !== context.userId) {
+        return { ok: false, message: "That stay is not open to cancel." };
       }
-    }
 
-    if (!statusSaved) {
-      return {
-        ok: false,
-        message: `₹${amount.toLocaleString("en-IN")} was sent back, but the stay status did not update. It will show as refund pending. Do not request another refund.`,
+      const policy = refundPolicyFor(target.checkIn);
+      const amount = refundAmountInr(target.amountInr, target.checkIn);
+      if (policy.fraction <= 0) {
+        return { ok: false, message: policy.label };
+      }
+
+      const prior = refundIntentFor(context.userId, id);
+      let refundId = prior?.refundId;
+      const ref = target.paymentRef ?? "";
+      const intentBase = {
+        id: prior?.id ?? `refund_${context.userId}_${id}`,
+        userId: context.userId,
+        bookingId: id,
+        paymentRef: ref,
+        amountInr: amount,
+        createdAt: prior?.createdAt ?? new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
-    }
+      const durableRequired = isSupabaseConfigured() || process.env.VERCEL_ENV === "production";
+      const pendingSaved = await persistRefundIntent({
+        ...intentBase,
+        status: prior?.status === "gateway_done" || prior?.status === "applied" ? prior.status : "pending",
+        refundId,
+      });
+      if (!pendingSaved && durableRequired && prior?.status !== "gateway_done" && prior?.status !== "applied") {
+        return { ok: false, message: "Could not record the refund. Nothing was sent back. Try again." };
+      }
 
-    await persistRefundIntent({ ...intentBase, status: "applied", refundId });
-    return {
-      ok: true,
-      status,
-      refundAmount: amount,
-      message: `${policy.label}. \u20b9${amount.toLocaleString("en-IN")} will return to the original payment.`,
-    };
-  });
+      if (target.paymentMethod === "razorpay" && ref.startsWith("pay_") && prior?.status !== "gateway_done" && prior?.status !== "applied") {
+        const { fetchRazorpayPayment, refundRazorpayPayment } = await import("@/lib/server/razorpay");
+        const payment = await fetchRazorpayPayment(ref);
+        const already = (payment?.amountRefundedPaise ?? 0) >= Math.round(amount * 100);
+        if (already) {
+          refundId = refundId ?? "already_refunded";
+          await persistRefundIntent({ ...intentBase, status: "gateway_done", refundId });
+        } else {
+          const refunded = await refundRazorpayPayment(ref, amount);
+          if (!refunded.ok) return { ok: false, message: refunded.message };
+          refundId = refunded.refundId;
+          await persistRefundIntent({ ...intentBase, status: "gateway_done", refundId });
+        }
+      }
+
+      const status = "refunded";
+      const meta = writeMeta(target.swaps, {
+        refundId,
+        refundAmount: amount,
+        refundedAt: new Date().toISOString(),
+      });
+      memoryUpdateBooking(context.userId, id, { status, swaps: meta });
+      // A refunded stay keeps no Ask TripWeave thread (the database trigger does the same).
+      await forgetAskThread(context.userId, target.confirmationCode);
+      releaseHoldById(target.confirmationCode);
+      const roomId = readMeta(meta).roomId ?? "";
+      if (roomId) releaseHoldById(`${target.packageId}:${roomId}:${target.checkIn}`);
+
+      let statusSaved = true;
+      if (isSupabaseConfigured()) {
+        try {
+          await sbCancelBooking(context.userId, id, { status, swaps: meta });
+          await sbInsertPaymentEvent({
+            userId: context.userId,
+            bookingId: id,
+            eventType: "refunded",
+            paymentId: refundId ?? target.paymentRef,
+            payload: { amount, refundId, confirmation: target.confirmationCode },
+          });
+        } catch (err) {
+          statusSaved = false;
+          if (isDurableDbError(err)) markDurableDbFailed(err);
+          console.error("[bookings] supabase cancel failed", err);
+        }
+      } else if (!useMemoryStore()) {
+        try {
+          const sql = await getSql();
+          const swapsJson = JSON.stringify(meta);
+          const updated = await sql`
+            update bookings
+            set status = ${status}, swaps = ${swapsJson}
+            where id = ${id} and user_id = ${context.userId} and status in ('paid', 'held', 'confirmed', 'refund_pending')
+            returning id
+          `;
+          // The refund already went out. If no row changed, say so instead of reporting success.
+          if (fromSql && !updated.length) statusSaved = false;
+        } catch (err) {
+          statusSaved = false;
+          if (isDurableDbError(err)) markDurableDbFailed(err);
+          else console.error("[bookings] cancel failed", err);
+        }
+      }
+
+      if (!statusSaved) {
+        return {
+          ok: false,
+          message: `₹${amount.toLocaleString("en-IN")} was sent back, but the stay status did not update. It will show as refund pending. Do not request another refund.`,
+        };
+      }
+
+      await persistRefundIntent({ ...intentBase, status: "applied", refundId });
+      return {
+        ok: true,
+        status,
+        refundAmount: amount,
+        message: `${policy.label}. \u20b9${amount.toLocaleString("en-IN")} will return to the original payment.`,
+      };
+    }),
+  );
 
 export { methodLabel };
