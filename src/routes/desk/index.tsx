@@ -313,7 +313,7 @@ function DeskPortal() {
 
         <h2 className="mt-8 font-medium">Paid stays waiting on the desk</h2>
         <p className="mt-1 text-xs text-muted">
-          Paid stays appear here after Supabase partner_desk_ops.sql is applied. Email accept/decline links also work.
+          Paid and hotel-confirmed stays for this property. Email accept/decline links also work.
         </p>
         <ul className="mt-3 grid gap-3">
           {bookings.length === 0 ? (

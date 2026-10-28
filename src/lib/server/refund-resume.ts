@@ -3,7 +3,8 @@ import { listRefundIntents, memoryUpdateBooking } from "@/lib/booking-memory";
 import { writeMeta } from "@/lib/booking-meta";
 import { releaseHoldById } from "@/lib/inventory";
 import { persistRefundIntent } from "@/lib/server/payment-ops";
-import { isDurableDbError, markDurableDbFailed } from "@/lib/server/db-fallback";
+import { isDurableDbError, markDurableDbFailed, shouldSkipNeon } from "@/lib/server/db-fallback";
+import { getSql } from "@/lib/db";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { sbCancelBooking } from "@/lib/supabase/bookings";
 
@@ -64,6 +65,23 @@ export async function resumePendingRefundsForUser(userId: string, rows: BookingR
         statusSaved = false;
         if (isDurableDbError(err)) markDurableDbFailed(err);
         console.error("[bookings] refund resume status", err);
+      }
+    } else if (!shouldSkipNeon()) {
+      // DATABASE_URL store: without this the money went back but the row stayed refund_pending
+      // while the intent was marked applied, so nothing would ever fix the row.
+      try {
+        const sql = await getSql();
+        const updated = await sql`
+          update bookings set status = 'refunded', swaps = ${JSON.stringify(meta)}
+          where id = ${booking.id} and user_id = ${userId}
+            and status in ('refund_pending', 'paid', 'held', 'confirmed')
+          returning id
+        `;
+        if (!updated.length) statusSaved = false;
+      } catch (err) {
+        statusSaved = false;
+        if (isDurableDbError(err)) markDurableDbFailed(err);
+        console.error("[bookings] refund resume status (sql)", err);
       }
     }
     if (!statusSaved) continue;
