@@ -97,6 +97,20 @@ describe("answerFromOwnSources", () => {
     assert.equal(answer.includes("api.x.ai"), false);
   });
 
+  it("answers what is nearby from the stay's neighbourhood and walk estimates", () => {
+    const packet = groundingPacket({
+      nationalities: ["IN"],
+      packageId: "chariot-resort-puri",
+      roomId: "deluxe",
+    });
+    const answer = answerFromOwnSources("what nearby of this hotel", packet);
+    assert.match(answer, /Balukhand/);
+    assert.match(answer, /straight-line walk estimates/);
+    assert.match(answer, /Jagannath Temple/);
+    assert.match(answer, /Puri sea beach/);
+    assert.equal(answer.includes("Deluxe Room"), false);
+  });
+
   it("answers a visa question with an official checklist URL", () => {
     const packet = groundingPacket({ nationalities: ["GB"], arrivalAirport: "BBI" });
     const answer = answerFromOwnSources("Do I need a visa?", packet);

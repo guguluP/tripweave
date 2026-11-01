@@ -4,6 +4,7 @@ import { getPackage } from "./packages.ts";
 import { guestCancelMode, refundAmountInr, refundPolicyFor } from "./refund-policy.ts";
 import type { ArriveBy } from "./origins.ts";
 import { pickupQuoteFor } from "./travel-plan.ts";
+import { stayWalkTimes } from "./walk-estimate.ts";
 
 const FALLBACK_START = "Not stated by the official sources TripWeave checked; see ";
 
@@ -44,6 +45,21 @@ export function stayFactLines(input: AskGrounding): string[] {
   const pkg = getPackage(input.packageId);
   if (!pkg) return [];
   const lines = [`TripWeave stay: ${pkg.name}, Puri. The street address is not on file.`];
+  if (pkg.neighborhood) {
+    lines.push(`TripWeave: ${pkg.name} is in ${pkg.neighborhood}. ${pkg.summary}`);
+  }
+  const walks = stayWalkTimes(pkg.id, pkg.name);
+  if (walks) {
+    const bits: string[] = [];
+    if (walks.templeMinutes != null) bits.push(`Jagannath Temple about ${walks.templeMinutes} min`);
+    if (walks.stationMinutes != null) bits.push(`Puri railway station about ${walks.stationMinutes} min`);
+    if (walks.beachMinutes != null) bits.push(`Puri sea beach about ${walks.beachMinutes} min`);
+    if (bits.length > 0) {
+      lines.push(
+        `TripWeave: straight-line walk estimates at about 5 km/h, not road times. ${bits.join(". ")}.`,
+      );
+    }
+  }
   const room = input.roomId ? pkg.rooms.find((row) => row.id === input.roomId) : undefined;
   if (room) lines.push(`TripWeave room: ${room.name}.`);
   if (input.checkIn && isRealIsoDate(input.checkIn)) {
@@ -142,6 +158,30 @@ export function answerFromOwnSources(
     picked = lines.filter((line) => /confirm|payment|checked|cancel/i.test(line.text));
   } else if (wants(question, ["visa", "passport", "arrival", "suvidha", "form", "oci"])) {
     picked = lines.filter((line) => line.official);
+  } else if (
+    wants(question, [
+      "nearby",
+      "near",
+      "around",
+      "close",
+      "where",
+      "location",
+      "beach",
+      "temple",
+      "station",
+      "neighbour",
+      "neighborhood",
+      "sand",
+      "jagannath",
+      "konark",
+      "पास",
+      "नजदीक",
+      "नज़दीक",
+      "समुद्र",
+      "मंदिर",
+    ])
+  ) {
+    picked = lines.filter((line) => /straight-line| is in /i.test(line.text));
   } else if (wants(question, ["fly", "flight", "उड़ान"])) {
     picked = [
       ...lines.filter((line) => /car|airport/i.test(line.text)),
