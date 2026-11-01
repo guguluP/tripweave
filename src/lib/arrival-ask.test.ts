@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { acceptGroundedReply, fallbackAnswer, groundingPacket, questionHasDocumentDigits } from "./arrival-ask.ts";
+import { acceptGroundedReply, answerFromOwnSources, fallbackAnswer, groundingPacket, questionHasDocumentDigits } from "./arrival-ask.ts";
 
 describe("document digits", () => {
   it("rejects document-like numbers and keeps a dated question", () => {
@@ -80,5 +80,26 @@ describe("arrival ask grounding", () => {
     });
     assert.match(other.text, /no TripWeave airport car/);
     assert.equal(groundingPacket({ nationalities: ["GB"], packageId: "not-a-stay" }).text.includes("TripWeave stay:"), false);
+  });
+});
+
+describe("answerFromOwnSources", () => {
+  it("answers a refund question from the stay, without an outside model", () => {
+    const packet = groundingPacket({
+      nationalities: ["IN"],
+      packageId: "taj-puri-resort-spa",
+      checkIn: "2027-06-15",
+      amountInr: 10000,
+      status: "paid",
+    });
+    const answer = answerFromOwnSources("What is the refund if I cancel?", packet);
+    assert.match(answer, /TripWeave refund/);
+    assert.equal(answer.includes("api.x.ai"), false);
+  });
+
+  it("answers a visa question with an official checklist URL", () => {
+    const packet = groundingPacket({ nationalities: ["GB"], arrivalAirport: "BBI" });
+    const answer = answerFromOwnSources("Do I need a visa?", packet);
+    assert.match(answer, /https:\/\/indianvisaonline\.gov\.in/);
   });
 });

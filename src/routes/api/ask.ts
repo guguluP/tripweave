@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { acceptGroundedReply, ASK_SYSTEM, groundingPacket, questionHasDocumentDigits } from "@/lib/arrival-ask";
+import { answerFromOwnSources, groundingPacket, questionHasDocumentDigits } from "@/lib/arrival-ask";
 import { presentAnswer } from "@/lib/ask-present";
 import { getSessionUser } from "@/lib/auth/verify.server";
 import { isCountryCode } from "@/lib/countries";
@@ -38,41 +38,6 @@ async function sessionUser(request: Request) {
   return getSessionUser(bearer);
 }
 
-async function readXaiStream(
-  res: Response,
-  write: (text: string) => void,
-): Promise<string> {
-  const reader = res.body?.getReader();
-  if (!reader) return "";
-  const decoder = new TextDecoder();
-  let buf = "";
-  let full = "";
-  while (true) {
-    const step = await reader.read();
-    if (step.done) break;
-    buf += decoder.decode(step.value, { stream: true });
-    const lines = buf.split("\n");
-    buf = lines.pop() ?? "";
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("data:")) continue;
-      const payload = trimmed.slice(5).trim();
-      if (!payload || payload === "[DONE]") continue;
-      try {
-        const json = JSON.parse(payload) as { choices?: { delta?: { content?: string } }[] };
-        const delta = json.choices?.[0]?.delta?.content;
-        if (delta) {
-          full += delta;
-          write(delta);
-        }
-      } catch {
-        /* ignore a partial SSE line */
-      }
-    }
-  }
-  return full;
-}
-
 export const Route = createFileRoute("/api/ask")({
   server: {
     handlers: {
@@ -97,8 +62,6 @@ export const Route = createFileRoute("/api/ask")({
         if (asked.some((question) => questionHasDocumentDigits(question))) {
           return json({ ok: false, reason: "no_documents" });
         }
-        const apiKey = process.env.XAI_API_KEY?.trim();
-        if (!apiKey) return json({ ok: false, reason: "not_configured" });
         if (!(await takeAskSlot(user.id))) return json({ ok: false, reason: "rate_limited" });
 
         const nationalities = data.nationalities.filter((code) => isCountryCode(code));
@@ -133,41 +96,8 @@ export const Route = createFileRoute("/api/ask")({
           status,
         });
         const locale = data.locale === "hi" ? "hi" : "en";
-        const earlier = (data.history ?? [])
-          .map((row) => `Earlier question: ${row.question}\nEarlier answer: ${row.answer}`)
-          .join("\n\n");
-        const model = process.env.XAI_MODEL?.trim() || "grok-4.7";
-
-        let upstream: Response;
-        try {
-          upstream = await fetch("https://api.x.ai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-              model,
-              stream: true,
-              temperature: 0,
-              messages: [
-                { role: "system", content: ASK_SYSTEM },
-                {
-                  role: "user",
-                  content: `${earlier ? `Conversation so far (not a source):\n${earlier}\n\n` : ""}Guest locale: ${locale}\nQuestion: ${data.question}\n\nSources:\n${packet.text}`,
-                },
-              ],
-            }),
-          });
-        } catch (err) {
-          console.error("[ask]", err instanceof Error ? err.name : "failed");
-          return json({ ok: false, reason: "unavailable" });
-        }
-        if (!upstream.ok || !upstream.body) {
-          console.error("[ask] xAI", upstream.status);
-          return json({ ok: false, reason: "unavailable" });
-        }
-
+        const answer = answerFromOwnSources(data.question, packet, locale);
+        const view = presentAnswer(answer, packet.urls);
         const encoder = new TextEncoder();
         const stream = new ReadableStream({
           async start(controller) {
@@ -175,9 +105,10 @@ export const Route = createFileRoute("/api/ask")({
               controller.enqueue(encoder.encode(`${JSON.stringify(value)}\n`));
             };
             try {
-              const raw = await readXaiStream(upstream, (text) => send({ type: "token", text }));
-              const answer = acceptGroundedReply(raw, packet.urls);
-              const view = presentAnswer(answer, packet.urls);
+              const step = 48;
+              for (let i = 0; i < view.prose.length; i += step) {
+                send({ type: "token", text: view.prose.slice(i, i + step) });
+              }
               if (data.confirmationCode) {
                 await appendAskTurn(user.id, data.confirmationCode, data.question, answer);
               }

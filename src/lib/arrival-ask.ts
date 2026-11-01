@@ -7,9 +7,6 @@ import { pickupQuoteFor } from "./travel-plan.ts";
 
 const FALLBACK_START = "Not stated by the official sources TripWeave checked; see ";
 
-export const ASK_SYSTEM =
-  "Answer only from the sources in the user message. An entry answer must cite one of those URLs and no other site. A TripWeave answer (lines that start with TripWeave:) must contain the word TripWeave and no URL. A mixed answer must do both. If the sources do not state the answer, reply with exactly: Not stated by the official sources TripWeave checked; see <one of those URLs>. Do not invent fees, airports, or rules. Do not ask for or repeat passport numbers, visa numbers, phone numbers, or payment references. Earlier questions are conversation, not sources. If the guest locale is Hindi, answer in Hindi. That Hindi is unofficial. Keep any official URL unchanged.";
-
 /**
  * A document-like run: six or more digits joined only by a single space, hyphen, or dot.
  * An ISO date is not a document number.
@@ -109,6 +106,56 @@ export function groundingPacket(input: AskGrounding): { text: string; urls: stri
   if (!input.packageId) lines.push("- Stay: a hotel in Puri, Odisha. The street address is not on file.");
   lines.push("Rules checked 19 Oct 2026.");
   return { text: lines.join("\n"), urls };
+}
+
+type PacketLine = { text: string; official: boolean };
+
+function linesOf(packet: { text: string; urls: string[] }): PacketLine[] {
+  return packet.text
+    .split("\n")
+    .map((raw) => raw.replace(/^- /, "").trim())
+    .filter((text) => text && !text.startsWith("Rules checked"))
+    .map((text) => ({ text, official: packet.urls.some((url) => text.includes(url)) }));
+}
+
+function wants(question: string, words: string[]): boolean {
+  const q = question.toLowerCase();
+  return words.some((word) => q.includes(word));
+}
+
+/**
+ * Answer from the checklist and the stay. No outside model.
+ * Official lines keep their URL. Stay lines keep the word TripWeave.
+ */
+export function answerFromOwnSources(
+  question: string,
+  packet: { text: string; urls: string[] },
+  locale: "en" | "hi" = "en",
+): string {
+  const lines = linesOf(packet);
+  let picked: PacketLine[] = [];
+  if (wants(question, ["refund", "cancel", "money", "रद्द", "रिफंड"])) {
+    picked = lines.filter((line) => /refund|cancel/i.test(line.text));
+  } else if (wants(question, ["car", "pickup", "cab", "taxi", "airport", "कार"])) {
+    picked = lines.filter((line) => /car|ola|airport/i.test(line.text));
+  } else if (wants(question, ["confirm", "desk", "paid", "status", "पुष्टि"])) {
+    picked = lines.filter((line) => /confirm|payment|checked|cancel/i.test(line.text));
+  } else if (wants(question, ["visa", "passport", "arrival", "suvidha", "form", "oci"])) {
+    picked = lines.filter((line) => line.official);
+  } else if (wants(question, ["fly", "flight", "उड़ान"])) {
+    picked = [
+      ...lines.filter((line) => /car|airport/i.test(line.text)),
+      ...lines.filter((line) => line.official),
+    ].slice(0, 4);
+  } else {
+    picked = [...lines.filter((line) => line.text.includes("TripWeave")).slice(0, 2), ...lines.filter((line) => line.official).slice(0, 2)];
+  }
+  if (picked.length === 0) picked = lines.slice(0, 3);
+  const note =
+    locale === "hi"
+      ? "TripWeave: यह उत्तर ट्रिपवीव के अपने नियमों से है। सरकारी पंक्तियाँ अंग्रेज़ी में हैं। "
+      : "";
+  return `${note}${picked.map((line) => line.text).join(" ")}`.replace(/\s+/g, " ").trim();
 }
 
 export function fallbackAnswer(urls: string[]): string {

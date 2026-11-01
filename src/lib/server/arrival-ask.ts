@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
-import { acceptGroundedReply, ASK_SYSTEM, groundingPacket, questionHasDocumentDigits } from "@/lib/arrival-ask";
+import { answerFromOwnSources, groundingPacket, questionHasDocumentDigits } from "@/lib/arrival-ask";
 import { appendAskTurn, takeAskSlot } from "@/lib/server/ask-store";
 import { isCountryCode } from "@/lib/countries";
 import { findOwnBookingByCode } from "@/lib/server/booking-lookup";
@@ -35,8 +35,6 @@ export const askTripWeave = createServerFn({ method: "POST" })
     if (asked.some((question) => questionHasDocumentDigits(question))) {
       return { ok: false as const, reason: "no_documents" as const };
     }
-    const apiKey = process.env.XAI_API_KEY?.trim();
-    if (!apiKey) return { ok: false as const, reason: "not_configured" as const };
     if (!(await takeAskSlot(context.userId))) {
       return { ok: false as const, reason: "rate_limited" as const };
     }
@@ -72,46 +70,9 @@ export const askTripWeave = createServerFn({ method: "POST" })
       status,
     });
     const locale = data.locale === "hi" ? "hi" : "en";
-    const earlier = (data.history ?? [])
-      .map((row) => `Earlier question: ${row.question}\nEarlier answer: ${row.answer}`)
-      .join("\n\n");
-    const model = process.env.XAI_MODEL?.trim() || "grok-4.7";
-    try {
-      const res = await fetch("https://api.x.ai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model,
-          stream: false,
-          temperature: 0,
-          messages: [
-            {
-              role: "system",
-              content: ASK_SYSTEM,
-            },
-            {
-              role: "user",
-              content: `${earlier ? `Conversation so far (not a source):\n${earlier}\n\n` : ""}Guest locale: ${locale}\nQuestion: ${data.question}\n\nSources:\n${packet.text}`,
-            },
-          ],
-        }),
-      });
-      if (!res.ok) {
-        console.error("[ask] xAI", res.status);
-        return { ok: false as const, reason: "unavailable" as const };
-      }
-      const body = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-      const content = body.choices?.[0]?.message?.content ?? "";
-      const answer = acceptGroundedReply(String(content), packet.urls);
-      if (data.confirmationCode) {
-        await appendAskTurn(context.userId, data.confirmationCode, data.question, answer);
-      }
-      return { ok: true as const, answer };
-    } catch (err) {
-      console.error("[ask]", err instanceof Error ? err.name : "failed");
-      return { ok: false as const, reason: "unavailable" as const };
+    const answer = answerFromOwnSources(data.question, packet, locale);
+    if (data.confirmationCode) {
+      await appendAskTurn(context.userId, data.confirmationCode, data.question, answer);
     }
+    return { ok: true as const, answer };
   });
