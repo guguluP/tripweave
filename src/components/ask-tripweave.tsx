@@ -229,12 +229,12 @@ export function AskTripWeave({
 
   return (
     <div className={embedded ? "" : "mt-4 rounded-lg border border-border bg-elevated px-4 py-3"}>
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-wrap gap-2">
         {suggestions.map((text) => (
           <button
             key={text}
             type="button"
-            className="rounded-md border border-border px-2 py-1 text-left text-xs"
+            className="rounded-full border border-border bg-surface px-3 py-1.5 text-left text-xs font-medium text-muted hover:text-fg disabled:opacity-50"
             disabled={busy}
             onClick={() => ask(text)}
           >
@@ -242,25 +242,31 @@ export function AskTripWeave({
           </button>
         ))}
       </div>
-      <div aria-live="polite">
+      <div aria-live="polite" className="mt-4 grid gap-3">
         {turns.map((turn, index) => (
-          <div key={`${index}-${turn.question}`} className="mt-3 text-sm">
+          <div key={`${index}-${turn.question}`} className="grid gap-1.5">
             <p className="text-xs text-muted">{guestLabel(locale, "askYou")}</p>
-            <p>{turn.question}</p>
-            <p className="mt-1">{turn.answer}</p>
-            {turn.tripweave ? <p className="mt-1 text-xs text-muted">{guestLabel(locale, "askFromStay")}</p> : null}
-            {turn.chips.length > 0 ? (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {turn.chips.map((chip) => (
-                  <a key={chip.url} className="ask-chip rounded-md border border-border px-2 py-1 text-xs underline" href={chip.url}>
-                    {chip.title}
-                  </a>
-                ))}
-              </div>
-            ) : null}
+            <p className="text-sm">{turn.question}</p>
+            <div className="rounded-md bg-surface px-3 py-2">
+              <p className="text-sm">{turn.answer}</p>
+              {turn.tripweave ? <p className="mt-1 text-xs text-muted">{guestLabel(locale, "askFromStay")}</p> : null}
+              {turn.chips.length > 0 ? (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {turn.chips.map((chip) => (
+                    <a
+                      key={chip.url}
+                      className="ask-chip rounded-full border border-border bg-elevated px-3 py-1.5 text-xs font-medium text-fg"
+                      href={chip.url}
+                    >
+                      {chip.title}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </div>
         ))}
-        {draft ? <p className="mt-3 text-sm">{draft}</p> : null}
+        {draft ? <p className="rounded-md bg-surface px-3 py-2 text-sm">{draft}</p> : null}
       </div>
       <label className="mt-3 block text-sm">
         <span className="sr-only">{guestLabel(locale, "askTitle")}</span>
@@ -277,25 +283,29 @@ export function AskTripWeave({
         {busy ? guestLabel(locale, "askWorking") : guestLabel(locale, "askSend")}
       </Button>
       {turns.length > 0 ? (
-        <div className="mt-4 grid gap-2 border-t border-border pt-3">
-          {foreign ? (
-            <Button type="button" variant="outline" onClick={emailChecklist}>
-              {guestLabel(locale, "askEmail")}
-            </Button>
-          ) : null}
-          {mailNote ? <p className="text-xs text-muted">{mailNote}</p> : null}
-          {carAvailable && !carOn ? (
-            <Button type="button" variant="outline" onClick={requestCar}>
-              {guestLabel(locale, "askCarButton")}
-            </Button>
-          ) : null}
-          {carNote ? <p className="text-xs text-muted">{carNote}</p> : null}
-          {refund ? <p className="text-xs text-muted">{guestLabel(locale, "askRefundNow")} {refund}</p> : null}
-          {confirmationCode ? (
-            <Link to="/voucher/$code" params={{ code: confirmationCode }} className="text-sm font-medium underline">
-              {guestLabel(locale, "askOpenVoucher")}
-            </Link>
-          ) : null}
+        <div className="mt-4 border-t border-border pt-3">
+          <div className="flex flex-wrap gap-2">
+            {foreign ? (
+              <Button type="button" size="sm" variant="outline" onClick={emailChecklist}>
+                {guestLabel(locale, "askEmail")}
+              </Button>
+            ) : null}
+            {carAvailable && !carOn ? (
+              <Button type="button" size="sm" variant="outline" onClick={requestCar}>
+                {guestLabel(locale, "askCarButton")}
+              </Button>
+            ) : null}
+            {confirmationCode ? (
+              <Button asChild size="sm" variant="outline">
+                <Link to="/voucher/$code" params={{ code: confirmationCode }}>
+                  {guestLabel(locale, "askOpenVoucher")}
+                </Link>
+              </Button>
+            ) : null}
+          </div>
+          {mailNote ? <p className="mt-2 text-xs text-muted">{mailNote}</p> : null}
+          {carNote ? <p className="mt-2 text-xs text-muted">{carNote}</p> : null}
+          {refund ? <p className="mt-2 text-xs text-muted">{guestLabel(locale, "askRefundNow")} {refund}</p> : null}
         </div>
       ) : null}
     </div>

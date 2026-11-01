@@ -1,6 +1,8 @@
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { X } from "lucide-react";
 import { AskTripWeave } from "@/components/ask-tripweave";
+import { Button } from "@/components/ui/button";
 import { guestLabel, useGuestLocale } from "@/lib/guest-locale";
 import { getPackage } from "@/lib/packages";
 
@@ -40,27 +42,31 @@ export function AskTripWeaveButton({ children, ...props }: AskProps & { children
 
   return (
     <>
-      <button type="button" className="text-sm font-medium underline" onClick={() => setOpen(true)}>
+      <Button type="button" size="sm" variant="outline" onClick={() => setOpen(true)}>
         {children ?? guestLabel(locale, "askTitle")}
-      </button>
+      </Button>
       {open && typeof document !== "undefined"
         ? createPortal(
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-          <button type="button" className="absolute inset-0 bg-fg/40" aria-label={guestLabel(locale, "askClose")} onClick={() => setOpen(false)} />
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-fg/50 p-3 sm:items-center"
+          role="presentation"
+          onClick={() => setOpen(false)}
+        >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            className="ask-sheet relative z-10 m-3 max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-lg border border-border bg-elevated p-4"
+            className="ask-sheet max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-bg p-5 shadow-soft"
+            onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p id={titleId} className="font-display text-xl">{hotel}</p>
-                <p className="text-xs text-muted">{guestLabel(locale, "askTitle")}</p>
+                <p className="eyebrow">{guestLabel(locale, "askTitle")}</p>
+                <h2 id={titleId} className="mt-1 font-display text-2xl">{hotel}</h2>
               </div>
-              <button type="button" className="text-sm underline" onClick={() => setOpen(false)}>
-                {guestLabel(locale, "askClose")}
-              </button>
+              <Button type="button" size="icon" variant="ghost" onClick={() => setOpen(false)} aria-label={guestLabel(locale, "askClose")}>
+                <X className="size-4" />
+              </Button>
             </div>
             <AskTripWeave {...props} embedded />
           </div>
