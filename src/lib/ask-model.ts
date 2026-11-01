@@ -1,6 +1,6 @@
 import { FESTIVAL } from "./inventory.ts";
 import { GATEWAYS, LANDMARKS, type Pin } from "./places.ts";
-import { visitReply, type AskPoint } from "./visit-places.ts";
+import { visitReply, type AskPoint, type RoadLeg } from "./visit-places.ts";
 
 /** IMD's public Puri city page. The JSON API needs a key this app does not buy. */
 export const IMD_PURI_URL = "https://city.imd.gov.in/citywx/citywxnew_warnings.php?id=43053";
@@ -21,6 +21,7 @@ type AskOptions = {
   arriveBy?: string;
   bulletin?: LocalBulletin | null;
   from?: Pin | null;
+  roads?: RoadLeg[];
 };
 
 function reply(text: string, markers: AskPoint[] = []): AskReply {
@@ -156,7 +157,7 @@ export function answerAsk(
   locale: "en" | "hi" = "en",
   opts: AskOptions = {},
 ): AskReply {
-  const visit = visitReply(question, opts.from ?? null, locale);
+  const visit = visitReply(question, opts.from ?? null, locale, opts.roads);
   if (visit) return visit;
   if (needsLocalConditions(question)) {
     const bulletin = opts.bulletin?.ok ? opts.bulletin : { ok: false as const };

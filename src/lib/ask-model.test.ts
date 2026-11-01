@@ -41,10 +41,17 @@ describe("answerAsk", () => {
   it("answers what is nearby from the walk estimate", () => {
     const packet = groundingPacket({ nationalities: ["IN"], packageId: "chariot-resort-puri", roomId: "deluxe" });
     const from = stayPin("chariot-resort-puri", "The Chariot");
-    const reply = answerAsk("what nearby of this hotel", packet, "en", { from });
-    assert.match(reply.text, /straight-line/);
+    const reply = answerAsk("what nearby of this hotel", packet, "en", {
+      from,
+      roads: [
+        { id: "beach", km: 1.4, driveMinutes: 4 },
+        { id: "temple", km: 2.8, driveMinutes: 8 },
+      ],
+    });
+    assert.match(reply.text, /by road/);
+    assert.equal(reply.text.includes("straight-line"), false);
     assert.match(reply.text, /Jagannath Temple/);
-    assert.match(reply.text, /km| m,/);
+    assert.match(reply.text, /2\.8 km/);
     assert.equal(reply.text.includes("Deluxe"), false);
     assert.ok(reply.markers.length >= 2);
   });
@@ -89,25 +96,44 @@ describe("answerAsk", () => {
     assert.match(answer, /city\.imd\.gov\.in/);
   });
 
-  it("gives Konark a straight-line distance and a map from the hotel", () => {
+  it("gives Konark the road distance and a map from the hotel", () => {
     const from = stayPin("taj-puri-resort-spa", "Taj Puri");
-    const reply = answerAsk("How far is Konark, and what can I see?", stay(), "en", { from });
-    assert.match(reply.text, /Konark Sun Temple/);
-    assert.match(reply.text, /straight-line/);
+    const reply = answerAsk("How far is Konark, and what can I see?", stay(), "en", {
+      from,
+      roads: [{ id: "konark", km: 36.5, driveMinutes: 27 }],
+    });
+    assert.match(reply.text, /Konark Sun Temple is 37 km by road, about 27 min by cab/);
+    assert.match(reply.text, /follow the road/);
+    assert.equal(reply.text.includes("straight-line"), false);
     assert.match(reply.text, /mappls\.com\/direction/);
     assert.ok(reply.markers.some((pin) => pin.label === "Konark Sun Temple"));
     assert.ok(reply.markers.some((pin) => pin.label === "Taj Puri"));
-    const km = Number(reply.text.match(/Konark Sun Temple is (\d+) km/)?.[1]);
-    assert.ok(km >= 30 && km <= 45);
   });
 
   it("lists places to visit with distances", () => {
     const from = stayPin("taj-puri-resort-spa", "Taj Puri");
-    const reply = answerAsk("What places should I visit?", stay(), "en", { from });
+    const reply = answerAsk("What places should I visit?", stay(), "en", {
+      from,
+      roads: [
+        { id: "beach", km: 1.4, driveMinutes: 4 },
+        { id: "temple", km: 2.8, driveMinutes: 8 },
+        { id: "gundicha", km: 3.1, driveMinutes: 9 },
+        { id: "konark", km: 36.5, driveMinutes: 27 },
+      ],
+    });
     assert.match(reply.text, /Puri sea beach/);
     assert.match(reply.text, /Gundicha Temple/);
     assert.match(reply.text, /Konark Sun Temple/);
+    assert.match(reply.text, /by road/);
+    assert.equal(reply.text.includes("straight-line"), false);
     assert.ok(reply.markers.length >= 4);
+  });
+
+  it("does not invent a straight-line distance when the road router has no leg", () => {
+    const from = stayPin("taj-puri-resort-spa", "Taj Puri");
+    const reply = answerAsk("How far is the beach?", stay(), "en", { from, roads: [] });
+    assert.match(reply.text, /road distance is unavailable/);
+    assert.equal(reply.text.includes("straight-line"), false);
   });
 
   it("answers Rath Yatra from the exported dates", () => {

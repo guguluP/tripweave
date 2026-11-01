@@ -5,6 +5,8 @@ import { getPackage } from "@/lib/packages";
 import { stayPin } from "@/lib/places";
 import { findOwnBookingByCode } from "@/lib/server/booking-lookup";
 import { puriBulletin } from "@/lib/server/local-conditions";
+import { roadLegs } from "@/lib/server/road-route";
+import { isVisitQuestion, visitTargets } from "@/lib/visit-places";
 
 export type AskReplyInput = {
   question: string;
@@ -60,10 +62,13 @@ export async function replyToAsk(input: AskReplyInput): Promise<AskReply> {
   const bulletin = needsLocalConditions(input.question) ? await puriBulletin() : null;
   const named = packageId ? getPackage(packageId) : undefined;
   const from = packageId ? stayPin(packageId, named?.name ?? packageId) : null;
+  const roads =
+    from && isVisitQuestion(input.question) ? await roadLegs(from, visitTargets(input.question)) : [];
   return answerAsk(input.question, packet, locale, {
     history: input.history,
     arriveBy: input.arriveBy,
     bulletin,
     from,
+    roads,
   });
 }

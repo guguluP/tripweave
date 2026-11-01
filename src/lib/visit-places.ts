@@ -1,6 +1,8 @@
 import { mapplsDirectionUrl } from "./mappls.ts";
 import { GATEWAYS, LANDMARKS, type Pin } from "./places.ts";
-import { haversineKm, walkMinutesFromKm } from "./walk-estimate.ts";
+import { walkMinutesFromKm } from "./walk-estimate.ts";
+
+export type RoadLeg = { id: string; km: number; driveMinutes: number };
 
 export type AskPoint = { lat: number; lng: number; label: string };
 
@@ -85,16 +87,17 @@ export function isVisitQuestion(question: string): boolean {
 }
 
 function formatKm(km: number): string {
-  if (km < 1) return `${Math.max(50, Math.round(km * 1000 / 50) * 50)} m`;
-  const rounded = km < 10 ? (Math.round(km * 10) / 10).toFixed(1) : String(Math.round(km));
-  return `${rounded.replace(/\.0$/, "")} km`;
+  if (km < 1) return `${Math.max(50, Math.round((km * 1000) / 50) * 50)} m`;
+  if (km < 10) return `${(Math.round(km * 10) / 10).toFixed(1).replace(/\.0$/, "")} km`;
+  return `${Math.round(km)} km`;
 }
 
-function howToGo(km: number): string {
-  const minutes = walkMinutesFromKm(km);
-  if (km <= 2.5 && minutes != null) return `about ${minutes} min on foot`;
-  if (km <= 6 && minutes != null) return `about ${minutes} min if you walk, or a short cab`;
-  return "a cab, not a walk";
+function byRoad(leg: RoadLeg): string {
+  if (leg.km <= 6) {
+    const walk = walkMinutesFromKm(leg.km);
+    return walk != null ? `${formatKm(leg.km)} by road, about ${walk} min on foot` : `${formatKm(leg.km)} by road`;
+  }
+  return `${formatKm(leg.km)} by road, about ${leg.driveMinutes} min by cab`;
 }
 
 function picked(question: string): VisitPlace[] {
@@ -109,31 +112,38 @@ function picked(question: string): VisitPlace[] {
   return VISIT_PLACES.filter((place) => SIGHTS.has(place.id));
 }
 
-/** Straight-line distances from the stay, plus pins for the map. */
+export function visitTargets(question: string): { id: string; lat: number; lng: number }[] {
+  if (!isVisitQuestion(question)) return [];
+  return picked(question).map((place) => ({ id: place.id, lat: place.lat, lng: place.lng }));
+}
+
+/** Road distances from the stay, plus pins for the map. */
 export function visitReply(
   question: string,
   from: Pin | null,
   locale: "en" | "hi" = "en",
+  roads: RoadLeg[] = [],
 ): { text: string; markers: AskPoint[] } | null {
   if (!isVisitQuestion(question)) return null;
   const origin = from ?? temple;
   if (!origin) return null;
+  const byId = new Map(roads.map((leg) => [leg.id, leg]));
   const places = picked(question)
-    .map((place) => ({ place, km: haversineKm(origin, place) }))
-    .filter((row) => row.km > 0.05)
-    .sort((a, b) => a.km - b.km);
+    .map((place) => ({ place, leg: byId.get(place.id) }))
+    .sort((a, b) => (a.leg?.km ?? 10_000) - (b.leg?.km ?? 10_000));
   if (places.length === 0) return null;
   const fromLabel = from ? from.label : "Jagannath Temple";
   const measured = from
-    ? `From ${fromLabel}. Distances are straight-line, not the road.`
-    : "Measured from Jagannath Temple, because no hotel is open yet. Distances are straight-line, not the road.";
-  const lines = places.map(
-    (row) => `${row.place.label} is ${formatKm(row.km)}, ${howToGo(row.km)}. ${row.place.blurb}`,
-  );
-  const primary = places[0];
-  const mapUrl = mapplsDirectionUrl(origin, primary.place);
-  const hindi = locale === "hi" ? "दूरियाँ सीधी रेखा की हैं, सड़क की नहीं। " : "";
-  const text = `${hindi}${measured} ${lines.join(" ")} Directions: ${mapUrl}`;
+    ? `From ${fromLabel}. Distances follow the road.`
+    : "Measured from Jagannath Temple, because no hotel is open yet. Distances follow the road.";
+  const lines = places.map((row) => {
+    if (!row.leg) return `${row.place.label}: road distance is unavailable right now. ${row.place.blurb}`;
+    return `${row.place.label} is ${byRoad(row.leg)}. ${row.place.blurb}`;
+  });
+  const primary = places.find((row) => row.leg)?.place ?? places[0]?.place;
+  const mapUrl = primary ? mapplsDirectionUrl(origin, primary) : "";
+  const hindi = locale === "hi" ? "दूरियाँ सड़क की हैं। " : "";
+  const text = `${hindi}${measured} ${lines.join(" ")}${mapUrl ? ` Directions: ${mapUrl}` : ""}`;
   const markers: AskPoint[] = [
     { lat: origin.lat, lng: origin.lng, label: fromLabel },
     ...places.map((row) => ({ lat: row.place.lat, lng: row.place.lng, label: row.place.label })),
