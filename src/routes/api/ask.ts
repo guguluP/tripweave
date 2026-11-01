@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { answerFromOwnSources, groundingPacket, questionHasDocumentDigits } from "@/lib/arrival-ask";
+import { questionHasDocumentDigits } from "@/lib/arrival-ask";
+import { SOURCES } from "@/lib/arrival-rules";
+import { IMD_PURI_URL } from "@/lib/ask-model";
 import { presentAnswer } from "@/lib/ask-present";
 import { getSessionUser } from "@/lib/auth/verify.server";
-import { isCountryCode } from "@/lib/countries";
+import { replyToAsk } from "@/lib/server/ask-reply";
+import { packMap } from "@/lib/visit-places";
 import { appendAskTurn, listAskTurns, takeAskSlot } from "@/lib/server/ask-store";
-import { findOwnBookingByCode } from "@/lib/server/booking-lookup";
 
 const turn = z.object({
   question: z.string().trim().min(1).max(400),
@@ -64,40 +66,14 @@ export const Route = createFileRoute("/api/ask")({
         }
         if (!(await takeAskSlot(user.id))) return json({ ok: false, reason: "rate_limited" });
 
-        const nationalities = data.nationalities.filter((code) => isCountryCode(code));
-        let packageId = data.packageId;
-        let roomId = data.roomId;
-        let checkIn = data.checkIn;
-        let nights = data.nights;
-        let amountInr: number | null = null;
-        let status: string | null = null;
-        if (data.confirmationCode) {
-          const own = await findOwnBookingByCode(user.id, data.confirmationCode);
-          if (own) {
-            packageId = own.packageId;
-            roomId = own.roomId || roomId;
-            checkIn = own.checkIn;
-            nights = own.nights;
-            amountInr = own.amountInr;
-            status = own.status;
-          }
-        }
-        const packet = groundingPacket({
-          nationalities,
-          oci: data.oci,
-          priorIndianVisa: data.priorIndianVisa,
-          arrivalAirport: data.arrivalAirport,
-          checkIn,
-          packageId,
-          roomId,
-          nights,
-          arriveBy: data.arriveBy,
-          amountInr,
-          status,
-        });
-        const locale = data.locale === "hi" ? "hi" : "en";
-        const answer = answerFromOwnSources(data.question, packet, locale);
-        const view = presentAnswer(answer, packet.urls);
+        const reply = await replyToAsk({ ...data, userId: user.id });
+        const answer = packMap(reply.text, reply.markers);
+        const allowed = [
+          ...Object.values(SOURCES).map((source) => source.url),
+          IMD_PURI_URL,
+          "https://www.mappls.com/",
+        ];
+        const view = presentAnswer(reply.text, allowed);
         const encoder = new TextEncoder();
         const stream = new ReadableStream({
           async start(controller) {
@@ -112,7 +88,13 @@ export const Route = createFileRoute("/api/ask")({
               if (data.confirmationCode) {
                 await appendAskTurn(user.id, data.confirmationCode, data.question, answer);
               }
-              send({ type: "done", answer: view.prose, chips: view.chips, tripweave: view.tripweave });
+              send({
+                type: "done",
+                answer: view.prose,
+                chips: view.chips,
+                tripweave: view.tripweave,
+                map: reply.markers,
+              });
             } catch (err) {
               console.error("[ask]", err instanceof Error ? err.name : "failed");
               send({ type: "error", reason: "unavailable" });

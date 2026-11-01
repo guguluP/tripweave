@@ -1,0 +1,69 @@
+import { answerAsk, needsLocalConditions, type AskReply } from "@/lib/ask-model";
+import { groundingPacket } from "@/lib/arrival-ask";
+import { isCountryCode } from "@/lib/countries";
+import { getPackage } from "@/lib/packages";
+import { stayPin } from "@/lib/places";
+import { findOwnBookingByCode } from "@/lib/server/booking-lookup";
+import { puriBulletin } from "@/lib/server/local-conditions";
+
+export type AskReplyInput = {
+  question: string;
+  nationalities?: string[];
+  oci?: boolean[];
+  priorIndianVisa?: boolean[];
+  arrivalAirport?: string;
+  checkIn?: string;
+  packageId?: string;
+  roomId?: string;
+  nights?: number;
+  arriveBy?: "fly" | "train" | "bus" | "road";
+  confirmationCode?: string;
+  locale?: "en" | "hi";
+  history?: { question: string; answer: string }[];
+  userId: string;
+};
+
+/** Owned facts, one booking row, and the Puri bulletin only when the question asks for it. */
+export async function replyToAsk(input: AskReplyInput): Promise<AskReply> {
+  const nationalities = (input.nationalities ?? []).filter((code) => isCountryCode(code));
+  let packageId = input.packageId;
+  let roomId = input.roomId;
+  let checkIn = input.checkIn;
+  let nights = input.nights;
+  let amountInr: number | null = null;
+  let status: string | null = null;
+  if (input.confirmationCode) {
+    const own = await findOwnBookingByCode(input.userId, input.confirmationCode);
+    if (own) {
+      packageId = own.packageId;
+      roomId = own.roomId || roomId;
+      checkIn = own.checkIn;
+      nights = own.nights;
+      amountInr = own.amountInr;
+      status = own.status;
+    }
+  }
+  const packet = groundingPacket({
+    nationalities,
+    oci: input.oci,
+    priorIndianVisa: input.priorIndianVisa,
+    arrivalAirport: input.arrivalAirport,
+    checkIn,
+    packageId,
+    roomId,
+    nights,
+    arriveBy: input.arriveBy,
+    amountInr,
+    status,
+  });
+  const locale = input.locale === "hi" ? "hi" : "en";
+  const bulletin = needsLocalConditions(input.question) ? await puriBulletin() : null;
+  const named = packageId ? getPackage(packageId) : undefined;
+  const from = packageId ? stayPin(packageId, named?.name ?? packageId) : null;
+  return answerAsk(input.question, packet, locale, {
+    history: input.history,
+    arriveBy: input.arriveBy,
+    bulletin,
+    from,
+  });
+}

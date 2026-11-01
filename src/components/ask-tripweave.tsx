@@ -3,14 +3,17 @@ import { Link } from "@tanstack/react-router";
 import { emailArrivalChecklist } from "@/lib/server/arrival-mail";
 import { requestHotelCar } from "@/lib/server/ask-actions";
 import { SOURCES } from "@/lib/arrival-rules";
+import { IMD_PURI_URL } from "@/lib/ask-model";
 import { presentAnswer, type AskChip } from "@/lib/ask-present";
+import { MapplsMap } from "@/components/mappls-map";
+import { unpackMap, type AskPoint } from "@/lib/visit-places";
 import { getBearerToken } from "@/lib/auth/client";
 import { guestLabel, useGuestLocale, type GuestLocale } from "@/lib/guest-locale";
 import { guestCancelMode, refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
 import { pickupQuoteFor } from "@/lib/travel-plan";
 import { Button } from "@/components/ui/button";
 
-type Turn = { question: string; answer: string; chips: AskChip[]; tripweave: boolean };
+type Turn = { question: string; answer: string; chips: AskChip[]; tripweave: boolean; map: AskPoint[] };
 
 export function AskTripWeave({
   nationalities = [],
@@ -71,11 +74,18 @@ export function AskTripWeave({
       .then((body: { turns?: { question: string; answer: string }[] } | null) => {
         const saved = body?.turns ?? [];
         if (saved.length === 0) return;
-        const allowed = Object.values(SOURCES).map((source) => source.url);
+        const allowed = [...Object.values(SOURCES).map((source) => source.url), IMD_PURI_URL, "https://www.mappls.com/"];
         setTurns(
           saved.map((row) => {
-            const view = presentAnswer(row.answer, allowed);
-            return { question: row.question, answer: view.prose || row.answer, chips: view.chips, tripweave: view.tripweave };
+            const unpacked = unpackMap(row.answer);
+            const view = presentAnswer(unpacked.text, allowed);
+            return {
+              question: row.question,
+              answer: view.prose || unpacked.text,
+              chips: view.chips,
+              tripweave: view.tripweave,
+              map: unpacked.markers,
+            };
           }),
         );
       })
@@ -83,7 +93,8 @@ export function AskTripWeave({
   }, [confirmationCode]);
 
   const suggestions = [
-    guestLabel(locale, "askFly"),
+    guestLabel(locale, "askSee"),
+    guestLabel(locale, "askKonark"),
     guestLabel(locale, "askRefund"),
     guestLabel(locale, "askCar"),
     ...(confirmationCode ? [guestLabel(locale, "askDesk")] : []),
@@ -122,11 +133,11 @@ export function AskTripWeave({
         const type = res.headers.get("content-type") ?? "";
         if (type.includes("application/json")) {
           const body = (await res.json()) as { reason?: TurnReason };
-          pushTurn(text, answerFor(locale, body.reason ?? "unavailable"), [], false);
+          pushTurn(text, answerFor(locale, body.reason ?? "unavailable"), [], false, []);
           return;
         }
         if (!res.body) {
-          pushTurn(text, guestLabel(locale, "askFailed"), [], false);
+          pushTurn(text, guestLabel(locale, "askFailed"), [], false, []);
           return;
         }
         const reader = res.body.getReader();
@@ -147,6 +158,7 @@ export function AskTripWeave({
               answer?: string;
               chips?: AskChip[];
               tripweave?: boolean;
+              map?: AskPoint[];
               reason?: TurnReason;
             };
             try {
@@ -158,15 +170,15 @@ export function AskTripWeave({
               live += event.text;
               setDraft(live);
             } else if (event.type === "done") {
-              pushTurn(text, event.answer || live, event.chips ?? [], Boolean(event.tripweave));
+              pushTurn(text, event.answer || live, event.chips ?? [], Boolean(event.tripweave), event.map ?? []);
               live = "";
             } else if (event.type === "error") {
-              pushTurn(text, guestLabel(locale, "askFailed"), [], false);
+              pushTurn(text, guestLabel(locale, "askFailed"), [], false, []);
             }
           }
         }
       })
-      .catch(() => pushTurn(text, guestLabel(locale, "askFailed"), [], false))
+      .catch(() => pushTurn(text, guestLabel(locale, "askFailed"), [], false, []))
       .finally(() => {
         setDraft("");
         setBusy(false);
@@ -174,8 +186,8 @@ export function AskTripWeave({
       });
   };
 
-  const pushTurn = (asked: string, answer: string, chips: AskChip[], tripweave: boolean) => {
-    setTurns((prev) => [...prev, { question: asked, answer, chips, tripweave }].slice(-8));
+  const pushTurn = (asked: string, answer: string, chips: AskChip[], tripweave: boolean, map: AskPoint[] = []) => {
+    setTurns((prev) => [...prev, { question: asked, answer, chips, tripweave, map }].slice(-8));
   };
 
   const foreign = nationalities.some((code) => (code || "IN").toUpperCase() !== "IN");
@@ -250,6 +262,11 @@ export function AskTripWeave({
             <div className="rounded-md bg-surface px-3 py-2">
               <p className="text-sm">{turn.answer}</p>
               {turn.tripweave ? <p className="mt-1 text-xs text-muted">{guestLabel(locale, "askFromStay")}</p> : null}
+              {turn.map.length > 0 ? (
+                <div className="map-frame mt-3 h-44 overflow-hidden rounded-md">
+                  <MapplsMap markers={turn.map} title="Places in this answer" className="h-44 w-full" />
+                </div>
+              ) : null}
               {turn.chips.length > 0 ? (
                 <div className="mt-2 flex flex-wrap gap-2">
                   {turn.chips.map((chip) => (

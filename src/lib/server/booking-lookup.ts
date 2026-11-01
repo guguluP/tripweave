@@ -1,3 +1,4 @@
+import { ASK_BOOKING_COLUMNS } from "@/lib/ask-booking-columns";
 import { readMeta } from "@/lib/booking-meta";
 import {
   memoryBookingsFor,
@@ -80,6 +81,65 @@ export async function sbFindBookingByOrderId(orderId: string): Promise<BookingRo
   return mapRow(booking as Record<string, unknown>);
 }
 
+function swapsRecord(value: unknown): Record<string, string> {
+  if (!value || typeof value !== "object") return {};
+  const out: Record<string, string> = {};
+  for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof item === "string") out[key] = item;
+    else if (item && typeof item === "object") out[key] = JSON.stringify(item);
+  }
+  return out;
+}
+
+function roomIdOf(swaps: unknown): string | undefined {
+  if (swaps && typeof swaps === "object") {
+    const top = (swaps as { roomId?: unknown }).roomId;
+    if (typeof top === "string" && top.trim()) return top.trim();
+  }
+  return readMeta(swapsRecord(swaps)).roomId;
+}
+
+/** One owned stay. Payment columns stay on the row and are not selected. */
+export async function sbFindOwnAskBooking(
+  userId: string,
+  confirmationCode: string,
+): Promise<{
+  packageId: string;
+  roomId?: string;
+  checkIn: string;
+  nights: number;
+  amountInr: number;
+  status: string;
+} | null> {
+  const sb = getSupabaseAdmin();
+  const code = confirmationCode.trim();
+  if (!sb || !userId || !code) return null;
+  const { data, error } = await sb
+    .from("bookings")
+    .select(ASK_BOOKING_COLUMNS)
+    .eq("user_id", userId)
+    .eq("confirmation_code", code)
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return null;
+  const row = data as {
+    package_id?: unknown;
+    check_in?: unknown;
+    nights?: unknown;
+    amount_inr?: unknown;
+    status?: unknown;
+    swaps?: unknown;
+  };
+  return {
+    packageId: String(row.package_id ?? ""),
+    roomId: roomIdOf(row.swaps),
+    checkIn: String(row.check_in ?? "").slice(0, 10),
+    nights: Number(row.nights),
+    amountInr: Number(row.amount_inr),
+    status: String(row.status ?? ""),
+  };
+}
+
 /** Stay fields for a confirmation code that belongs to this sign-in. No guest name or payment id. */
 export async function findOwnBookingByCode(
   userId: string,
@@ -104,9 +164,8 @@ export async function findOwnBookingByCode(
   });
   if (isSupabaseConfigured()) {
     try {
-      const rows = await sbListBookings(userId);
-      const hit = rows?.find((row) => row.confirmationCode === code);
-      if (hit) return slim(hit);
+      const hit = await sbFindOwnAskBooking(userId, code);
+      if (hit?.packageId) return hit;
     } catch {
       /* fall through to this process */
     }

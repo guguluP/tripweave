@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
-import { answerFromOwnSources, groundingPacket, questionHasDocumentDigits } from "@/lib/arrival-ask";
+import { questionHasDocumentDigits } from "@/lib/arrival-ask";
+import { packMap } from "@/lib/visit-places";
+import { replyToAsk } from "@/lib/server/ask-reply";
 import { appendAskTurn, takeAskSlot } from "@/lib/server/ask-store";
-import { isCountryCode } from "@/lib/countries";
-import { findOwnBookingByCode } from "@/lib/server/booking-lookup";
 
 const turn = z.object({
   question: z.string().trim().min(1).max(400),
@@ -38,39 +38,8 @@ export const askTripWeave = createServerFn({ method: "POST" })
     if (!(await takeAskSlot(context.userId))) {
       return { ok: false as const, reason: "rate_limited" as const };
     }
-    const nationalities = data.nationalities.filter((code) => isCountryCode(code));
-    let packageId = data.packageId;
-    let roomId = data.roomId;
-    let checkIn = data.checkIn;
-    let nights = data.nights;
-    let amountInr: number | null = null;
-    let status: string | null = null;
-    if (data.confirmationCode) {
-      const own = await findOwnBookingByCode(context.userId, data.confirmationCode);
-      if (own) {
-        packageId = own.packageId;
-        roomId = own.roomId || roomId;
-        checkIn = own.checkIn;
-        nights = own.nights;
-        amountInr = own.amountInr;
-        status = own.status;
-      }
-    }
-    const packet = groundingPacket({
-      nationalities,
-      oci: data.oci,
-      priorIndianVisa: data.priorIndianVisa,
-      arrivalAirport: data.arrivalAirport,
-      checkIn,
-      packageId,
-      roomId,
-      nights,
-      arriveBy: data.arriveBy,
-      amountInr,
-      status,
-    });
-    const locale = data.locale === "hi" ? "hi" : "en";
-    const answer = answerFromOwnSources(data.question, packet, locale);
+    const reply = await replyToAsk({ ...data, userId: context.userId });
+    const answer = packMap(reply.text, reply.markers);
     if (data.confirmationCode) {
       await appendAskTurn(context.userId, data.confirmationCode, data.question, answer);
     }

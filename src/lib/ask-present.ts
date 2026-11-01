@@ -9,16 +9,25 @@ export type PresentedAnswer = {
   tripweave: boolean;
 };
 
-const TITLES = new Map<string, string>(Object.values(SOURCES).map((source) => [source.url, source.title]));
+const TITLES = new Map<string, string>([
+  ...Object.values(SOURCES).map((source) => [source.url, source.title] as const),
+  ["https://city.imd.gov.in/citywx/citywxnew_warnings.php?id=43053", "India Meteorological Department"],
+]);
 
 /** Pull official links out of a grounded reply so the sentence and the chips are separate. */
 export function presentAnswer(answer: string, allowed: string[]): PresentedAnswer {
   const found = answer.match(/https?:\/\/[^\s)]+/g) ?? [];
   const chips: AskChip[] = [];
   for (const raw of found) {
-    const url = allowed.find((item) => raw.startsWith(item));
-    if (!url || chips.some((chip) => chip.url === url)) continue;
-    chips.push({ title: TITLES.get(url) ?? "Official source", url });
+    const allowedHit = allowed.find((item) => raw.startsWith(item));
+    if (!allowedHit || chips.some((chip) => chip.url === raw || chip.url === allowedHit)) continue;
+    const url = raw.startsWith("https://www.mappls.com/") ? raw.replace(/[.,)]+$/, "") : allowedHit;
+    const title = url.includes("/direction")
+      ? "Directions on Mappls"
+      : url.includes("/pom/")
+        ? "Open on Mappls"
+        : (TITLES.get(url) ?? "Official source");
+    chips.push({ title, url });
   }
   let prose = answer;
   for (const raw of found) prose = prose.split(raw).join(" ");
