@@ -1,3 +1,4 @@
+import { guestsPhrase, nightsPhrase } from "./packages.ts";
 import { foreignDeskLine, foreignNationalCount, paidAbroadLines } from "./arrival-rules.ts";
 import { readMeta } from "./booking-meta.ts";
 import { formatPhone, isAcceptablePhone, toE164 } from "./phone.ts";
@@ -77,7 +78,7 @@ export function deskMessageLines(input: DeskNoticeCore): string[] {
     `New TripWeave stay ${input.confirmationCode}`,
     `${input.payerName} · ${input.packageName}`,
     input.roomName ? `Room: ${input.roomName}` : "",
-    `Check-in ${input.checkIn} · ${input.nights} nights · ${input.travelers} guests`,
+    `Check-in ${input.checkIn} · ${nightsPhrase(input.nights)} · ${guestsPhrase(input.travelers)}`,
     airportCarLine(input),
     ...guestRosterLines(input),
     foreignDeskLine(foreignNationalCount(input)),
@@ -93,7 +94,7 @@ export function guestPaidLines(input: DeskNoticeCore): string[] {
   return [
     `Payment received for ${input.packageName}.`,
     `Confirmation ${input.confirmationCode}`,
-    `Check-in ${input.checkIn} · ${input.nights} nights · ${input.travelers} guests`,
+    `Check-in ${input.checkIn} · ${nightsPhrase(input.nights)} · ${guestsPhrase(input.travelers)}`,
     airportCarLine(input),
     ...guestRosterLines(input),
     ...paidAbroadLines({
@@ -113,7 +114,7 @@ export function guestConfirmedLines(input: DeskNoticeCore): string[] {
   return [
     `${input.packageName} confirmed your stay.`,
     `Confirmation ${input.confirmationCode}`,
-    `Check-in ${input.checkIn} · ${input.nights} nights · ${input.travelers} guests`,
+    `Check-in ${input.checkIn} · ${nightsPhrase(input.nights)} · ${guestsPhrase(input.travelers)}`,
     airportCarLine(input),
     ...guestRosterLines(input),
     "",

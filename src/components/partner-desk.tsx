@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PACKAGES, formatMoney, getPackage } from "@/lib/packages";
+import { PACKAGES, formatMoney, getPackage, nightsPhrase } from "@/lib/packages";
 import { partnerStays } from "@/lib/server/partner";
 import { loadCatalog, saveCatalogOverride, listDeskBookings, confirmDeskBooking, sendStayReminder, type DeskBooking } from "@/lib/server/catalog";
 import { setCatalogOverlays } from "@/lib/catalog-store";
@@ -140,7 +140,7 @@ export function PartnerDesk() {
                 </span>
               ) : null}
             </p>
-            <p className="text-muted">{booking.checkIn} · {booking.nights} nights · {formatMoney(booking.amountInr)} · {booking.status}</p>
+            <p className="text-muted">{booking.checkIn} · {nightsPhrase(booking.nights)} · {formatMoney(booking.amountInr)} · {booking.status}</p>
             {booking.status === "paid" ? (
               <div className="mt-2 flex flex-wrap gap-2">
                 <input className="w-full min-w-0 flex-1 rounded-md border border-border px-2 py-1 sm:min-w-48" value={note} onChange={(e) => setNote(e.target.value)} />

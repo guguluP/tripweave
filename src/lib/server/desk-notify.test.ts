@@ -50,3 +50,14 @@ describe("desk notify copy", () => {
     assert.ok(lines.includes("Mini Mehta · child 5–11"));
   });
 });
+
+describe("desk notify plurals", () => {
+  it("says 1 night and 1 guest for a solo one-night stay", () => {
+    const lines = deskMessageLines({ ...base, nights: 1, travelers: 1 });
+    assert.ok(lines.includes("Check-in 2026-11-02 · 1 night · 1 guest"));
+  });
+  it("keeps plurals for counts above one", () => {
+    const lines = deskMessageLines({ ...base, nights: 2, travelers: 4 });
+    assert.ok(lines.includes("Check-in 2026-11-02 · 2 nights · 4 guests"));
+  });
+});
