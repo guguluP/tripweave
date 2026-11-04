@@ -146,15 +146,14 @@ function wants(question: string, words: string[]): boolean {
 export function answerFromOwnSources(
   question: string,
   packet: { text: string; urls: string[] },
-  locale: "en" | "hi" = "en",
 ): string {
   const lines = linesOf(packet);
   let picked: PacketLine[] = [];
-  if (wants(question, ["refund", "cancel", "money", "रद्द", "रिफंड"])) {
+  if (wants(question, ["refund", "cancel", "money"])) {
     picked = lines.filter((line) => /refund|cancel/i.test(line.text));
-  } else if (wants(question, ["car", "pickup", "cab", "taxi", "airport", "कार"])) {
+  } else if (wants(question, ["car", "pickup", "cab", "taxi", "airport"])) {
     picked = lines.filter((line) => /car|ola|airport/i.test(line.text));
-  } else if (wants(question, ["confirm", "desk", "paid", "status", "पुष्टि"])) {
+  } else if (wants(question, ["confirm", "desk", "paid", "status"])) {
     picked = lines.filter((line) => /confirm|payment|checked|cancel/i.test(line.text));
   } else if (wants(question, ["visa", "passport", "arrival", "suvidha", "form", "oci"])) {
     picked = lines.filter((line) => line.official);
@@ -174,15 +173,10 @@ export function answerFromOwnSources(
       "sand",
       "jagannath",
       "konark",
-      "पास",
-      "नजदीक",
-      "नज़दीक",
-      "समुद्र",
-      "मंदिर",
     ])
   ) {
     picked = lines.filter((line) => /straight-line| is in /i.test(line.text));
-  } else if (wants(question, ["fly", "flight", "उड़ान"])) {
+  } else if (wants(question, ["fly", "flight"])) {
     picked = [
       ...lines.filter((line) => /car|airport/i.test(line.text)),
       ...lines.filter((line) => line.official),
@@ -191,11 +185,7 @@ export function answerFromOwnSources(
     picked = [...lines.filter((line) => line.text.includes("TripWeave")).slice(0, 2), ...lines.filter((line) => line.official).slice(0, 2)];
   }
   if (picked.length === 0) picked = lines.slice(0, 3);
-  const note =
-    locale === "hi"
-      ? "TripWeave: यह उत्तर ट्रिपवीव के अपने नियमों से है। सरकारी पंक्तियाँ अंग्रेज़ी में हैं। "
-      : "";
-  return `${note}${picked.map((line) => line.text).join(" ")}`.replace(/\s+/g, " ").trim();
+  return `${picked.map((line) => line.text).join(" ")}`.replace(/\s+/g, " ").trim();
 }
 
 export function fallbackAnswer(urls: string[]): string {

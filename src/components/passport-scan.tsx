@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { guestLabel, useGuestLocale } from "@/lib/guest-locale";
+import { guestLabel } from "@/lib/guest-labels";
 import type { Traveler } from "@/lib/travelers";
 
 type Preview = {
@@ -21,7 +21,6 @@ export function PassportScan({
   arrivalDate?: string;
   onApply: (patch: Partial<Traveler>) => void;
 }) {
-  const locale = useGuestLocale();
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState<Preview | null>(null);
@@ -123,16 +122,16 @@ export function PassportScan({
         onChange={(event) => onFile(event.target.files?.[0])}
       />
       <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => fileRef.current?.click()}>
-        {busy ? guestLabel(locale, "scanReading") : guestLabel(locale, "scanPassport")}
+        {busy ? guestLabel("scanReading") : guestLabel("scanPassport")}
       </Button>
-      {failed ? <p className="mt-2 text-xs text-muted">{guestLabel(locale, "scanFail")}</p> : null}
+      {failed ? <p className="mt-2 text-xs text-muted">{guestLabel("scanFail")}</p> : null}
       {preview ? (
         <div className="mt-3 rounded-md border border-border bg-surface px-3 py-3 text-sm">
           <p>{preview.fullName}</p>
           {preview.nationality ? <p className="text-muted">{preview.nationality}</p> : null}
           {preview.idNumber ? <p className="text-muted">···· {preview.idNumber}</p> : null}
-          {preview.checkDigitsOk ? <p className="mt-1 text-xs text-muted">{guestLabel(locale, "checkDigitsOk")}</p> : null}
-          {preview.expiryWarning ? <p className="mt-1 text-xs text-muted">{guestLabel(locale, "expiryWarn")}</p> : null}
+          {preview.checkDigitsOk ? <p className="mt-1 text-xs text-muted">{guestLabel("checkDigitsOk")}</p> : null}
+          {preview.expiryWarning ? <p className="mt-1 text-xs text-muted">{guestLabel("expiryWarn")}</p> : null}
           {preview.warnings.map((warning) => (
             <p key={warning} className="mt-1 text-xs text-muted">
               {warning}
@@ -150,10 +149,10 @@ export function PassportScan({
                 setPreview(null);
               }}
             >
-              {guestLabel(locale, "savedUse")}
+              {guestLabel("savedUse")}
             </Button>
             <Button type="button" size="sm" variant="outline" onClick={() => setPreview(null)}>
-              {guestLabel(locale, "discard")}
+              {guestLabel("discard")}
             </Button>
           </div>
         </div>

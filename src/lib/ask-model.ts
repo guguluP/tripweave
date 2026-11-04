@@ -29,10 +29,10 @@ function reply(text: string, markers: AskPoint[] = []): AskReply {
 }
 
 const STAY_BLOCK =
-  /\b(refund|cancel|cancellation|visa|passport|e-?visa|oci|checklist|pickup|desk|confirmed|confirmation|\broom\b|nights)\b|रद्द|रिफंड|वीज़ा|वीजा|पासपोर्ट/i;
+  /\b(refund|cancel|cancellation|visa|passport|e-?visa|oci|checklist|pickup|desk|confirmed|confirmation|\broom\b|nights)\b/i;
 
 const LOCAL =
-  /\b(weather|forecast|temperature|rain|raining|cyclone|storm|thunder|warning|humid|humidity|wind|heat|news|latest)\b|मौसम|बारिश|समाचार|चेतावनी|आंधी/i;
+  /\b(weather|forecast|temperature|rain|raining|cyclone|storm|thunder|warning|humid|humidity|wind|heat|news|latest)\b/i;
 
 const GENERIC = new Set([
   "puri",
@@ -64,8 +64,6 @@ const GENERIC = new Set([
   "stay",
 ]);
 
-const HI_NOTE = "TripWeave: यह उत्तर ट्रिपवीव के अपने नियमों से है। सरकारी पंक्तियाँ अंग्रेज़ी में हैं। ";
-
 /** Weather, a warning, or a local update. Money, papers, the room, and the desk do not qualify. */
 export function needsLocalConditions(question: string): boolean {
   if (STAY_BLOCK.test(question)) return false;
@@ -93,16 +91,16 @@ function add(tags: Set<string>, values: string[]) {
 
 function tagsFor(text: string, official: boolean): Set<string> {
   const tags = new Set(words(text));
-  if (/refund|cancel/i.test(text)) add(tags, ["refund", "cancel", "money", "रद्द", "रिफंड"]);
-  if (/car|ola|uber|yatri|airport|cab/i.test(text)) add(tags, ["car", "pickup", "cab", "taxi", "airport", "कार", "ola", "uber"]);
+  if (/refund|cancel/i.test(text)) add(tags, ["refund", "cancel", "money"]);
+  if (/car|ola|uber|yatri|airport|cab/i.test(text)) add(tags, ["car", "pickup", "cab", "taxi", "airport", "ola", "uber"]);
   if (/confirm|payment received|checked in|cancelled|refunded/i.test(text)) {
-    add(tags, ["confirm", "desk", "paid", "status", "पुष्टि"]);
+    add(tags, ["confirm", "desk", "paid", "status"]);
   }
   if (/straight-line|jagannath|sea beach|railway|map marks|neighbourhood|neighborhood| is in /i.test(text)) {
-    add(tags, ["nearby", "near", "around", "location", "beach", "temple", "station", "walk", "पास", "नजदीक", "नज़दीक", "समुद्र", "मंदिर"]);
+    add(tags, ["nearby", "near", "around", "location", "beach", "temple", "station", "walk"]);
   }
   if (/rath yatra/i.test(text)) add(tags, ["rath", "yatra", "festival"]);
-  if (official) add(tags, ["visa", "passport", "arrival", "checklist", "oci", "form", "suvidha", "fly", "उड़ान"]);
+  if (official) add(tags, ["visa", "passport", "arrival", "checklist", "oci", "form", "suvidha", "fly"]);
   return tags;
 }
 
@@ -142,9 +140,8 @@ function questionTerms(question: string, history: { question: string }[] | undef
   return new Set(words(source).filter((word) => !GENERIC.has(word)));
 }
 
-function compose(lines: Fact[], locale: "en" | "hi"): string {
-  const note = locale === "hi" && lines.some((line) => line.official) ? HI_NOTE : "";
-  return `${note}${lines.map((line) => line.text).join(" ")}`.replace(/\s+/g, " ").trim().slice(0, 1200);
+function compose(lines: Fact[]): string {
+  return `${lines.map((line) => line.text).join(" ")}`.replace(/\s+/g, " ").trim().slice(0, 1200);
 }
 
 /**
@@ -154,21 +151,20 @@ function compose(lines: Fact[], locale: "en" | "hi"): string {
 export function answerAsk(
   question: string,
   packet: { text: string; urls: string[] },
-  locale: "en" | "hi" = "en",
   opts: AskOptions = {},
 ): AskReply {
-  const visit = visitReply(question, opts.from ?? null, locale, opts.roads);
+  const visit = visitReply(question, opts.from ?? null, opts.roads);
   if (visit) return visit;
   if (needsLocalConditions(question)) {
     const bulletin = opts.bulletin?.ok ? opts.bulletin : { ok: false as const };
     const text = formatBulletin(bulletin);
-    return reply(locale === "hi" ? `${HI_NOTE}${text}` : text);
+    return reply(text);
   }
   const facts = [...packetFacts(packet), ...contextFacts(opts.arriveBy)];
   const terms = questionTerms(question, opts.history);
   if (terms.size === 0) {
     const named = facts.find((fact) => fact.text.startsWith("TripWeave stay:"));
-    if (named && /\b(hotel|stay|room|where)\b/i.test(question)) return reply(compose([named], locale));
+    if (named && /\b(hotel|stay|room|where)\b/i.test(question)) return reply(compose([named]));
     return reply(ASK_LIMIT);
   }
   const ranked = facts
@@ -182,8 +178,8 @@ export function answerAsk(
     .sort((a, b) => b.score - a.score);
   if (ranked.length === 0) {
     const named = facts.find((fact) => fact.text.startsWith("TripWeave stay:"));
-    if (named && /\b(hotel|stay)\b/i.test(question)) return reply(compose([named], locale));
+    if (named && /\b(hotel|stay)\b/i.test(question)) return reply(compose([named]));
     return reply(ASK_LIMIT);
   }
-  return reply(compose(ranked.slice(0, 4).map((row) => row.fact), locale));
+  return reply(compose(ranked.slice(0, 4).map((row) => row.fact)));
 }

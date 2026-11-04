@@ -8,7 +8,7 @@ import { presentAnswer, type AskChip } from "@/lib/ask-present";
 import { MapplsMap } from "@/components/mappls-map";
 import { unpackMap, type AskPoint } from "@/lib/visit-places";
 import { getBearerToken } from "@/lib/auth/client";
-import { guestLabel, useGuestLocale, type GuestLocale } from "@/lib/guest-locale";
+import { guestLabel } from "@/lib/guest-labels";
 import { guestCancelMode, refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
 import { pickupQuoteFor } from "@/lib/travel-plan";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,6 @@ export function AskTripWeave({
   onRequestCar?: () => void;
   embedded?: boolean;
 }) {
-  const locale = useGuestLocale();
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
@@ -93,11 +92,11 @@ export function AskTripWeave({
   }, [confirmationCode]);
 
   const suggestions = [
-    guestLabel(locale, "askSee"),
-    guestLabel(locale, "askKonark"),
-    guestLabel(locale, "askRefund"),
-    guestLabel(locale, "askCar"),
-    ...(confirmationCode ? [guestLabel(locale, "askDesk")] : []),
+    guestLabel("askSee"),
+    guestLabel("askKonark"),
+    guestLabel("askRefund"),
+    guestLabel("askCar"),
+    ...(confirmationCode ? [guestLabel("askDesk")] : []),
   ];
 
   const ask = (next?: string) => {
@@ -125,7 +124,6 @@ export function AskTripWeave({
         nights,
         arriveBy: arriveBy === "fly" || arriveBy === "train" || arriveBy === "bus" || arriveBy === "road" ? arriveBy : undefined,
         confirmationCode,
-        locale,
         history,
       }),
     })
@@ -133,11 +131,11 @@ export function AskTripWeave({
         const type = res.headers.get("content-type") ?? "";
         if (type.includes("application/json")) {
           const body = (await res.json()) as { reason?: TurnReason };
-          pushTurn(text, answerFor(locale, body.reason ?? "unavailable"), [], false, []);
+          pushTurn(text, answerFor(body.reason ?? "unavailable"), [], false, []);
           return;
         }
         if (!res.body) {
-          pushTurn(text, guestLabel(locale, "askFailed"), [], false, []);
+          pushTurn(text, guestLabel("askFailed"), [], false, []);
           return;
         }
         const reader = res.body.getReader();
@@ -173,12 +171,12 @@ export function AskTripWeave({
               pushTurn(text, event.answer || live, event.chips ?? [], Boolean(event.tripweave), event.map ?? []);
               live = "";
             } else if (event.type === "error") {
-              pushTurn(text, guestLabel(locale, "askFailed"), [], false, []);
+              pushTurn(text, guestLabel("askFailed"), [], false, []);
             }
           }
         }
       })
-      .catch(() => pushTurn(text, guestLabel(locale, "askFailed"), [], false, []))
+      .catch(() => pushTurn(text, guestLabel("askFailed"), [], false, []))
       .finally(() => {
         setDraft("");
         setBusy(false);
@@ -216,16 +214,16 @@ export function AskTripWeave({
       },
     })
       .then((result) => {
-        setMailNote(result.ok ? guestLabel(locale, "askEmailSent") : guestLabel(locale, "askFailed"));
+        setMailNote(result.ok ? guestLabel("askEmailSent") : guestLabel("askFailed"));
       })
-      .catch(() => setMailNote(guestLabel(locale, "askFailed")));
+      .catch(() => setMailNote(guestLabel("askFailed")));
   };
 
   const requestCar = () => {
     if (onRequestCar && !confirmationCode) {
       onRequestCar();
       setCarOn(true);
-      setCarNote(guestLabel(locale, "askCarDone"));
+      setCarNote(guestLabel("askCarDone"));
       return;
     }
     if (!confirmationCode) return;
@@ -233,10 +231,10 @@ export function AskTripWeave({
       .then((result) => {
         if (result.ok) {
           setCarOn(true);
-          setCarNote(guestLabel(locale, "askCarDone"));
+          setCarNote(guestLabel("askCarDone"));
         } else setCarNote(result.message);
       })
-      .catch(() => setCarNote(guestLabel(locale, "askFailed")));
+      .catch(() => setCarNote(guestLabel("askFailed")));
   };
 
   return (
@@ -257,11 +255,11 @@ export function AskTripWeave({
       <div aria-live="polite" className="mt-4 grid gap-3">
         {turns.map((turn, index) => (
           <div key={`${index}-${turn.question}`} className="grid gap-1.5">
-            <p className="text-xs text-muted">{guestLabel(locale, "askYou")}</p>
+            <p className="text-xs text-muted">{guestLabel("askYou")}</p>
             <p className="text-sm">{turn.question}</p>
             <div className="rounded-md bg-surface px-3 py-2">
               <p className="text-sm">{turn.answer}</p>
-              {turn.tripweave ? <p className="mt-1 text-xs text-muted">{guestLabel(locale, "askFromStay")}</p> : null}
+              {turn.tripweave ? <p className="mt-1 text-xs text-muted">{guestLabel("askFromStay")}</p> : null}
               {turn.map.length > 0 ? (
                 <div className="map-frame mt-3 h-44 overflow-hidden rounded-md">
                   <MapplsMap markers={turn.map} title="Places in this answer" className="h-44 w-full" />
@@ -286,43 +284,43 @@ export function AskTripWeave({
         {draft ? <p className="rounded-md bg-surface px-3 py-2 text-sm">{draft}</p> : null}
       </div>
       <label className="mt-3 block text-sm">
-        <span className="sr-only">{guestLabel(locale, "askTitle")}</span>
+        <span className="sr-only">{guestLabel("askTitle")}</span>
         <textarea
           value={question}
           maxLength={400}
           rows={2}
-          placeholder={guestLabel(locale, "askPlaceholder")}
+          placeholder={guestLabel("askPlaceholder")}
           className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm"
           onChange={(event) => setQuestion(event.target.value)}
         />
       </label>
       <Button type="button" variant="outline" className="mt-2" disabled={busy || question.trim().length < 3} onClick={() => ask()}>
-        {busy ? guestLabel(locale, "askWorking") : guestLabel(locale, "askSend")}
+        {busy ? guestLabel("askWorking") : guestLabel("askSend")}
       </Button>
       {turns.length > 0 ? (
         <div className="mt-4 border-t border-border pt-3">
           <div className="flex flex-wrap gap-2">
             {foreign ? (
               <Button type="button" size="sm" variant="outline" onClick={emailChecklist}>
-                {guestLabel(locale, "askEmail")}
+                {guestLabel("askEmail")}
               </Button>
             ) : null}
             {carAvailable && !carOn ? (
               <Button type="button" size="sm" variant="outline" onClick={requestCar}>
-                {guestLabel(locale, "askCarButton")}
+                {guestLabel("askCarButton")}
               </Button>
             ) : null}
             {confirmationCode ? (
               <Button asChild size="sm" variant="outline">
                 <Link to="/voucher/$code" params={{ code: confirmationCode }}>
-                  {guestLabel(locale, "askOpenVoucher")}
+                  {guestLabel("askOpenVoucher")}
                 </Link>
               </Button>
             ) : null}
           </div>
           {mailNote ? <p className="mt-2 text-xs text-muted">{mailNote}</p> : null}
           {carNote ? <p className="mt-2 text-xs text-muted">{carNote}</p> : null}
-          {refund ? <p className="mt-2 text-xs text-muted">{guestLabel(locale, "askRefundNow")} {refund}</p> : null}
+          {refund ? <p className="mt-2 text-xs text-muted">{guestLabel("askRefundNow")} {refund}</p> : null}
         </div>
       ) : null}
     </div>
@@ -331,9 +329,9 @@ export function AskTripWeave({
 
 type TurnReason = "not_configured" | "rate_limited" | "no_documents" | "unavailable";
 
-function answerFor(locale: GuestLocale, reason: TurnReason): string {
-  if (reason === "not_configured") return guestLabel(locale, "askOff");
-  if (reason === "rate_limited") return guestLabel(locale, "askLimited");
-  if (reason === "no_documents") return guestLabel(locale, "askNoDocuments");
-  return guestLabel(locale, "askFailed");
+function answerFor(reason: TurnReason): string {
+  if (reason === "not_configured") return guestLabel("askOff");
+  if (reason === "rate_limited") return guestLabel("askLimited");
+  if (reason === "no_documents") return guestLabel("askNoDocuments");
+  return guestLabel("askFailed");
 }

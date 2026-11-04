@@ -187,9 +187,9 @@ describe("formatMoney", () => {
     assert.equal(formatMoney(0), "₹0");
   });
 
-  it("is used for the voucher's Hindi desk slip amount", () => {
+  it("is used for the voucher's desk slip amount", () => {
     const voucher = readFileSync(path.join(process.cwd(), "src/routes/voucher.$code.tsx"), "utf8");
     assert.ok(!voucher.includes("₹{booking.amountInr}"), "raw ₹{booking.amountInr} skips digit grouping");
-    assert.ok(voucher.includes("भुगतान {formatMoney(booking.amountInr)}"));
+    assert.ok(voucher.includes("Paid {formatMoney(booking.amountInr)}"));
   });
 });

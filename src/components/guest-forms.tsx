@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { TravelerGuestCard } from "@/components/travelers-guest-card";
-import { guestLabel, setGuestLocale, useGuestLocale } from "@/lib/guest-locale";
+import { guestLabel } from "@/lib/guest-labels";
 import type { GuestDetailsPolicy } from "@/lib/hotel-desk";
 import { guestsForOccupancy } from "@/lib/occupancy-policy";
 import { guestsFromStyle, loadBrief, type PendingBooking } from "@/lib/packages";
@@ -136,26 +136,9 @@ export function GuestForms({
   onUpdate: (index: number, patch: Partial<Traveler>) => void;
   onOpenDigi: (index: number) => void;
 }) {
-  const locale = useGuestLocale();
   return (
     <div className="grid gap-5">
-      <div className="flex flex-wrap gap-2 text-sm">
-        <button
-          type="button"
-          className={locale === "en" ? "font-medium text-fg underline" : "text-muted underline"}
-          onClick={() => setGuestLocale("en")}
-        >
-          {guestLabel(locale, "langEnglish")}
-        </button>
-        <button
-          type="button"
-          className={locale === "hi" ? "font-medium text-fg underline" : "text-muted underline"}
-          onClick={() => setGuestLocale("hi")}
-        >
-          {guestLabel(locale, "langHindi")}
-        </button>
-      </div>
-      <p className="text-sm text-muted">{guestLabel(locale, "intro")}</p>
+      <p className="text-sm text-muted">{guestLabel("intro")}</p>
       <SavedPeoplePicker
         count={list.length}
         onFill={(index, person) =>
@@ -209,7 +192,6 @@ function SavedPeoplePicker({
   count: number;
   onFill: (index: number, person: SavedTraveller) => void;
 }) {
-  const locale = useGuestLocale();
   const [people, setPeople] = useState<SavedTraveller[]>([]);
   const [personId, setPersonId] = useState("");
   const [guestIndex, setGuestIndex] = useState("0");
@@ -226,10 +208,10 @@ function SavedPeoplePicker({
 
   return (
     <div className="rounded-lg border border-border bg-elevated px-4 py-3">
-      <p className="text-sm font-medium">{guestLabel(locale, "savedPeople")}</p>
+      <p className="text-sm font-medium">{guestLabel("savedPeople")}</p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <label className="grid gap-1 text-sm font-medium">
-          {guestLabel(locale, "savedPeople")}
+          {guestLabel("savedPeople")}
           <select
             className="rounded-md border border-border bg-surface px-3 py-2"
             value={personId}
@@ -248,7 +230,7 @@ function SavedPeoplePicker({
           </select>
         </label>
         <label className="grid gap-1 text-sm font-medium">
-          {guestLabel(locale, "guest")}
+          {guestLabel("guest")}
           <select
             className="rounded-md border border-border bg-surface px-3 py-2"
             value={guestIndex}
@@ -256,7 +238,7 @@ function SavedPeoplePicker({
           >
             {Array.from({ length: count }, (_, index) => (
               <option key={index} value={index}>
-                {guestLabel(locale, "guest")} {index + 1}
+                {guestLabel("guest")} {index + 1}
               </option>
             ))}
           </select>
@@ -264,7 +246,7 @@ function SavedPeoplePicker({
       </div>
       {selected ? (
         <div className="mt-3">
-          <p className="text-xs text-muted">{guestLabel(locale, "savedConfirm")}</p>
+          <p className="text-xs text-muted">{guestLabel("savedConfirm")}</p>
           <button
             type="button"
             className="mt-2 text-sm font-medium underline"
@@ -277,7 +259,7 @@ function SavedPeoplePicker({
               setReady(null);
             }}
           >
-            {guestLabel(locale, "savedUse")}
+            {guestLabel("savedUse")}
             {ready ? `: ${ready.fullName}` : ""}
           </button>
         </div>

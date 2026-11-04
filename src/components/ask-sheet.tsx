@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { AskTripWeave } from "@/components/ask-tripweave";
 import { Button } from "@/components/ui/button";
-import { guestLabel, useGuestLocale } from "@/lib/guest-locale";
+import { guestLabel } from "@/lib/guest-labels";
 import { getPackage } from "@/lib/packages";
 
 type AskProps = {
@@ -26,10 +26,9 @@ type AskProps = {
 };
 
 export function AskTripWeaveButton({ children, ...props }: AskProps & { children?: ReactNode }) {
-  const locale = useGuestLocale();
   const [open, setOpen] = useState(false);
   const titleId = useId();
-  const hotel = props.hotelName || (props.packageId ? getPackage(props.packageId)?.name : "") || guestLabel(locale, "askTitle");
+  const hotel = props.hotelName || (props.packageId ? getPackage(props.packageId)?.name : "") || guestLabel("askTitle");
 
   useEffect(() => {
     if (!open) return;
@@ -43,7 +42,7 @@ export function AskTripWeaveButton({ children, ...props }: AskProps & { children
   return (
     <>
       <Button type="button" size="sm" variant="outline" onClick={() => setOpen(true)}>
-        {children ?? guestLabel(locale, "askTitle")}
+        {children ?? guestLabel("askTitle")}
       </Button>
       {open && typeof document !== "undefined"
         ? createPortal(
@@ -61,10 +60,10 @@ export function AskTripWeaveButton({ children, ...props }: AskProps & { children
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="eyebrow">{guestLabel(locale, "askTitle")}</p>
+                <p className="eyebrow">{guestLabel("askTitle")}</p>
                 <h2 id={titleId} className="mt-1 font-display text-2xl">{hotel}</h2>
               </div>
-              <Button type="button" size="icon" variant="ghost" onClick={() => setOpen(false)} aria-label={guestLabel(locale, "askClose")}>
+              <Button type="button" size="icon" variant="ghost" onClick={() => setOpen(false)} aria-label={guestLabel("askClose")}>
                 <X className="size-4" />
               </Button>
             </div>
