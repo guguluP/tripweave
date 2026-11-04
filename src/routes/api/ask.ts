@@ -26,7 +26,6 @@ const schema = z.object({
   nights: z.number().int().min(1).max(14).optional(),
   arriveBy: z.enum(["fly", "train", "bus", "road"]).optional(),
   confirmationCode: z.string().trim().max(40).optional(),
-  locale: z.enum(["en", "hi"]).optional(),
   history: z.array(turn).max(4).optional(),
 });
 

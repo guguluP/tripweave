@@ -41,7 +41,7 @@ describe("answerAsk", () => {
   it("answers what is nearby from the walk estimate", () => {
     const packet = groundingPacket({ nationalities: ["IN"], packageId: "chariot-resort-puri", roomId: "deluxe" });
     const from = stayPin("chariot-resort-puri", "The Chariot");
-    const reply = answerAsk("what nearby of this hotel", packet, "en", {
+    const reply = answerAsk("what nearby of this hotel", packet, {
       from,
       roads: [
         { id: "beach", km: 1.4, driveMinutes: 4 },
@@ -75,7 +75,7 @@ describe("answerAsk", () => {
   });
 
   it("uses a fixture bulletin for weather and leaves the refund out", () => {
-    const answer = answerAsk("What is the weather in Puri today?", stay(), "en", {
+    const answer = answerAsk("What is the weather in Puri today?", stay(), {
       bulletin: {
         ok: true,
         observed: "Observed on Nov 01, 2026: max 33.6°C, min 25.4°C.",
@@ -91,14 +91,14 @@ describe("answerAsk", () => {
   });
 
   it("says the forecast could not be checked when the bulletin failed", () => {
-    const answer = answerAsk("Any warning in Puri?", stay(), "en", { bulletin: { ok: false } }).text;
+    const answer = answerAsk("Any warning in Puri?", stay(), { bulletin: { ok: false } }).text;
     assert.match(answer, /could not be checked/);
     assert.match(answer, /city\.imd\.gov\.in/);
   });
 
   it("gives Konark the road distance and a map from the hotel", () => {
     const from = stayPin("taj-puri-resort-spa", "Taj Puri");
-    const reply = answerAsk("How far is Konark, and what can I see?", stay(), "en", {
+    const reply = answerAsk("How far is Konark, and what can I see?", stay(), {
       from,
       roads: [{ id: "konark", km: 36.5, driveMinutes: 27 }],
     });
@@ -112,7 +112,7 @@ describe("answerAsk", () => {
 
   it("lists places to visit with distances", () => {
     const from = stayPin("taj-puri-resort-spa", "Taj Puri");
-    const reply = answerAsk("What places should I visit?", stay(), "en", {
+    const reply = answerAsk("What places should I visit?", stay(), {
       from,
       roads: [
         { id: "beach", km: 1.4, driveMinutes: 4 },
@@ -131,7 +131,7 @@ describe("answerAsk", () => {
 
   it("does not invent a straight-line distance when the road router has no leg", () => {
     const from = stayPin("taj-puri-resort-spa", "Taj Puri");
-    const reply = answerAsk("How far is the beach?", stay(), "en", { from, roads: [] });
+    const reply = answerAsk("How far is the beach?", stay(), { from, roads: [] });
     assert.match(reply.text, /road distance is unavailable/);
     assert.equal(reply.text.includes("straight-line"), false);
   });

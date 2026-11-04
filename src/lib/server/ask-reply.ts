@@ -20,7 +20,6 @@ export type AskReplyInput = {
   nights?: number;
   arriveBy?: "fly" | "train" | "bus" | "road";
   confirmationCode?: string;
-  locale?: "en" | "hi";
   history?: { question: string; answer: string }[];
   userId: string;
 };
@@ -58,13 +57,12 @@ export async function replyToAsk(input: AskReplyInput): Promise<AskReply> {
     amountInr,
     status,
   });
-  const locale = input.locale === "hi" ? "hi" : "en";
   const bulletin = needsLocalConditions(input.question) ? await puriBulletin() : null;
   const named = packageId ? getPackage(packageId) : undefined;
   const from = packageId ? stayPin(packageId, named?.name ?? packageId) : null;
   const roads =
     from && isVisitQuestion(input.question) ? await roadLegs(from, visitTargets(input.question)) : [];
-  return answerAsk(input.question, packet, locale, {
+  return answerAsk(input.question, packet, {
     history: input.history,
     arriveBy: input.arriveBy,
     bulletin,

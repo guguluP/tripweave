@@ -27,7 +27,7 @@ const VISIT_PLACES: VisitPlace[] = [
         lat: beach.lat,
         lng: beach.lng,
         blurb: "The town beach.",
-        tags: ["beach", "sea", "sand", "sunset", "swim", "समुद्र"],
+        tags: ["beach", "sea", "sand", "sunset", "swim"],
       }
     : null,
   temple
@@ -37,7 +37,7 @@ const VISIT_PLACES: VisitPlace[] = [
         lat: temple.lat,
         lng: temple.lng,
         blurb: "The main temple. The inner shrine is for Hindus.",
-        tags: ["jagannath", "temple", "shrine", "मंदिर"],
+        tags: ["jagannath", "temple", "shrine"],
       }
     : null,
   {
@@ -54,7 +54,7 @@ const VISIT_PLACES: VisitPlace[] = [
     lat: 19.8875,
     lng: 86.094722,
     blurb: "The stone sun chariot. Chandrabhaga beach is beside it. A half-day by cab, not a walk.",
-    tags: ["konark", "sun", "surya", "chandrabhaga", "unesco", "कोणार्क"],
+    tags: ["konark", "sun", "surya", "chandrabhaga", "unesco"],
   },
   {
     id: "station",
@@ -77,10 +77,10 @@ const VISIT_PLACES: VisitPlace[] = [
 const SIGHTS = new Set(["beach", "temple", "gundicha", "konark"]);
 
 const VISIT_WORDS =
-  /\b(sight|sightseeing|sights|see|visit|places|place|around|nearby|near|distance|far|map|beach|temple|konark|gundicha|chandrabhaga|trip|outing)\b|घूम|दर्शन|जगह|नजदीक|नज़दीक|समुद्र|मंदिर|कोणार्क/i;
+  /\b(sight|sightseeing|sights|see|visit|places|place|around|nearby|near|distance|far|map|beach|temple|konark|gundicha|chandrabhaga|trip|outing)\b/i;
 
 export function isVisitQuestion(question: string): boolean {
-  if (/\b(refund|cancel|visa|passport|e-?visa|oci|checklist|pickup|desk|confirmed|confirmation)\b|रद्द|रिफंड|वीज़ा|पासपोर्ट/i.test(question)) {
+  if (/\b(refund|cancel|visa|passport|e-?visa|oci|checklist|pickup|desk|confirmed|confirmation)\b/i.test(question)) {
     return false;
   }
   return VISIT_WORDS.test(question);
@@ -106,7 +106,7 @@ function picked(question: string): VisitPlace[] {
   );
   const sights = named.filter((place) => SIGHTS.has(place.id));
   if (sights.length > 0) return sights;
-  if (named.length > 0 && !/\b(places|sightseeing|sights|visit|see|around|trip|nearby)\b|घूम|दर्शन|जगह/i.test(question)) {
+  if (named.length > 0 && !/\b(places|sightseeing|sights|visit|see|around|trip|nearby)\b/i.test(question)) {
     return named;
   }
   return VISIT_PLACES.filter((place) => SIGHTS.has(place.id));
@@ -121,7 +121,6 @@ export function visitTargets(question: string): { id: string; lat: number; lng: 
 export function visitReply(
   question: string,
   from: Pin | null,
-  locale: "en" | "hi" = "en",
   roads: RoadLeg[] = [],
 ): { text: string; markers: AskPoint[] } | null {
   if (!isVisitQuestion(question)) return null;
@@ -142,8 +141,7 @@ export function visitReply(
   });
   const primary = places.find((row) => row.leg)?.place ?? places[0]?.place;
   const mapUrl = primary ? mapplsDirectionUrl(origin, primary) : "";
-  const hindi = locale === "hi" ? "दूरियाँ सड़क की हैं। " : "";
-  const text = `${hindi}${measured} ${lines.join(" ")}${mapUrl ? ` Directions: ${mapUrl}` : ""}`;
+  const text = `${measured} ${lines.join(" ")}${mapUrl ? ` Directions: ${mapUrl}` : ""}`;
   const markers: AskPoint[] = [
     { lat: origin.lat, lng: origin.lng, label: fromLabel },
     ...places.map((row) => ({ lat: row.place.lat, lng: row.place.lng, label: row.place.label })),

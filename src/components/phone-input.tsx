@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ShakeField, ShakeSelect } from "@/components/motion";
 import { callingCode, countryOptions } from "@/lib/countries";
-import { guestLabel, useGuestLocale } from "@/lib/guest-locale";
+import { guestLabel } from "@/lib/guest-labels";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { toE164 } from "@/lib/phone";
 
@@ -37,7 +37,6 @@ export function PhoneInput({
   className?: string;
   helper?: string;
 }) {
-  const locale = useGuestLocale();
   const initial = regionFromValue(value, defaultCountry);
   const [region, setRegion] = useState(initial.region);
   const [national, setNational] = useState(initial.national);
@@ -63,12 +62,12 @@ export function PhoneInput({
     onChange(e164);
   };
 
-  const options = countryOptions(locale === "hi" ? "hi" : "en").filter((option) => callingCode(option.code));
+  const options = countryOptions("en").filter((option) => callingCode(option.code));
 
   return (
     <div className={className ?? "grid gap-3 sm:col-span-2 sm:grid-cols-2"}>
       <ShakeSelect
-        label={label || guestLabel(locale, "phoneCountry")}
+        label={label || guestLabel("phoneCountry")}
         value={region}
         onChange={(event) => {
           const next = event.target.value;
@@ -83,7 +82,7 @@ export function PhoneInput({
         ))}
       </ShakeSelect>
       <ShakeField
-        label={guestLabel(locale, "nationalNumber")}
+        label={guestLabel("nationalNumber")}
         fieldId={fieldId}
         inputMode="tel"
         autoComplete="tel-national"
