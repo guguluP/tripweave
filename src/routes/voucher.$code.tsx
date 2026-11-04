@@ -247,19 +247,6 @@ function VoucherPage() {
               markers={mapMarkers(plan.arriveBy || brief.arriveBy, stayPin(booking.packageId, booking.packageName))}
             />
           </div>
-          {closedState ? null : (
-            <div className="mt-4 rounded-md border border-border bg-surface px-3 py-3 text-sm" data-testid="desk-slip">
-              <p className="text-xs font-medium text-muted">Desk slip</p>
-              <p className="mt-1">Confirmation code {booking.confirmationCode}</p>
-              <p>{booking.packageName}</p>
-              <p>
-                Check-in {booking.checkIn} · {booking.nights} {booking.nights === 1 ? "night" : "nights"} · {booking.travelers}{" "}
-                {booking.travelers === 1 ? "guest" : "guests"}
-              </p>
-              <p>Paid {formatMoney(booking.amountInr)}</p>
-              <p>Desk {desk.email}</p>
-            </div>
-          )}
           {((meta.guestFlags ?? []).some((row) => row.nationality !== "IN") ||
             (meta.guestNationalities ?? []).some((code) => code !== "IN")) ? (
             <div className="mt-4">
