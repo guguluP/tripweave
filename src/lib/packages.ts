@@ -148,6 +148,10 @@ export function nightsPhrase(n: number) {
   return n === 1 ? "1 night" : `${n} nights`;
 }
 
+export function guestsPhrase(n: number) {
+  return n === 1 ? "1 guest" : `${n} guests`;
+}
+
 
 const LEISURE_DAY: DayPlan = {
   title: "Leisure day",
