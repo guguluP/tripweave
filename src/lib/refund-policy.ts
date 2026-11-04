@@ -93,7 +93,7 @@ export type VoucherClosedState = {
 /**
  * A voucher for a stay that is no longer valid at the hotel (cancelled, refunded, or cancelled
  * with the refund still pending). Returns null for a live stay. The voucher uses this to put the
- * notice on top and hide the desk slip and pass, so it cannot be shown at the desk as if paid.
+ * notice on top and hide the pass, so it cannot be shown at the desk as if paid.
  */
 export function voucherClosedState(
   status: string,
