@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getPackage, formatMoney, PACKAGES } from "@/lib/packages";
+import { getPackage, formatMoney, nightsPhrase, PACKAGES } from "@/lib/packages";
 import { stayStatusLabel } from "@/lib/refund-policy";
 import { addDays, roomUnits, todayIso } from "@/lib/inventory";
 import { ForeignGuestRegister, foreignCodes } from "@/components/foreign-guest-register";
@@ -330,7 +330,7 @@ function DeskPortal() {
                 ) : null}
               </p>
               <p className="text-muted">
-                {booking.checkIn} · {booking.nights} nights · {formatMoney(booking.amountInr)} ·{" "}
+                {booking.checkIn} · {nightsPhrase(booking.nights)} · {formatMoney(booking.amountInr)} ·{" "}
                 {stayStatusLabel(booking.status)}
               </p>
               {booking.status === "paid" ? (

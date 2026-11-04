@@ -3,6 +3,7 @@
  * password reset. SES is only the fallback when SMTP is unset.
  * WhatsApp is stubbed unless TW_WHATSAPP_* is configured.
  */
+import { guestsPhrase, nightsPhrase } from "@/lib/packages";
 import { foreignDeskLine, foreignNationalCount } from "@/lib/arrival-rules";
 import { deskFor } from "@/lib/hotel-desk";
 import { bookingMailConfigured, sendBookingMail } from "@/lib/mail/send";
@@ -81,7 +82,7 @@ export async function notifyDesk(input: DeskNotice): Promise<NotifyResult> {
     `New TripWeave stay ${input.confirmationCode}`,
     `${input.payerName} · ${input.packageName}`,
     input.roomName ? `Room: ${input.roomName}` : "",
-    `Check-in ${input.checkIn} · ${input.nights} nights · ${input.travelers} guests`,
+    `Check-in ${input.checkIn} · ${nightsPhrase(input.nights)} · ${guestsPhrase(input.travelers)}`,
     airportCarLine(input),
     ...guestRosterLines(input),
     foreignDeskLine(foreignNationalCount(input)),
@@ -149,7 +150,7 @@ export async function notifyGuestCheckedIn(input: DeskNotice): Promise<boolean> 
   const text = [
     `${input.packageName} has checked you in.`,
     `Confirmation ${input.confirmationCode}`,
-    `Check-in ${input.checkIn} · ${input.nights} nights`,
+    `Check-in ${input.checkIn} · ${nightsPhrase(input.nights)}`,
     "",
     "You are checked in. Enjoy the stay.",
   ].join("\n");

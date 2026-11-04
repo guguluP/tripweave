@@ -1,6 +1,6 @@
 import { deskFor } from "@/lib/hotel-desk";
 import { formIiiCsv, formIiiFilename, type FormIiiRow } from "@/lib/form-iii-csv";
-import { getPackage } from "@/lib/packages";
+import { getPackage, nightsPhrase } from "@/lib/packages";
 import type { ForeignGuestRow } from "@/lib/server/guest-arrivals";
 import { Button } from "@/components/ui/button";
 
@@ -76,7 +76,7 @@ export function ForeignGuestRegister({ packageId, rows }: { packageId: string; r
                   <td className="py-2 pr-3">{row.idLast4}</td>
                   <td className="py-2 pr-3">{row.phone}</td>
                   <td className="py-2 pr-3">
-                    {row.checkIn} · {row.nights} nights
+                    {row.checkIn} · {nightsPhrase(row.nights)}
                   </td>
                   <td className="py-2 pr-3">{row.confirmationCode}</td>
                 </tr>
