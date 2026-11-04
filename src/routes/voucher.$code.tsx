@@ -4,7 +4,7 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { DEFAULT_BRIEF, formatMoney, loadBrief, nightsPhrase } from "@/lib/packages";
+import { DEFAULT_BRIEF, formatMoney, guestsPhrase, loadBrief, nightsPhrase } from "@/lib/packages";
 import { listBookings, type BookingRow } from "@/lib/server/bookings";
 import { deskFor, hotelMailto } from "@/lib/hotel-desk";
 import { readMeta } from "@/lib/booking-meta";
@@ -182,7 +182,7 @@ function VoucherPage() {
             <div className="flex justify-between gap-3">
               <dt className="text-muted">Stay</dt>
               <dd>
-                {nightsPhrase(booking.nights)} · {booking.travelers} guests
+                {nightsPhrase(booking.nights)} · {guestsPhrase(booking.travelers)}
               </dd>
             </div>
             <div className="flex justify-between gap-3">

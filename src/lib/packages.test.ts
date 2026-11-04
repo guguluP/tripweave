@@ -10,6 +10,7 @@ import {
   formatMoney,
   getPackage,
   getRoom,
+  guestsPhrase,
   nightsPhrase,
   safeNextPath,
   priceWithSwaps,
@@ -164,6 +165,17 @@ describe("stay plan", () => {
   it("names a single night correctly", () => {
     assert.equal(nightsPhrase(1), "1 night");
     assert.equal(nightsPhrase(3), "3 nights");
+  });
+
+  it("names a single guest correctly", () => {
+    assert.equal(guestsPhrase(1), "1 guest");
+    assert.equal(guestsPhrase(2), "2 guests");
+  });
+
+  it("voucher stay line uses the singular for one guest", () => {
+    const voucher = readFileSync(path.join(process.cwd(), "src/routes/voucher.$code.tsx"), "utf8");
+    assert.ok(!voucher.includes("{booking.travelers} guests"), "\"1 guests\" for a solo stay");
+    assert.ok(voucher.includes("{nightsPhrase(booking.nights)} · {guestsPhrase(booking.travelers)}"));
   });
 });
 
