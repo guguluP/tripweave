@@ -57,6 +57,54 @@
     "ocean-suite": {
       "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-hotels/Deluxe_Suite_room__Bed_room_9523620f.jpeg",
       "path": "stays/hans-coco-palms/rooms/ocean-suite.jpg"
+    },
+    "pool-garden-2": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-first-floor-twin-beds_2d99404b.jpg",
+      "path": "stays/hans-coco-palms/rooms/pool-garden-2.jpg"
+    },
+    "pool-garden-3": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-first-floor-beds-tv_51f84047.jpg",
+      "path": "stays/hans-coco-palms/rooms/pool-garden-3.jpg"
+    },
+    "pool-garden-4": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-first-floor-seating_3392f1a3.jpg",
+      "path": "stays/hans-coco-palms/rooms/pool-garden-4.jpg"
+    },
+    "pool-garden-5": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-first-floor-balcony_39805c31.jpg",
+      "path": "stays/hans-coco-palms/rooms/pool-garden-5.jpg"
+    },
+    "pool-garden-6": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-first-floor-headboards_ba7746e8.jpg",
+      "path": "stays/hans-coco-palms/rooms/pool-garden-6.jpg"
+    },
+    "partial-ocean-2": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-ground-floor-king-bed_3cbbf984.jpg",
+      "path": "stays/hans-coco-palms/rooms/partial-ocean-2.jpg"
+    },
+    "partial-ocean-3": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-ground-floor-balcony_eae2bd30.jpg",
+      "path": "stays/hans-coco-palms/rooms/partial-ocean-3.jpg"
+    },
+    "partial-ocean-4": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-ground-floor-washbasin_de1097bf.jpg",
+      "path": "stays/hans-coco-palms/rooms/partial-ocean-4.jpg"
+    },
+    "ocean-suite-3": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-suite-bedroom-wide_e2bd905a.jpg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-3.jpg"
+    },
+    "ocean-suite-4": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-suite-living-room-wide_2a9e86e5.jpg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-4.jpg"
+    },
+    "ocean-suite-5": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-suite-dining-area_595084f5.jpg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-5.jpg"
+    },
+    "ocean-suite-6": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-suite-bathtub-vanity_6f61d11d.jpg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-6.jpg"
     }
   }
 }
