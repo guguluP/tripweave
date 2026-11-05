@@ -241,7 +241,7 @@ function VoucherPage() {
               </div>
             ) : null}
           </dl>
-          <div className="mt-4 h-40 overflow-hidden rounded-md border border-border">
+          <div className="map-frame relative mt-4 h-40 overflow-hidden rounded-md border border-border">
             <MapplsMap
               title={`Map of ${booking.packageName}`}
               className="h-full w-full"
