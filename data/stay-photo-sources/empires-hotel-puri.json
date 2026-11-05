@@ -1,5 +1,34 @@
 {
-  "images": [],
+  "images": [
+    {
+      "url": "https://www.empireshotel.com/wp-content/uploads/2022/06/AccommodationPuri.jpg",
+      "path": "stays/empires-hotel-puri/gallery-1.jpg"
+    },
+    {
+      "url": "https://www.empireshotel.com/wp-content/uploads/2022/06/puri-2.jpg",
+      "path": "stays/empires-hotel-puri/gallery-2.jpg"
+    },
+    {
+      "url": "https://www.empireshotel.com/wp-content/uploads/2022/06/puri-3.jpg",
+      "path": "stays/empires-hotel-puri/gallery-3.jpg"
+    },
+    {
+      "url": "https://www.empireshotel.com/wp-content/uploads/2022/06/puri-4.jpg",
+      "path": "stays/empires-hotel-puri/gallery-4.jpg"
+    },
+    {
+      "url": "https://www.empireshotel.com/wp-content/uploads/2022/06/puri-5.jpg",
+      "path": "stays/empires-hotel-puri/gallery-5.jpg"
+    },
+    {
+      "url": "https://www.empireshotel.com/wp-content/uploads/2022/06/puri-6.jpg",
+      "path": "stays/empires-hotel-puri/gallery-6.jpg"
+    },
+    {
+      "url": "https://www.empireshotel.com/wp-content/uploads/2022/06/puri-7.jpg",
+      "path": "stays/empires-hotel-puri/gallery-7.jpg"
+    }
+  ],
   "rooms": {
     "executive": {
       "url": "https://www.empireshotel.com/wp-content/uploads/2022/06/ExecRoom.jpg",
@@ -20,6 +49,10 @@
     "deluxe-4": {
       "url": "https://www.empireshotel.com/wp-content/uploads/2022/06/EMPIRES-PURI-BALCONY-VIEW-FROM-DLX-ROOM.jpg",
       "path": "stays/empires-hotel-puri/rooms/deluxe-4.jpg"
+    },
+    "deluxe-5": {
+      "url": "https://www.empireshotel.com/wp-content/uploads/2022/06/EMPIRES-PURI-DLX-ROOM-BATH-ROOM.jpg",
+      "path": "stays/empires-hotel-puri/rooms/deluxe-5.jpg"
     }
   }
 }

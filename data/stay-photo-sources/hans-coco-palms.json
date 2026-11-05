@@ -43,6 +43,22 @@
     {
       "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,c_limit/the-hans-hotels/Lobby_Area_18b2ed80.jpeg",
       "path": "stays/hans-coco-palms/gallery-15.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/pool-swim-up-bar_24daccee.jpg",
+      "path": "stays/hans-coco-palms/gallery-16.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/pool-palms-gazebo_68340ee4.jpg",
+      "path": "stays/hans-coco-palms/gallery-17.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/reception-desk-front_aeb6d5e8.jpg",
+      "path": "stays/hans-coco-palms/gallery-18.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/restaurant-dining-hall_e54d0c38.jpg",
+      "path": "stays/hans-coco-palms/gallery-19.jpg"
     }
   ],
   "rooms": {
