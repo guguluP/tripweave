@@ -12,6 +12,7 @@ import { voucherClosedState } from "@/lib/refund-policy";
 import {
   mapMarkers,
   parseTravelPlan,
+  voucherMapFocus,
   quoteTravel,
   travelShareText,
   travelSummaryLine,
@@ -242,9 +243,10 @@ function VoucherPage() {
           </dl>
           <div className="mt-4 h-40 overflow-hidden rounded-md border border-border">
             <MapplsMap
-              title="Last-mile map"
+              title={`Map of ${booking.packageName}`}
               className="h-full w-full"
-              markers={mapMarkers(plan.arriveBy || brief.arriveBy, stayPin(booking.packageId, booking.packageName))}
+              markers={mapMarkers(plan.origin, stayPin(booking.packageId, booking.packageName))}
+              focus={voucherMapFocus(stayPin(booking.packageId, booking.packageName))}
             />
           </div>
           {((meta.guestFlags ?? []).some((row) => row.nationality !== "IN") ||

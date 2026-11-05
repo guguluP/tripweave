@@ -3,7 +3,7 @@
  * Stay matching stays in packages.ts — this file ranks last-mile, prices hotel
  * pickup, and holds the guest's travel draft until checkout.
  */
-import { inboundFor, type ArriveBy } from "./origins.ts";
+import { inboundFor, originPoint, type ArriveBy } from "./origins.ts";
 import {
   BUS_GUIDE,
   getTransportForPackage,
@@ -326,16 +326,34 @@ function gatewayCoords(arriveBy: ArriveBy) {
   return GATEWAYS.bus;
 }
 
+/** Close enough to read the hotel on the small voucher map, not the countryside between two pins. */
+export const VOUCHER_HOTEL_ZOOM = 14;
+
+export function voucherMapFocus(stay?: { lat: number; lng: number } | null): {
+  lat: number;
+  lng: number;
+  zoom: number;
+} {
+  const dest = stay ?? town;
+  return { lat: dest.lat, lng: dest.lng, zoom: VOUCHER_HOTEL_ZOOM };
+}
+
+/**
+ * Voucher pins. Already in Puri is the hotel only.
+ * Any other chosen city is a second pin. The camera still opens on the hotel.
+ */
 export function mapMarkers(
-  arriveBy: ArriveBy,
+  origin: string | undefined,
   stay?: { lat: number; lng: number; label?: string } | null,
 ): { lat: number; lng: number; label: string }[] {
-  const gate = gatewayCoords(arriveBy);
-  const dest = stay ?? town;
-  return [
-    { lat: gate.lat, lng: gate.lng, label: gate.label },
-    { lat: dest.lat, lng: dest.lng, label: stay?.label ?? "Stay" },
-  ];
+  const hotel = {
+    lat: stay?.lat ?? town.lat,
+    lng: stay?.lng ?? town.lng,
+    label: stay?.label ?? "Stay",
+  };
+  const from = originPoint(origin);
+  if (!from) return [hotel];
+  return [{ lat: from.lat, lng: from.lng, label: from.label }, hotel];
 }
 
 export function mapEmbedUrl(arriveBy: ArriveBy, stay?: { lat: number; lng: number } | null): string {

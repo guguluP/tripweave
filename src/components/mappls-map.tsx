@@ -69,16 +69,22 @@ export function MapplsMap({
   markers,
   title,
   className,
+  focus,
 }: {
   markers: MapPoint[];
   title: string;
   className?: string;
+  /** Open on this point. Without it, the map frames every pin. */
+  focus?: { lat: number; lng: number; zoom: number };
 }) {
   const reactId = useId().replace(/:/g, "");
   const mapId = `mappls-${reactId}`;
   const [failed, setFailed] = useState(false);
   const key = mapplsKey();
   const signature = markers.map((m) => `${m.lat},${m.lng},${m.label}`).join("|");
+  const focusLat = focus?.lat;
+  const focusLng = focus?.lng;
+  const focusZoom = focus?.zoom;
 
   useEffect(() => {
     if (!key || markers.length === 0) return;
@@ -87,7 +93,10 @@ export function MapplsMap({
     loadMappls(key)
       .then(() => {
         if (cancel || !window.mappls?.Map) return;
-        const frame = frameFor(markers);
+        const frame =
+          focusLat != null && focusLng != null && focusZoom != null
+            ? { center: { lat: focusLat, lng: focusLng }, zoom: focusZoom }
+            : frameFor(markers);
         map = new window.mappls.Map(mapId, {
           center: frame.center,
           zoom: frame.zoom,
@@ -135,7 +144,7 @@ export function MapplsMap({
       cancel = true;
       map?.remove?.();
     };
-  }, [key, mapId, signature]);
+  }, [key, mapId, signature, focusLat, focusLng, focusZoom]);
 
   if (!key || failed) {
     return <p className="text-sm text-muted">Map is unavailable right now.</p>;

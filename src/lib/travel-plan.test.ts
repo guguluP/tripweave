@@ -1,14 +1,18 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { DEFAULT_BRIEF, type Brief } from "./packages.ts";
+import { stayPin } from "./places.ts";
 import {
   bucketOf,
   formatInrRange,
   lastMileId,
+  mapMarkers,
   parseInrRange,
   pickupQuoteFor,
   quoteTravel,
   rankLastMiles,
+  VOUCHER_HOTEL_ZOOM,
+  voucherMapFocus,
 } from "./travel-plan.ts";
 import { lastMileOptions } from "./transport.ts";
 
@@ -77,5 +81,35 @@ describe("travel plan", () => {
       const opts = lastMileOptions("chariot-resort-puri", arriveBy);
       assert.ok(opts.length >= 1, arriveBy);
     }
+  });
+
+  it("voucher map marks only the hotel when the guest is already in Puri", () => {
+    const stay = stayPin("mayfair-heritage-puri", "Mayfair Heritage, Puri");
+    assert.ok(stay);
+    const pins = mapMarkers("puri", stay);
+    assert.equal(pins.length, 1);
+    assert.equal(pins[0]?.label, "Mayfair Heritage, Puri");
+    assert.equal(pins[0]?.lat, stay.lat);
+    const focus = voucherMapFocus(stay);
+    assert.equal(focus.lat, stay.lat);
+    assert.equal(focus.lng, stay.lng);
+    assert.equal(focus.zoom, VOUCHER_HOTEL_ZOOM);
+    assert.ok(focus.zoom > 9);
+  });
+
+  it("voucher map adds a pin for the city the guest is coming from", () => {
+    const stay = stayPin("mayfair-heritage-puri", "Mayfair Heritage, Puri");
+    assert.ok(stay);
+    const pins = mapMarkers("bhubaneswar", stay);
+    assert.equal(pins.length, 2);
+    assert.equal(pins[0]?.label, "Bhubaneswar");
+    assert.ok((pins[0]?.lat ?? 0) > 20.2);
+    assert.equal(pins[1]?.label, "Mayfair Heritage, Puri");
+    assert.equal(pins[1]?.lat, stay.lat);
+    const kolkata = mapMarkers("kolkata", stay);
+    assert.equal(kolkata[0]?.label, "Kolkata");
+    assert.ok(Math.abs((kolkata[0]?.lng ?? 0) - 88.36) < 0.1);
+    assert.equal(mapMarkers("other", stay).length, 1);
+    assert.equal(mapMarkers(undefined, stay).length, 1);
   });
 });

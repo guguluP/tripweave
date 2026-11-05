@@ -412,8 +412,34 @@ export const ARRIVE_BY: { id: ArriveBy; label: string; hint: string }[] = [
   { id: "road", label: "Road", hint: "Cab or self-drive" },
 ];
 
+/**
+ * Wikipedia city reference points. These are not hotel pins.
+ * "Already in Puri" and a free-text "Somewhere else" have no second point.
+ */
+const ORIGIN_POINT: Partial<Record<OriginId, { lat: number; lng: number }>> = {
+  kolkata: { lat: 22.5726, lng: 88.3639 },
+  delhi: { lat: 28.6139, lng: 77.209 },
+  mumbai: { lat: 19.076, lng: 72.8777 },
+  hyderabad: { lat: 17.385, lng: 78.4867 },
+  bengaluru: { lat: 12.9716, lng: 77.5946 },
+  chennai: { lat: 13.0827, lng: 80.2707 },
+  visakhapatnam: { lat: 17.6868, lng: 83.2185 },
+  cuttack: { lat: 20.52361, lng: 85.78806 },
+  khordha: { lat: 20.18, lng: 85.62 },
+  bhubaneswar: { lat: 20.2961, lng: 85.8245 },
+};
+
 export function getOrigin(id: OriginId | string | undefined): OriginCity {
   return ORIGINS.find((o) => o.id === id) ?? ORIGINS.find((o) => o.id === "other")!;
+}
+
+/** The city a guest said they are coming from. Already in Puri returns null. */
+export function originPoint(id: string | undefined): { lat: number; lng: number; label: string } | null {
+  if (!id || id === "puri" || id === "other") return null;
+  const at = ORIGIN_POINT[id as OriginId];
+  const city = ORIGINS.find((o) => o.id === id);
+  if (!at || !city) return null;
+  return { lat: at.lat, lng: at.lng, label: city.label };
 }
 
 export function inboundFor(originId: OriginId | string | undefined, arriveBy: ArriveBy): InboundLeg {
