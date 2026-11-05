@@ -105,6 +105,42 @@
     "deluxe-pool-view-2": {
       "url": "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/4%20150%20cc.jpg",
       "path": "stays/holiday-resort-puri/rooms/deluxe-pool-view-2.jpg"
+    },
+    "cottage-3": {
+      "url": "https://puriholidayresort.com/uploads/gallery/deluxecottage/3.jpg",
+      "path": "stays/holiday-resort-puri/rooms/cottage-3.jpg"
+    },
+    "cottage-4": {
+      "url": "https://puriholidayresort.com/uploads/gallery/deluxecottage/4.jpg",
+      "path": "stays/holiday-resort-puri/rooms/cottage-4.jpg"
+    },
+    "standard-double-3": {
+      "url": "https://puriholidayresort.com/uploads/gallery/standarddoublebedroom/3.jpg",
+      "path": "stays/holiday-resort-puri/rooms/standard-double-3.jpg"
+    },
+    "standard-double-4": {
+      "url": "https://puriholidayresort.com/uploads/gallery/standarddoublebedroom/Copy of bath room 150 cc.jpg",
+      "path": "stays/holiday-resort-puri/rooms/standard-double-4.jpg"
+    },
+    "family-3": {
+      "url": "https://puriholidayresort.com/uploads/gallery/deluxefamilyroom/3.jpg",
+      "path": "stays/holiday-resort-puri/rooms/family-3.jpg"
+    },
+    "standard-family-3": {
+      "url": "https://puriholidayresort.com/uploads/gallery/standardfamilyroom/3 150 cc.jpg",
+      "path": "stays/holiday-resort-puri/rooms/standard-family-3.jpg"
+    },
+    "standard-cottage-3": {
+      "url": "https://puriholidayresort.com/uploads/gallery/standardcottage/3 150 cc.jpg",
+      "path": "stays/holiday-resort-puri/rooms/standard-cottage-3.jpg"
+    },
+    "royal-suite-4": {
+      "url": "https://puriholidayresort.com/uploads/gallery/royalsuite/4.jpg",
+      "path": "stays/holiday-resort-puri/rooms/royal-suite-4.jpg"
+    },
+    "presidential-suite-4": {
+      "url": "https://puriholidayresort.com/uploads/gallery/presidentialsuite/4.jpg",
+      "path": "stays/holiday-resort-puri/rooms/presidential-suite-4.jpg"
     }
   }
 }
