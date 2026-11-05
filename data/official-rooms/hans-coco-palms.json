@@ -1,30 +1,42 @@
 [
   {
-    "name": "Deluxe Balcony Room — Partial Ocean View",
+    "name": "Deluxe Balcony Room \u2014 Partial Ocean View",
     "sqm": 25,
     "guests": null,
     "bed": "king bed",
     "images": [
-      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_Double_Room_with_Side_Sea_View_7be5f3de.jpeg"
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_Double_Room_with_Side_Sea_View_7be5f3de.jpeg",
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-ground-floor-king-bed_3cbbf984.jpg",
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-ground-floor-balcony_eae2bd30.jpg",
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-ground-floor-washbasin_de1097bf.jpg"
     ]
   },
   {
-    "name": "Deluxe Room — Pool or Garden View",
+    "name": "Deluxe Room \u2014 Pool or Garden View",
     "sqm": 28,
     "guests": null,
     "bed": "twin beds",
     "images": [
-      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_room_with_Pool_and_Garden_view_33176469.jpeg"
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_room_with_Pool_and_Garden_view_33176469.jpeg",
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-first-floor-twin-beds_2d99404b.jpg",
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-first-floor-beds-tv_51f84047.jpg",
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-first-floor-seating_3392f1a3.jpg",
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-first-floor-balcony_39805c31.jpg",
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-first-floor-headboards_ba7746e8.jpg"
     ]
   },
   {
-    "name": "Deluxe Suite — Ocean View",
+    "name": "Deluxe Suite \u2014 Ocean View",
     "sqm": 66,
     "guests": null,
     "bed": "king bed",
     "images": [
       "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_Suite_room__Bed_room_9523620f.jpeg",
-      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_Suite_room__Living_Area__(1)_499d76fe.jpeg"
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_800/the-hans-hotels/Deluxe_Suite_room__Living_Area__(1)_499d76fe.jpeg",
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-suite-bedroom-wide_e2bd905a.jpg",
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-suite-living-room-wide_2a9e86e5.jpg",
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-suite-dining-area_595084f5.jpg",
+      "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-suite-bathtub-vanity_6f61d11d.jpg"
     ]
   }
 ]

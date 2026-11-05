@@ -5,7 +5,9 @@
     "guests": null,
     "bed": "two queen-size beds",
     "images": [
-      "https://thechariotpuri.com/wp-content/uploads/2025/03/exe_twin_bed.jpg"
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/exe_twin_bed.jpg",
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/excutive5.jpg",
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/excutive6.jpg"
     ]
   },
   {
@@ -14,7 +16,10 @@
     "guests": null,
     "bed": "king-size bed",
     "images": [
-      "https://thechariotpuri.com/wp-content/uploads/2025/03/premium_bed.jpg"
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/premium_bed.jpg",
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/premium-bed1.jpg",
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/premium-bed2.jpg",
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/premium-bed3.jpg"
     ]
   },
   {
@@ -23,7 +28,11 @@
     "guests": null,
     "bed": null,
     "images": [
-      "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite.jpg"
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite.jpg",
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite1.jpg",
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite2.jpg",
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite5.jpg",
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite6.jpg"
     ]
   },
   {
@@ -32,7 +41,9 @@
     "guests": null,
     "bed": null,
     "images": [
-      "https://thechariotpuri.com/wp-content/uploads/2025/03/deluxe_bed.jpg"
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/deluxe_bed.jpg",
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/deluxe2.jpg",
+      "https://thechariotpuri.com/wp-content/uploads/2025/03/deluxe3.jpg"
     ]
   }
 ]
