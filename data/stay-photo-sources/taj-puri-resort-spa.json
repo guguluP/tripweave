@@ -361,18 +361,6 @@
     "grand-plunge-twin": {
       "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/a095645082215b22a7eef130d8f0933e749041a2-1400x1120.jpg?w=1280&auto=format&dpr=2",
       "path": "stays/taj-puri-resort-spa/rooms/grand-plunge-twin.jpg"
-    },
-    "superior-twin-balcony-2": {
-      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/7f6b9bc92bb427ef78aefd1dac04243f5bd81575-1400x1120.webp?w=1280&auto=format&dpr=2",
-      "path": "stays/taj-puri-resort-spa/rooms/superior-twin-balcony-2.jpg"
-    },
-    "deluxe-sea-twin-2": {
-      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/5cfb0730732b00ad1afb7e6131064d12aa449945-1400x1120.jpg?w=1280&auto=format&dpr=2",
-      "path": "stays/taj-puri-resort-spa/rooms/deluxe-sea-twin-2.jpg"
-    },
-    "grand-plunge-twin-2": {
-      "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/f71358b7012ef032e9231ca4550c0ecfab20eac8-1400x1120.jpg?w=1280&auto=format&dpr=2",
-      "path": "stays/taj-puri-resort-spa/rooms/grand-plunge-twin-2.jpg"
     }
   }
 }
