@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { TrustMeter } from "@/components/trust-meter";
-import { Badge } from "@/components/ui/badge";
+import { IncludeChip } from "@/components/include-chip";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DigitPop, Stagger, TextSwap } from "@/components/motion";
@@ -348,10 +348,7 @@ function TripDetail() {
 
         <div className="mt-6 flex flex-wrap gap-2">
           {pkg.includes.map((item) => (
-            <Badge key={item} className="gap-1">
-              <Check className="size-3" />
-              {item}
-            </Badge>
+            <IncludeChip key={item} label={item} />
           ))}
         </div>
 

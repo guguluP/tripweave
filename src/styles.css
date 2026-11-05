@@ -97,6 +97,126 @@
   }
 }
 
+/* Include chips: the icon reacts only while the pointer is on the pill. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .include-ico svg {
+    overflow: visible;
+  }
+  .include-chip:hover .include-ico-waves svg path {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: include-wave 0.9s ease-in-out infinite;
+  }
+  .include-chip:hover .include-ico-waves svg path:nth-child(even) {
+    animation-name: include-wave-back;
+    animation-delay: 0.12s;
+  }
+  .include-chip:hover .include-ico-steam svg path:nth-child(1),
+  .include-chip:hover .include-ico-steam svg path:nth-child(2),
+  .include-chip:hover .include-ico-steam svg path:nth-child(4) {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    animation: include-steam 1s ease-in-out infinite;
+  }
+  .include-chip:hover .include-ico-steam svg path:nth-child(2) {
+    animation-delay: 0.18s;
+  }
+  .include-chip:hover .include-ico-steam svg path:nth-child(4) {
+    animation-delay: 0.36s;
+  }
+  .include-chip:hover .include-ico-wifi svg path:nth-child(n + 2) {
+    animation: include-signal 1.05s ease-in-out infinite;
+  }
+  .include-chip:hover .include-ico-wifi svg path:nth-child(3) {
+    animation-delay: 0.14s;
+  }
+  .include-chip:hover .include-ico-wifi svg path:nth-child(2) {
+    animation-delay: 0.28s;
+  }
+  .include-chip:hover .include-ico-rock svg {
+    transform-origin: 50% 85%;
+    animation: include-rock 0.9s ease-in-out infinite;
+  }
+  .include-chip:hover .include-ico-sway svg {
+    transform-origin: 50% 12%;
+    animation: include-sway 1.2s ease-in-out infinite;
+  }
+  .include-chip:hover .include-ico-palm svg {
+    transform-origin: 50% 100%;
+    animation: include-sway 1.3s ease-in-out infinite;
+  }
+  .include-chip:hover .include-ico-drive svg {
+    animation: include-drive 0.8s ease-in-out infinite;
+  }
+  .include-chip:hover .include-ico-spin svg {
+    transform-origin: center;
+    animation: include-spin 1.6s linear infinite;
+  }
+  .include-chip:hover .include-ico-bloom svg {
+    transform-origin: center;
+    animation: include-bloom 0.9s ease-in-out infinite;
+  }
+  .include-chip:hover .include-ico-step svg {
+    animation: include-step 0.7s ease-in-out infinite;
+  }
+  .include-chip:hover .include-ico-ring svg {
+    transform-origin: 50% 18%;
+    animation: include-ring 1.1s ease-in-out infinite;
+  }
+  .include-chip:hover .include-ico-lift svg {
+    animation: include-lift 0.8s ease-in-out infinite;
+  }
+  .include-chip:hover .include-ico-tick svg polyline {
+    transform-box: view-box;
+    transform-origin: center;
+    animation: include-spin 1.4s linear infinite;
+  }
+}
+
+@keyframes include-wave {
+  50% { transform: translateX(2.5px); }
+}
+@keyframes include-wave-back {
+  50% { transform: translateX(-2.5px); }
+}
+@keyframes include-steam {
+  50% { transform: translateY(-3px); opacity: 0.35; }
+}
+@keyframes include-signal {
+  0%, 100% { opacity: 0.28; }
+  45%, 70% { opacity: 1; }
+}
+@keyframes include-rock {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+@keyframes include-sway {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg); }
+}
+@keyframes include-drive {
+  50% { transform: translateX(2.5px); }
+}
+@keyframes include-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes include-bloom {
+  50% { transform: scale(1.16); }
+}
+@keyframes include-step {
+  50% { transform: translateX(2.5px); }
+}
+@keyframes include-ring {
+  0%, 70%, 100% { transform: rotate(0deg); }
+  15% { transform: rotate(-14deg); }
+  30% { transform: rotate(12deg); }
+  45% { transform: rotate(-7deg); }
+  60% { transform: rotate(4deg); }
+}
+@keyframes include-lift {
+  50% { transform: translateY(-2px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .page-rise,
   .roll-digit-strip,
@@ -104,7 +224,11 @@
   .story-progress,
   .stay-cover-sheet,
   .ask-sheet,
-  .ask-chip {
+  .ask-chip,
+  .include-ico,
+  .include-ico svg,
+  .include-ico svg path,
+  .include-ico svg polyline {
     animation: none;
     transition: none;
   }

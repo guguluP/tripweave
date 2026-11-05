@@ -19,6 +19,7 @@ import {
 import { getSeededConsensus } from "./youtube/get-seeded.ts";
 import { SEED_ROOM_NOTES } from "./youtube/seed-room-notes.ts";
 import { STAYS_NEEDING_USER_FILES, stayNeedsUserFiles, STAY_MEDIA } from "./property-media.ts";
+import { INCLUDE_ICON } from "./include-icons.ts";
 
 describe("catalog", () => {
   it("lists twelve Puri stays with rooms, photos, videos, and 1-night stays", () => {
@@ -165,6 +166,14 @@ describe("stay plan", () => {
   it("names a single night correctly", () => {
     assert.equal(nightsPhrase(1), "1 night");
     assert.equal(nightsPhrase(3), "3 nights");
+  });
+
+  it("gives every stay include its own icon", () => {
+    const labels = new Set(PACKAGES.flatMap((pkg) => pkg.includes));
+    for (const label of labels) {
+      assert.ok(label in INCLUDE_ICON, label);
+    }
+    assert.equal(labels.size, Object.keys(INCLUDE_ICON).length);
   });
 
   it("names a single guest correctly", () => {
