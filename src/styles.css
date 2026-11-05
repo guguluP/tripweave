@@ -33,10 +33,19 @@
   animation: none;
 }
 
-/* Mappls zoom controls stay inside the map, above the booking bar. */
+/* Mappls draws +, −, compass, and 3D on .map-control at z-index 999.
+   Isolate the frame so those controls scroll under Book this stay (z-40)
+   and stay under sheets (z-50). */
+.map-frame {
+  position: relative;
+  isolation: isolate;
+}
 .map-frame,
 .map-frame > div {
   overflow: hidden;
+}
+.map-frame .map-control {
+  z-index: 2 !important;
 }
 .map-frame .maplibregl-ctrl-bottom-right,
 .map-frame .mapboxgl-ctrl-bottom-right,
