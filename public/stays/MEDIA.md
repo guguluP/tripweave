@@ -36,7 +36,7 @@ Do **not** use YouTube thumbs or Unsplash for named hotels.
 | `mayfair-waves-puri` | Mayfair Waves Simplotel (suite is `mayfair-waves-puri/`, not Heritage) |
 | `chariot-resort-puri` | thechariotpuri.com + retrod |
 | `chanakya-bnr-puri` | chanakyahotels.com |
-| `mahodadhi-palace-puri` | Orchid / Mahodadhi |
+| `mahodadhi-palace-puri` | mahodadhipalace.com (Simplotel) |
 | `holiday-resort-puri` | puriholidayresort.com |
 | `hans-coco-palms` | Hans Simplotel |
 | `toshali-sands-puri` | toshaliresort.com |
