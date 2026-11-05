@@ -1,5 +1,62 @@
 {
-  "images": [],
+  "images": [
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Hotel%20Overview/4.jpg",
+      "path": "stays/holiday-resort-puri/gallery-1.jpg"
+    },
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Hotel%20Overview/13.jpg",
+      "path": "stays/holiday-resort-puri/gallery-2.jpg"
+    },
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Hotel%20Overview/DSC00223.JPG",
+      "path": "stays/holiday-resort-puri/gallery-3.jpg"
+    },
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Hotel%20Overview/DSC02511.JPG",
+      "path": "stays/holiday-resort-puri/gallery-4.jpg"
+    },
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Hotel%20Overview/DSC02530.JPG",
+      "path": "stays/holiday-resort-puri/gallery-5.jpg"
+    },
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Hotel%20Overview/DSC04291.JPG",
+      "path": "stays/holiday-resort-puri/gallery-6.jpg"
+    },
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Dinning/1.jpg",
+      "path": "stays/holiday-resort-puri/gallery-7.jpg"
+    },
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Dinning/2.jpg",
+      "path": "stays/holiday-resort-puri/gallery-8.jpg"
+    },
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Dinning/11.jpg",
+      "path": "stays/holiday-resort-puri/gallery-9.jpg"
+    },
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Dinning/13.jpg",
+      "path": "stays/holiday-resort-puri/gallery-10.jpg"
+    },
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Dinning/DSC01364.JPG",
+      "path": "stays/holiday-resort-puri/gallery-11.jpg"
+    },
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Services%20%26%20Amenities/1cc%20150.jpg",
+      "path": "stays/holiday-resort-puri/gallery-12.jpg"
+    },
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Services%20%26%20Amenities/2cc%20150.jpg",
+      "path": "stays/holiday-resort-puri/gallery-13.jpg"
+    },
+    {
+      "url": "https://puriholidayresort.com/uploads/images/gallery/Services%20%26%20Amenities/3cc%20150.jpg",
+      "path": "stays/holiday-resort-puri/gallery-14.jpg"
+    }
+  ],
   "rooms": {
     "standard-double": {
       "url": "https://puriholidayresort.com/uploads/gallery/standarddoublebedroom/1.jpg",
@@ -36,6 +93,18 @@
     "presidential-suite": {
       "url": "https://puriholidayresort.com/uploads/gallery/presidentialsuite/1.jpg",
       "path": "stays/holiday-resort-puri/rooms/presidential-suite.jpg"
+    },
+    "deluxe-double-2": {
+      "url": "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/3%20150%20cc.jpg",
+      "path": "stays/holiday-resort-puri/rooms/deluxe-double-2.jpg"
+    },
+    "deluxe-double-3": {
+      "url": "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/bath%20room%20150%20cc.jpg",
+      "path": "stays/holiday-resort-puri/rooms/deluxe-double-3.jpg"
+    },
+    "deluxe-pool-view-2": {
+      "url": "https://puriholidayresort.com/uploads/gallery/deluxedoublebedroom/4%20150%20cc.jpg",
+      "path": "stays/holiday-resort-puri/rooms/deluxe-pool-view-2.jpg"
     }
   }
 }

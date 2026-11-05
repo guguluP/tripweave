@@ -29,6 +29,50 @@
     "platinum-suite": {
       "url": "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite.jpg",
       "path": "stays/chariot-resort-puri/rooms/platinum-suite.jpg"
+    },
+    "deluxe-2": {
+      "url": "https://thechariotpuri.com/wp-content/uploads/2025/03/deluxe2.jpg",
+      "path": "stays/chariot-resort-puri/rooms/deluxe-2.jpg"
+    },
+    "deluxe-3": {
+      "url": "https://thechariotpuri.com/wp-content/uploads/2025/03/deluxe3.jpg",
+      "path": "stays/chariot-resort-puri/rooms/deluxe-3.jpg"
+    },
+    "executive-2": {
+      "url": "https://thechariotpuri.com/wp-content/uploads/2025/03/excutive5.jpg",
+      "path": "stays/chariot-resort-puri/rooms/executive-2.jpg"
+    },
+    "executive-3": {
+      "url": "https://thechariotpuri.com/wp-content/uploads/2025/03/excutive6.jpg",
+      "path": "stays/chariot-resort-puri/rooms/executive-3.jpg"
+    },
+    "premium-2": {
+      "url": "https://thechariotpuri.com/wp-content/uploads/2025/03/premium-bed1.jpg",
+      "path": "stays/chariot-resort-puri/rooms/premium-2.jpg"
+    },
+    "premium-3": {
+      "url": "https://thechariotpuri.com/wp-content/uploads/2025/03/premium-bed2.jpg",
+      "path": "stays/chariot-resort-puri/rooms/premium-3.jpg"
+    },
+    "premium-4": {
+      "url": "https://thechariotpuri.com/wp-content/uploads/2025/03/premium-bed3.jpg",
+      "path": "stays/chariot-resort-puri/rooms/premium-4.jpg"
+    },
+    "platinum-suite-2": {
+      "url": "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite1.jpg",
+      "path": "stays/chariot-resort-puri/rooms/platinum-suite-2.jpg"
+    },
+    "platinum-suite-3": {
+      "url": "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite2.jpg",
+      "path": "stays/chariot-resort-puri/rooms/platinum-suite-3.jpg"
+    },
+    "platinum-suite-4": {
+      "url": "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite5.jpg",
+      "path": "stays/chariot-resort-puri/rooms/platinum-suite-4.jpg"
+    },
+    "platinum-suite-5": {
+      "url": "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite6.jpg",
+      "path": "stays/chariot-resort-puri/rooms/platinum-suite-5.jpg"
     }
   }
 }

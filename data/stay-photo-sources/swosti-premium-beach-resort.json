@@ -1,5 +1,22 @@
 {
-  "images": [],
+  "images": [
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/facade_",
+      "path": "stays/swosti-premium-beach-resort/gallery-1.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/Pool_8ecb90f8",
+      "path": "stays/swosti-premium-beach-resort/gallery-2.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/beach-hut",
+      "path": "stays/swosti-premium-beach-resort/gallery-3.jpg"
+    },
+    {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/boito-voyage",
+      "path": "stays/swosti-premium-beach-resort/gallery-4.jpg"
+    }
+  ],
   "rooms": {
     "premium": {
       "url": "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3750/x_0,y_469,w_5000,h_2812,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/premium-room-1",
@@ -32,6 +49,70 @@
     "royal-ambassador-suite": {
       "url": "https://assets.simplotel.com/simplotel/image/upload/w_5000,h_3497/x_0,y_342,w_5000,h_2813,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/royal-ambassador-suite",
       "path": "stays/swosti-premium-beach-resort/rooms/royal-ambassador-suite.jpg"
+    },
+    "premium-2": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/premium-room-2",
+      "path": "stays/swosti-premium-beach-resort/rooms/premium-2.jpg"
+    },
+    "premium-3": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/premium-room-3",
+      "path": "stays/swosti-premium-beach-resort/rooms/premium-3.jpg"
+    },
+    "premium-4": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/premium-room-bathroom",
+      "path": "stays/swosti-premium-beach-resort/rooms/premium-4.jpg"
+    },
+    "sea-view-front-2": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/sea-view-room-front-view-1",
+      "path": "stays/swosti-premium-beach-resort/rooms/sea-view-front-2.jpg"
+    },
+    "sea-view-front-3": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/sea-view-room-front-view-2",
+      "path": "stays/swosti-premium-beach-resort/rooms/sea-view-front-3.jpg"
+    },
+    "sea-view-front-4": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/sea-view-room-front-view-bathroom",
+      "path": "stays/swosti-premium-beach-resort/rooms/sea-view-front-4.jpg"
+    },
+    "oasis-suite-2": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/oasis-suite-1",
+      "path": "stays/swosti-premium-beach-resort/rooms/oasis-suite-2.jpg"
+    },
+    "oasis-suite-3": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/oasis-suite-2",
+      "path": "stays/swosti-premium-beach-resort/rooms/oasis-suite-3.jpg"
+    },
+    "oasis-suite-4": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/oasis-suite-bathroom",
+      "path": "stays/swosti-premium-beach-resort/rooms/oasis-suite-4.jpg"
+    },
+    "intimate-escape-suite-2": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/Intimate-escape-suite-1",
+      "path": "stays/swosti-premium-beach-resort/rooms/intimate-escape-suite-2.jpg"
+    },
+    "intimate-escape-suite-3": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/Intimate-escape-suite-2",
+      "path": "stays/swosti-premium-beach-resort/rooms/intimate-escape-suite-3.jpg"
+    },
+    "imperial-suite-2": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/imperial-suite",
+      "path": "stays/swosti-premium-beach-resort/rooms/imperial-suite-2.jpg"
+    },
+    "imperial-suite-3": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/imperial-suite-1",
+      "path": "stays/swosti-premium-beach-resort/rooms/imperial-suite-3.jpg"
+    },
+    "imperial-suite-4": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/imperial-suite-balcony",
+      "path": "stays/swosti-premium-beach-resort/rooms/imperial-suite-4.jpg"
+    },
+    "imperial-suite-5": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/imperial-suite-bathroom",
+      "path": "stays/swosti-premium-beach-resort/rooms/imperial-suite-5.jpg"
+    },
+    "imperial-suite-6": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/imperial-suite-wardrobe",
+      "path": "stays/swosti-premium-beach-resort/rooms/imperial-suite-6.jpg"
     }
   }
 }
