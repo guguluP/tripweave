@@ -30,6 +30,7 @@ import {
 import type { OriginId } from "@/lib/origins";
 import {
   NO_REFUND_CANCEL_WARNING,
+  NO_REFUND_CANCEL_WARNING_CHECKED_IN,
   guestCancelMode,
   isClosedStay,
   refundAmountInr,
@@ -270,7 +271,9 @@ function TripsInner() {
                       {!closed ? (
                         <div className="grid gap-3">
                           {cancelMode === "no_refund" ? (
-                            <p className="text-xs text-subtle">Hotel confirmed: you can still cancel, but no refund is issued.</p>
+                            <p className="text-xs text-subtle">
+                              {b.status === "checked_in" ? "Checked in" : "Hotel confirmed"}: you can still cancel, but no refund is issued.
+                            </p>
                           ) : cancelMode === "refund" ? (
                             <p className="text-xs text-subtle">{policy.label}.</p>
                           ) : null}
@@ -371,7 +374,9 @@ function TripsInner() {
                               aria-label="Cancel without refund"
                               className="grid gap-2 rounded-md border border-danger/40 bg-danger/5 px-3 py-3 text-sm"
                             >
-                              <p className="font-medium">{NO_REFUND_CANCEL_WARNING}</p>
+                              <p className="font-medium">
+                                {b.status === "checked_in" ? NO_REFUND_CANCEL_WARNING_CHECKED_IN : NO_REFUND_CANCEL_WARNING}
+                              </p>
                               <p className="text-muted">
                                 You paid {formatMoney(b.amountInr)}. TripWeave will not send any of it back.
                               </p>
