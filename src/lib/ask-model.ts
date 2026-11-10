@@ -114,10 +114,10 @@ function packetFacts(packet: { text: string; urls: string[] }): Fact[] {
 
 function contextFacts(arriveBy?: string): Fact[] {
   const names = LANDMARKS.map((pin) => pin.label).join(", ");
-  const [start, end] = FESTIVAL[0] ?? ["2026-06-26", "2026-07-06"];
+  const [start, end] = FESTIVAL.find(([from]) => from.startsWith("2027-06")) ?? ["2027-06-15", "2027-06-25"];
   const facts: Fact[] = [
     { text: `TripWeave: the Puri map marks ${names}.`, official: false },
-    { text: `TripWeave: Rath Yatra 2026 is ${start} through ${end}.`, official: false },
+    { text: `TripWeave: Rath Yatra ${start.slice(0, 4)} is ${start} through ${end}.`, official: false },
     {
       text: "TripWeave: cab links on the page open Odisha Yatri, Ola, and Uber. TripWeave adds ₹0.",
       official: false,
@@ -162,11 +162,7 @@ export function answerAsk(
   }
   const facts = [...packetFacts(packet), ...contextFacts(opts.arriveBy)];
   const terms = questionTerms(question, opts.history);
-  if (terms.size === 0) {
-    const named = facts.find((fact) => fact.text.startsWith("TripWeave stay:"));
-    if (named && /\b(hotel|stay|room|where)\b/i.test(question)) return reply(compose([named]));
-    return reply(ASK_LIMIT);
-  }
+  if (terms.size === 0) return reply(ASK_LIMIT);
   const ranked = facts
     .map((fact) => {
       const tags = tagsFor(fact.text, fact.official);
@@ -176,10 +172,6 @@ export function answerAsk(
     })
     .filter((row) => row.score > 0)
     .sort((a, b) => b.score - a.score);
-  if (ranked.length === 0) {
-    const named = facts.find((fact) => fact.text.startsWith("TripWeave stay:"));
-    if (named && /\b(hotel|stay)\b/i.test(question)) return reply(compose([named]));
-    return reply(ASK_LIMIT);
-  }
+  if (ranked.length === 0) return reply(ASK_LIMIT);
   return reply(compose(ranked.slice(0, 4).map((row) => row.fact)));
 }

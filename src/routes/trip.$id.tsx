@@ -516,34 +516,34 @@ function TripDetail() {
             {finePrint ? (
               <p className="mt-0.5 text-left text-[0.65rem] leading-snug text-subtle">{finePrint}</p>
             ) : null}
-            <p className="mt-1 text-left">
-              <AskTripWeaveButton
-                hotelName={pkg.name}
-                nationalities={loadTravelers().map((guest) => guest.nationality)}
-                packageId={pkg.id}
-                roomId={room.id}
-                checkIn={checkIn}
-                nights={nights}
-                arriveBy={brief.arriveBy}
-                includePickup={travel.includePickup}
-                amountInr={price}
-                onRequestCar={() => setTravelAndDraft({ ...travel, includePickup: true, arriveBy: brief.arriveBy, origin: brief.origin })}
-              />
-            </p>
             {!roomFits || fitError ? (
               <p className="mt-1 text-left text-xs text-danger" role="alert">
                 {fitError ?? `This room sleeps ${room.occupancy} · too small for ${party}.`}
               </p>
             ) : null}
           </div>
-          <Button
-            size="lg"
-            className="shrink-0 whitespace-nowrap"
-            onClick={goBook}
-            disabled={isPending || !quote?.available || !roomFits}
-          >
-            <TextSwap text={booking ? "Opening checkout…" : "Book this stay"} shimmer={booking} />
-          </Button>
+          <div className="flex shrink-0 flex-col items-stretch gap-2">
+            <Button
+              size="lg"
+              className="whitespace-nowrap"
+              onClick={goBook}
+              disabled={isPending || !quote?.available || !roomFits}
+            >
+              <TextSwap text={booking ? "Opening checkout…" : "Book this stay"} shimmer={booking} />
+            </Button>
+            <AskTripWeaveButton
+              hotelName={pkg.name}
+              nationalities={loadTravelers().map((guest) => guest.nationality)}
+              packageId={pkg.id}
+              roomId={room.id}
+              checkIn={checkIn}
+              nights={nights}
+              arriveBy={brief.arriveBy}
+              includePickup={travel.includePickup}
+              amountInr={price}
+              onRequestCar={() => setTravelAndDraft({ ...travel, includePickup: true, arriveBy: brief.arriveBy, origin: brief.origin })}
+            />
+          </div>
         </div>
       </div>
     </Shell>

@@ -31,7 +31,7 @@ export function presentAnswer(answer: string, allowed: string[]): PresentedAnswe
   }
   let prose = answer;
   for (const raw of found) prose = prose.split(raw).join(" ");
-  prose = prose.replace(/\s{2,}/g, " ").replace(/\s+([.,;:])/g, "$1").trim();
+  prose = prose.replace(/\s{2,}/g, " ").replace(/\s+([.,;:])/g, "$1").replace(/\s*Directions:\s*$/i, "").trim();
   const tripweave = prose.includes("TripWeave") && chips.length === 0;
   return { prose: prose || answer.trim(), chips, tripweave };
 }

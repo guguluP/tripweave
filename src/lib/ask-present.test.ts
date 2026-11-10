@@ -19,6 +19,8 @@ describe("presentAnswer", () => {
     assert.equal(view.chips[0]?.title, "Directions on Mappls");
     assert.equal(view.chips[0]?.url, url);
     assert.equal(view.prose.includes("http"), false);
+    assert.equal(view.prose.includes("Directions:"), false);
+    assert.match(view.prose, /Konark is 35 km\./);
   });
 
   it("chips the Puri forecast page and no other outside site", () => {

@@ -33,8 +33,8 @@ describe("answerAsk", () => {
   it("quotes the packet refund and no other rupee amount", () => {
     const answer = answerAsk("What is the refund if I cancel?", stay()).text;
     assert.match(answer, /TripWeave refund/);
-    assert.match(answer, /₹10000/);
-    assert.equal(answer.replace("₹10000", "").includes("₹"), false);
+    assert.match(answer, /₹10,000/);
+    assert.equal(answer.replace("₹10,000", "").includes("₹"), false);
     assert.equal(needsLocalConditions("What is the refund if I cancel?"), false);
   });
 
@@ -62,10 +62,12 @@ describe("answerAsk", () => {
     assert.match(answer, /https:\/\/indianvisaonline\.gov\.in/);
   });
 
-  it("names the stay when the question asks which hotel", () => {
+  it("does not name the open hotel when the question only says hotel", () => {
     const answer = answerAsk("Which hotel is this?", stay()).text;
-    assert.match(answer, /Taj Puri Resort & Spa/);
-    assert.equal(answer.includes("http"), false);
+    assert.equal(answer, ASK_LIMIT);
+    assert.equal(answer.includes("Taj"), false);
+    const unmatched = answerAsk("Pet-friendly hotel with a helipad", stay()).text;
+    assert.equal(unmatched, ASK_LIMIT);
   });
 
   it("does not paste a visa line when nothing matches", () => {
@@ -138,6 +140,7 @@ describe("answerAsk", () => {
 
   it("answers Rath Yatra from the exported dates", () => {
     const answer = answerAsk("When is Rath Yatra?", stay()).text;
-    assert.match(answer, /2026-06-26 through 2026-07-06/);
+    assert.match(answer, /Rath Yatra 2027 is 2027-06-15 through 2027-06-25/);
+    assert.equal(answer.includes("2026-06-26"), false);
   });
 });

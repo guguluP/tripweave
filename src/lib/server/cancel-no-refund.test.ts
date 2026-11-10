@@ -27,7 +27,7 @@ test("Ask facts: a hotel-confirmed stay gets no refund quote, a cancelled stay s
   assert.match(cancelled, /this stay is cancelled/);
   assert.doesNotMatch(cancelled, /refund if cancelled now/);
   const paid = stayFactLines({ ...base, status: "paid" }).join("\n");
-  assert.match(paid, /refund if cancelled now: ₹10000/);
+  assert.match(paid, /refund if cancelled now: ₹10,000/);
   // Before a booking exists there is no status: the policy is still quoted.
   assert.match(stayFactLines({ nationalities: ["IN"], packageId: base.packageId, checkIn: base.checkIn }).join("\n"), /Full refund/);
 });

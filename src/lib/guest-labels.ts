@@ -60,6 +60,7 @@ const EN = {
   askSend: "Ask",
   askOff: "Ask TripWeave is off on this server.",
   askFailed: "Could not answer that.",
+  askSignIn: "Sign in to ask TripWeave.",
   askLimited: "Try again in an hour.",
   askNoDocuments: "Leave out passport and visa numbers.",
   askYou: "You",

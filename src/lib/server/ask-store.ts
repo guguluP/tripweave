@@ -28,7 +28,11 @@ async function rpc<T>(op: string, payload: Record<string, unknown>): Promise<T |
   return data as T;
 }
 
-/** Count this ask against the signed-in user. Uses the database when Supabase is on. */
+/**
+ * Count this ask against the signed-in user.
+ * When Supabase is on, a missing or failed counter refuses the ask.
+ * Process memory is only the counter when Supabase is not configured.
+ */
 export async function takeAskSlot(userId: string): Promise<boolean> {
   if (isSupabaseConfigured()) {
     try {
@@ -36,6 +40,7 @@ export async function takeAskSlot(userId: string): Promise<boolean> {
       return data?.ok === true;
     } catch (err) {
       console.error("[ask] quota", err instanceof Error ? err.name : "failed");
+      return false;
     }
   }
   const mem = memory();

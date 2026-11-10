@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { emailArrivalChecklist } from "@/lib/server/arrival-mail";
 import { requestHotelCar } from "@/lib/server/ask-actions";
@@ -8,12 +8,27 @@ import { presentAnswer, type AskChip } from "@/lib/ask-present";
 import { MapplsMap } from "@/components/mappls-map";
 import { unpackMap, type AskPoint } from "@/lib/visit-places";
 import { getBearerToken } from "@/lib/auth/client";
+import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { guestLabel } from "@/lib/guest-labels";
+import { isRealUser } from "@/lib/session-guard";
+import { safeNextPath } from "@/lib/packages";
 import { guestCancelMode, refundAmountInr, refundPolicyFor } from "@/lib/refund-policy";
 import { pickupQuoteFor } from "@/lib/travel-plan";
 import { Button } from "@/components/ui/button";
 
-type Turn = { question: string; answer: string; chips: AskChip[]; tripweave: boolean; map: AskPoint[] };
+type Turn = {
+  question: string;
+  answer: string;
+  chips: AskChip[];
+  tripweave: boolean;
+  map: AskPoint[];
+  needsSignIn?: boolean;
+};
+
+function askNextPath(): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  return safeNextPath(`${window.location.pathname}${window.location.search}`) ?? undefined;
+}
 
 export function AskTripWeave({
   nationalities = [],
@@ -57,6 +72,12 @@ export function AskTripWeave({
   const [carOn, setCarOn] = useState(includePickup);
   const [carNote, setCarNote] = useState("");
   const [mailNote, setMailNote] = useState("");
+  const field = useRef<HTMLTextAreaElement>(null);
+  const { user, isPending } = useCurrentUserState();
+
+  useEffect(() => {
+    field.current?.focus();
+  }, []);
 
   useEffect(() => {
     setCarOn(includePickup);
@@ -102,6 +123,11 @@ export function AskTripWeave({
   const ask = (next?: string) => {
     const text = (next ?? question).trim();
     if (text.length < 3 || busy) return;
+    if (!isPending && !isRealUser(user)) {
+      pushTurn(text, guestLabel("askSignIn"), [], false, [], true);
+      if (!next) setQuestion("");
+      return;
+    }
     setBusy(true);
     setDraft("");
     const history = turns.slice(-4).map((row) => ({ question: row.question, answer: row.answer }));
@@ -129,9 +155,15 @@ export function AskTripWeave({
     })
       .then(async (res) => {
         const type = res.headers.get("content-type") ?? "";
-        if (type.includes("application/json")) {
-          const body = (await res.json()) as { reason?: TurnReason };
-          pushTurn(text, answerFor(body.reason ?? "unavailable"), [], false, []);
+        if (res.status === 401 || type.includes("application/json")) {
+          let reason: TurnReason = res.status === 401 ? "unauthorized" : "unavailable";
+          try {
+            const body = (await res.json()) as { reason?: TurnReason };
+            if (body.reason) reason = body.reason;
+          } catch {
+            /* The status already chose the reason. */
+          }
+          pushTurn(text, answerFor(reason), [], false, [], reason === "unauthorized");
           return;
         }
         if (!res.body) {
@@ -184,8 +216,15 @@ export function AskTripWeave({
       });
   };
 
-  const pushTurn = (asked: string, answer: string, chips: AskChip[], tripweave: boolean, map: AskPoint[] = []) => {
-    setTurns((prev) => [...prev, { question: asked, answer, chips, tripweave, map }].slice(-8));
+  const pushTurn = (
+    asked: string,
+    answer: string,
+    chips: AskChip[],
+    tripweave: boolean,
+    map: AskPoint[] = [],
+    needsSignIn = false,
+  ) => {
+    setTurns((prev) => [...prev, { question: asked, answer, chips, tripweave, map, needsSignIn }].slice(-8));
   };
 
   const foreign = nationalities.some((code) => (code || "IN").toUpperCase() !== "IN");
@@ -258,8 +297,18 @@ export function AskTripWeave({
             <p className="text-xs text-muted">{guestLabel("askYou")}</p>
             <p className="text-sm">{turn.question}</p>
             <div className="rounded-md bg-surface px-3 py-2">
-              <p className="text-sm">{turn.answer}</p>
-              {turn.tripweave ? <p className="mt-1 text-xs text-muted">{guestLabel("askFromStay")}</p> : null}
+              {turn.needsSignIn ? (
+                <p className="text-sm">
+                  <Link to="/login" search={{ next: askNextPath() }} className="underline">
+                    {turn.answer}
+                  </Link>
+                </p>
+              ) : (
+                <p className="text-sm">{turn.answer}</p>
+              )}
+              {turn.tripweave && confirmationCode ? (
+                <p className="mt-1 text-xs text-muted">{guestLabel("askFromStay")}</p>
+              ) : null}
               {turn.map.length > 0 ? (
                 <div className="map-frame mt-3 h-44 overflow-hidden rounded-md">
                   <MapplsMap markers={turn.map} title="Places in this answer" className="h-44 w-full" />
@@ -272,6 +321,9 @@ export function AskTripWeave({
                       key={chip.url}
                       className="ask-chip rounded-full border border-border bg-elevated px-3 py-1.5 text-xs font-medium text-fg"
                       href={chip.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(event) => event.stopPropagation()}
                     >
                       {chip.title}
                     </a>
@@ -286,12 +338,18 @@ export function AskTripWeave({
       <label className="mt-3 block text-sm">
         <span className="sr-only">{guestLabel("askTitle")}</span>
         <textarea
+          ref={field}
           value={question}
           maxLength={400}
           rows={2}
           placeholder={guestLabel("askPlaceholder")}
           className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm"
           onChange={(event) => setQuestion(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter" || event.shiftKey) return;
+            event.preventDefault();
+            ask();
+          }}
         />
       </label>
       <Button type="button" variant="outline" className="mt-2" disabled={busy || question.trim().length < 3} onClick={() => ask()}>
@@ -327,11 +385,12 @@ export function AskTripWeave({
   );
 }
 
-type TurnReason = "not_configured" | "rate_limited" | "no_documents" | "unavailable";
+type TurnReason = "not_configured" | "rate_limited" | "no_documents" | "unavailable" | "unauthorized";
 
 function answerFor(reason: TurnReason): string {
   if (reason === "not_configured") return guestLabel("askOff");
   if (reason === "rate_limited") return guestLabel("askLimited");
   if (reason === "no_documents") return guestLabel("askNoDocuments");
+  if (reason === "unauthorized") return guestLabel("askSignIn");
   return guestLabel("askFailed");
 }

@@ -1,6 +1,6 @@
 import { checklistForParty, SOURCES } from "./arrival-rules.ts";
 import { isRealIsoDate } from "./check-in.ts";
-import { getPackage } from "./packages.ts";
+import { formatMoney, getPackage } from "./packages.ts";
 import { guestCancelMode, refundAmountInr, refundPolicyFor } from "./refund-policy.ts";
 import type { ArriveBy } from "./origins.ts";
 import { pickupQuoteFor } from "./travel-plan.ts";
@@ -70,7 +70,7 @@ export function stayFactLines(input: AskGrounding): string[] {
       const policy = refundPolicyFor(input.checkIn);
       let refund = `TripWeave: ${policy.label}.`;
       if (input.amountInr != null && Number.isFinite(input.amountInr) && input.amountInr > 0) {
-        refund += ` TripWeave refund if cancelled now: ₹${refundAmountInr(input.amountInr, input.checkIn)}.`;
+        refund += ` TripWeave refund if cancelled now: ${formatMoney(refundAmountInr(input.amountInr, input.checkIn))}.`;
       }
       lines.push(refund);
     } else if (cancelMode === "no_refund") {

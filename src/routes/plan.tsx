@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { AskTripWeaveButton } from "@/components/ask-sheet";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { DigitPop, MotionToggle, Stagger, TextSwap } from "@/components/motion";
@@ -190,6 +191,9 @@ function Plan() {
           <p className="mt-3 text-muted">
             Dates first — festival nights change the rate — then how you arrive, then the trip feel.
           </p>
+          <div className="mt-4">
+            <AskTripWeaveButton />
+          </div>
         </Stagger>
 
         <section className="mt-10 rounded-xl border border-border bg-elevated p-4">

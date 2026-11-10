@@ -80,10 +80,6 @@ export const Route = createFileRoute("/api/ask")({
               controller.enqueue(encoder.encode(`${JSON.stringify(value)}\n`));
             };
             try {
-              const step = 48;
-              for (let i = 0; i < view.prose.length; i += step) {
-                send({ type: "token", text: view.prose.slice(i, i + step) });
-              }
               if (data.confirmationCode) {
                 await appendAskTurn(user.id, data.confirmationCode, data.question, answer);
               }

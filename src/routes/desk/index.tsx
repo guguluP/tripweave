@@ -129,7 +129,7 @@ function DeskPortal() {
       <Shell>
         <div className="mx-auto max-w-md px-4 py-12">
           <h1 className="font-display text-3xl">Desk token not recognised</h1>
-          <p className="mt-2 text-sm text-muted">That desk key does not match a hotel. Ask TripWeave for the key for your property.</p>
+          <p className="mt-2 text-sm text-muted">That desk key does not match a hotel.</p>
           <Button className="mt-4" type="button" variant="outline" onClick={() => setToken("")}>
             Try another token
           </Button>

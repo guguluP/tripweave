@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { AskTripWeaveButton } from "@/components/ask-sheet";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { RathCarousel } from "@/components/rath-carousel";
@@ -38,6 +39,7 @@ function RathYatraPage() {
               See the three stays
             </Link>
           </Button>
+          <AskTripWeaveButton />
         </div>
       </div>
       <RathCarousel />

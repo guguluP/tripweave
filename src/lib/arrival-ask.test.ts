@@ -69,7 +69,7 @@ describe("arrival ask grounding", () => {
     });
     assert.match(packet.text, /Taj Puri Resort & Spa/);
     assert.match(packet.text, /Full refund/);
-    assert.match(packet.text, /₹10000/);
+    assert.match(packet.text, /₹10,000/);
     assert.match(packet.text, /airport car both ways/);
     assert.match(packet.text, /has not confirmed/);
     assert.equal(packet.text.includes("passport number"), false);

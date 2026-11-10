@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Landmark, ShieldCheck, Wallet } from "lucide-react";
+import { AskTripWeaveButton } from "@/components/ask-sheet";
 import { Shell } from "@/components/shell";
 import { PackageCard } from "@/components/package-card";
 import { Button } from "@/components/ui/button";
@@ -127,6 +128,7 @@ function Home() {
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
+            <AskTripWeaveButton />
             <LearnMore
               className="text-sm font-medium text-primary-fg"
               onClick={() =>
