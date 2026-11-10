@@ -52,18 +52,22 @@ async function persist(doc: GroupDoc, expected: number | null, event: string): P
     mem.byHash.set(doc.trip.shareTokenHash, doc.trip.id);
     return { ok: true };
   }
-  if (expected == null) {
-    const data = await rpc<{ ok?: boolean; error?: string }>("create", { doc });
-    if (data?.ok === false) return { ok: false, error: data.error ?? "create" };
+  try {
+    if (expected == null) {
+      const data = await rpc<{ ok?: boolean; error?: string }>("create", { doc });
+      if (data?.ok === false) return { ok: false, error: data.error ?? "create" };
+      return { ok: true };
+    }
+    const data = await rpc<{ ok?: boolean; error?: string; doc?: GroupDoc; version?: number }>("save", {
+      expected_version: expected,
+      doc,
+      event,
+    });
+    if (data?.ok === false) return { ok: false, error: data.error ?? "save", doc: data.doc };
     return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "save" };
   }
-  const data = await rpc<{ ok?: boolean; error?: string; doc?: GroupDoc; version?: number }>("save", {
-    expected_version: expected,
-    doc,
-    event,
-  });
-  if (data?.ok === false) return { ok: false, error: data.error ?? "save", doc: data.doc };
-  return { ok: true };
 }
 
 /** Apply one op to the locked version. A stale write is retried against the saved document. */

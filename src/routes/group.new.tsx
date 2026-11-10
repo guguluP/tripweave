@@ -130,14 +130,19 @@ function Form() {
               ).toISOString(),
               organiserName: name,
             },
-          }).then((res) => {
-            setBusy(false);
-            if (!res.ok) {
-              setMessage(res.message);
-              return;
-            }
-            void navigate({ to: "/g/$token", params: { token: res.token } });
-          });
+          })
+            .then((res) => {
+              setBusy(false);
+              if (!res.ok) {
+                setMessage(res.message);
+                return;
+              }
+              void navigate({ to: "/g/$token", params: { token: res.token } });
+            })
+            .catch(() => {
+              setBusy(false);
+              setMessage("The link could not be created. Try again.");
+            });
         }}
       >
         <p className="eyebrow">Family trip</p>
