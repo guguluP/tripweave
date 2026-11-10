@@ -23,6 +23,9 @@ export default async function cspMiddleware(
     if (!headers.has("content-security-policy")) {
       headers.set("content-security-policy", policy);
     }
+    if (!headers.has("x-content-type-options")) headers.set("x-content-type-options", "nosniff");
+    // Group share links carry their token in the path. Never send the path to other sites.
+    if (!headers.has("referrer-policy")) headers.set("referrer-policy", "strict-origin-when-cross-origin");
     return new Response(result.body, {
       status: result.status,
       statusText: result.statusText,

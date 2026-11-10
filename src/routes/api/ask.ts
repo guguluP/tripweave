@@ -49,7 +49,9 @@ async function groupAsk(token: string, question: string, userId: string | null):
   const { getPackage } = await import("@/lib/packages");
   const doc = await loadGroup({ tokenHash: await sha256Hex(token) });
   if (!doc) return null;
-  const memberId = await memberIdFromCookie(doc.trip.id);
+  const cookieMember = await memberIdFromCookie(doc.trip.id);
+  // A removed person's cookie no longer opens the group.
+  const memberId = cookieMember && doc.members.some((member) => member.id === cookieMember && !member.leftAt) ? cookieMember : null;
   const organiser = Boolean(userId && userId === doc.trip.organiserUserId);
   if (!organiser && !memberId) return "unauthorized";
   const me = organiser ? doc.members.find((member) => member.isOrganiser) : doc.members.find((member) => member.id === memberId);
