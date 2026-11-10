@@ -1095,6 +1095,9 @@ export type CancelResult =
   | { ok: true; status: string; refundAmount: number; message: string }
   | { ok: false; message: string };
 
+export const GROUP_ROOM_CANCEL_MESSAGE =
+  "This room is part of a group trip. Cancel it from the group page so every share is refunded together.";
+
 export const cancelBooking = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   // A bare id is the refund cancel. { id, acceptNoRefund: true } is the guest's explicit
@@ -1163,6 +1166,12 @@ export const cancelBooking = createServerFn({ method: "POST" })
         // gateway is never called. The page must have shown the no-refund warning first.
         if (!acceptNoRefund) return { ok: false, message: NO_REFUND_CANCEL_NEEDS_CONFIRM };
         return cancelConfirmedNoRefund(context.userId, target, fromSql, useMemoryStore());
+      }
+
+      // A group room was paid for by several people through share links, not by this stay's
+      // own payment. Refunding it here would report a refund that never reaches anyone.
+      if (readMeta(target.swaps).groupTripId || target.paymentMethod === "group") {
+        return { ok: false, message: GROUP_ROOM_CANCEL_MESSAGE };
       }
 
       const prior = refundIntentFor(context.userId, id);

@@ -5,8 +5,9 @@ export const Route = createFileRoute("/api/group/$token/state")({
   server: {
     handlers: {
       GET: async ({ params, request }) => {
-        const result = await getGroupState({ data: { token: params.token } });
-        if (!result.ok) return Response.json({ ok: false }, { status: 404 });
+        // A malformed token is a missing group, not a server error.
+        const result = await getGroupState({ data: { token: params.token } }).catch(() => null);
+        if (!result?.ok) return Response.json({ ok: false }, { status: 404 });
         const version = new URL(request.url).searchParams.get("v");
         if (version && Number(version) === result.state.version) {
           return new Response(null, { status: 304 });

@@ -70,7 +70,7 @@ export type GroupDoc = {
 
 export type EngineResult =
   | { ok: true; doc: GroupDoc; noop?: boolean; dev?: Record<string, unknown> }
-  | { ok: false; error: string; version?: number; doc?: GroupDoc };
+  | { ok: false; error: string; version?: number; doc?: GroupDoc; persist?: boolean };
 
 const OTP_WINDOW_MS = 15 * 60 * 1000;
 
@@ -144,6 +144,7 @@ export function applyEngine(doc: GroupDoc | null, op: string, payload: Record<st
   if (op === "attach_bookings") return attachBookings(doc, payload, iso);
   if (op === "complete_if_due") return completeIfDue(doc, now);
   if (op === "scrub_phones") return scrubPhones(doc, now);
+  if (op === "mark_refund") return markRefund(doc, payload, iso);
   return { ok: false, error: "unknown_op", doc };
 }
 
@@ -266,8 +267,14 @@ function verifyMember(doc: GroupDoc, payload: Record<string, unknown>, now: Date
   const otp = [...doc.otps].reverse().find((row) => row.phoneHash === phoneHash && Date.parse(row.expiresAt) > now.getTime());
   if (!otp) return { ok: false, error: "otp_expired", doc };
   otp.attempts += 1;
-  if (otp.attempts > 5) return { ok: false, error: "otp_limited", doc };
-  if (otp.codeHash !== codeHash) return { ok: false, error: "otp_mismatch", doc };
+  // A wrong guess must be saved, or the 5-try limit never holds and a 6-digit code can be guessed.
+  if (otp.attempts > 5 || otp.codeHash !== codeHash) {
+    doc.trip.version += 1;
+    doc.trip.updatedAt = now.toISOString();
+    return { ok: false, error: otp.attempts > 5 ? "otp_limited" : "otp_mismatch", doc, persist: true };
+  }
+  // One code joins once.
+  otp.expiresAt = now.toISOString();
   const existing = doc.members.find((member) => member.phoneHash === phoneHash && !member.leftAt);
   if (existing) return { ok: true, doc, dev: { member_id: existing.id } };
   if (activeMembers(doc).length >= MEMBER_CAP) return { ok: false, error: "member_cap", doc };
@@ -408,7 +415,9 @@ function applyPayment(doc: GroupDoc, payload: Record<string, unknown>, now: Date
   if (!paymentId.startsWith("pay_") || !Number.isInteger(amount) || amount < 1) return { ok: false, error: "payment", doc };
   if (doc.payments.some((row) => row.razorpayPaymentId === paymentId)) return { ok: true, doc, noop: true };
   const share = doc.shares.find((row) => row.id === shareId);
-  const late = !share || share.status === "void" || doc.trip.status !== "collecting" || share.amountInr !== amount;
+  // A second payment on a share that is already paid is refunded like a late one.
+  const duplicate = share?.status === "paid";
+  const late = !share || share.status === "void" || duplicate || doc.trip.status !== "collecting" || share.amountInr !== amount;
   const payment: GroupPayment = {
     id: crypto.randomUUID(),
     shareId: share?.id ?? shareId,
@@ -425,7 +434,7 @@ function applyPayment(doc: GroupDoc, payload: Record<string, unknown>, now: Date
       paymentId: payment.id,
       razorpayPaymentId: paymentId,
       amountInr: amount,
-      reason: "late",
+      reason: duplicate ? "duplicate" : "late",
       status: "pending",
     });
     doc.trip.version += 1;
@@ -465,6 +474,10 @@ function cancel(doc: GroupDoc, payload: Record<string, unknown>, now: Date): Eng
   const reason: GroupRefundReason = doc.trip.status === "hotel_confirmed" ? "member_drop" : "organiser_cancel";
   queueRefunds(doc, reason, now);
   for (const share of doc.shares) if (share.status === "open") share.status = "void";
+  // The rooms go back to the hotel. After a hotel confirmation this is the no-refund cancel.
+  for (const booking of doc.bookings) {
+    if (booking.status === "paid" || booking.status === "desk_confirmed") booking.status = "cancelled";
+  }
   doc.trip.cancelReason = String(payload.reason ?? "organiser").slice(0, 80);
   bump(doc, now.toISOString(), "organiser_cancel", doc.trip.status, next);
   return { ok: true, doc };
@@ -548,6 +561,17 @@ function scrubPhones(doc: GroupDoc, now: Date): EngineResult {
   if (!changed) return { ok: true, doc, noop: true };
   doc.trip.version += 1;
   doc.trip.updatedAt = now.toISOString();
+  return { ok: true, doc };
+}
+
+function markRefund(doc: GroupDoc, payload: Record<string, unknown>, iso: string): EngineResult {
+  const refund = doc.refunds.find((row) => row.id === String(payload.refund_id ?? ""));
+  const status = String(payload.status ?? "");
+  if (!refund || (status !== "applied" && status !== "failed")) return { ok: false, error: "refund", doc };
+  if (refund.status === status) return { ok: true, doc, noop: true };
+  refund.status = status as "applied" | "failed";
+  doc.trip.version += 1;
+  doc.trip.updatedAt = iso;
   return { ok: true, doc };
 }
 
