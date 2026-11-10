@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/flag-unconfirmed",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/group-sweep",
+      "schedule": "30 4 * * *"
     }
   ]
 }

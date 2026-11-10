@@ -17,6 +17,7 @@ type AskProps = {
   nights?: number;
   arriveBy?: string;
   confirmationCode?: string;
+  groupToken?: string;
   includePickup?: boolean;
   amountInr?: number;
   /** The booking's status, so a confirmed or cancelled stay is not quoted a refund. */

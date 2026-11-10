@@ -45,16 +45,12 @@ function whatsappConfigured(): boolean {
  * until then this only logs and returns false (email remains the live desk channel).
  */
 async function sendWhatsAppStub(toPhone: string | undefined, text: string): Promise<boolean> {
-  if (!whatsappConfigured()) {
-    console.info("[notifyDesk] whatsapp stub (no TW_WHATSAPP_*):", text.slice(0, 120));
-    return false;
+  const { sendWhatsApp } = await import("@/lib/server/notify/whatsapp");
+  const sent = await sendWhatsApp(toPhone, text);
+  if (!sent && !whatsappConfigured()) {
+    console.info("[notifyDesk] whatsapp skipped (no TW_WHATSAPP_*):", text.slice(0, 120));
   }
-  console.info(
-    "[notifyDesk] whatsapp env set but Meta Cloud API client not wired; skipped send to",
-    toPhone ?? "(desk)",
-    text.slice(0, 80),
-  );
-  return false;
+  return sent;
 }
 
 export async function notifyDesk(input: DeskNotice): Promise<NotifyResult> {
@@ -164,4 +160,67 @@ export async function notifyGuestCheckedIn(input: DeskNotice): Promise<boolean> 
     console.error("[notifyDesk] check-in", err instanceof Error ? err.message : err);
     return false;
   }
+}
+
+export async function notifyGroupDesk(input: {
+  tripId: string;
+  packageId: string;
+  packageName: string;
+  checkIn: string;
+  nights: number;
+  guests: number;
+  elderly: number;
+  needs: string[];
+  rooms: number;
+  amountInr: number;
+}): Promise<NotifyResult> {
+  const desk = deskFor(input.packageId);
+  let acceptUrl: string | undefined;
+  let declineUrl: string | undefined;
+  if (deskSigningReady()) {
+    const accept = signDeskAction({
+      bookingId: 0,
+      packageId: input.packageId,
+      confirmationCode: "GROUP",
+      action: "accept",
+      groupTripId: input.tripId,
+    });
+    const decline = signDeskAction({
+      bookingId: 0,
+      packageId: input.packageId,
+      confirmationCode: "GROUP",
+      action: "decline",
+      groupTripId: input.tripId,
+    });
+    if (accept) acceptUrl = deskActionUrl(accept);
+    if (decline) declineUrl = deskActionUrl(decline);
+  }
+  const text = [
+    `TripWeave group · ${input.rooms} rooms · ${input.guests} guests`,
+    input.elderly ? `${input.elderly} elderly` : "",
+    input.needs.length ? input.needs.join(", ") : "",
+    input.packageName,
+    `Check-in ${input.checkIn} · ${nightsPhrase(input.nights)}`,
+    `Collected ₹${input.amountInr.toLocaleString("en-IN")}`,
+    "",
+    "Confirm all rooms, or decline the group. One action covers every room.",
+    acceptUrl ? `Accept: ${acceptUrl}` : "Accept: open the desk portal.",
+    declineUrl ? `Decline: ${declineUrl}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+  let email = false;
+  if (desk.email && bookingMailConfigured()) {
+    try {
+      email = await sendBookingMail({
+        to: desk.email,
+        subject: `Group stay · ${input.packageName} · ${input.rooms} rooms`,
+        text,
+      });
+    } catch (err) {
+      console.error("[notifyDesk] group", err instanceof Error ? err.message : err);
+    }
+  }
+  const whatsapp = await sendWhatsAppStub(desk.phone, text);
+  return { email, whatsapp, acceptUrl, declineUrl };
 }

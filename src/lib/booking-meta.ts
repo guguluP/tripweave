@@ -34,6 +34,10 @@ export type BookingMeta = {
   guestNationalities?: string[];
   /** Per-guest entry flags. No names, phones, or document numbers. */
   guestFlags?: GuestEntryFlag[];
+  /** Set on each room booking that belongs to one group trip. */
+  groupTripId?: string;
+  /** Confirmation codes of the other rooms in that group. */
+  groupCodes?: string[];
 };
 
 export type GuestEntryFlag = {

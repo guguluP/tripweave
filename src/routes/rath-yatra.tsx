@@ -40,6 +40,9 @@ function RathYatraPage() {
             </Link>
           </Button>
           <AskTripWeaveButton />
+          <Button asChild variant="outline">
+            <Link to="/group/new">Plan for the family</Link>
+          </Button>
         </div>
       </div>
       <RathCarousel />

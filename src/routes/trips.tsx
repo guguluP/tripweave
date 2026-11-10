@@ -13,6 +13,8 @@ import { DEFAULT_BRIEF, formatMoney, getPackage, loadBrief, nightsPhrase } from 
 import { paymentLine } from "@/lib/pay";
 import { AskTripWeaveButton } from "@/components/ask-sheet";
 import { cancelBooking, listBookings, type BookingRow } from "@/lib/server/bookings";
+import { listMyGroupTrips } from "@/lib/server/group-trips";
+import { isGroupStatus, statusLabel } from "@/lib/group/state";
 import { loadCatalog, saveStayReview } from "@/lib/server/catalog";
 import { setCatalogOverlays } from "@/lib/catalog-store";
 
@@ -130,6 +132,7 @@ function TripsInner() {
   /** Stay whose "Cancel (no refund)" warning is open. */
   const [confirmNoRefund, setConfirmNoRefund] = useState<number | null>(null);
   const [cloud, setCloud] = useState<boolean | null>(null);
+  const [groups, setGroups] = useState<{ tripId: string; title: string; status: string; checkIn: string }[]>([]);
 
   const refresh = () => {
     listBookings()
@@ -139,6 +142,7 @@ function TripsInner() {
 
   useEffect(() => {
     refresh();
+    void listMyGroupTrips().then((rows) => setGroups(rows)).catch(() => setGroups([]));
     getPersistStatus()
       .then((s) => setCloud(s.cloud))
       .catch(() => setCloud(false));
@@ -150,6 +154,20 @@ function TripsInner() {
         <Stagger>
           <p className="eyebrow">My trips</p>
           <h1 className="mt-2 font-display text-4xl">Bookings</h1>
+          <p className="mt-3">
+            <Link to="/group/new" className="text-sm font-medium">Plan for the family</Link>
+          </p>
+          {groups.length > 0 ? (
+            <ul className="mt-4 grid gap-2">
+              {groups.map((group) => (
+                <li key={group.tripId}>
+                  <Link to="/group/$id" params={{ id: group.tripId }} className="text-sm font-medium">
+                    {group.title} · {group.checkIn} · {statusLabel(isGroupStatus(group.status) ? group.status : "draft")}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : null}
           {cloud === true ? (
             <p className="mt-2 text-sm text-muted">Synced to your TripWeave account.</p>
           ) : cloud === false ? (

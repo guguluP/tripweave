@@ -190,13 +190,35 @@ export async function settleRazorpayWebhook(rawBody: string, signature: string |
   }
   const event = JSON.parse(rawBody) as {
     event?: string;
-    payload?: { payment?: { entity?: { id?: string; order_id?: string; email?: string; status?: string; amount?: number } } };
+    payload?: {
+      payment?: { entity?: { id?: string; order_id?: string; email?: string; status?: string; amount?: number; method?: string; notes?: Record<string, string> } };
+      payment_link?: { entity?: { notes?: Record<string, string> } };
+      order?: { entity?: { notes?: Record<string, string> } };
+    };
   };
-  if (event.event !== "payment.captured") return Response.json({ ok: true, ignored: event.event ?? "" });
+  const eventName = event.event ?? "";
+  const inlineNotes =
+    event.payload?.payment_link?.entity?.notes ??
+    event.payload?.payment?.entity?.notes ??
+    event.payload?.order?.entity?.notes;
+  if (eventName.startsWith("payment_link.") || inlineNotes?.kind === "group_share") {
+    const { applyGroupWebhook } = await import("@/lib/server/group-razorpay");
+    await applyGroupWebhook(eventName, (event.payload ?? {}) as Record<string, unknown>);
+    return Response.json({ ok: true, group: true });
+  }
+  if (eventName !== "payment.captured") return Response.json({ ok: true, ignored: eventName });
   const payment = event.payload?.payment?.entity;
   if (!payment?.id || !payment.order_id) return Response.json({ ok: true, ignored: "no payment" });
   const order = await fetchRazorpayOrder(payment.order_id);
   const notes = order?.notes ?? {};
+  if (notes.kind === "group_share") {
+    const { applyGroupWebhook } = await import("@/lib/server/group-razorpay");
+    await applyGroupWebhook(eventName, {
+      payment: { entity: payment },
+      order: { entity: { notes } },
+    });
+    return Response.json({ ok: true, group: true });
+  }
   const userId = notes.userId;
   const packageId = notes.packageId;
   if (!userId || !packageId) return Response.json({ ok: true, ignored: "no stay notes" });

@@ -128,6 +128,9 @@ function Home() {
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
+            <Link to="/group/new" className="text-sm font-medium text-primary-fg">
+              Plan for the family
+            </Link>
             <AskTripWeaveButton />
             <LearnMore
               className="text-sm font-medium text-primary-fg"

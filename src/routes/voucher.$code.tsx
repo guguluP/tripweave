@@ -151,6 +151,20 @@ function VoucherPage() {
   return (
     <Shell>
       <div className="mx-auto max-w-lg px-4 py-10">
+        {meta.groupTripId ? (
+          <div className="mb-6 rounded-xl border border-border bg-elevated px-4 py-4">
+            <p className="font-medium">Part of a group trip</p>
+            <p className="mt-1 text-sm text-muted">The hotel confirmed these rooms together.</p>
+            {meta.groupCodes?.filter((code) => code !== booking.confirmationCode).map((code) => (
+              <Link key={code} to="/voucher/$code" params={{ code }} className="mt-2 block text-sm font-medium">
+                {code}
+              </Link>
+            ))}
+            <Link to="/group/$id" params={{ id: meta.groupTripId }} className="mt-3 inline-block text-sm font-medium">
+              Open the group
+            </Link>
+          </div>
+        ) : null}
         {search.new === "1" ? (
           <div className="mb-6 rounded-xl border border-border bg-elevated px-4 py-4" role="status">
             <p className="font-display text-2xl">Booked</p>

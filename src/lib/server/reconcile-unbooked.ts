@@ -54,6 +54,18 @@ export async function runReconcileUnbookedCron(): Promise<ReconcileUnbookedResul
       const booked = await sbFindBookingByPaymentRef(pay.id);
       if (booked) continue;
     }
+    if (pay.orderId) {
+      const { fetchRazorpayOrder } = await import("@/lib/server/razorpay");
+      const order = await fetchRazorpayOrder(pay.orderId);
+      if (order?.notes?.kind === "group_share") {
+        const { applyGroupWebhook } = await import("@/lib/server/group-razorpay");
+        await applyGroupWebhook("payment.captured", {
+          payment: { entity: { id: pay.id, amount: pay.amountPaise, method: "upi" } },
+          order: { entity: { notes: order.notes } },
+        });
+        continue;
+      }
+    }
     missing.push({
       paymentId: pay.id,
       orderId: pay.orderId,

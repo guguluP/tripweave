@@ -588,6 +588,14 @@ export const deskApplyActionToken = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const payload = verifyDeskAction(data.token);
     if (!payload) return { ok: false as const, message: "Link expired or invalid." };
+    if (payload.groupTripId) {
+      const { settleGroupDesk } = await import("@/lib/server/group-desk");
+      return settleGroupDesk({
+        tripId: payload.groupTripId,
+        packageId: payload.packageId,
+        action: payload.action === "accept" ? "desk_confirm" : "desk_decline",
+      });
+    }
     const action = payload.action === "accept" ? "desk_confirm" : "desk_decline";
     return runTransition({
       id: payload.bookingId,

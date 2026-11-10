@@ -61,6 +61,8 @@ export type DeskActionPayload = {
   confirmationCode: string;
   action: "accept" | "decline";
   exp: number;
+  /** Set on a group notice. One link confirms or declines every room. */
+  groupTripId?: string;
 };
 
 function b64url(buf: Buffer | string) {
@@ -97,7 +99,8 @@ export function verifyDeskAction(token: string): DeskActionPayload | null {
   if (!safeEqual(sig, expected)) return null;
   try {
     const payload = JSON.parse(fromB64url(body).toString("utf8")) as DeskActionPayload;
-    if (!payload?.bookingId || !payload.packageId || !payload.action) return null;
+    if (!payload?.packageId || !payload.action) return null;
+    if (!payload.bookingId && !payload.groupTripId) return null;
     if (payload.action !== "accept" && payload.action !== "decline") return null;
     if (typeof payload.exp !== "number" || payload.exp < Math.floor(Date.now() / 1000)) return null;
     return payload;

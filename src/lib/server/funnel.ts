@@ -6,6 +6,8 @@ const EVENTS = new Set([
   "checkout_opened",
   "paid",
   "webhook_booked",
+  "group_published",
+  "group_fully_paid",
 ]);
 
 /** Best-effort row. Missing table or database does not fail the guest path. */

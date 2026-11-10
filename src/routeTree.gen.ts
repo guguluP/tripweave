@@ -26,13 +26,18 @@ import { Route as ApiVerifyPaymentRouteImport } from './routes/api/verify-paymen
 import { Route as ApiWalletPassRouteImport } from './routes/api/wallet-pass'
 import { Route as DeskIndexRouteImport } from './routes/desk/index'
 import { Route as DeskActionRouteImport } from './routes/desk/action'
+import { Route as GTokenRouteImport } from './routes/g.$token'
+import { Route as GroupIdRouteImport } from './routes/group.$id'
+import { Route as GroupNewRouteImport } from './routes/group.new'
 import { Route as TripIdRouteImport } from './routes/trip.$id'
 import { Route as VoucherCodeRouteImport } from './routes/voucher.$code'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCronFlagUnconfirmedRouteImport } from './routes/api/cron/flag-unconfirmed'
+import { Route as ApiCronGroupSweepRouteImport } from './routes/api/cron/group-sweep'
 import { Route as ApiCronReconcileUnbookedRouteImport } from './routes/api/cron/reconcile-unbooked'
 import { Route as ApiCronRefundRetryRouteImport } from './routes/api/cron/refund-retry'
 import { Route as ApiInvoiceCodeRouteImport } from './routes/api/invoice.$code'
+import { Route as ApiGroupTokenStateRouteImport } from './routes/api/group.$token.state'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -119,6 +124,21 @@ const DeskActionRoute = DeskActionRouteImport.update({
   path: '/desk/action',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GTokenRoute = GTokenRouteImport.update({
+  id: '/g/$token',
+  path: '/g/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GroupIdRoute = GroupIdRouteImport.update({
+  id: '/group/$id',
+  path: '/group/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GroupNewRoute = GroupNewRouteImport.update({
+  id: '/group/new',
+  path: '/group/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TripIdRoute = TripIdRouteImport.update({
   id: '/trip/$id',
   path: '/trip/$id',
@@ -139,6 +159,11 @@ const ApiCronFlagUnconfirmedRoute = ApiCronFlagUnconfirmedRouteImport.update({
   path: '/api/cron/flag-unconfirmed',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCronGroupSweepRoute = ApiCronGroupSweepRouteImport.update({
+  id: '/api/cron/group-sweep',
+  path: '/api/cron/group-sweep',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCronReconcileUnbookedRoute =
   ApiCronReconcileUnbookedRouteImport.update({
     id: '/api/cron/reconcile-unbooked',
@@ -153,6 +178,11 @@ const ApiCronRefundRetryRoute = ApiCronRefundRetryRouteImport.update({
 const ApiInvoiceCodeRoute = ApiInvoiceCodeRouteImport.update({
   id: '/api/invoice/$code',
   path: '/api/invoice/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGroupTokenStateRoute = ApiGroupTokenStateRouteImport.update({
+  id: '/api/group/$token/state',
+  path: '/api/group/$token/state',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -173,14 +203,19 @@ export interface FileRoutesByFullPath {
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/api/wallet-pass': typeof ApiWalletPassRoute
   '/desk/action': typeof DeskActionRoute
+  '/g/$token': typeof GTokenRoute
+  '/group/$id': typeof GroupIdRoute
+  '/group/new': typeof GroupNewRoute
   '/trip/$id': typeof TripIdRoute
   '/voucher/$code': typeof VoucherCodeRoute
   '/desk/': typeof DeskIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/flag-unconfirmed': typeof ApiCronFlagUnconfirmedRoute
+  '/api/cron/group-sweep': typeof ApiCronGroupSweepRoute
   '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
   '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
   '/api/invoice/$code': typeof ApiInvoiceCodeRoute
+  '/api/group/$token/state': typeof ApiGroupTokenStateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -199,14 +234,19 @@ export interface FileRoutesByTo {
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/api/wallet-pass': typeof ApiWalletPassRoute
   '/desk/action': typeof DeskActionRoute
+  '/g/$token': typeof GTokenRoute
+  '/group/$id': typeof GroupIdRoute
+  '/group/new': typeof GroupNewRoute
   '/trip/$id': typeof TripIdRoute
   '/voucher/$code': typeof VoucherCodeRoute
   '/desk': typeof DeskIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/flag-unconfirmed': typeof ApiCronFlagUnconfirmedRoute
+  '/api/cron/group-sweep': typeof ApiCronGroupSweepRoute
   '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
   '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
   '/api/invoice/$code': typeof ApiInvoiceCodeRoute
+  '/api/group/$token/state': typeof ApiGroupTokenStateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -226,14 +266,19 @@ export interface FileRoutesById {
   '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/api/wallet-pass': typeof ApiWalletPassRoute
   '/desk/action': typeof DeskActionRoute
+  '/g/$token': typeof GTokenRoute
+  '/group/$id': typeof GroupIdRoute
+  '/group/new': typeof GroupNewRoute
   '/trip/$id': typeof TripIdRoute
   '/voucher/$code': typeof VoucherCodeRoute
   '/desk/': typeof DeskIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/flag-unconfirmed': typeof ApiCronFlagUnconfirmedRoute
+  '/api/cron/group-sweep': typeof ApiCronGroupSweepRoute
   '/api/cron/reconcile-unbooked': typeof ApiCronReconcileUnbookedRoute
   '/api/cron/refund-retry': typeof ApiCronRefundRetryRoute
   '/api/invoice/$code': typeof ApiInvoiceCodeRoute
+  '/api/group/$token/state': typeof ApiGroupTokenStateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -254,14 +299,19 @@ export interface FileRouteTypes {
     | '/api/verify-payment'
     | '/api/wallet-pass'
     | '/desk/action'
+    | '/g/$token'
+    | '/group/$id'
+    | '/group/new'
     | '/trip/$id'
     | '/voucher/$code'
     | '/desk/'
     | '/api/auth/$'
     | '/api/cron/flag-unconfirmed'
+    | '/api/cron/group-sweep'
     | '/api/cron/reconcile-unbooked'
     | '/api/cron/refund-retry'
     | '/api/invoice/$code'
+    | '/api/group/$token/state'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -280,14 +330,19 @@ export interface FileRouteTypes {
     | '/api/verify-payment'
     | '/api/wallet-pass'
     | '/desk/action'
+    | '/g/$token'
+    | '/group/$id'
+    | '/group/new'
     | '/trip/$id'
     | '/voucher/$code'
     | '/desk'
     | '/api/auth/$'
     | '/api/cron/flag-unconfirmed'
+    | '/api/cron/group-sweep'
     | '/api/cron/reconcile-unbooked'
     | '/api/cron/refund-retry'
     | '/api/invoice/$code'
+    | '/api/group/$token/state'
   id:
     | '__root__'
     | '/'
@@ -306,14 +361,19 @@ export interface FileRouteTypes {
     | '/api/verify-payment'
     | '/api/wallet-pass'
     | '/desk/action'
+    | '/g/$token'
+    | '/group/$id'
+    | '/group/new'
     | '/trip/$id'
     | '/voucher/$code'
     | '/desk/'
     | '/api/auth/$'
     | '/api/cron/flag-unconfirmed'
+    | '/api/cron/group-sweep'
     | '/api/cron/reconcile-unbooked'
     | '/api/cron/refund-retry'
     | '/api/invoice/$code'
+    | '/api/group/$token/state'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -333,14 +393,19 @@ export interface RootRouteChildren {
   ApiVerifyPaymentRoute: typeof ApiVerifyPaymentRoute
   ApiWalletPassRoute: typeof ApiWalletPassRoute
   DeskActionRoute: typeof DeskActionRoute
+  GTokenRoute: typeof GTokenRoute
+  GroupIdRoute: typeof GroupIdRoute
+  GroupNewRoute: typeof GroupNewRoute
   TripIdRoute: typeof TripIdRoute
   VoucherCodeRoute: typeof VoucherCodeRoute
   DeskIndexRoute: typeof DeskIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronFlagUnconfirmedRoute: typeof ApiCronFlagUnconfirmedRoute
+  ApiCronGroupSweepRoute: typeof ApiCronGroupSweepRoute
   ApiCronReconcileUnbookedRoute: typeof ApiCronReconcileUnbookedRoute
   ApiCronRefundRetryRoute: typeof ApiCronRefundRetryRoute
   ApiInvoiceCodeRoute: typeof ApiInvoiceCodeRoute
+  ApiGroupTokenStateRoute: typeof ApiGroupTokenStateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -464,6 +529,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeskActionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/g/$token': {
+      id: '/g/$token'
+      path: '/g/$token'
+      fullPath: '/g/$token'
+      preLoaderRoute: typeof GTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/group/$id': {
+      id: '/group/$id'
+      path: '/group/$id'
+      fullPath: '/group/$id'
+      preLoaderRoute: typeof GroupIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/group/new': {
+      id: '/group/new'
+      path: '/group/new'
+      fullPath: '/group/new'
+      preLoaderRoute: typeof GroupNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trip/$id': {
       id: '/trip/$id'
       path: '/trip/$id'
@@ -492,6 +578,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCronFlagUnconfirmedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cron/group-sweep': {
+      id: '/api/cron/group-sweep'
+      path: '/api/cron/group-sweep'
+      fullPath: '/api/cron/group-sweep'
+      preLoaderRoute: typeof ApiCronGroupSweepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/cron/reconcile-unbooked': {
       id: '/api/cron/reconcile-unbooked'
       path: '/api/cron/reconcile-unbooked'
@@ -511,6 +604,13 @@ declare module '@tanstack/react-router' {
       path: '/api/invoice/$code'
       fullPath: '/api/invoice/$code'
       preLoaderRoute: typeof ApiInvoiceCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/group/$token/state': {
+      id: '/api/group/$token/state'
+      path: '/api/group/$token/state'
+      fullPath: '/api/group/$token/state'
+      preLoaderRoute: typeof ApiGroupTokenStateRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -533,14 +633,19 @@ const rootRouteChildren: RootRouteChildren = {
   ApiVerifyPaymentRoute: ApiVerifyPaymentRoute,
   ApiWalletPassRoute: ApiWalletPassRoute,
   DeskActionRoute: DeskActionRoute,
+  GTokenRoute: GTokenRoute,
+  GroupIdRoute: GroupIdRoute,
+  GroupNewRoute: GroupNewRoute,
   TripIdRoute: TripIdRoute,
   VoucherCodeRoute: VoucherCodeRoute,
   DeskIndexRoute: DeskIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronFlagUnconfirmedRoute: ApiCronFlagUnconfirmedRoute,
+  ApiCronGroupSweepRoute: ApiCronGroupSweepRoute,
   ApiCronReconcileUnbookedRoute: ApiCronReconcileUnbookedRoute,
   ApiCronRefundRetryRoute: ApiCronRefundRetryRoute,
   ApiInvoiceCodeRoute: ApiInvoiceCodeRoute,
+  ApiGroupTokenStateRoute: ApiGroupTokenStateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

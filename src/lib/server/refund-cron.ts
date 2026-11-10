@@ -45,5 +45,23 @@ export async function runRefundRetryCron(): Promise<RefundCronResult> {
       console.error("[refund-cron] user", userId, err);
     }
   }
-  return { ok: true, users: userIds.length, intents: intents.length };
+  const group = await drainGroupRefunds();
+  return { ok: true, users: userIds.length, intents: intents.length + group };
+}
+
+async function drainGroupRefunds(): Promise<number> {
+  try {
+    const { listPendingGroupRefunds, markGroupRefund } = await import("@/lib/server/group-store");
+    const { refundRazorpayPayment } = await import("@/lib/server/razorpay");
+    const rows = await listPendingGroupRefunds();
+    for (const row of rows) {
+      if (!row.razorpayPaymentId.startsWith("pay_")) continue;
+      const refunded = await refundRazorpayPayment(row.razorpayPaymentId, row.amountInr);
+      if (refunded.ok) await markGroupRefund(row.tripId, row.refundId, "applied");
+    }
+    return rows.length;
+  } catch (err) {
+    console.error("[refund-cron] group", err instanceof Error ? err.message : err);
+    return 0;
+  }
 }

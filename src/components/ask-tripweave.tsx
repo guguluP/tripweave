@@ -41,6 +41,7 @@ export function AskTripWeave({
   nights,
   arriveBy,
   confirmationCode,
+  groupToken,
   includePickup = false,
   amountInr,
   status,
@@ -57,6 +58,7 @@ export function AskTripWeave({
   nights?: number;
   arriveBy?: string;
   confirmationCode?: string;
+  groupToken?: string;
   includePickup?: boolean;
   amountInr?: number;
   /** The booking's status. Only a stay that can be cancelled with a refund gets a refund quote. */
@@ -123,7 +125,7 @@ export function AskTripWeave({
   const ask = (next?: string) => {
     const text = (next ?? question).trim();
     if (text.length < 3 || busy) return;
-    if (!isPending && !isRealUser(user)) {
+    if (!groupToken && !isPending && !isRealUser(user)) {
       pushTurn(text, guestLabel("askSignIn"), [], false, [], true);
       if (!next) setQuestion("");
       return;
@@ -150,6 +152,7 @@ export function AskTripWeave({
         nights,
         arriveBy: arriveBy === "fly" || arriveBy === "train" || arriveBy === "bus" || arriveBy === "road" ? arriveBy : undefined,
         confirmationCode,
+        groupToken,
         history,
       }),
     })
