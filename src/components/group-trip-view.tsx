@@ -2,7 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AskTripWeaveButton } from "@/components/ask-sheet";
 import { Choice } from "@/components/plan-city-menu";
+import { CheckInField } from "@/components/stay-quote";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { DigitPop } from "@/components/motion";
+import { addDays, todayIso } from "@/lib/inventory";
 import { groupDayPlan, indianPassportChecklist } from "@/lib/group/day-plan";
 import { formatIst } from "@/lib/group/deadlines";
 import { statusLabel } from "@/lib/group/state";
@@ -241,9 +245,9 @@ function JoinForm({ token, onChange, onMessage }: { token: string; onChange: (ne
         TripWeave keeps your name and Indian mobile number to coordinate this trip, take your share, and tell the hotel the party size.
         The number is deleted 14 days after the trip ends. If the organiser removes you before you pay, it is erased then.
       </p>
-      <label className="grid gap-1 text-sm">Name<input className="min-h-11 rounded-md border border-border bg-bg px-3" value={name} onChange={(e) => setName(e.target.value)} required /></label>
-      <label className="grid gap-1 text-sm">Mobile<input className="min-h-11 rounded-md border border-border bg-bg px-3" value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" required /></label>
-      {sent ? <label className="grid gap-1 text-sm">Code<input className="min-h-11 rounded-md border border-border bg-bg px-3" value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" required /></label> : null}
+      <label className="grid gap-1 text-sm font-medium">Name<Input value={name} onChange={(e) => setName(e.target.value)} required /></label>
+      <label className="grid gap-1 text-sm font-medium">Mobile<Input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" required /></label>
+      {sent ? <label className="grid gap-1 text-sm font-medium">Code<Input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" required /></label> : null}
       <Choice selected={whatsapp} title="WhatsApp messages about this trip" onClick={() => setWhatsapp((on) => !on)} />
       <Button type="submit">{sent ? "Join" : "Send code"}</Button>
     </form>
@@ -251,28 +255,37 @@ function JoinForm({ token, onChange, onMessage }: { token: string; onChange: (ne
 }
 
 function ShareForm({ state, token, onChange, onMessage }: { state: PublicGroup; token: string; onChange: (next: PublicGroup) => void; onMessage: (text: string) => void }) {
-  const [mode, setMode] = useState<"equal" | "custom" | "per_family" | "organiser">("equal");
-  const [deadline, setDeadline] = useState("");
+  const today = todayIso();
+  const [mode, setMode] = useState<"equal" | "per_family" | "organiser">("equal");
+  const [payDay, setPayDay] = useState(addDays(today, 2));
+  const [payHour, setPayHour] = useState(18);
   return (
-    <form className="mt-8 grid gap-3 rounded-xl border border-border p-4" onSubmit={(event) => {
+    <form className="mt-8 grid gap-4 rounded-xl border border-border p-4" onSubmit={(event) => {
       event.preventDefault();
-      const payDeadlineAt = new Date(deadline).toISOString();
+      const payDeadlineAt = new Date(`${payDay}T${String(payHour).padStart(2, "0")}:00:00+05:30`).toISOString();
       void sendGroupShares({ data: { tripId: state.tripId, token, mode, payDeadlineAt } }).then((res) => {
         if (res.ok) onChange(res.state);
         else onMessage(res.message);
       });
     }}>
       <h2 className="font-display text-2xl">Shares</h2>
-      <label className="grid gap-1 text-sm">Split
-        <select className="min-h-11 rounded-md border border-border bg-bg px-3" value={mode} onChange={(e) => setMode(e.target.value as typeof mode)}>
-          <option value="equal">Equal</option>
-          <option value="per_family">Per family</option>
-          <option value="organiser">I pay for everyone</option>
-        </select>
-      </label>
-      <label className="grid gap-1 text-sm">Payment deadline
-        <input className="min-h-11 rounded-md border border-border bg-bg px-3" type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} required />
-      </label>
+      <fieldset>
+        <legend className="text-sm font-medium">Split</legend>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <Choice selected={mode === "equal"} title="Equal" onClick={() => setMode("equal")} />
+          <Choice selected={mode === "per_family"} title="Per family" onClick={() => setMode("per_family")} />
+          <Choice selected={mode === "organiser"} title="I pay for everyone" onClick={() => setMode("organiser")} />
+        </div>
+      </fieldset>
+      <CheckInField label="Payment deadline" checkIn={payDay} minDate={today} onCheckIn={setPayDay} hint="At least 72 hours before check-in noon IST." />
+      <div>
+        <p className="text-sm font-medium">Hour</p>
+        <div className="mt-2 flex items-center gap-3">
+          <Button type="button" variant="outline" size="icon" aria-label="Earlier hour" disabled={payHour <= 0} onClick={() => setPayHour((hour) => Math.max(0, hour - 1))}>−</Button>
+          <span className="min-w-10 text-center font-display text-2xl tabular-nums"><DigitPop value={payHour} /></span>
+          <Button type="button" variant="outline" size="icon" aria-label="Later hour" disabled={payHour >= 23} onClick={() => setPayHour((hour) => Math.min(23, hour + 1))}>+</Button>
+        </div>
+      </div>
       <Button type="submit">Send shares</Button>
     </form>
   );

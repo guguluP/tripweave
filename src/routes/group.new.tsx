@@ -3,10 +3,59 @@ import { useState } from "react";
 import { Choice } from "@/components/plan-city-menu";
 import { RequireAuth } from "@/components/require-auth";
 import { Shell } from "@/components/shell";
+import { CheckInField } from "@/components/stay-quote";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { DigitPop } from "@/components/motion";
+import { addDays, todayIso } from "@/lib/inventory";
 import { parseGroupBrief } from "@/lib/group/parse-brief";
 import { pageHead } from "@/lib/page-title";
 import { createGroupTrip } from "@/lib/server/group-trips";
+
+function CountStepper({
+  label,
+  value,
+  min,
+  max,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (n: number) => void;
+}) {
+  return (
+    <div>
+      <p className="text-sm font-medium">{label}</p>
+      <div className="mt-2 flex items-center gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => onChange(Math.max(min, value - 1))}
+          aria-label={`Fewer ${label.toLowerCase()}`}
+          disabled={value <= min}
+        >
+          −
+        </Button>
+        <span className="min-w-10 text-center font-display text-2xl tabular-nums">
+          <DigitPop value={value} />
+        </span>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => onChange(Math.min(max, value + 1))}
+          aria-label={`More ${label.toLowerCase()}`}
+          disabled={value >= max}
+        >
+          +
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/group/new")({
   component: NewGroup,
@@ -25,7 +74,8 @@ function Form() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("Puri darshan");
   const [dateMode, setDateMode] = useState<"dates" | "rath_yatra">("dates");
-  const [checkIn, setCheckIn] = useState("");
+  const today = todayIso();
+  const [checkIn, setCheckIn] = useState(today);
   const [nights, setNights] = useState(3);
   const [adults, setAdults] = useState(4);
   const [children, setChildren] = useState(0);
@@ -38,7 +88,8 @@ function Form() {
   const [wheelchair, setWheelchair] = useState(false);
   const [ground, setGround] = useState(false);
   const [lift, setLift] = useState(false);
-  const [voteClose, setVoteClose] = useState("");
+  const [voteDay, setVoteDay] = useState(addDays(today, 3));
+  const [voteHour, setVoteHour] = useState(18);
   const [name, setName] = useState("");
   const [sentence, setSentence] = useState("");
   const [message, setMessage] = useState("");
@@ -74,7 +125,9 @@ function Form() {
               budgetPerHeadInr: budget ? Number(budget) : null,
               needs,
               interests,
-              voteClosesAt: new Date(voteClose).toISOString(),
+              voteClosesAt: new Date(
+                `${voteDay}T${String(voteHour).padStart(2, "0")}:00:00+05:30`,
+              ).toISOString(),
               organiserName: name,
             },
           }).then((res) => {
@@ -115,26 +168,45 @@ function Form() {
             }}
           />
         </label>
-        <label className="grid gap-1 text-sm">Your name<input className="min-h-11 rounded-md border border-border bg-bg px-3" value={name} onChange={(e) => setName(e.target.value)} required /></label>
-        <label className="grid gap-1 text-sm">Title<input className="min-h-11 rounded-md border border-border bg-bg px-3" value={title} onChange={(e) => setTitle(e.target.value)} required /></label>
-        <label className="grid gap-1 text-sm">Dates
-          <select className="min-h-11 rounded-md border border-border bg-bg px-3" value={dateMode} onChange={(e) => setDateMode(e.target.value as "dates" | "rath_yatra")}>
-            <option value="dates">Chosen dates</option>
-            <option value="rath_yatra">Rath Yatra</option>
-          </select>
+        <label className="grid gap-1 text-sm font-medium">Your name
+          <Input value={name} onChange={(e) => setName(e.target.value)} required />
         </label>
+        <label className="grid gap-1 text-sm font-medium">Title
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
+        </label>
+        <fieldset>
+          <legend className="text-sm font-medium">Dates</legend>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <Choice selected={dateMode === "dates"} title="Chosen dates" onClick={() => setDateMode("dates")} />
+            <Choice selected={dateMode === "rath_yatra"} title="Rath Yatra" onClick={() => setDateMode("rath_yatra")} />
+          </div>
+        </fieldset>
         {dateMode === "dates" ? (
-          <div className="grid grid-cols-2 gap-3">
-            <label className="grid gap-1 text-sm">Check-in<input className="min-h-11 rounded-md border border-border bg-bg px-3" type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} required /></label>
-            <label className="grid gap-1 text-sm">Nights<input className="min-h-11 rounded-md border border-border bg-bg px-3" type="number" min={1} max={14} value={nights} onChange={(e) => setNights(Number(e.target.value))} required /></label>
+          <div className="grid gap-6">
+            <CheckInField checkIn={checkIn} minDate={today} onCheckIn={setCheckIn} />
+            <CountStepper label="Nights" value={nights} min={1} max={14} onChange={setNights} />
           </div>
         ) : null}
-        <div className="grid grid-cols-3 gap-3">
-          <label className="grid gap-1 text-sm">Adults<input className="min-h-11 rounded-md border border-border bg-bg px-3" type="number" min={1} value={adults} onChange={(e) => setAdults(Number(e.target.value))} required /></label>
-          <label className="grid gap-1 text-sm">Children<input className="min-h-11 rounded-md border border-border bg-bg px-3" type="number" min={0} value={children} onChange={(e) => setChildren(Number(e.target.value))} /></label>
-          <label className="grid gap-1 text-sm">Elderly<input className="min-h-11 rounded-md border border-border bg-bg px-3" type="number" min={0} value={elderly} onChange={(e) => setElderly(Number(e.target.value))} /></label>
-        </div>
-        <label className="grid gap-1 text-sm">Budget per person, optional<input className="min-h-11 rounded-md border border-border bg-bg px-3" inputMode="numeric" value={budget} onChange={(e) => setBudget(e.target.value)} /></label>
+        <fieldset>
+          <legend className="text-sm font-medium">Who's going</legend>
+          <div className="mt-3 grid gap-4 sm:grid-cols-3">
+            <CountStepper
+              label="Adults"
+              value={adults}
+              min={1}
+              max={30}
+              onChange={(n) => {
+                setAdults(n);
+                setElderly((elders) => Math.min(elders, n));
+              }}
+            />
+            <CountStepper label="Children" value={children} min={0} max={20} onChange={setChildren} />
+            <CountStepper label="Elderly" value={elderly} min={0} max={adults} onChange={setElderly} />
+          </div>
+        </fieldset>
+        <label className="grid gap-1 text-sm font-medium">Budget per person, optional
+          <Input inputMode="numeric" value={budget} onChange={(e) => setBudget(e.target.value.replace(/[^\d]/g, ""))} />
+        </label>
         <fieldset>
           <legend className="text-sm font-medium">Interests</legend>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -152,9 +224,16 @@ function Form() {
             <Choice selected={lift} title="Lift" onClick={() => setLift((on) => !on)} />
           </div>
         </fieldset>
-        <label className="grid gap-1 text-sm">Voting closes
-          <input className="min-h-11 rounded-md border border-border bg-bg px-3" type="datetime-local" value={voteClose} onChange={(e) => setVoteClose(e.target.value)} required />
-        </label>
+        <div className="grid gap-6">
+          <CheckInField
+            label="Voting closes"
+            checkIn={voteDay}
+            minDate={today}
+            onCheckIn={setVoteDay}
+            hint="India time. The hour is below."
+          />
+          <CountStepper label="Hour" value={voteHour} min={0} max={23} onChange={setVoteHour} />
+        </div>
         {message ? <p className="text-sm">{message}</p> : null}
         <Button type="submit" disabled={busy}>Create the link</Button>
       </form>
