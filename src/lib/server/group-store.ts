@@ -30,7 +30,8 @@ async function rpc<T>(op: string, payload: Record<string, unknown>): Promise<T> 
 export async function loadGroup(locator: { tokenHash?: string; tripId?: string }): Promise<GroupDoc | null> {
   if (!isSupabaseConfigured()) {
     const mem = memory();
-    const id = locator.tripId ?? (locator.tokenHash ? mem.byHash.get(locator.tokenHash) : undefined);
+    // Same order as tw_group('load'): a share token wins over a trip id.
+    const id = locator.tokenHash ? mem.byHash.get(locator.tokenHash) : locator.tripId;
     const doc = id ? mem.byId.get(id) : undefined;
     return doc ? clone(doc) : null;
   }
@@ -91,13 +92,21 @@ export async function mutateGroup(
     const expected = current.trip.version;
     const next = applyEngine(current, op, { ...payload, expected_version: expected }, now);
     last = next;
+    if (!next.ok && next.persist && next.doc) {
+      // A refused step that still changed state (a wrong OTP guess) is saved before it is refused.
+      const saved = await persist(next.doc, expected, op);
+      if (saved.ok || saved.error !== "version") return { ok: false, error: next.error };
+      continue;
+    }
     if (!next.ok || !next.doc) return next;
     if (op === "get_state" || next.noop) return next;
     const saved = await persist(next.doc, expected, op);
     if (saved.ok) return next;
     if (saved.error !== "version") return { ok: false, error: saved.error, doc: saved.doc };
   }
-  return last.ok ? last : { ok: false, error: "version" };
+  // Out of retries: nothing was saved, so never report the step as done.
+  void last;
+  return { ok: false, error: "version" };
 }
 
 export async function listOrganiserGroups(userId: string): Promise<{ tripId: string; title: string; status: string; checkIn: string; nights: number; version: number }[]> {
@@ -158,12 +167,7 @@ export async function listPendingGroupRefunds(): Promise<{ tripId: string; razor
   return out;
 }
 
+/** Version-checked and retried, so a concurrent group write cannot drop the "applied" mark. */
 export async function markGroupRefund(tripId: string, refundId: string, status: "applied" | "failed") {
-  const doc = await loadGroup({ tripId });
-  if (!doc) return;
-  const refund = doc.refunds.find((row) => row.id === refundId);
-  if (!refund) return;
-  refund.status = status;
-  doc.trip.version += 1;
-  await persist(doc, doc.trip.version - 1, "refund");
+  return mutateGroup({ tripId }, "mark_refund", { refund_id: refundId, status });
 }

@@ -24,3 +24,15 @@ export async function settleGroupDesk(input: {
     message: input.action === "desk_confirm" ? "Hotel confirmed for the whole group." : "Declined. Refunds are queued.",
   };
 }
+
+/** The organiser cancelled the trip: every room row goes back to the hotel, paid or confirmed. */
+export async function cancelGroupRoomBookings(tripId: string): Promise<void> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return;
+  const { error } = await sb
+    .from("bookings")
+    .update({ status: "cancelled" })
+    .eq("group_trip_id", tripId)
+    .in("status", ["paid", "desk_confirmed"]);
+  if (error && !/group_trip_id/i.test(error.message)) console.error("[group cancel]", error.message);
+}

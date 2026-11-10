@@ -1,6 +1,7 @@
 import { appBaseUrl } from "@/lib/server/desk-auth";
 import { mutateGroup, loadGroup } from "@/lib/server/group-store";
 import type { GroupDoc } from "@/lib/group/engine";
+import { groupPaymentFromWebhook, isGroupShareNotes } from "@/lib/group/webhook";
 
 function keys() {
   const id = process.env.RAZORPAY_KEY_ID?.trim() || process.env.VITE_RAZORPAY_KEY_ID?.trim() || "";
@@ -18,9 +19,7 @@ export function groupNotes(doc: GroupDoc, shareId: string, memberId: string) {
   return { kind: "group_share", gt: doc.trip.id, gs: shareId, gm: memberId, v: "1" };
 }
 
-export function isGroupShareNotes(notes: Record<string, string> | undefined | null): boolean {
-  return notes?.kind === "group_share" && Boolean(notes.gt && notes.gs);
-}
+export { isGroupShareNotes };
 
 /** One Razorpay Payment Link per open share. Notes never include userId or packageId. */
 export async function createShareLinks(doc: GroupDoc, rawToken: string) {
@@ -159,23 +158,13 @@ export async function applyGroupPayment(input: {
 }
 
 export async function applyGroupWebhook(eventName: string, payload: Record<string, unknown>): Promise<boolean> {
-  const link = (payload.payment_link as { entity?: { notes?: Record<string, string>; id?: string } } | undefined)?.entity;
-  const payment = (payload.payment as { entity?: { id?: string; amount?: number; method?: string; notes?: Record<string, string>; order_id?: string } } | undefined)?.entity;
+  const link = (payload.payment_link as { entity?: { notes?: Record<string, string> } } | undefined)?.entity;
+  const payment = (payload.payment as { entity?: { notes?: Record<string, string> } } | undefined)?.entity;
   const orderNotes = (payload.order as { entity?: { notes?: Record<string, string> } } | undefined)?.entity?.notes;
   const notes = link?.notes ?? payment?.notes ?? orderNotes ?? {};
   if (!eventName.startsWith("payment_link.") && !isGroupShareNotes(notes)) return false;
-  if (!isGroupShareNotes(notes)) return true;
-  if (eventName === "payment_link.expired" || eventName === "payment_link.cancelled") return true;
-  const paymentId = payment?.id ?? "";
-  if (!paymentId.startsWith("pay_")) return true;
-  await applyGroupPayment({
-    tripId: notes.gt!,
-    shareId: notes.gs!,
-    memberId: notes.gm ?? "",
-    paymentId,
-    amountInr: Math.round((payment?.amount ?? 0) / 100),
-    method: payment?.method ?? "upi",
-  });
+  const paid = groupPaymentFromWebhook(eventName, payload);
+  if (paid) await applyGroupPayment(paid);
   return true;
 }
 

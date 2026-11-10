@@ -59,6 +59,16 @@ async function present(doc: GroupDoc, role: GroupRole, memberId: string | null):
   return projectGroup(doc, role, memberId);
 }
 
+/** A signed cookie only counts while that person is still on the trip. */
+function activeMemberId(doc: GroupDoc, memberId: string | null): string | null {
+  if (!memberId) return null;
+  return doc.members.some((member) => member.id === memberId && !member.leftAt) ? memberId : null;
+}
+
+function istToday(now = new Date()): string {
+  return new Date(now.getTime() + 330 * 60 * 1000).toISOString().slice(0, 10);
+}
+
 export const createGroupTrip = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator((data: unknown) => createSchema.parse(data))
@@ -68,6 +78,10 @@ export const createGroupTrip = createServerFn({ method: "POST" })
     const checkIn = rath?.checkIn ?? data.checkIn;
     const nights = rath?.nights ?? data.nights;
     if (!checkIn || !nights) return { ok: false as const, message: "Choose a check-in and the number of nights." };
+    if (checkIn < istToday()) return { ok: false as const, message: "Choose a check-in from today onwards." };
+    if (Date.parse(data.voteClosesAt) >= Date.parse(`${checkIn}T12:00:00+05:30`)) {
+      return { ok: false as const, message: "Voting has to close before check-in." };
+    }
     const shortlist = await shortlistFor(data, checkIn, nights);
     if (shortlist.length === 0) return { ok: false as const, message: "No Puri stay fits this party." };
     const token = newShareToken();
@@ -109,15 +123,17 @@ export const getGroupState = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }): Promise<{ ok: true; state: PublicGroup } | { ok: false; message: string }> => {
     const tokenHash = data.token ? await sha256Hex(data.token) : undefined;
-    let doc = await loadGroup({ tokenHash, tripId: data.tripId });
+    // A share link opens by its token alone. A trip id alone is the organiser's own page.
+    let doc = tokenHash ? await loadGroup({ tokenHash }) : await loadGroup({ tripId: data.tripId });
     if (!doc) return { ok: false, message: "This link is not a TripWeave group." };
     const user = await getSessionUser().catch(() => null);
-    if (data.tripId && !data.token && user?.id !== doc.trip.organiserUserId) {
+    if (data.tripId && doc.trip.id !== data.tripId) return { ok: false, message: "This link is not a TripWeave group." };
+    if (!tokenHash && user?.id !== doc.trip.organiserUserId) {
       return { ok: false, message: "This trip belongs to another account." };
     }
     const { touchGroup } = await import("@/lib/server/group-sweep");
     doc = (await touchGroup(doc)) ?? doc;
-    const memberId = await memberIdFromCookie(doc.trip.id);
+    const memberId = activeMemberId(doc, await memberIdFromCookie(doc.trip.id));
     const role: GroupRole =
       user?.id === doc.trip.organiserUserId ? "organiser" : memberId ? "member" : "visitor";
     return { ok: true, state: await present(doc, role, role === "organiser" ? doc.members.find((m) => m.isOrganiser)?.id ?? null : memberId) };
@@ -201,7 +217,7 @@ export const castGroupVote = createServerFn({ method: "POST" })
     const tokenHash = await sha256Hex(data.token);
     const doc = await loadGroup({ tokenHash });
     if (!doc) return { ok: false as const, message: "This link is not a TripWeave group." };
-    const memberId = await memberIdFromCookie(doc.trip.id);
+    const memberId = activeMemberId(doc, await memberIdFromCookie(doc.trip.id));
     const user = await getSessionUser().catch(() => null);
     const voter = user?.id === doc.trip.organiserUserId
       ? doc.members.find((member) => member.isOrganiser)?.id
@@ -278,6 +294,10 @@ export const sendGroupShares = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const doc = await loadGroup({ tripId: data.tripId });
     if (!doc || doc.trip.organiserUserId !== context.userId) return { ok: false as const, message: "Only the organiser can send shares." };
+    // The token goes into every payment link's return URL, so it has to be this trip's own link.
+    if ((await sha256Hex(data.token)) !== doc.trip.shareTokenHash) {
+      return { ok: false as const, message: "Open the trip from its own link and try again." };
+    }
     const result = await mutateGroup({ tripId: data.tripId }, "set_split", {
       mode: data.mode,
       pay_deadline_at: data.payDeadlineAt,
@@ -308,6 +328,8 @@ export const cancelGroupTrip = createServerFn({ method: "POST" })
     if (!result.ok || !result.doc) return { ok: false as const, message: "This trip can no longer be cancelled." };
     const { cancelShareLink } = await import("@/lib/server/group-razorpay");
     for (const share of result.doc.shares) if (share.razorpayLinkId && share.status !== "paid") await cancelShareLink(share.razorpayLinkId);
+    const { cancelGroupRoomBookings } = await import("@/lib/server/group-desk");
+    await cancelGroupRoomBookings(result.doc.trip.id);
     return { ok: true as const, state: await present(result.doc, "organiser", null) };
   });
 
