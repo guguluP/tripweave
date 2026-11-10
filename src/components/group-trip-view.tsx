@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AskTripWeaveButton } from "@/components/ask-sheet";
+import { Choice } from "@/components/plan-city-menu";
 import { Button } from "@/components/ui/button";
 import { groupDayPlan, indianPassportChecklist } from "@/lib/group/day-plan";
 import { formatIst } from "@/lib/group/deadlines";
@@ -243,7 +244,7 @@ function JoinForm({ token, onChange, onMessage }: { token: string; onChange: (ne
       <label className="grid gap-1 text-sm">Name<input className="min-h-11 rounded-md border border-border bg-bg px-3" value={name} onChange={(e) => setName(e.target.value)} required /></label>
       <label className="grid gap-1 text-sm">Mobile<input className="min-h-11 rounded-md border border-border bg-bg px-3" value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" required /></label>
       {sent ? <label className="grid gap-1 text-sm">Code<input className="min-h-11 rounded-md border border-border bg-bg px-3" value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" required /></label> : null}
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={whatsapp} onChange={(e) => setWhatsapp(e.target.checked)} /> WhatsApp messages about this trip</label>
+      <Choice selected={whatsapp} title="WhatsApp messages about this trip" onClick={() => setWhatsapp((on) => !on)} />
       <Button type="submit">{sent ? "Join" : "Send code"}</Button>
     </form>
   );

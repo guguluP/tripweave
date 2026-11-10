@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { Choice } from "@/components/plan-city-menu";
 import { RequireAuth } from "@/components/require-auth";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
@@ -134,18 +135,22 @@ function Form() {
           <label className="grid gap-1 text-sm">Elderly<input className="min-h-11 rounded-md border border-border bg-bg px-3" type="number" min={0} value={elderly} onChange={(e) => setElderly(Number(e.target.value))} /></label>
         </div>
         <label className="grid gap-1 text-sm">Budget per person, optional<input className="min-h-11 rounded-md border border-border bg-bg px-3" inputMode="numeric" value={budget} onChange={(e) => setBudget(e.target.value)} /></label>
-        <fieldset className="grid gap-2 text-sm">
-          <legend>Interests</legend>
-          <label><input type="checkbox" checked={darshan} onChange={(e) => setDarshan(e.target.checked)} /> Darshan</label>
-          <label><input type="checkbox" checked={gundicha} onChange={(e) => setGundicha(e.target.checked)} /> Gundicha</label>
-          <label><input type="checkbox" checked={konark} onChange={(e) => setKonark(e.target.checked)} /> Konark</label>
-          <label><input type="checkbox" checked={beach} onChange={(e) => setBeach(e.target.checked)} /> Beach</label>
+        <fieldset>
+          <legend className="text-sm font-medium">Interests</legend>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <Choice selected={darshan} title="Darshan" onClick={() => setDarshan((on) => !on)} />
+            <Choice selected={gundicha} title="Gundicha" onClick={() => setGundicha((on) => !on)} />
+            <Choice selected={konark} title="Konark" onClick={() => setKonark((on) => !on)} />
+            <Choice selected={beach} title="Beach" onClick={() => setBeach((on) => !on)} />
+          </div>
         </fieldset>
-        <fieldset className="grid gap-2 text-sm">
-          <legend>Needs</legend>
-          <label><input type="checkbox" checked={wheelchair} onChange={(e) => setWheelchair(e.target.checked)} /> Wheelchair</label>
-          <label><input type="checkbox" checked={ground} onChange={(e) => setGround(e.target.checked)} /> Ground floor</label>
-          <label><input type="checkbox" checked={lift} onChange={(e) => setLift(e.target.checked)} /> Lift</label>
+        <fieldset>
+          <legend className="text-sm font-medium">Needs</legend>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <Choice selected={wheelchair} title="Wheelchair" onClick={() => setWheelchair((on) => !on)} />
+            <Choice selected={ground} title="Ground floor" onClick={() => setGround((on) => !on)} />
+            <Choice selected={lift} title="Lift" onClick={() => setLift((on) => !on)} />
+          </div>
         </fieldset>
         <label className="grid gap-1 text-sm">Voting closes
           <input className="min-h-11 rounded-md border border-border bg-bg px-3" type="datetime-local" value={voteClose} onChange={(e) => setVoteClose(e.target.value)} required />
