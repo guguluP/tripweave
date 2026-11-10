@@ -17,6 +17,7 @@ import { isSupabaseAdminConfigured } from "../supabase/env";
 import { gateIdentitySessions } from "./gate-session.server";
 import { GROK_PROVIDERS } from "./providers";
 import { pgliteDialect } from "./pglite-dialect";
+import { vercelTrustedOrigins } from "./trusted-origins";
 import {
   GROK_ISSUER_DEFAULT,
   PREVIEW_ALLOWED_HOSTS,
@@ -53,11 +54,9 @@ const LOCAL_DEV_ORIGINS = [
   "http://127.0.0.1:8080",
   "http://[::1]:8080",
 ];
-const vercelOrigins = [
-  "https://tripweave-web.vercel.app",
-  "https://tripweave-web-piyushpatnaik.vercel.app",
-  "https://*.vercel.app",
-];
+// No "*.vercel.app": any Vercel app could then receive a password-reset token
+// through redirectTo. See ./trusted-origins.
+const vercelOrigins = vercelTrustedOrigins(process.env);
 
 const trustedOrigins: string[] = explicitBaseURL
   ? [explicitBaseURL, ...LOCAL_DEV_ORIGINS, ...vercelOrigins]
