@@ -156,8 +156,9 @@ Set these on the server. Never prefix a secret with `VITE_`. After a change on V
 | `SUPABASE_URL`, `VITE_SUPABASE_URL` | Project URL |
 | `SUPABASE_ANON_KEY` or `SUPABASE_PUBLISHABLE_KEY` | Public key, also as `VITE_` for the browser |
 | `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_SECRET_KEY` | Legacy service-role JWT. Server only. |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Password reset through a mailbox you already have (Gmail: host `smtp.gmail.com`, port `465`). `SMTP_FROM` is that same address. No site domain. |
-| `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `SES_FROM` | Amazon SES for booking mail, stay reminders, and password reset when SMTP is unset. `SES_FROM` must be a verified SES identity. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Booking mail, desk notify, group join codes, and password reset through a mailbox you already have (Gmail: host `smtp.gmail.com`, port `465`). `SMTP_FROM` is that same address. No site domain. |
+| `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `SES_FROM` | Amazon SES for booking mail, stay reminders, group join codes, and password reset when SMTP is unset. `SES_FROM` must be a verified SES identity. |
+| `TW_GROUP_OTP_CHANNEL` | How group join codes are sent. Default `email`. Set `whatsapp` later to use the existing WhatsApp path. |
 | `HOTEL_DESKS`, `PARTNER_EMAILS` | Emails allowed to open a hotel desk |
 | `APPLE_PASS_*` | Optional Wallet certificates. The HTML pass works without them. |
 

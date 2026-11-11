@@ -5,7 +5,8 @@ import { getPackage } from "../packages.ts";
 import { answerGroupQuestion } from "./ask.ts";
 import { groupDayPlan } from "./day-plan.ts";
 import { parseGroupBrief, nextRathStay } from "./parse-brief.ts";
-import { memberLabel, maskPhone } from "./privacy.ts";
+import { groupOtpChannel, groupOtpMail, normalizeGroupEmail } from "./otp.ts";
+import { memberLabel, maskEmail, maskPhone } from "./privacy.ts";
 import { groupRefundPlan } from "./refunds.ts";
 import { shortlistForGroup } from "./shortlist.ts";
 import { splitShares } from "./split.ts";
@@ -13,9 +14,9 @@ import { nextStatus } from "./state.ts";
 import type { GroupMember, GroupPayment } from "./types.ts";
 
 const members: GroupMember[] = [
-  { id: "org", displayName: "Meera Das", phoneE164: null, phoneHash: null, isOrganiser: true, isElderly: false, needs: [], familyLabel: "das", whatsappOptIn: false, consentAt: null, leftAt: null },
-  { id: "a", displayName: "Arun Das", phoneE164: null, phoneHash: null, isOrganiser: false, isElderly: false, needs: [], familyLabel: "das", whatsappOptIn: true, consentAt: null, leftAt: null },
-  { id: "b", displayName: "Bina Das", phoneE164: null, phoneHash: null, isOrganiser: false, isElderly: true, needs: [], familyLabel: null, whatsappOptIn: false, consentAt: null, leftAt: null },
+  { id: "org", displayName: "Meera Das", email: null, emailHash: null, phoneE164: null, phoneHash: null, isOrganiser: true, isElderly: false, needs: [], familyLabel: "das", whatsappOptIn: false, consentAt: null, leftAt: null },
+  { id: "a", displayName: "Arun Das", email: null, emailHash: null, phoneE164: null, phoneHash: null, isOrganiser: false, isElderly: false, needs: [], familyLabel: "das", whatsappOptIn: true, consentAt: null, leftAt: null },
+  { id: "b", displayName: "Bina Das", email: null, emailHash: null, phoneE164: null, phoneHash: null, isOrganiser: false, isElderly: true, needs: [], familyLabel: null, whatsappOptIn: false, consentAt: null, leftAt: null },
 ];
 
 describe("group state", () => {
@@ -129,6 +130,29 @@ describe("privacy masks", () => {
   it("shows a first name and last initial, and a masked phone", () => {
     assert.equal(memberLabel("Meera Das"), "Meera D.");
     assert.equal(maskPhone("+919876543210"), "+91 •••• 3210");
+    assert.equal(maskEmail("meera.das@example.com"), "m•••@example.com");
+  });
+});
+
+describe("group join code channel", () => {
+  it("defaults to email and switches to WhatsApp when asked", () => {
+    assert.equal(groupOtpChannel({}), "email");
+    assert.equal(groupOtpChannel({ TW_GROUP_OTP_CHANNEL: "email" }), "email");
+    assert.equal(groupOtpChannel({ TW_GROUP_OTP_CHANNEL: "WhatsApp" }), "whatsapp");
+  });
+
+  it("normalises email addresses and rejects blanks", () => {
+    assert.equal(normalizeGroupEmail("  Meera@Example.COM "), "meera@example.com");
+    assert.equal(normalizeGroupEmail("not-an-email"), null);
+    assert.equal(normalizeGroupEmail("  "), null);
+  });
+
+  it("writes a short mail with the code, trip name, and dates", () => {
+    const mail = groupOtpMail({ code: "123456", title: "Puri darshan", checkIn: "2026-12-20", nights: 2 });
+    assert.equal(mail.subject, "Your TripWeave group code is 123456");
+    assert.match(mail.text, /Your TripWeave group code is 123456\. It expires in 10 minutes\./);
+    assert.match(mail.text, /Trip: Puri darshan/);
+    assert.match(mail.text, /Dates: 2026-12-20, 2 nights/);
   });
 });
 

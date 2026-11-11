@@ -28,6 +28,8 @@ create table if not exists public.group_members (
   id uuid primary key,
   trip_id uuid not null references public.group_trips (id) on delete cascade,
   display_name text not null,
+  email text,
+  email_hash text,
   phone_e164 text,
   phone_hash text,
   is_organiser boolean not null default false,
@@ -89,7 +91,8 @@ create table if not exists public.group_events (
 create table if not exists public.group_otp (
   id uuid primary key default gen_random_uuid(),
   trip_id uuid not null references public.group_trips (id) on delete cascade,
-  phone_hash text not null,
+  phone_hash text,
+  email_hash text,
   sent_at timestamptz not null default now()
 );
 
@@ -232,8 +235,9 @@ begin
     if written <> 1 then return jsonb_build_object('ok', false, 'error', 'version', 'version', rec.version); end if;
 
     delete from public.group_members where trip_id = rec.id;
-    insert into public.group_members (id, trip_id, display_name, phone_e164, phone_hash, is_organiser, is_elderly, needs, family_label, whatsapp_opt_in, consent_at, left_at)
-    select (m->>'id')::uuid, rec.id, m->>'displayName', nullif(m->>'phoneE164',''), nullif(m->>'phoneHash',''),
+    insert into public.group_members (id, trip_id, display_name, email, email_hash, phone_e164, phone_hash, is_organiser, is_elderly, needs, family_label, whatsapp_opt_in, consent_at, left_at)
+    select (m->>'id')::uuid, rec.id, m->>'displayName', nullif(m->>'email',''), nullif(m->>'emailHash',''),
+      nullif(m->>'phoneE164',''), nullif(m->>'phoneHash',''),
       coalesce((m->>'isOrganiser')::boolean, false), coalesce((m->>'isElderly')::boolean, false),
       coalesce((select array_agg(value) from jsonb_array_elements_text(coalesce(m->'needs','[]'::jsonb)) as value), '{}'),
       nullif(m->>'familyLabel',''), coalesce((m->>'whatsappOptIn')::boolean, false),
@@ -262,6 +266,13 @@ begin
     select (r->>'id')::uuid, rec.id, nullif(r->>'paymentId','')::uuid, r->>'razorpayPaymentId',
       (r->>'amountInr')::int, r->>'reason', r->>'status'
     from jsonb_array_elements(coalesce(body->'refunds','[]'::jsonb)) r;
+
+    delete from public.group_otp where trip_id = rec.id;
+    insert into public.group_otp (id, trip_id, phone_hash, email_hash, sent_at)
+    select coalesce(nullif(o->>'id','')::uuid, gen_random_uuid()), rec.id,
+      nullif(o->>'phoneHash',''), nullif(o->>'emailHash',''),
+      coalesce(nullif(o->>'sentAt','')::timestamptz, now())
+    from jsonb_array_elements(coalesce(body->'otps','[]'::jsonb)) o;
 
     if nullif(p_payload->>'event','') is not null then
       insert into public.group_events (trip_id, kind, version)
