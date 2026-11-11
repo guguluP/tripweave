@@ -8,7 +8,9 @@ import { GROUP_INTERESTS, GROUP_NEEDS } from "@/lib/group/types";
 import { nextRathStay } from "@/lib/group/parse-brief";
 import { newOtpCode, newShareToken, sha256Hex } from "@/lib/group/privacy";
 import { shortlistForGroup } from "@/lib/group/shortlist";
+import { groupOtpChannel, groupOtpMail, normalizeGroupEmail } from "@/lib/group/otp";
 import { projectGroup, type GroupRole, type PublicGroup } from "@/lib/group/view";
+import { bookingMailConfigured, sendBookingMail } from "@/lib/mail/send";
 import { refreshStayInventory } from "@/lib/server/occupancy";
 import { listOrganiserGroups, loadGroup, mutateGroup } from "@/lib/server/group-store";
 import { memberIdFromCookie, requestIp, signMemberCookie } from "@/lib/server/group-session";
@@ -56,7 +58,8 @@ function devCodeAllowed() {
 }
 
 async function present(doc: GroupDoc, role: GroupRole, memberId: string | null): Promise<PublicGroup> {
-  return projectGroup(doc, role, memberId);
+  const state = projectGroup(doc, role, memberId);
+  return { ...state, otpChannel: groupOtpChannel() };
 }
 
 /** A signed cookie only counts while that person is still on the trip. */
@@ -140,10 +143,23 @@ export const getGroupState = createServerFn({ method: "POST" })
   });
 
 export const requestMemberOtp = createServerFn({ method: "POST" })
-  .validator((data: unknown) => z.object({ token: z.string().min(16).max(80), phone: z.string().min(8).max(20) }).parse(data))
+  .validator((data: unknown) =>
+    z.object({
+      token: z.string().min(16).max(80),
+      email: z.string().max(254).optional(),
+      phone: z.string().max(20).optional(),
+    }).parse(data),
+  )
   .handler(async ({ data }) => {
-    const phone = toE164(data.phone);
-    if (!phone || !phone.startsWith("+91") || !isAcceptablePhone(phone)) {
+    const channel = groupOtpChannel();
+    const email = data.email ? normalizeGroupEmail(data.email) : null;
+    const phone = data.phone ? toE164(data.phone) : null;
+    if (phone && (!phone.startsWith("+91") || !isAcceptablePhone(phone))) {
+      return { ok: false as const, message: "Use an Indian mobile number." };
+    }
+    if (channel === "email") {
+      if (!email) return { ok: false as const, message: "Use a valid email address." };
+    } else if (!phone) {
       return { ok: false as const, message: "Use an Indian mobile number." };
     }
     const tokenHash = await sha256Hex(data.token);
@@ -151,22 +167,46 @@ export const requestMemberOtp = createServerFn({ method: "POST" })
     if (!doc) return { ok: false as const, message: "This link is not a TripWeave group." };
     const code = newOtpCode();
     const result = await mutateGroup({ tripId: doc.trip.id }, "request_otp", {
-      phone_hash: await sha256Hex(phone),
+      phone_hash: phone ? await sha256Hex(phone) : "",
+      email_hash: email ? await sha256Hex(email) : "",
       code_hash: await sha256Hex(`${doc.trip.id}:${code}`),
       ip_hash: await sha256Hex(requestIp()),
     });
     if (!result.ok) {
       return { ok: false as const, message: result.error === "otp_limited" ? "Wait a few minutes before asking for another code." : "Joining is closed." };
     }
-    const sent = await sendWhatsApp(phone, `TripWeave code ${code}. It expires in 10 minutes.`);
-    return { ok: true as const, sent, devCode: devCodeAllowed() && !sent ? code : undefined };
+    if (channel === "whatsapp") {
+      const sent = await sendWhatsApp(phone!, `TripWeave code ${code}. It expires in 10 minutes.`);
+      return { ok: true as const, sent, devCode: devCodeAllowed() && !sent ? code : undefined };
+    }
+    if (!bookingMailConfigured()) {
+      if (devCodeAllowed()) return { ok: true as const, sent: false, devCode: code };
+      return { ok: false as const, message: "We couldn't send the join code by email. Try again later." };
+    }
+    try {
+      const mail = groupOtpMail({
+        code,
+        title: doc.trip.title,
+        checkIn: doc.trip.checkIn,
+        nights: doc.trip.nights,
+      });
+      const sent = await sendBookingMail({ to: email!, subject: mail.subject, text: mail.text });
+      if (!sent) {
+        if (devCodeAllowed()) return { ok: true as const, sent: false, devCode: code };
+        return { ok: false as const, message: "We couldn't send the join code by email. Try again later." };
+      }
+      return { ok: true as const, sent: true };
+    } catch {
+      return { ok: false as const, message: "We couldn't send the join code by email. Try again later." };
+    }
   });
 
 export const verifyMemberOtp = createServerFn({ method: "POST" })
   .validator((data: unknown) =>
     z.object({
       token: z.string().min(16).max(80),
-      phone: z.string().min(8).max(20),
+      email: z.string().max(254).optional(),
+      phone: z.string().max(20).optional(),
       code: z.string().regex(/^\d{6}$/),
       displayName: z.string().trim().min(1).max(60),
       isElderly: z.boolean().default(false),
@@ -176,15 +216,26 @@ export const verifyMemberOtp = createServerFn({ method: "POST" })
     }).parse(data),
   )
   .handler(async ({ data }) => {
-    const phone = toE164(data.phone);
-    if (!phone || !phone.startsWith("+91")) return { ok: false as const, message: "Use an Indian mobile number." };
+    const channel = groupOtpChannel();
+    const email = data.email ? normalizeGroupEmail(data.email) : null;
+    const phone = data.phone ? toE164(data.phone) : null;
+    if (phone && (!phone.startsWith("+91") || !isAcceptablePhone(phone))) {
+      return { ok: false as const, message: "Use an Indian mobile number." };
+    }
+    if (channel === "email") {
+      if (!email) return { ok: false as const, message: "Use a valid email address." };
+    } else if (!phone) {
+      return { ok: false as const, message: "Use an Indian mobile number." };
+    }
     const tokenHash = await sha256Hex(data.token);
     const doc = await loadGroup({ tokenHash });
     if (!doc) return { ok: false as const, message: "This link is not a TripWeave group." };
     const result = await mutateGroup({ tripId: doc.trip.id }, "verify_member", {
-      phone_hash: await sha256Hex(phone),
+      phone_hash: phone ? await sha256Hex(phone) : "",
+      email_hash: email ? await sha256Hex(email) : "",
       code_hash: await sha256Hex(`${doc.trip.id}:${data.code}`),
-      phone_e164: phone,
+      email: email ?? "",
+      phone_e164: phone ?? "",
       display_name: data.displayName,
       is_elderly: data.isElderly,
       needs: data.needs,

@@ -27,6 +27,16 @@ export function maskPhone(e164: string | null): string | null {
   return `+${digits.slice(0, 2)} •••• ${digits.slice(-4)}`;
 }
 
+export function maskEmail(email: string | null): string | null {
+  if (!email) return null;
+  const at = email.indexOf("@");
+  if (at < 1) return "••••";
+  const user = email.slice(0, at);
+  const domain = email.slice(at + 1);
+  const visible = user.slice(0, 1);
+  return `${visible}•••@${domain}`;
+}
+
 export function newOtpCode(): string {
   const bytes = new Uint8Array(4);
   crypto.getRandomValues(bytes);

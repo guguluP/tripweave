@@ -30,6 +30,7 @@ function withOtp(doc: GroupDoc) {
   doc.otps.push({
     id: "otp1",
     phoneHash: "phone",
+    emailHash: null,
     codeHash: "right",
     expiresAt: new Date(NOW.getTime() + 10 * 60 * 1000).toISOString(),
     attempts: 0,
@@ -71,6 +72,26 @@ describe("group OTP guesses", () => {
     assert.equal(joined.members.length, 2);
     const again = verify(joined, "right");
     assert.equal(!again.ok && again.error, "otp_expired");
+  });
+
+  it("keys a code on email and rate-limits that address", () => {
+    const doc = baseDoc();
+    const asked = ok(applyEngine(doc, "request_otp", { email_hash: "mail", code_hash: "right", ip_hash: "ip" }, NOW));
+    assert.equal(asked.otps[0]?.emailHash, "mail");
+    assert.equal(asked.otps[0]?.phoneHash, null);
+    const joined = ok(applyEngine(asked, "verify_member", {
+      email_hash: "mail",
+      code_hash: "right",
+      display_name: "Mem",
+      email: "Mem@Example.COM",
+    }, NOW));
+    assert.equal(joined.members.at(-1)?.email, "mem@example.com");
+    assert.equal(joined.members.at(-1)?.emailHash, "mail");
+    const later = new Date(NOW.getTime() + 60 * 1000);
+    ok(applyEngine(joined, "request_otp", { email_hash: "mail", code_hash: "two", ip_hash: "ip" }, later));
+    ok(applyEngine(joined, "request_otp", { email_hash: "mail", code_hash: "three", ip_hash: "ip" }, later));
+    const limited = applyEngine(joined, "request_otp", { email_hash: "mail", code_hash: "four", ip_hash: "ip" }, later);
+    assert.equal(!limited.ok && limited.error, "otp_limited");
   });
 });
 

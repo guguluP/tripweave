@@ -48,7 +48,8 @@ export type GroupTripRow = {
 
 export type OtpRow = {
   id: string;
-  phoneHash: string;
+  phoneHash: string | null;
+  emailHash: string | null;
   codeHash: string;
   expiresAt: string;
   attempts: number;
@@ -198,6 +199,8 @@ function createTrip(payload: Record<string, unknown>, iso: string): EngineResult
       {
         id: organiserId,
         displayName: String(payload.organiser_name ?? "Organiser").slice(0, 60),
+        email: null,
+        emailHash: null,
         phoneE164: null,
         phoneHash: null,
         isOrganiser: true,
@@ -232,24 +235,37 @@ function publish(doc: GroupDoc, payload: Record<string, unknown>, iso: string): 
   return { ok: true, doc };
 }
 
+function recipientHash(value: unknown): string {
+  const hash = String(value ?? "").trim();
+  return hash;
+}
+
+function sameRecipient(row: OtpRow, emailHash: string, phoneHash: string): boolean {
+  if (emailHash && (row.emailHash ?? "") === emailHash) return true;
+  if (phoneHash && (row.phoneHash ?? "") === phoneHash) return true;
+  return false;
+}
+
 function requestOtp(doc: GroupDoc, payload: Record<string, unknown>, now: Date): EngineResult {
   if (doc.trip.status !== "voting" && doc.trip.status !== "locked" && doc.trip.status !== "collecting") {
     return { ok: false, error: "status", doc };
   }
-  const phoneHash = String(payload.phone_hash ?? "");
+  const phoneHash = recipientHash(payload.phone_hash);
+  const emailHash = recipientHash(payload.email_hash);
   const codeHash = String(payload.code_hash ?? "");
   const ipHash = String(payload.ip_hash ?? "");
-  if (!phoneHash || !codeHash) return { ok: false, error: "phone", doc };
+  if ((!phoneHash && !emailHash) || !codeHash) return { ok: false, error: "recipient", doc };
   const since = now.getTime() - OTP_WINDOW_MS;
-  const recentPhone = doc.otps.filter((row) => row.phoneHash === phoneHash && Date.parse(row.sentAt) >= since);
+  const recentRecipient = doc.otps.filter((row) => sameRecipient(row, emailHash, phoneHash) && Date.parse(row.sentAt) >= since);
   const recentIp = doc.otps.filter((row) => ipHash && row.ipHash === ipHash && Date.parse(row.sentAt) >= since);
   const recentTrip = doc.otps.filter((row) => Date.parse(row.sentAt) >= since);
-  if (recentPhone.length >= 3 || recentIp.length >= 10 || recentTrip.length >= 20) {
+  if (recentRecipient.length >= 3 || recentIp.length >= 10 || recentTrip.length >= 20) {
     return { ok: false, error: "otp_limited", doc };
   }
   doc.otps.push({
     id: crypto.randomUUID(),
-    phoneHash,
+    phoneHash: phoneHash || null,
+    emailHash: emailHash || null,
     codeHash,
     expiresAt: new Date(now.getTime() + 10 * 60 * 1000).toISOString(),
     attempts: 0,
@@ -262,9 +278,10 @@ function requestOtp(doc: GroupDoc, payload: Record<string, unknown>, now: Date):
 }
 
 function verifyMember(doc: GroupDoc, payload: Record<string, unknown>, now: Date): EngineResult {
-  const phoneHash = String(payload.phone_hash ?? "");
+  const phoneHash = recipientHash(payload.phone_hash);
+  const emailHash = recipientHash(payload.email_hash);
   const codeHash = String(payload.code_hash ?? "");
-  const otp = [...doc.otps].reverse().find((row) => row.phoneHash === phoneHash && Date.parse(row.expiresAt) > now.getTime());
+  const otp = [...doc.otps].reverse().find((row) => sameRecipient(row, emailHash, phoneHash) && Date.parse(row.expiresAt) > now.getTime());
   if (!otp) return { ok: false, error: "otp_expired", doc };
   otp.attempts += 1;
   // A wrong guess must be saved, or the 5-try limit never holds and a 6-digit code can be guessed.
@@ -275,14 +292,21 @@ function verifyMember(doc: GroupDoc, payload: Record<string, unknown>, now: Date
   }
   // One code joins once.
   otp.expiresAt = now.toISOString();
-  const existing = doc.members.find((member) => member.phoneHash === phoneHash && !member.leftAt);
+  const existing = doc.members.find((member) => {
+    if (member.leftAt) return false;
+    if (emailHash && member.emailHash === emailHash) return true;
+    if (phoneHash && member.phoneHash === phoneHash) return true;
+    return false;
+  });
   if (existing) return { ok: true, doc, dev: { member_id: existing.id } };
   if (activeMembers(doc).length >= MEMBER_CAP) return { ok: false, error: "member_cap", doc };
   const member: GroupMember = {
     id: crypto.randomUUID(),
     displayName: String(payload.display_name ?? "Guest").slice(0, 60),
+    email: String(payload.email ?? "").trim().toLowerCase() || null,
+    emailHash: emailHash || null,
     phoneE164: String(payload.phone_e164 ?? "") || null,
-    phoneHash,
+    phoneHash: phoneHash || null,
     isOrganiser: false,
     isElderly: payload.is_elderly === true,
     needs: stringList(payload.needs).filter((item) => item === "wheelchair" || item === "ground_floor" || item === "lift"),
@@ -508,6 +532,8 @@ function removeMember(doc: GroupDoc, payload: Record<string, unknown>, iso: stri
     return { ok: false, error: "paid", doc };
   }
   member.leftAt = iso;
+  member.email = null;
+  member.emailHash = null;
   member.phoneE164 = null;
   member.phoneHash = null;
   doc.shares = doc.shares.map((share) => (share.memberId === member.id && share.status === "open" ? { ...share, status: "void" } : share));
@@ -552,7 +578,9 @@ function scrubPhones(doc: GroupDoc, now: Date): EngineResult {
   let changed = false;
   for (const member of doc.members) {
     if (member.isOrganiser) continue;
-    if (member.phoneE164 || member.phoneHash) {
+    if (member.phoneE164 || member.phoneHash || member.email || member.emailHash) {
+      member.email = null;
+      member.emailHash = null;
       member.phoneE164 = null;
       member.phoneHash = null;
       changed = true;

@@ -1,6 +1,7 @@
 import { getPackage } from "../packages.ts";
-import { memberLabel, maskPhone } from "./privacy.ts";
+import { memberLabel, maskEmail, maskPhone } from "./privacy.ts";
 import type { GroupDoc } from "./engine.ts";
+import type { GroupOtpChannel } from "./otp.ts";
 import type { GroupStatus } from "./types.ts";
 
 export type GroupRole = "visitor" | "member" | "organiser";
@@ -34,6 +35,7 @@ export type PublicGroup = {
   paidCount: number;
   pendingCount: number;
   role: GroupRole;
+  otpChannel: GroupOtpChannel;
   me: {
     memberId: string;
     label: string;
@@ -41,7 +43,7 @@ export type PublicGroup = {
     shareStatus: string | null;
     payUrl: string | null;
   } | null;
-  people: { label: string; paid: boolean | null; phone: string | null; elderly: boolean }[] | null;
+  people: { label: string; paid: boolean | null; phone: string | null; email: string | null; elderly: boolean }[] | null;
   vouchers: GroupDoc["bookings"];
   cancelReason: string | null;
 };
@@ -85,6 +87,7 @@ export function projectGroup(doc: GroupDoc, role: GroupRole, memberId: string | 
     paidCount: doc.shares.filter((share) => share.status === "paid").length,
     pendingCount: doc.shares.filter((share) => share.status === "open").length,
     role,
+    otpChannel: "email",
     me: mine
       ? {
           memberId: mine.id,
@@ -99,6 +102,7 @@ export function projectGroup(doc: GroupDoc, role: GroupRole, memberId: string | 
           label: memberLabel(member.displayName),
           paid: doc.shares.some((share) => share.memberId === member.id) ? paidIds.has(member.id) : null,
           phone: role === "organiser" ? maskPhone(member.phoneE164) : null,
+          email: role === "organiser" ? maskEmail(member.email) : null,
           elderly: member.isElderly,
         }))
       : null,

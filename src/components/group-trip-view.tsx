@@ -83,7 +83,7 @@ export function GroupTripView({
         </div>
       ) : null}
 
-      {state.role === "visitor" && token ? <JoinForm token={token} onChange={onChange} onMessage={setMessage} /> : null}
+      {state.role === "visitor" && token ? <JoinForm token={token} otpChannel={state.otpChannel} onChange={onChange} onMessage={setMessage} /> : null}
 
       <section className="mt-8 grid gap-3">
         {state.shortlist.map((stay) => {
@@ -152,7 +152,7 @@ export function GroupTripView({
         <ul className="mt-8 grid gap-2 text-sm">
           {state.people.map((person) => (
             <li key={person.label} className="flex justify-between gap-3 border-b border-border py-2">
-              <span>{person.label}{person.elderly ? " · elderly" : ""}{person.phone ? ` · ${person.phone}` : ""}</span>
+              <span>{person.label}{person.elderly ? " · elderly" : ""}{person.email ? ` · ${person.email}` : ""}{person.phone ? ` · ${person.phone}` : ""}</span>
               <span>{person.paid == null ? "" : person.paid ? "Paid" : "Pending"}</span>
             </li>
           ))}
@@ -217,38 +217,63 @@ export function GroupTripView({
   );
 }
 
-function JoinForm({ token, onChange, onMessage }: { token: string; onChange: (next: PublicGroup) => void; onMessage: (text: string) => void }) {
+function JoinForm({
+  token,
+  otpChannel,
+  onChange,
+  onMessage,
+}: {
+  token: string;
+  otpChannel: PublicGroup["otpChannel"];
+  onChange: (next: PublicGroup) => void;
+  onMessage: (text: string) => void;
+}) {
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState(false);
   const [sent, setSent] = useState(false);
+  const emailRequired = otpChannel === "email";
+  const phoneRequired = otpChannel === "whatsapp" || whatsapp;
   return (
     <form className="mt-6 grid gap-3 rounded-xl border border-border p-4" onSubmit={(event) => {
       event.preventDefault();
       if (!sent) {
-        void requestMemberOtp({ data: { token, phone } }).then((res) => {
+        void requestMemberOtp({ data: { token, email, phone } }).then((res) => {
           if (!res.ok) onMessage(res.message);
           else {
             setSent(true);
-            onMessage(res.devCode ? `Development code ${res.devCode}` : res.sent ? "Code sent." : "Phone codes are not configured on this server yet.");
+            onMessage(
+              res.devCode
+                ? `Development code ${res.devCode}`
+                : res.sent
+                  ? otpChannel === "email" ? "Code sent to your email." : "Code sent."
+                  : "Phone codes are not configured on this server yet.",
+            );
           }
         });
         return;
       }
-      void verifyMemberOtp({ data: { token, phone, code, displayName: name, whatsappOptIn: whatsapp, isElderly: false, needs: [] } }).then((res) => {
+      void verifyMemberOtp({ data: { token, email, phone, code, displayName: name, whatsappOptIn: whatsapp, isElderly: false, needs: [] } }).then((res) => {
         if (res.ok) onChange(res.state);
         else onMessage(res.message);
       });
     }}>
       <p className="text-sm">
-        TripWeave keeps your name and Indian mobile number to coordinate this trip, take your share, and tell the hotel the party size.
-        The number is deleted 14 days after the trip ends. If the organiser removes you before you pay, it is erased then.
+        TripWeave keeps your name and email{phoneRequired ? " and Indian mobile number" : " (and your mobile number, if you give one)"} to coordinate this trip, take your share, and tell the hotel the party size.
+        These details are deleted 14 days after the trip ends. If the organiser removes you before you pay, they are erased then.
       </p>
       <label className="grid gap-1 text-sm font-medium">Name<Input value={name} onChange={(e) => setName(e.target.value)} required /></label>
-      <label className="grid gap-1 text-sm font-medium">Mobile<Input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" required /></label>
+      <label className="grid gap-1 text-sm font-medium">Email<Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" required={emailRequired} /></label>
+      <label className="grid gap-1 text-sm font-medium">Mobile{phoneRequired ? "" : " (optional)"}<Input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" required={phoneRequired} /></label>
       {sent ? <label className="grid gap-1 text-sm font-medium">Code<Input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" required /></label> : null}
-      <Choice selected={whatsapp} title="WhatsApp messages about this trip" onClick={() => setWhatsapp((on) => !on)} />
+      <Choice
+        selected={whatsapp}
+        title={otpChannel === "email" ? "WhatsApp updates later (optional)" : "WhatsApp messages about this trip"}
+        hint={otpChannel === "email" ? "Join codes are sent by email for now. Tick this if you want trip updates on WhatsApp once messaging is available." : undefined}
+        onClick={() => setWhatsapp((on) => !on)}
+      />
       <Button type="submit">{sent ? "Join" : "Send code"}</Button>
     </form>
   );

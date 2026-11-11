@@ -48,6 +48,8 @@ export type ShortlistStay = {
 export type GroupMember = {
   id: string;
   displayName: string;
+  email: string | null;
+  emailHash: string | null;
   phoneE164: string | null;
   phoneHash: string | null;
   isOrganiser: boolean;
