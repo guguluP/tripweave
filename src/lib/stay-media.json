@@ -1081,6 +1081,33 @@
         "/stays/hotel-golden-palace-puri/gallery-9.jpg"
       ],
       "rooms": {}
+    },
+    "rivera-puri": {
+      "images": [
+        "/stays/rivera-puri/property-1.jpg",
+        "/stays/rivera-puri/gallery-1.jpg",
+        "/stays/rivera-puri/gallery-2.jpg",
+        "/stays/rivera-puri/gallery-3.jpg",
+        "/stays/rivera-puri/gallery-4.jpg",
+        "/stays/rivera-puri/gallery-5.jpg",
+        "/stays/rivera-puri/gallery-6.jpg",
+        "/stays/rivera-puri/gallery-7.jpg",
+        "/stays/rivera-puri/gallery-8.jpg",
+        "/stays/rivera-puri/gallery-9.jpg",
+        "/stays/rivera-puri/gallery-10.jpg",
+        "/stays/rivera-puri/gallery-11.jpg"
+      ],
+      "rooms": {}
+    },
+    "hotel-sukadev-homes": {
+      "images": [
+        "/stays/hotel-sukadev-homes/property-1.jpg",
+        "/stays/hotel-sukadev-homes/gallery-1.jpg",
+        "/stays/hotel-sukadev-homes/gallery-2.jpg",
+        "/stays/hotel-sukadev-homes/gallery-3.jpg",
+        "/stays/hotel-sukadev-homes/gallery-4.jpg"
+      ],
+      "rooms": {}
     }
   }
 }

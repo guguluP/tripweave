@@ -65,6 +65,8 @@ Property galleries only. Catalog rooms stay unlabeled. Frames are the hotel or c
 | `samudra-hotel-puri` | thegallerygroups.com Hotel Samudra, Puri |
 | `z-hotel-puri` | zhotelpuri.com |
 | `hotel-golden-palace-puri` | hotelgoldenpalacepuri.in |
+| `rivera-puri` | hotelriverapuri.com |
+| `hotel-sukadev-homes` | hotelsdhomes.com |
 | `panthanivas-konark` | bookodisha.com Panthanivas Konark |
 | `yatrinivas-konark` | otdc.odisha.gov.in Yatrinivas Konark |
 | `nuanai-nature-camp` | ecotourodisha.com Nuanai Nature Camp |
