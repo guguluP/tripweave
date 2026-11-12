@@ -1,4 +1,5 @@
 import type { RawStay } from "./packages-data-a.ts";
+import { EXTRA_OFFICIAL_ROOMS } from "./official-rooms/extra-puri.ts";
 
 export type ExtraArea = "konark" | "marine" | "grand-road" | "chilika";
 
@@ -1348,4 +1349,9 @@ export const RAW_C: RawStay[] = [
     ],
   },
 ];
+
+for (const stay of RAW_C) {
+  const official = EXTRA_OFFICIAL_ROOMS[stay.id];
+  if (official) stay.rooms = official;
+}
 

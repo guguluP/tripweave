@@ -78,14 +78,29 @@ describe("catalog", () => {
         assert.equal(roomImages.size, pkg.rooms.length, `${pkg.id} unique room images`);
         continue;
       }
-      // Later stays: official property frames only. Catalog rooms stay unlabeled.
       assert.ok(pkg.images.length >= 1, pkg.id);
       assert.equal(pkg.videos.length, 0, pkg.id);
-      assert.deepEqual(spec.rooms, {}, `${pkg.id} room map`);
-      for (const room of pkg.rooms) {
-        assert.equal(room.image, "", `${pkg.id}:${room.id}`);
-        assert.deepEqual(room.images, [], `${pkg.id}:${room.id}`);
+      const officialIds = Object.keys(spec.rooms);
+      if (officialIds.length === 0) {
+        for (const room of pkg.rooms) {
+          assert.equal(room.image, "", `${pkg.id}:${room.id}`);
+          assert.deepEqual(room.images, [], `${pkg.id}:${room.id}`);
+        }
+        continue;
       }
+      assert.deepEqual(
+        pkg.rooms.map((room) => room.id),
+        officialIds,
+        `${pkg.id} official room ids`,
+      );
+      const roomImages = new Set<string>();
+      for (const room of pkg.rooms) {
+        assert.ok(room.image, `${pkg.id}:${room.id}`);
+        assert.ok(room.image.includes("/rooms/"), `${pkg.id}:${room.id}`);
+        assert.ok(!room.image.includes("unsplash"), `${pkg.id}:${room.id}`);
+        roomImages.add(room.image);
+      }
+      assert.equal(roomImages.size, pkg.rooms.length, `${pkg.id} unique room images`);
     }
   });
 

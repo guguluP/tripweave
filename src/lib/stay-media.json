@@ -659,15 +659,28 @@
         "/stays/fortune-beachfront-puri/gallery-2.jpg",
         "/stays/fortune-beachfront-puri/gallery-3.jpg",
         "/stays/fortune-beachfront-puri/gallery-4.jpg",
-        "/stays/fortune-beachfront-puri/gallery-5.jpg",
-        "/stays/fortune-beachfront-puri/gallery-6.jpg",
-        "/stays/fortune-beachfront-puri/gallery-7.jpg",
-        "/stays/fortune-beachfront-puri/gallery-8.jpg",
-        "/stays/fortune-beachfront-puri/gallery-9.jpg",
-        "/stays/fortune-beachfront-puri/gallery-10.jpg",
-        "/stays/fortune-beachfront-puri/gallery-11.jpg"
+        "/stays/fortune-beachfront-puri/gallery-5.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe": [
+          "/stays/fortune-beachfront-puri/rooms/deluxe.jpg"
+        ],
+        "deluxe-garden": [
+          "/stays/fortune-beachfront-puri/rooms/deluxe-garden.jpg"
+        ],
+        "sea-front": [
+          "/stays/fortune-beachfront-puri/rooms/sea-front.jpg"
+        ],
+        "seafront-sit-out": [
+          "/stays/fortune-beachfront-puri/rooms/seafront-sit-out.jpg"
+        ],
+        "premium-sea": [
+          "/stays/fortune-beachfront-puri/rooms/premium-sea.jpg"
+        ],
+        "premium-suite": [
+          "/stays/fortune-beachfront-puri/rooms/premium-suite.jpg"
+        ]
+      }
     },
     "golden-tree-puri": {
       "images": [
@@ -758,17 +771,24 @@
         "/stays/treebo-siddharth-puri/property-1.jpg",
         "/stays/treebo-siddharth-puri/gallery-1.jpg",
         "/stays/treebo-siddharth-puri/gallery-2.jpg",
-        "/stays/treebo-siddharth-puri/gallery-3.jpg",
-        "/stays/treebo-siddharth-puri/gallery-4.jpg",
-        "/stays/treebo-siddharth-puri/gallery-5.jpg",
-        "/stays/treebo-siddharth-puri/gallery-6.jpg",
-        "/stays/treebo-siddharth-puri/gallery-7.jpg",
-        "/stays/treebo-siddharth-puri/gallery-8.jpg",
-        "/stays/treebo-siddharth-puri/gallery-9.jpg",
-        "/stays/treebo-siddharth-puri/gallery-10.jpg",
-        "/stays/treebo-siddharth-puri/gallery-11.jpg"
+        "/stays/treebo-siddharth-puri/gallery-3.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "maple": [
+          "/stays/treebo-siddharth-puri/rooms/maple.jpg",
+          "/stays/treebo-siddharth-puri/rooms/maple-2.jpg"
+        ],
+        "oak": [
+          "/stays/treebo-siddharth-puri/rooms/oak.jpg",
+          "/stays/treebo-siddharth-puri/rooms/oak-2.jpg",
+          "/stays/treebo-siddharth-puri/rooms/oak-3.jpg"
+        ],
+        "mahogany": [
+          "/stays/treebo-siddharth-puri/rooms/mahogany.jpg",
+          "/stays/treebo-siddharth-puri/rooms/mahogany-2.jpg",
+          "/stays/treebo-siddharth-puri/rooms/mahogany-3.jpg"
+        ]
+      }
     },
     "om-leisure-satapada": {
       "images": [
@@ -784,16 +804,34 @@
       "images": [
         "/stays/samudra-hotel-puri/property-1.jpg",
         "/stays/samudra-hotel-puri/gallery-1.jpg",
-        "/stays/samudra-hotel-puri/gallery-2.jpg",
-        "/stays/samudra-hotel-puri/gallery-3.jpg",
-        "/stays/samudra-hotel-puri/gallery-4.jpg",
-        "/stays/samudra-hotel-puri/gallery-5.jpg",
-        "/stays/samudra-hotel-puri/gallery-6.jpg",
-        "/stays/samudra-hotel-puri/gallery-7.jpg",
-        "/stays/samudra-hotel-puri/gallery-8.jpg",
-        "/stays/samudra-hotel-puri/gallery-9.jpg"
+        "/stays/samudra-hotel-puri/gallery-2.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "non-ac-standard": [
+          "/stays/samudra-hotel-puri/rooms/non-ac-standard.jpg"
+        ],
+        "ac-standard": [
+          "/stays/samudra-hotel-puri/rooms/ac-standard.jpg"
+        ],
+        "ac-deluxe": [
+          "/stays/samudra-hotel-puri/rooms/ac-deluxe.jpg"
+        ],
+        "ac-superior": [
+          "/stays/samudra-hotel-puri/rooms/ac-superior.jpg"
+        ],
+        "ac-suite": [
+          "/stays/samudra-hotel-puri/rooms/ac-suite.jpg"
+        ],
+        "family-3": [
+          "/stays/samudra-hotel-puri/rooms/family-3.jpg"
+        ],
+        "family-4": [
+          "/stays/samudra-hotel-puri/rooms/family-4.jpg"
+        ],
+        "family-5": [
+          "/stays/samudra-hotel-puri/rooms/family-5.jpg"
+        ]
+      }
     },
     "hotel-vijoya-international": {
       "images": [
@@ -838,13 +876,22 @@
         "/stays/white-sands-puri/gallery-4.jpg",
         "/stays/white-sands-puri/gallery-5.jpg",
         "/stays/white-sands-puri/gallery-6.jpg",
-        "/stays/white-sands-puri/gallery-7.jpg",
-        "/stays/white-sands-puri/gallery-8.jpg",
-        "/stays/white-sands-puri/gallery-9.jpg",
-        "/stays/white-sands-puri/gallery-10.jpg",
-        "/stays/white-sands-puri/gallery-11.jpg"
+        "/stays/white-sands-puri/gallery-7.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "side-sea": [
+          "/stays/white-sands-puri/rooms/side-sea.jpg"
+        ],
+        "superior-deluxe-balcony": [
+          "/stays/white-sands-puri/rooms/superior-deluxe-balcony.jpg"
+        ],
+        "family": [
+          "/stays/white-sands-puri/rooms/family.jpg"
+        ],
+        "executive-sea-suite": [
+          "/stays/white-sands-puri/rooms/executive-sea-suite.jpg"
+        ]
+      }
     },
     "dreamland-puri": {
       "images": [
@@ -974,7 +1021,26 @@
         "/stays/hotel-new-sea-hawk/gallery-6.jpg",
         "/stays/hotel-new-sea-hawk/gallery-7.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "ac-luxury-ground": [
+          "/stays/hotel-new-sea-hawk/rooms/ac-luxury-ground.jpg"
+        ],
+        "ac-super-luxury-double": [
+          "/stays/hotel-new-sea-hawk/rooms/ac-super-luxury-double.jpg"
+        ],
+        "ac-super-luxury-four": [
+          "/stays/hotel-new-sea-hawk/rooms/ac-super-luxury-four.jpg"
+        ],
+        "ac-super-luxury-family": [
+          "/stays/hotel-new-sea-hawk/rooms/ac-super-luxury-family.jpg"
+        ],
+        "maharani": [
+          "/stays/hotel-new-sea-hawk/rooms/maharani.jpg"
+        ],
+        "maharaja": [
+          "/stays/hotel-new-sea-hawk/rooms/maharaja.jpg"
+        ]
+      }
     },
     "hotel-prabhupada-puri": {
       "images": [
@@ -987,7 +1053,20 @@
         "/stays/hotel-prabhupada-puri/gallery-6.jpg",
         "/stays/hotel-prabhupada-puri/gallery-7.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "family-quad": [
+          "/stays/hotel-prabhupada-puri/rooms/family-quad.jpg"
+        ],
+        "executive-front-sea": [
+          "/stays/hotel-prabhupada-puri/rooms/executive-front-sea.jpg"
+        ],
+        "superior-deluxe-balcony": [
+          "/stays/hotel-prabhupada-puri/rooms/superior-deluxe-balcony.jpg"
+        ],
+        "suite-front-sea": [
+          "/stays/hotel-prabhupada-puri/rooms/suite-front-sea.jpg"
+        ]
+      }
     },
     "hotel-shreehari-puri": {
       "images": [
@@ -1006,13 +1085,20 @@
         "/stays/hotel-sonar-bangla-puri/property-1.jpg",
         "/stays/hotel-sonar-bangla-puri/gallery-1.jpg",
         "/stays/hotel-sonar-bangla-puri/gallery-2.jpg",
-        "/stays/hotel-sonar-bangla-puri/gallery-3.jpg",
-        "/stays/hotel-sonar-bangla-puri/gallery-4.jpg",
-        "/stays/hotel-sonar-bangla-puri/gallery-5.jpg",
-        "/stays/hotel-sonar-bangla-puri/gallery-6.jpg",
-        "/stays/hotel-sonar-bangla-puri/gallery-7.jpg"
+        "/stays/hotel-sonar-bangla-puri/gallery-3.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "platinum-double": [
+          "/stays/hotel-sonar-bangla-puri/rooms/platinum-double.jpg",
+          "/stays/hotel-sonar-bangla-puri/rooms/platinum-double-2.jpg"
+        ],
+        "platinum-twin": [
+          "/stays/hotel-sonar-bangla-puri/rooms/platinum-twin.jpg"
+        ],
+        "premium-4-bed": [
+          "/stays/hotel-sonar-bangla-puri/rooms/premium-4-bed.jpg"
+        ]
+      }
     },
     "jeevan-sandhya-puri": {
       "images": [
@@ -1089,7 +1175,6 @@
         "/stays/rivera-puri/gallery-2.jpg",
         "/stays/rivera-puri/gallery-3.jpg",
         "/stays/rivera-puri/gallery-4.jpg",
-        "/stays/rivera-puri/gallery-5.jpg",
         "/stays/rivera-puri/gallery-6.jpg",
         "/stays/rivera-puri/gallery-7.jpg",
         "/stays/rivera-puri/gallery-8.jpg",
@@ -1097,7 +1182,20 @@
         "/stays/rivera-puri/gallery-10.jpg",
         "/stays/rivera-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe-side-sea": [
+          "/stays/rivera-puri/rooms/deluxe-side-sea.jpg",
+          "/stays/rivera-puri/rooms/deluxe-side-sea-2.jpg"
+        ],
+        "super-deluxe-sea": [
+          "/stays/rivera-puri/rooms/super-deluxe-sea.jpg",
+          "/stays/rivera-puri/rooms/super-deluxe-sea-2.jpg"
+        ],
+        "suite-sea": [
+          "/stays/rivera-puri/rooms/suite-sea.jpg",
+          "/stays/rivera-puri/rooms/suite-sea-2.jpg"
+        ]
+      }
     },
     "hotel-sukadev-homes": {
       "images": [
