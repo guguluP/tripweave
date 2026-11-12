@@ -212,10 +212,10 @@ function TripsInner() {
               return (
                 <Card key={b.id} className="overflow-hidden shadow-none">
                   <div className="grid sm:grid-cols-[9rem_1fr]">
-                    {pkg ? (
+                    {pkg?.image ? (
                       <img src={pkg.image} alt="" className="h-36 w-full object-cover sm:h-full" />
                     ) : (
-                      <div className="bg-surface" />
+                      <div className="grid h-36 place-items-center bg-fg text-sm text-bg sm:h-full">No photos yet</div>
                     )}
                     <div className="flex flex-col gap-3 p-4">
                       <div className="flex items-start justify-between gap-3">

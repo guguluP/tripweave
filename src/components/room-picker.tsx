@@ -32,6 +32,7 @@ export function RoomPicker({
   gallery = [],
   style,
   guestCount,
+  publishedRooms = true,
   onViewPhotos,
 }: {
   rooms: RoomType[];
@@ -44,6 +45,8 @@ export function RoomPicker({
   style?: TravelStyle;
   /** When set, rooms that cannot sleep this many people are disabled. */
   guestCount?: number;
+  /** False when the room names are catalog categories, not a published room list. */
+  publishedRooms?: boolean;
   /** Desktop only: open this room's photos in the sticky gallery. */
   onViewPhotos?: (room: RoomType, photos: string[]) => void;
 }) {
@@ -67,9 +70,11 @@ export function RoomPicker({
             Choose a room
           </h2>
           <p className="mt-1 text-sm text-muted">
-            {showAll
-              ? `${rooms.length} official types. Leftover rooms are the keys TripWeave can sell until a hotel desk sets its own count.`
-              : `${recommended.length} recommended for this brief (base / sea-view / family). ${rooms.length} official types in total.`}
+            {publishedRooms
+              ? showAll
+                ? `${rooms.length} official types. Leftover rooms are the keys TripWeave can sell until a hotel desk sets its own count.`
+                : `${recommended.length} recommended for this brief (base / sea-view / family). ${rooms.length} official types in total.`
+              : `${rooms.length} rooms. The desk confirms the category. Leftover keys are what TripWeave can sell until the hotel sets a count.`}
           </p>
         </div>
         {rooms.length > 3 ? (
@@ -186,6 +191,7 @@ function RoomCard({
         className="block w-full text-left disabled:cursor-not-allowed lg:w-auto lg:shrink-0"
       >
         <div className="relative">
+          {photo ? (
           <Crossfade
             src={photo}
             alt={shot === 0 ? room.name : `${room.name}, photo ${shot + 1}`}
@@ -195,6 +201,16 @@ function RoomCard({
             )}
             mediaClassName="object-cover"
           />
+          ) : (
+            <div
+              className={cn(
+                "grid w-full place-items-center bg-border text-xs text-muted lg:h-24 lg:w-28",
+                open ? "h-64 sm:h-80 lg:h-24" : compact ? "h-20 sm:h-24" : "h-28",
+              )}
+            >
+              No photo
+            </div>
+          )}
           {badge ? (
             <span className="absolute left-2 top-2 rounded-full bg-elevated/95 px-2 py-0.5 text-[10px] font-medium text-fg">
               {badge}

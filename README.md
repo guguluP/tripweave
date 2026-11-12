@@ -1,6 +1,6 @@
 # TripWeave
 
-TripWeave is a Puri hotel site. A guest answers a short brief — dates, how they are arriving, and what the trip is for — and the catalog returns three stays out of twelve. The guest books one room, pays in INR with Razorpay, and leaves with a confirmation code, a desk voucher, and an offline pass.
+TripWeave is a Puri hotel site. A guest answers a short brief — dates, how they are arriving, and what the trip is for — and the catalog returns three stays out of sixty-two in and near Puri. The guest books one room, pays in INR with Razorpay, and leaves with a confirmation code, a desk voucher, and an offline pass.
 
 Live site: [tripweave-web.vercel.app](https://tripweave-web.vercel.app). Repository: [guguluP/tripweave](https://github.com/guguluP/tripweave).
 
@@ -41,7 +41,7 @@ TanStack Start server functions
 ### Request path
 
 1. **Plan** (`src/routes/plan.tsx`) stores a brief in the browser. “Coming from” searches the short arrival list, then a wider India and abroad catalog (`src/lib/world-cities.ts`), then any typed city. The first plan with no saved brief starts from the home city on the account page. That city stays in local storage. Festival or deep-link dates in the URL (`checkIn`, `nights`) stay on the plan form and the matches line; `nights` stays a plain number. Google Flights opens with those stay dates.
-2. **Match** ranks the twelve stays in `src/lib/packages-data-a.ts` and `packages-data-b.ts` by vibe, budget, nights, and arrival. Trust scores are computed in `src/lib/trust-score.ts`.
+2. **Match** ranks the sixty-two stays in `src/lib/packages-data-a.ts`, `packages-data-b.ts`, and `packages-data-c.ts` by vibe, budget, nights, and arrival. Trust scores are computed in `src/lib/trust-score.ts`. The fifty newer stays use OpenStreetMap pins and TripWeave starting rates. They have no hotel-owned photos in the repo.
 3. **Stay** (`src/routes/trip.$id.tsx`) shows the property gallery, official room types, leftover keys, a travel quote, and reviewer notes. Photos come from `src/lib/stay-media.json` and `public/stays/`.
 4. **Travellers** collects the guest, phone, email, masked identity, and an emergency contact.
 5. **Checkout** creates a Razorpay order for an amount computed on the server (`computePayable`). The amount is the room for those nights, each selected add-on once, and the car once. Guest count does not multiply it. The count still cannot exceed the number of people the room sleeps. “Today” is the calendar day in India (`Asia/Kolkata`). Before the window opens, `reserveCheckoutHold` asks Postgres for the nights. A sold-out room stops checkout. A missing or rejected service client also stops checkout. The room is not reserved in process memory.
@@ -55,7 +55,7 @@ Cookie sessions mint a new Better Auth user id on each login. `tw_claim_subject`
 
 | Store | What it holds | Who can reach it |
 | --- | --- | --- |
-| Catalog in the repo | Twelve hotels, room types, prices, photo index | Anyone with the repository. No guest rows. |
+| Catalog in the repo | Sixty-two stays, room types, prices, photo index | Anyone with the repository. No guest rows. |
 | Browser storage | Brief, saved stays, account home city | That browser only. |
 | Better Auth | Sign-in session, Google and email | Server. On Vercel, users and reset tokens are the Supabase `ba_*` tables, not `DATABASE_URL`. |
 | Supabase `tw_*` | Bookings, travellers, profiles, room holds, refunds, desk overrides, review cache | Service role only. `anon` and `authenticated` cannot execute the functions. |
@@ -100,7 +100,7 @@ src/components/logo.tsx     WeaveMark, BrandWord, BrandLockup
 src/components/brand-assets.ts
                             MARK_SRC data URI (transparent circle)
 src/components/rath-carousel.tsx
-src/lib/packages*.ts        the twelve-stay catalog
+src/lib/packages*.ts        the sixty-two-stay catalog
 src/lib/stay-media.json     photo index for public/stays
 src/lib/server/             bookings, holds, Razorpay, desk, mail
 src/lib/supabase/           service client and RPC adapters

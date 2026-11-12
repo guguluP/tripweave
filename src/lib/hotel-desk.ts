@@ -1,3 +1,5 @@
+import { RAW_C } from "./packages-data-c.ts";
+
 /** lead_only: companions give a name and age band. all_adults_id: each adult also gives an ID. */
 export type GuestDetailsPolicy = "lead_only" | "all_adults_id";
 
@@ -96,6 +98,16 @@ export const HOTEL_DESKS: Record<string, HotelDesk> = {
     legalName: "Hotel Holiday Resort Pvt Ltd",
     gstin: "21AABCH0424K1Z5",
   },
+  ...Object.fromEntries(
+    RAW_C.map((stay) => [
+      stay.id,
+      {
+        packageId: stay.id,
+        email: "tripweavedesk@gmail.com",
+        note: `${stay.name} — no public desk address on file`,
+      },
+    ]),
+  ),
 };
 
 export function deskFor(packageId: string): HotelDesk {

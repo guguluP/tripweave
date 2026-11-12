@@ -18,22 +18,30 @@ import {
 } from "./packages.ts";
 import { getSeededConsensus } from "./youtube/get-seeded.ts";
 import { SEED_ROOM_NOTES } from "./youtube/seed-room-notes.ts";
+import { stayPin } from "./places.ts";
 import { STAYS_NEEDING_USER_FILES, stayNeedsUserFiles, STAY_MEDIA } from "./property-media.ts";
 import { INCLUDE_ICON } from "./include-icons.ts";
 
 describe("catalog", () => {
-  it("lists twelve Puri stays with rooms, photos, videos, and 1-night stays", () => {
-    assert.equal(PACKAGES.length, 12);
+  it("lists sixty-two stays in and near Puri, with rooms and 1-night stays", () => {
+    assert.equal(PACKAGES.length, 62);
     for (const pkg of PACKAGES) {
       assert.equal(pkg.nightsMin, 1, pkg.id);
       assert.ok(pkg.nightsMax >= pkg.nightsMin, pkg.id);
       assert.ok(pkg.rooms.length >= 2, pkg.id);
+      assert.equal(pkg.priceFrom, pkg.pricePerNight);
+      assert.equal(pkg.rooms[0]!.deltaPerNight, 0, pkg.id);
+      const photographed = Boolean(STAY_MEDIA[pkg.id]);
+      if (!photographed) {
+        assert.equal(pkg.images.length, 0, pkg.id);
+        assert.equal(pkg.videos.length, 0, pkg.id);
+        assert.equal(pkg.image, "", pkg.id);
+        continue;
+      }
       assert.ok(pkg.images.length >= 4, pkg.id);
       assert.ok(pkg.videos.length >= 2, pkg.id);
       assert.equal(pkg.image, pkg.images[0]);
       assert.ok(pkg.images[0]!.includes("/property-1.jpg"), `${pkg.id} leads with property photo`);
-      assert.equal(pkg.priceFrom, pkg.pricePerNight);
-      assert.ok(pkg.rooms[0]!.deltaPerNight === 0, pkg.id);
       for (const video of pkg.videos) {
         assert.match(video.videoId, /^[a-zA-Z0-9_-]{11}$/, video.videoId);
       }
@@ -78,6 +86,7 @@ describe("catalog", () => {
 
   it("uses vendored local /stays paths for catalog media", () => {
     for (const pkg of PACKAGES) {
+      if (!STAY_MEDIA[pkg.id]) continue;
       assert.match(pkg.image, new RegExp(`^/stays/${pkg.id}/property-1\\.jpg$`), pkg.id);
       for (const src of pkg.images) {
         assert.match(src, new RegExp(`^/stays/${pkg.id}/`), `${pkg.id} gallery`);
@@ -95,6 +104,24 @@ describe("catalog", () => {
     assert.equal(stayNeedsUserFiles("taj-puri-resort-spa"), false);
   });
 
+  it("pins every stay, including the fifty added around Puri", () => {
+    assert.equal(Object.keys(STAY_MEDIA).length, 12);
+    const added = PACKAGES.filter((pkg) => !STAY_MEDIA[pkg.id]);
+    assert.equal(added.length, 50);
+    for (const pkg of added) {
+      const pin = stayPin(pkg.id, pkg.name);
+      assert.ok(pin, pkg.id);
+      assert.ok(pin!.lat > 19.6 && pin!.lat < 20, pkg.id);
+      assert.ok(pin!.lng > 85.4 && pin!.lng < 86.2, pkg.id);
+      assert.ok(pkg.pricePerNight >= 1000, pkg.id);
+      assert.equal(pkg.hasAirportTransfer, false, pkg.id);
+    }
+    assert.ok(getPackage("fortune-beachfront-puri"));
+    assert.ok(getPackage("panthanivas-konark"));
+    assert.equal(getPackage("panthanivas-konark")!.destination, "Konark");
+    assert.equal(getPackage("om-leisure-satapada")!.area, "chilika");
+  });
+
   it("includes the six new properties", () => {
     for (const id of [
       "mayfair-waves-puri",
@@ -110,6 +137,7 @@ describe("catalog", () => {
 
   it("has reviewer notes for every official room id", () => {
     for (const pkg of PACKAGES) {
+      if (!STAY_MEDIA[pkg.id]) continue;
       const seed = getSeededConsensus(pkg.id);
       assert.ok(seed, pkg.id);
       const notes = SEED_ROOM_NOTES[pkg.id];

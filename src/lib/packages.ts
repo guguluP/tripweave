@@ -2,10 +2,11 @@ import { trustScoreForPackage } from "./trust-score.ts";
 import { overlayFor } from "./catalog-store.ts";
 import { attachPropertyMedia } from "./property-media.ts";
 import { RAW } from "./packages-data.ts";
+import { EXTRA_STAYS } from "./packages-data-c.ts";
 import { getOrigin, type ArriveBy, type OriginId } from "./origins.ts";
 
 export type Vibe = "culture" | "beach" | "relax" | "adventure";
-export type StayArea = "konark" | "marine" | "grand-road";
+export type StayArea = "konark" | "marine" | "grand-road" | "chilika";
 export type Budget = "value" | "mid" | "premium";
 export type TravelStyle = "solo" | "couple" | "family" | "friends";
 
@@ -177,6 +178,12 @@ const STAY_PLACES: Record<string, { area: StayArea; nearStation: boolean; hasAir
   "chanakya-bnr-puri": { area: "grand-road", nearStation: true, hasAirportTransfer: false },
   "mahodadhi-palace-puri": { area: "marine", nearStation: false, hasAirportTransfer: false },
   "holiday-resort-puri": { area: "marine", nearStation: false, hasAirportTransfer: false },
+  ...Object.fromEntries(
+    EXTRA_STAYS.map((stay) => [
+      stay.id,
+      { area: stay.area, nearStation: stay.nearStation, hasAirportTransfer: false as const },
+    ]),
+  ),
 };
 
 const liveTrustScores = new Map<string, number>();
@@ -325,7 +332,7 @@ export function originTraits(pkg: StayPackage) {
   return {
     temple: pkg.area === "grand-road",
     beach: pkg.area === "marine",
-    far: pkg.area === "konark",
+    far: pkg.area === "konark" || pkg.area === "chilika",
     airportTransfer: pkg.hasAirportTransfer,
     nearStation: pkg.nearStation,
   };
@@ -368,6 +375,9 @@ export function originFitReason(pkg: StayPackage, brief: Brief): string {
       return `Temple / station side — shorter last mile after a ${brief.arriveBy} from ${city}.`;
     }
     if (far) {
+      if (pkg.area === "chilika") {
+        return `On Chilika at Satapada — a longer hop after a ${brief.arriveBy} from ${city}.`;
+      }
       return `Out toward Konark — longer hop after a ${brief.arriveBy} from ${city}.`;
     }
   }

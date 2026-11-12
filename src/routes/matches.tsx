@@ -143,7 +143,7 @@ function Matches() {
             {brief.budget} budget, {brief.vibe} vibe
             {brief.flexible ? ", with flexible dates" : ""}
             {checkIn ? `, check-in ${formatCheckInLabel(checkIn)}` : ""}. {rankingBlurb(brief)} Three
-            on the short list; the other nine stay visible below.
+            on the short list; the rest stay visible below.
           </p>
           {ready && hidden.length > 0 ? (
             <p className="mt-3 max-w-xl text-sm text-muted">

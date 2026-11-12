@@ -113,7 +113,7 @@ function Home() {
         <div className="absolute inset-0 z-10 bg-fg/55" />
         <div className="relative z-20 mx-auto flex min-h-[32rem] max-w-6xl flex-col justify-end px-4 py-16">
           <Stagger>
-            <p className="eyebrow text-primary-fg/80">Puri. Twelve hotels.</p>
+            <p className="eyebrow text-primary-fg/80">Puri and nearby. Sixty-two stays.</p>
             <h1 className="mt-3 max-w-xl font-display text-4xl text-primary-fg md:text-5xl">
               We return three. You book one.
             </h1>

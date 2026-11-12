@@ -5,6 +5,7 @@
  */
 import type { ArriveBy, OriginId } from "./origins.ts";
 import { inboundFor } from "./origins.ts";
+import { extraStay } from "./packages-data-c.ts";
 
 export type TransportLeg = {
   mode: string;
@@ -591,8 +592,103 @@ function inferFromBus(packageId: string, neighborhood: string): TransportLeg[] {
   return amaFromBus("beach");
 }
 
+function transportForExtra(packageId: string): Omit<PropertyTransport, "packageId"> | null {
+  const stay = extraStay(packageId);
+  if (!stay) return null;
+  if (stay.area === "chilika") {
+    return {
+      neighborhood: stay.neighborhood,
+      best: {
+        mode: "Cab from Bhubaneswar Airport (BBI) or from Puri",
+        duration: "About 2–3 hr from BBI",
+        costHint: "₹2,200–3,200",
+        why: "Satapada is on Chilika, southwest of Puri. A pre-booked cab is the practical last mile.",
+        luggage: "easy",
+        rank: 1,
+      },
+      fromAirport: [
+        {
+          mode: "Pre-booked cab",
+          duration: "2–3 hr",
+          costHint: "₹2,200–3,200",
+          why: "The lake road is the door-to-door route.",
+          luggage: "easy",
+          rank: 1,
+        },
+      ],
+      fromStation: [
+        {
+          mode: "Cab from Puri station",
+          duration: "70–110 min",
+          costHint: "₹1,200–1,800",
+          why: "Satapada is not a walk from the station.",
+          luggage: "easy",
+          rank: 1,
+        },
+      ],
+      fromBus: [
+        {
+          mode: "Cab from Puri Bus Stand",
+          duration: "70–110 min",
+          costHint: "₹1,200–1,800",
+          why: "The bus stand is in Puri. Satapada is a cab ride on from there.",
+          luggage: "ok",
+          rank: 1,
+        },
+      ],
+      localNote: "At Satapada on Chilika, southwest of Puri. A cab from Puri is the practical last mile.",
+    };
+  }
+  if (stay.area === "konark") {
+    return {
+      neighborhood: stay.neighborhood,
+      best: {
+        mode: "Cab toward Konark",
+        duration: "About 1 hr 45 min – 2 hr 20 min from BBI",
+        costHint: "₹1,800–2,800",
+        why: "Konark is past the Puri beach. A cab is kinder than a bus with bags.",
+        luggage: "easy",
+        rank: 1,
+      },
+      fromAirport: [
+        {
+          mode: "Pre-booked cab",
+          duration: "1 hr 45 min – 2 hr 20 min",
+          costHint: "₹1,800–2,800",
+          why: "BBI to the Konark side is a single road ride.",
+          luggage: "easy",
+          rank: 1,
+        },
+      ],
+      fromStation: [
+        {
+          mode: "Cab from Puri station",
+          duration: "40–70 min",
+          costHint: "₹700–1,200",
+          why: "The station is in Puri town. Konark is the next hop.",
+          luggage: "ok",
+          rank: 1,
+        },
+      ],
+      fromBus: amaFromBus("konark"),
+      localNote: "In or toward Konark, past the Puri beach. A cab is the practical last mile.",
+    };
+  }
+  const base = {
+    ...DEFAULT,
+    neighborhood: stay.neighborhood,
+    localNote: stay.nearStation
+      ? "Close to Puri station. An auto is enough in daylight."
+      : stay.area === "grand-road"
+        ? "Temple side of Puri. Grand Road can close on festival evenings."
+        : "On the Puri beach side. An auto or cab from the station is the usual last mile.",
+  };
+  return base;
+}
+
 export function getTransportForPackage(packageId: string): PropertyTransport {
-  const base = BY_ID[packageId] ?? DEFAULT;
+  const extra = transportForExtra(packageId);
+  const base = BY_ID[packageId] ?? extra ?? DEFAULT;
   return {
     packageId,
     ...base,

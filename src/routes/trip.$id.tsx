@@ -10,6 +10,7 @@ import { DigitPop, Stagger, TextSwap } from "@/components/motion";
 import { RollingPrice } from "@/components/motion/rolling-price";
 import { LikeButton } from "@/components/motion";
 import { PropertyMedia } from "@/components/property-media";
+import { STAY_MEDIA } from "@/lib/property-media";
 import { StayCover } from "@/components/stay-cover";
 import { ReviewerConsensus } from "@/components/reviewer-consensus";
 import { TrustHonestyStrip } from "@/components/trust-honesty";
@@ -286,15 +287,18 @@ function TripDetail() {
         name={pkg.name}
         detail={`${pkg.neighborhood} · ${pkg.destination} · ${pkg.nightsMin}–${pkg.nightsMax} nights`}
       >
+        {gallery.length > 0 ? (
         <button
           type="button"
           className="absolute inset-0 z-10"
           aria-label={`View photos of ${pkg.name}`}
           onClick={() => setOpenToken((n) => n + 1)}
         />
+        ) : null}
         <span className="pointer-events-none absolute left-3 top-3 z-20 rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg">
-          {frame.position} / {frame.total}
-          {frame.total > 0 && frame.total < 4 ? " · hotel-published, limited set" : ""}
+          {frame.total > 0
+            ? `${frame.position} / ${frame.total}${frame.total < 4 ? " · hotel-published, limited set" : ""}`
+            : "No photos yet"}
         </span>
         {pin ? (
           <span className="pointer-events-none absolute left-3 top-12 z-20 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-fg">
@@ -512,6 +516,7 @@ function TripDetail() {
           gallery={pkg.images}
           style={brief.style}
           guestCount={party}
+          publishedRooms={Boolean(STAY_MEDIA[pkg.id])}
           onViewPhotos={(picked, photos) => {
             setRoomGallery((current) => ({
               id: picked.id,

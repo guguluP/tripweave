@@ -97,7 +97,11 @@ function StaySummary() {
   const price = stayTotal(pkg, pending.nights, pending.roomId, guestSwaps(pending.swaps));
   return (
     <div className="flex gap-3 rounded-xl border border-border bg-elevated p-3 text-left">
-      <img src={pkg.image} alt="" className="h-16 w-16 shrink-0 rounded-md object-cover" />
+      {pkg.image ? (
+        <img src={pkg.image} alt="" className="h-16 w-16 shrink-0 rounded-md object-cover" />
+      ) : (
+        <div className="grid h-16 w-16 shrink-0 place-items-center rounded-md bg-fg text-[10px] text-bg">No photo</div>
+      )}
       <div className="min-w-0 text-sm">
         <p className="truncate font-medium text-fg">{pkg.name}</p>
         <p className="text-muted">

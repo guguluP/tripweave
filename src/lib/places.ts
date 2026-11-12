@@ -1,3 +1,5 @@
+import { EXTRA_STAYS } from "./packages-data-c.ts";
+
 export type Pin = { id: string; label: string; lat: number; lng: number; kind: "stay" | "temple" | "station" | "beach" };
 
 /**
@@ -29,6 +31,7 @@ const STAYS: Record<string, { lat: number; lng: number }> = {
   "regenta-central-puri": { lat: 19.786898, lng: 85.797065 },
   "hans-coco-palms": { lat: 19.789746, lng: 85.805063 },
   "empires-hotel-puri": { lat: 19.786711, lng: 85.795226 },
+  ...Object.fromEntries(EXTRA_STAYS.map((stay) => [stay.id, { lat: stay.lat, lng: stay.lng }])),
 };
 
 export function stayPin(packageId: string, name: string): Pin | null {

@@ -707,7 +707,11 @@ function CheckoutInner() {
         </div>
 
         <Card className="h-fit overflow-hidden">
-          <img src={pkg.image} alt="" className="h-40 w-full object-cover" />
+          {pkg.image ? (
+            <img src={pkg.image} alt="" className="h-40 w-full object-cover" />
+          ) : (
+            <div className="grid h-40 place-items-center bg-fg text-sm text-bg">No photos yet</div>
+          )}
           <div className="p-5">
             <h2 className="font-display text-xl">{pkg.name}</h2>
             <p className="mt-1 text-sm text-muted">

@@ -293,7 +293,7 @@ export function PropertyMedia({
               if (hideHero) window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
-            Property · {gallery.length}
+            Property · {gallery.length > 0 ? gallery.length : "no photos"}
             {gallery.length > 0 && gallery.length < 4 ? " · limited set" : ""}
           </button>
           {rooms.length > 0 ? (
@@ -448,7 +448,9 @@ export function PropertyMedia({
                 ? shown.length
                   ? `${roomScope.name} · ${shownIndex + 1}/${shown.length}`
                   : `${roomScope.name} · no photos`
-                : `${shownIndex + 1} / ${shown.length}${shown.length > 0 && shown.length < 4 ? " · hotel-published, limited set" : ""}`}
+                : shown.length
+                  ? `${shownIndex + 1} / ${shown.length}${shown.length < 4 ? " · hotel-published, limited set" : ""}`
+                  : "No photos yet"}
             </span>
             {arrivalPin && !roomScope ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-fg">

@@ -27,7 +27,11 @@ export function stayNeedsUserFiles(stayId: string) {
 export function attachPropertyMedia(p: { id: string; rooms: RoomInput[] }) {
   const spec = STAY_MEDIA[p.id];
   if (!spec) {
-    throw new Error(`Missing property media for stay ${p.id}`);
+    return {
+      images: [] as string[],
+      image: "",
+      rooms: p.rooms.map((room) => ({ ...room, image: "", images: [] as string[] })),
+    };
   }
   const images = [...new Set(spec.images)];
   const rooms: RoomType[] = p.rooms.map((room) => {
