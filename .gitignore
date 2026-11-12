@@ -16,3 +16,7 @@ startup.sh
 .grok/preview.log
 .grok/favicon-candidates.html
 .grok/favicon-candidates.png
+
+# Local build output (Nitro Netlify preset)
+.netlify/
+dist/
