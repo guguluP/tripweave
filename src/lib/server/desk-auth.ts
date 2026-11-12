@@ -6,8 +6,19 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 export type DeskTokenGrant = { packageId: string; token: string };
 
-/** TW_DESK_TOKENS=packageId:secret,other-id:other-secret */
-export function parseDeskTokens(raw = process.env.TW_DESK_TOKENS ?? ""): DeskTokenGrant[] {
+/**
+ * TW_DESK_TOKENS=packageId:secret,other-id:other-secret
+ * Later stays are listed in TW_DESK_TOKENS_MORE. Vercel will not return the
+ * original secret, so new keys are appended there instead of replacing it.
+ */
+export function deskTokenSource(): string {
+  return [process.env.TW_DESK_TOKENS, process.env.TW_DESK_TOKENS_MORE]
+    .map((part) => part?.trim() ?? "")
+    .filter(Boolean)
+    .join(",");
+}
+
+export function parseDeskTokens(raw = deskTokenSource()): DeskTokenGrant[] {
   return raw
     .split(",")
     .map((part) => part.trim())
