@@ -23,7 +23,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "809rJTgHVgI",
       title: "Room and property tour of Taj Puri Resort and Spa",
       channel: "Priyassha Bose",
-    },
+    }
   ],
   "mayfair-heritage-puri": [
     {
@@ -40,7 +40,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "uquuV9tAlo0",
       title: "Mayfair Heritage Puri 2024 — real staying experience",
       channel: "SEN'S NEST",
-    },
+    }
   ],
   "swosti-premium-beach-resort": [
     {
@@ -57,7 +57,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "G6R5FNirOcY",
       title: "পুরীর সেরা রিসোর্ট। Swosti Premium Beach Resort Puri. best sea facing hotel in puri.",
       channel: "Katus Lifestyle",
-    },
+    }
   ],
   "regenta-central-puri": [
     {
@@ -74,7 +74,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "I5yaD4NyfTo",
       title: "Regenta Central Puri Odisha — rooms and amenities",
       channel: "Travel With Priya",
-    },
+    }
   ],
   "hans-coco-palms": [
     {
@@ -91,7 +91,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "C_hvR4UIcDQ",
       title: "Last day at Puri — Hans Coco Palms resort and beach",
       channel: "Mr and Mrs Purohit",
-    },
+    }
   ],
   "empires-hotel-puri": [
     {
@@ -108,7 +108,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "k8rcWt78lJc",
       title: "Hotel Empires Puri My Full review",
       channel: "Journeys with Dwivid",
-    },
+    }
   ],
   "mayfair-waves-puri": [
     {
@@ -120,7 +120,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "ov0TpiWVKGg",
       title: "Mayfair waves resort, Puri, Odisha : Room tour",
       channel: "Monica Explains",
-    },
+    }
   ],
   "toshali-sands-puri": [
     {
@@ -137,7 +137,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "ZOCBaU2Ignk",
       title: "TOSHALI SANDS RESORT// Cottage tour// Resort tour//puri resort",
       channel: "Create world vlogs",
-    },
+    }
   ],
   "chariot-resort-puri": [
     {
@@ -149,7 +149,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "6pPT0cJmWuM",
       title: "A day in a Luxurious Hotel Near Sea Beach || The Chariot Resort & Spa Puri",
       channel: "Model Soumya Odia Vlogs",
-    },
+    }
   ],
   "chanakya-bnr-puri": [
     {
@@ -166,7 +166,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "zDBoax8k2qU",
       title: "Chanakya BNR Hotel Puri 2024 | The only Railway Theme Hotel in India",
       channel: "Embrace D'ordinaire",
-    },
+    }
   ],
   "mahodadhi-palace-puri": [
     {
@@ -178,7 +178,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "cYaF0LtwZ4k",
       title: "Stay at Mahodadhi Palace and Patrapada Chingudi",
       channel: "Food Drifter",
-    },
+    }
   ],
   "holiday-resort-puri": [
     {
@@ -190,7 +190,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "_GCIo7ETCp8",
       title: "Holiday Resorts, Puri - Room Tour & Review | Beachside Stay in Odisha!",
       channel: "Monica Explains",
-    },
+    }
   ],
   "niladri-premium-puri": [
     {
@@ -207,7 +207,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "VN5k5TuWatI",
       title: "Budget hotel in Puri || Hotel Niladri Premium Price || Room tour || Food",
       channel: "Sudipta's World",
-    },
+    }
   ],
   "blue-lily-puri": [
     {
@@ -229,7 +229,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "v-AzymELTS8",
       title: "Puri Hotel Blue Lily Resort ⛵",
       channel: "Vivek_travel_vlog",
-    },
+    }
   ],
   "camellia-puri": [
     {
@@ -251,7 +251,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "P73hovLdAYI",
       title: "Camellia Hotel & Resort Puri 🏨 | Puri Hotel with Swimming Pool | Sea Facing Hotel Near Swargadwar",
       channel: "ROADWAYS VLOG",
-    },
+    }
   ],
   "dreamland-puri": [
     {
@@ -273,18 +273,13 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "NPmRiUHiG4Y",
       title: "Best Sea Facing Hotel in Puri || Hotel Dreamland Puri || Puri Low Budget Hotel near Sea || Puri Tour",
       channel: "Terrific Twos",
-    },
+    }
   ],
   "fortune-beachfront-puri": [
     {
       videoId: "l2RM3KkH4Sw",
       title: "ITC Fortune Beachfront Hotel Puri| Hotel review|Good hotel in Puri| Puri good hotel",
       channel: "Travel Food and Life",
-    },
-    {
-      videoId: "ee58BQUD9SM",
-      title: "Fortune Beachfront, Puri - Member ITC Hotels' Group - I Was Not Ready for This | Puri, India🛏️",
-      channel: "Alpine Stay Society",
     },
     {
       videoId: "WgWpVZ9CedI",
@@ -295,7 +290,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "3HFyFng_VxE",
       title: "Fortune Beachfront, Puri - Member ITC's hotel group | Luxury 5 Star Hotel at Golden Beach in Puri",
       channel: "Prachi Gupta Diaries",
-    },
+    }
   ],
   "golden-dust-puri": [
     {
@@ -307,23 +302,13 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "B7nnI-SroQM",
       title: "Hotel Golden Dust Royal Puri | Sea facing hotel | Best budget hotel | Marine drive Puri",
       channel: "Priyanshi Creativity",
-    },
-    {
-      videoId: "rrOVYX3yMkI",
-      title: "Puri Golden Dust Royal || Puri Sea facing Best Hotel || পুরীর রুম থেকে সমুদ্র দেখা হোটেল Puri 2023",
-      channel: "PINTU CHITRAKAR",
-    },
+    }
   ],
   "golden-tree-puri": [
     {
       videoId: "ccLx-AePqPY",
       title: "Hotel Golden Tree Puri | Best Sea Facing Hotel | Puri Hotel Near Sea Beach | Nimantran | Saptapadi",
       channel: "Wander with DebRitu",
-    },
-    {
-      videoId: "b0bmwdUtyn0",
-      title: "Hotel Golden Tree Puri/Best Sea Facing Hotel In Puri/Puri Sea Facing Hotel/Puri Hotel Near Sea Beach",
-      channel: "The BoNg LifeStyle",
     },
     {
       videoId: "DnED3eBpPHo",
@@ -334,7 +319,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "81T4s6N3B_c",
       title: "Hotel Golden Tree Puri/Best Sea Facing Hotel In Puri/Puri Sea Facing Hotel/Puri Hotel Near Sea Beach",
       channel: "Aliza Review & Vlogs",
-    },
+    }
   ],
   "hotel-bishnu-bhaban": [
     {
@@ -346,7 +331,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "kRU3GieZ9-4",
       title: "Puri Bishnu Bhawan Lodge || Puri Hotel Near Jagannath Temple || Puri Hotels 2025 ||",
       channel: "Explore with Ishita",
-    },
+    }
   ],
   "hotel-golden-palace-puri": [
     {
@@ -363,12 +348,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "2encoB1ToYc",
       title: "Hotel Golden Palace Puri Sea View Rooms 🌅 Don't Book before watching this! বারান্দা থেকেই সমুদ্র!",
       channel: "Bong Passionate Traveller",
-    },
-    {
-      videoId: "-Vpv7OmYeiE",
-      title: "Puri | Best Hotel In Puri Sea Beach | Golden Beach Puri | Blue Flag Beach | Hotel Golden Palace Puri",
-      channel: "The Shining Bong",
-    },
+    }
   ],
   "hotel-konark-puri": [
     {
@@ -382,15 +362,10 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       channel: "a2z Vlogs",
     },
     {
-      videoId: "zjsHjy6wJFo",
-      title: "Puri Hotel | Puri hotel at Swargadwar sea beach| Hotel Konark, Puri |",
-      channel: "Traveller's Story",
-    },
-    {
       videoId: "Wi_S2_M6Nr8",
       title: "PURI HOTEL KONARK || BESIDE KAKATUA || BEST BUDGET FRIENDLY HOTEL ROOMS #puri #vlog",
       channel: "Hrit Explorer",
-    },
+    }
   ],
   "hotel-new-sea-hawk": [
     {
@@ -404,26 +379,16 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       channel: "Travel With Priyanka",
     },
     {
-      videoId: "oNcg9z6TRjE",
-      title: "Hotel Sea Hawk Puri/Best Sea Facing Hotel In Puri/Puri Sea Facing Hotels/Puri Hotels Near Sea Beach.",
-      channel: "The BoNg LifeStyle",
-    },
-    {
       videoId: "JnZ53IC9BbQ",
       title: "একদম সত্যি বিস্ময়কর 😱রিভিউ হোটেল নিউ সি হক পুরী।genuine review of hotel new sea hawk puri June 2023",
       channel: "Probasi Dipika",
-    },
+    }
   ],
   "hotel-prabhupada-puri": [
     {
       videoId: "Ede4RjKffjA",
       title: "Puri Tour 2026 | Hotel Prabhupada Review | Puri Sea Facing Hotels | Puri Jagannath Mandir Darshan",
       channel: "Wanderer Writam",
-    },
-    {
-      videoId: "INlCknpgraw",
-      title: "Review || Hotel Prabhupada PURI || হোটেল প্রভুপাদ, পুরী | সমুদ্রের ধারে আরামদায়ক থাকার অভিজ্ঞতা",
-      channel: "Beyond Check-in",
     },
     {
       videoId: "-2hW3eAAjaQ",
@@ -434,7 +399,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "peShjA_FycY",
       title: "Best hotel in Odisha | Hotel Prabhupada | Hotel review | Laid back hotel in New Marine Drive Puri",
       channel: "Vagabond - Travel with a Purpose",
-    },
+    }
   ],
   "hotel-pulin-puri": [
     {
@@ -456,24 +421,14 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "q81YVzs2Jls",
       title: "Puri 2025 / Pulin Puri Hotel / Puri sightseeing / পুরী ভ্রমণ ২০২৫/ পুলিন পুরী হোটেল",
       channel: "Ipshita",
-    },
+    }
   ],
   "hotel-shakuntala-palace": [
     {
       videoId: "_pqkl7Sk_og",
       title: "Hotel Shakuntala Palace Puri l Room Review Of Shakuntala Palace l Sea Beach Hotel l #puri",
       channel: "Avika's Vlog💞",
-    },
-    {
-      videoId: "jEO429kl1Oo",
-      title: "Shakuntala palace hotel Puri dham || Best ever sea facing  resort",
-      channel: "Oh Odisha",
-    },
-    {
-      videoId: "yYJAlUL_ttc",
-      title: "পুরী স্বর্গদ্বার হোটেল ৮২০ টাকায় Non AC রুম সঙ্গে রান্নার বাসন ফ্রি |Puri Hotel Sakuntala Niwas 2026",
-      channel: "Tour Adda",
-    },
+    }
   ],
   "hotel-shreehari-puri": [
     {
@@ -490,7 +445,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "Oh2NxISYJig",
       title: "Puri Sea Facing Hotels | Hotel Shree Hari Review | Puri Tour 2026 | Puri Hotel near Swargadwar Beach",
       channel: "Petuk Bhoboghure(পেটুক ভবঘুরে)",
-    },
+    }
   ],
   "hotel-sonar-bangla-puri": [
     {
@@ -512,7 +467,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "qu1Z5DsVS5A",
       title: "Hotel sonar bangla puri | puri sea facing hotel | Best sea view hotel in puri",
       channel: "Priyanka Modak Vlog",
-    },
+    }
   ],
   "hotel-vijoya-international": [
     {
@@ -534,18 +489,13 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "wA7RQZiRI4o",
       title: "Hotel Vijoya international |Puri beach -Sun rise",
       channel: "Explore with PariDS",
-    },
+    }
   ],
   "jeevan-sandhya-puri": [
     {
       videoId: "Re4CZMllJVY",
       title: "আবার পুরী চললুম😃Hotel Jeevan Sandhya Room tour। হাওড়া - পুরী superfast express review #BanglaVlog",
       channel: "Mamma & More",
-    },
-    {
-      videoId: "_TwoDCeLTho",
-      title: "Puri vlog 1| Hotel Jeevan Sandhya| Puri Sea beach|Avighna's first train trip",
-      channel: "Inside 1-4C",
     },
     {
       videoId: "bb2HLHG1cNI",
@@ -556,7 +506,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "nZGLETP3a00",
       title: "Puri Hotel Near Sea Beach||Hotel Jeevan Sandhya Inn Puri P-2||Best Hotel In Puri||Puri Budget Hotel",
       channel: "Roy's Journey",
-    },
+    }
   ],
   "lotus-eco-resort": [
     {
@@ -578,7 +528,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "ai_6xbewxRo",
       title: "Lotus Eco Resort Konark || Beach view Resort in Odisha || The Best Place to stay in Konark & Puri ||",
       channel: "Shiningvlogs",
-    },
+    }
   ],
   "lucky-india-puri": [
     {
@@ -595,7 +545,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "UYhD4Yyv23o",
       title: "Lucky India Hotel Puri | Puri Hotel near Swargadwar Sea beach | Sea view Rooms | Puri Tour | Luxury",
       channel: "The Bong Content Factory",
-    },
+    }
   ],
   "nrs-royal-palace-puri": [
     {
@@ -617,7 +567,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "GTVkclSH9Tw",
       title: "NRS Royal Palace Puri Hotel Review 🏨 | Room Tour, Stay Experience & More | #chiniminiblog #puri",
       channel: "Chini Mini Blog",
-    },
+    }
   ],
   "nuanai-nature-camp": [
     {
@@ -639,7 +589,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "iJNNAuTan1M",
       title: "BALUKHADA KONARK SANCTUARY //NATURE CAMP NUANAI//ODISHA",
       channel: "Biswaranjan Das Odia Vlog",
-    },
+    }
   ],
   "rivera-puri": [
     {
@@ -656,19 +606,9 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "QrRG9ykYQWk",
       title: "Reviewing Hotel Room | Direct Booking Hotel Deal | Hotel Rivera | Hotel Rivera Puri | Puri Hotel",
       channel: "Food.Travel.Review With Smita↑",
-    },
+    }
   ],
   "samudra-hotel-puri": [
-    {
-      videoId: "BJA3SFSqKbM",
-      title: "A well spent day & night at SAMUDRA RESORT & SPA PART - 1 || PURI-BRAHMAGIRI || Genuine review.",
-      channel: "Shradha's Planet",
-    },
-    {
-      videoId: "Y5ButL4GqEI",
-      title: "Puri trip away from the hustle and bustle | Samudra Resort and Spa | Puri | Brahmagiri",
-      channel: "Sagarika Basu Sanyal 🌼",
-    },
     {
       videoId: "3QV84wcExPQ",
       title: "Puri Hotel | Hotel Samudra | Puri Sea Beach Hotel | Best Sea Facing Hotel In Puri",
@@ -678,7 +618,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "-4XKA5WO7DM",
       title: "Stay in💖 Hotel Samudra  in Puri Vlog02 #dailyvlog #LifestyleVlog#IndianVlogger#TravelVlog",
       channel: "Mast Mast Masti",
-    },
+    }
   ],
   "santana-puri": [
     {
@@ -700,7 +640,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "tMUQfCR3FVQ",
       title: "এটা হোটেল না প্রাসাদ চলুন একটু ঘুরে দেখি।।পুরীর হোটেল Santana review ..",
       channel: "Champa Halder",
-    },
+    }
   ],
   "shakti-horizon-puri": [
     {
@@ -712,7 +652,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "d4RA4ok6i2k",
       title: "Hotel Shakti Horizon, Hotel New Horizon | Puri sea facing hotel | Puri hotel near beach | Puri hotel",
       channel: "Explorer Bhowmik",
-    },
+    }
   ],
   "sterling-puri": [
     {
@@ -729,12 +669,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "jqaxVg_YjE8",
       title: "This is The REAL Trurth behind SO CALLED Sterling Puri !! 5 Star or 1 Star?? Honest Experience",
       channel: "Sayel's Stories",
-    },
-    {
-      videoId: "A0ZDxvqqzxM",
-      title: "Sterling Puri Resort || Resort Review || VLOG || Jagannath Puri",
-      channel: "Dreamy's Been Here",
-    },
+    }
   ],
   "the-bay-suites-puri": [
     {
@@ -746,17 +681,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "1Kz7LxyeXjg",
       title: "The Bay Suites | Puri Hotel | Near Lighthouse | Sea facing & Swimming Pool.",
       channel: "Travel with Appy { Avik & Aparna }",
-    },
-    {
-      videoId: "5sLFvk9_JTY",
-      title: "Puri Best Hotel Near Sea Beach | Swimming Pool Luxury Hotels in Puri | The Bay Suites | Puri Hotel",
-      channel: "Wander Adventure Diaries",
-    },
-    {
-      videoId: "oe85Avv22cE",
-      title: "Sea Facing Hotel in Puri ⛱️ / Hotel with rooftop swimming pool/ The Bay Suites.",
-      channel: "TravelR Arnab",
-    },
+    }
   ],
   "treebo-siddharth-puri": [
     {
@@ -768,19 +693,14 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "azcZLhaqR8U",
       title: "#siddharth international hotel puri#travalingvlog #bengalivlogs #banglavlogs#thadeboshree'sworld",
       channel: "Debashree world",
-    },
+    }
   ],
   "yashasvi-inn-puri": [
     {
       videoId: "ERIQo_J6YbE",
       title: "Hotel Yashasvi Inn, Puri | Puri Hotel | Puri Hotel Near Beach | Puri Hotel in Bengali | Hotel Price",
       channel: "ভ্রমন স্বর্ণদীপ | Bhraman Swarnadeep",
-    },
-    {
-      videoId: "4pu_lz4D2w4",
-      title: "YASHASVI INN, Puri, India | Travel With Priya",
-      channel: "Travel With Priya",
-    },
+    }
   ],
   "yatrinivas-konark": [
     {
@@ -802,7 +722,7 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       videoId: "PKoQ41-IqeQ",
       title: "OTDC Yatrinivas Konark | Premium & Executive Room | Big Area Big Room",
       channel: "Inland Trotter",
-    },
+    }
   ],
 };
 
