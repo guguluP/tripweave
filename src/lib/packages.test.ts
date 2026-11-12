@@ -22,6 +22,22 @@ import { stayPin } from "./places.ts";
 import { STAYS_NEEDING_USER_FILES, stayNeedsUserFiles, STAY_MEDIA } from "./property-media.ts";
 import { INCLUDE_ICON } from "./include-icons.ts";
 
+/** The twelve stays that shipped with official room photos and reviewer videos. */
+const SEEDED_STAYS = [
+  "taj-puri-resort-spa",
+  "mayfair-heritage-puri",
+  "swosti-premium-beach-resort",
+  "regenta-central-puri",
+  "hans-coco-palms",
+  "empires-hotel-puri",
+  "mayfair-waves-puri",
+  "toshali-sands-puri",
+  "chariot-resort-puri",
+  "chanakya-bnr-puri",
+  "mahodadhi-palace-puri",
+  "holiday-resort-puri",
+];
+
 describe("catalog", () => {
   it("lists sixty-two stays in and near Puri, with rooms and 1-night stays", () => {
     assert.equal(PACKAGES.length, 62);
@@ -31,36 +47,45 @@ describe("catalog", () => {
       assert.ok(pkg.rooms.length >= 2, pkg.id);
       assert.equal(pkg.priceFrom, pkg.pricePerNight);
       assert.equal(pkg.rooms[0]!.deltaPerNight, 0, pkg.id);
-      const photographed = Boolean(STAY_MEDIA[pkg.id]);
-      if (!photographed) {
+      const spec = STAY_MEDIA[pkg.id];
+      if (!spec) {
         assert.equal(pkg.images.length, 0, pkg.id);
         assert.equal(pkg.videos.length, 0, pkg.id);
         assert.equal(pkg.image, "", pkg.id);
         continue;
       }
-      assert.ok(pkg.images.length >= 4, pkg.id);
-      assert.ok(pkg.videos.length >= 2, pkg.id);
       assert.equal(pkg.image, pkg.images[0]);
       assert.ok(pkg.images[0]!.includes("/property-1.jpg"), `${pkg.id} leads with property photo`);
-      for (const video of pkg.videos) {
-        assert.match(video.videoId, /^[a-zA-Z0-9_-]{11}$/, video.videoId);
-      }
-      // Named hotels: property-owned media — never Unsplash or YouTube thumbs.
       assert.ok(!pkg.image.includes("unsplash"), pkg.id);
       assert.ok(!pkg.image.includes("i.ytimg.com"), pkg.id);
       for (const src of pkg.images) {
         assert.ok(!src.includes("unsplash"), `${pkg.id} gallery unsplash`);
         assert.ok(!src.includes("i.ytimg.com"), `${pkg.id} gallery ytimg`);
       }
-      const roomImages = new Set<string>();
-      for (const room of pkg.rooms) {
-        assert.ok(room.image, `${pkg.id}:${room.id}`);
-        assert.ok(!room.image.includes("unsplash"), `${pkg.id}:${room.id}`);
-        assert.ok(!room.image.includes("i.ytimg.com"), `${pkg.id}:${room.id}`);
-        roomImages.add(room.image);
+      if (SEEDED_STAYS.includes(pkg.id)) {
+        assert.ok(pkg.images.length >= 4, pkg.id);
+        assert.ok(pkg.videos.length >= 2, pkg.id);
+        for (const video of pkg.videos) {
+          assert.match(video.videoId, /^[a-zA-Z0-9_-]{11}$/, video.videoId);
+        }
+        const roomImages = new Set<string>();
+        for (const room of pkg.rooms) {
+          assert.ok(room.image, `${pkg.id}:${room.id}`);
+          assert.ok(!room.image.includes("unsplash"), `${pkg.id}:${room.id}`);
+          assert.ok(!room.image.includes("i.ytimg.com"), `${pkg.id}:${room.id}`);
+          roomImages.add(room.image);
+        }
+        assert.equal(roomImages.size, pkg.rooms.length, `${pkg.id} unique room images`);
+        continue;
       }
-      assert.equal(roomImages.size, pkg.rooms.length, `${pkg.id} unique room images`);
-      assert.ok(STAY_MEDIA[pkg.id], `media map ${pkg.id}`);
+      // Later stays: official property frames only. Catalog rooms stay unlabeled.
+      assert.ok(pkg.images.length >= 1, pkg.id);
+      assert.equal(pkg.videos.length, 0, pkg.id);
+      assert.deepEqual(spec.rooms, {}, `${pkg.id} room map`);
+      for (const room of pkg.rooms) {
+        assert.equal(room.image, "", `${pkg.id}:${room.id}`);
+        assert.deepEqual(room.images, [], `${pkg.id}:${room.id}`);
+      }
     }
   });
 
@@ -92,7 +117,11 @@ describe("catalog", () => {
         assert.match(src, new RegExp(`^/stays/${pkg.id}/`), `${pkg.id} gallery`);
       }
       for (const room of pkg.rooms) {
-        assert.match(room.image!, new RegExp(`^/stays/${pkg.id}/`), `${pkg.id}:${room.id}`);
+        if (!room.image) {
+          assert.deepEqual(room.images, [], `${pkg.id}:${room.id}`);
+          continue;
+        }
+        assert.match(room.image, new RegExp(`^/stays/${pkg.id}/`), `${pkg.id}:${room.id}`);
       }
     }
   });
@@ -105,9 +134,11 @@ describe("catalog", () => {
   });
 
   it("pins every stay, including the fifty added around Puri", () => {
-    assert.equal(Object.keys(STAY_MEDIA).length, 12);
-    const added = PACKAGES.filter((pkg) => !STAY_MEDIA[pkg.id]);
+    const added = PACKAGES.filter((pkg) => !SEEDED_STAYS.includes(pkg.id));
     assert.equal(added.length, 50);
+    for (const pkg of PACKAGES) {
+      assert.ok(stayPin(pkg.id, pkg.name), pkg.id);
+    }
     for (const pkg of added) {
       const pin = stayPin(pkg.id, pkg.name);
       assert.ok(pin, pkg.id);
@@ -137,7 +168,7 @@ describe("catalog", () => {
 
   it("has reviewer notes for every official room id", () => {
     for (const pkg of PACKAGES) {
-      if (!STAY_MEDIA[pkg.id]) continue;
+      if (!SEEDED_STAYS.includes(pkg.id)) continue;
       const seed = getSeededConsensus(pkg.id);
       assert.ok(seed, pkg.id);
       const notes = SEED_ROOM_NOTES[pkg.id];

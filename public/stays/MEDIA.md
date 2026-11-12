@@ -41,4 +41,41 @@ Do **not** use YouTube thumbs or Unsplash for named hotels.
 | `hans-coco-palms` | Hans Simplotel |
 | `toshali-sands-puri` | toshaliresort.com |
 
+## Sources (Nov 2026)
+
+Property galleries only. Catalog rooms stay unlabeled. Frames are the hotel or chain file, saved as JPEG without resizing. Landmark and beach slides that are not the building were left out. Sterling Puri was not copied.
+
+| Stay ID | Source |
+| --- | --- |
+| `fortune-beachfront-puri` | itchotels.com Fortune Beachfront gallery |
+| `niladri-premium-puri` | hotelniladripremium.com gallery (normal frames, not the 360 set) |
+| `nrs-royal-palace-puri` | nrsroyalpalace.com |
+| `lotus-eco-resort` | orchidhotel.com Lotus Eco Beach Resort gallery |
+| `camellia-puri` | hotelcamelliapuri.com |
+| `blue-lily-puri` | bluelilybeachresort.com |
+| `hotel-vijoya-international` | vijoyainternational.com gallery |
+| `treebo-siddharth-puri` | treebo.com Sidhartha International, Baliapanda |
+| `the-bay-suites-puri` | thebaysuites.in |
+| `om-leisure-satapada` | omleisureholidays.com Chilika resort page |
+| `golden-tree-puri` | hotelgoldentree.in |
+| `shakti-horizon-puri` | shaktihorizon.in |
+| `white-sands-puri` | hotelwhitesands.co.in |
+| `dreamland-puri` | hoteldreamlandgroup.com Hotel Dreamland Puri |
+| `hotel-pulin-puri` | hotelpulinpuri.com |
+| `samudra-hotel-puri` | thegallerygroups.com Hotel Samudra, Puri |
+| `z-hotel-puri` | zhotelpuri.com |
+| `panthanivas-konark` | bookodisha.com Panthanivas Konark |
+| `yatrinivas-konark` | otdc.odisha.gov.in Yatrinivas Konark |
+| `nuanai-nature-camp` | ecotourodisha.com Nuanai Nature Camp |
+| `hotel-bishnu-bhaban` | bishnubhaban.com |
+| `hotel-konark-puri` | hotelkonark.co.in |
+| `hotel-new-sea-hawk` | hotelnewseahawk.com |
+| `hotel-prabhupada-puri` | hotelprabhupada.com |
+| `hotel-shreehari-puri` | hotelshreehari.com |
+| `hotel-sonar-bangla-puri` | hotelsonarbangla.com (Simplotel folder hotel-sonar-bangla-puri) |
+| `jeevan-sandhya-puri` | hoteljeevansandhya.com |
+| `lucky-india-puri` | luckyindiahotels.com Puri page |
+| `new-shankar-international` | hotelnewshankarinternational.com |
+| `santana-puri` | indiasantana.net hotel page |
+
 `STAYS_NEEDING_USER_FILES` is empty.

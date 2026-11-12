@@ -37,16 +37,16 @@ export function attachPropertyMedia(p: { id: string; rooms: RoomInput[] }) {
   const rooms: RoomType[] = p.rooms.map((room) => {
     const listed = spec.rooms[room.id];
     const frames = (Array.isArray(listed) ? listed : listed ? [listed] : []).filter(Boolean);
-    const image = frames[0] ?? images[0]!;
+    // A property gallery does not stand in for a room the hotel did not photograph.
     return {
       ...room,
-      image,
-      images: frames.length ? frames : [image],
+      image: frames[0] ?? "",
+      images: frames,
     };
   });
   return {
     images,
     rooms,
-    image: images[0]!,
+    image: images[0] ?? "",
   };
 }
