@@ -63,6 +63,7 @@ export function PropertyMedia({
   onActiveIndex,
   onPhoto,
   openToken = 0,
+  focusRoom = null,
 }: {
   id: string;
   name: string;
@@ -79,6 +80,8 @@ export function PropertyMedia({
   onPhoto?: (src: string, position: number, total: number) => void;
   /** Increments when the cover asks to open the photo viewer. */
   openToken?: number;
+  /** Desktop: switch the sticky gallery to this room's photos (token retriggers the same room). */
+  focusRoom?: { id: string; name: string; images: string[]; token: number } | null;
 }) {
   const gallery = useMemo(() => {
     const list = images.filter(Boolean);
@@ -95,11 +98,14 @@ export function PropertyMedia({
   };
   const [open, setOpen] = useState(false);
   const [album, setAlbum] = useState<"property" | "rooms">("property");
+  const [roomScope, setRoomScope] = useState<{ id: string; name: string; images: string[] } | null>(null);
   const [viewList, setViewList] = useState<string[] | null>(null);
   const [viewerHold, setViewerHold] = useState(false);
   const [viewerOn, setViewerOn] = useState(false);
   const thumbRail = useRef<HTMLDivElement>(null);
   const thumbRailSplit = useRef<HTMLDivElement>(null);
+  const splitPane = useRef<HTMLDivElement>(null);
+  const lastFocusToken = useRef(0);
   const swipeX = useRef<number | null>(null);
   const listCount = useRef(1);
   const videoRail = useRef<HTMLDivElement>(null);
@@ -119,6 +125,22 @@ export function PropertyMedia({
     setViewList(null);
     setOpen(true);
   }, [openToken]);
+
+  useEffect(() => {
+    if (!focusRoom || focusRoom.token === lastFocusToken.current) return;
+    lastFocusToken.current = focusRoom.token;
+    if (typeof window !== "undefined" && !window.matchMedia("(min-width: 1024px)").matches) {
+      return;
+    }
+    if (!focusRoom.images.length) return;
+    setViewList(null);
+    setRoomScope({ id: focusRoom.id, name: focusRoom.name, images: focusRoom.images });
+    setAlbum("rooms");
+    setIndex(0);
+    requestAnimationFrame(() => {
+      splitPane.current?.focus({ preventScroll: true });
+    });
+  }, [focusRoom]);
 
   useEffect(() => {
     if (open) {
@@ -161,7 +183,15 @@ export function PropertyMedia({
     () => roomImages.filter((src) => src && !gallery.includes(src)),
     [roomImages, gallery],
   );
-  const shown = album === "rooms" && rooms.length ? rooms : gallery;
+  const scopedRoomPhotos = roomScope?.images?.length ? roomScope.images : null;
+  const shown =
+    album === "rooms"
+      ? scopedRoomPhotos && scopedRoomPhotos.length
+        ? scopedRoomPhotos
+        : rooms.length
+          ? rooms
+          : gallery
+      : gallery;
   const activeList = viewList ?? shown;
   listCount.current = Math.max(1, activeList.length);
   const current = activeList[index] ?? activeList[0];
@@ -324,9 +354,14 @@ export function PropertyMedia({
 
       {/* Desktop split-screen gallery: fills the sticky left pane below the header. */}
       <div
+        ref={splitPane}
         className="relative hidden h-full min-h-0 flex-col bg-fg lg:flex"
         role="region"
-        aria-label={`${name} photo gallery`}
+        aria-label={
+          roomScope
+            ? `${roomScope.name} photos`
+            : `${name} photo gallery`
+        }
         tabIndex={0}
         onKeyDown={(event) => {
           if (shown.length < 2) return;
@@ -350,27 +385,37 @@ export function PropertyMedia({
             type="button"
             onClick={() => openAt(shown, index)}
             className="absolute inset-0 block"
-            aria-label={`View photos of ${name}. Photo ${index + 1} of ${shown.length}.`}
+            aria-label={
+              roomScope
+                ? `View photos of ${roomScope.name}. Photo ${index + 1} of ${shown.length}.`
+                : `View photos of ${name}. Photo ${index + 1} of ${shown.length}.`
+            }
           >
             {headerSrc ? (
               <Crossfade
                 src={headerSrc}
-                alt={name}
+                alt={roomScope ? roomScope.name : name}
                 className="h-full w-full"
                 mediaClassName="object-cover"
               />
             ) : null}
           </button>
-          <span className="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg">
-            {index + 1} / {shown.length}
-            {shown.length > 0 && shown.length < 4 ? " · hotel-published, limited set" : ""}
-          </span>
-          {arrivalPin ? (
-            <span className="pointer-events-none absolute left-3 top-12 z-10 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-fg">
-              <MapPin className="size-3" />
-              {arrivalPin}
+          <div className="pointer-events-none absolute left-3 top-3 z-10 flex max-w-[75%] flex-col items-start gap-1">
+            <span
+              className="rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg"
+              aria-live="polite"
+            >
+              {roomScope
+                ? `${roomScope.name} · ${shown.length ? index + 1 : 0}/${shown.length}`
+                : `${index + 1} / ${shown.length}${shown.length > 0 && shown.length < 4 ? " · hotel-published, limited set" : ""}`}
             </span>
-          ) : null}
+            {arrivalPin && !roomScope ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-fg">
+                <MapPin className="size-3" />
+                {arrivalPin}
+              </span>
+            ) : null}
+          </div>
           <div className="absolute right-3 top-3 z-10">
             <LikeButton id={id} />
           </div>
@@ -402,7 +447,13 @@ export function PropertyMedia({
                 ref={thumbRailSplit}
                 className="scrollbar-hide flex min-w-0 flex-1 snap-x snap-mandatory gap-1.5 overflow-x-auto overscroll-x-contain"
                 role="listbox"
-                aria-label={album === "rooms" ? `${name} room photos` : `${name} property photos`}
+                aria-label={
+                  roomScope
+                    ? `${roomScope.name} photos`
+                    : album === "rooms"
+                      ? `${name} room photos`
+                      : `${name} property photos`
+                }
               >
                 {shown.map((src, i) => (
                   <button
@@ -449,7 +500,7 @@ export function PropertyMedia({
             </div>
           </div>
           {rooms.length > 0 ? (
-            <div className="mt-2 flex gap-2">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 className={cn(
@@ -458,11 +509,12 @@ export function PropertyMedia({
                 )}
                 onClick={() => {
                   setViewList(null);
+                  setRoomScope(null);
                   setAlbum("property");
                   setIndex(0);
                 }}
               >
-                Property · {gallery.length}
+                {roomScope ? "Property photos" : "Property"} · {gallery.length}
               </button>
               <button
                 type="button"
@@ -470,14 +522,33 @@ export function PropertyMedia({
                   "rounded-full px-3 py-1 text-[11px] font-medium",
                   album === "rooms" ? "bg-elevated text-fg" : "bg-fg/40 text-bg/80",
                 )}
+                aria-current={album === "rooms" && roomScope ? "true" : undefined}
                 onClick={() => {
                   setViewList(null);
+                  setRoomScope(null);
                   setAlbum("rooms");
                   setIndex(0);
                 }}
               >
-                Rooms · {rooms.length}
+                {roomScope ? "All rooms" : "Rooms"} · {rooms.length}
               </button>
+              {roomScope ? (
+                <button
+                  type="button"
+                  className="rounded-full bg-elevated px-3 py-1 text-[11px] font-medium text-fg"
+                  onClick={() => {
+                    setViewList(null);
+                    setRoomScope(null);
+                    setAlbum("property");
+                    setIndex(0);
+                    requestAnimationFrame(() => {
+                      splitPane.current?.focus({ preventScroll: true });
+                    });
+                  }}
+                >
+                  Back to property photos
+                </button>
+              ) : null}
             </div>
           ) : null}
         </div>

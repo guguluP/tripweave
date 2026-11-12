@@ -6,8 +6,21 @@ import { recommendRooms } from "@/lib/recommend-rooms";
 import { cn } from "@/lib/utils";
 import { MotionToggle } from "@/components/motion";
 
+/** Frames the room actually published. Does not fall back to a property shot. */
+function photosForRoom(room: RoomType, propertyGallery: string[] = []) {
+  const raw = [...new Set((room.images?.length ? room.images : [room.image]).filter(Boolean))];
+  // attachPropertyMedia uses the first property photo when a room has no catalog frames.
+  if (raw.length === 1 && propertyGallery[0] && raw[0] === propertyGallery[0]) return [];
+  return raw;
+}
+
 function roomPhotos(room: RoomType, _gallery: string[]) {
+  // Mobile/tablet cards keep the published `image` (including the property fallback).
   return [...new Set((room.images?.length ? room.images : [room.image]).filter(Boolean))];
+}
+
+function isDesktopLayout() {
+  return typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches;
 }
 
 export function RoomPicker({
@@ -19,6 +32,7 @@ export function RoomPicker({
   gallery = [],
   style,
   guestCount,
+  onViewPhotos,
 }: {
   rooms: RoomType[];
   selectedId: string;
@@ -30,6 +44,8 @@ export function RoomPicker({
   style?: TravelStyle;
   /** When set, rooms that cannot sleep this many people are disabled. */
   guestCount?: number;
+  /** Desktop only: open this room's photos in the sticky gallery. */
+  onViewPhotos?: (room: RoomType, photos: string[]) => void;
 }) {
   const recommended = useMemo(() => recommendRooms(rooms, style, guestCount), [rooms, style, guestCount]);
   const [showAll, setShowAll] = useState(rooms.length <= 3);
@@ -79,9 +95,18 @@ export function RoomPicker({
             pricePerNight={pricePerNight}
             left={leftover?.[room.id]}
             photos={roomPhotos(room, gallery)}
+            publishedPhotos={photosForRoom(room, gallery)}
             tooSmall={guestCount != null && guestCount > 0 && !travelersFitRoom(room.occupancy, guestCount)}
             guestCount={guestCount}
             onSelect={() => onSelect(room.id)}
+            onViewPhotos={
+              onViewPhotos
+                ? () => {
+                    if (!isDesktopLayout()) return;
+                    onViewPhotos(room, photosForRoom(room, gallery));
+                  }
+                : undefined
+            }
             badge={
               !showAll
                 ? undefined
@@ -103,10 +128,12 @@ function RoomCard({
   pricePerNight,
   left,
   photos,
+  publishedPhotos,
   onSelect,
   badge,
   tooSmall = false,
   guestCount,
+  onViewPhotos,
 }: {
   room: RoomType;
   open: boolean;
@@ -114,15 +141,23 @@ function RoomCard({
   pricePerNight: number;
   left?: { remaining: number; available: boolean; released?: boolean; soldOut?: boolean };
   photos: string[];
+  publishedPhotos: string[];
   onSelect: () => void;
   badge?: string;
   tooSmall?: boolean;
   guestCount?: number;
+  onViewPhotos?: () => void;
 }) {
   const [shot, setShot] = useState(0);
   const night = pricePerNight + room.deltaPerNight;
   const soldOut = left?.soldOut ?? (left ? !left.available && left.released !== false : false);
   const photo = photos[shot] ?? room.image;
+  const publishedCount = publishedPhotos.length;
+  const choose = () => {
+    if (tooSmall) return;
+    onSelect();
+    onViewPhotos?.();
+  };
 
   useEffect(() => {
     setShot(0);
@@ -139,10 +174,15 @@ function RoomCard({
     >
       <button
         type="button"
-        onClick={tooSmall ? undefined : onSelect}
+        onClick={tooSmall ? undefined : choose}
         disabled={tooSmall}
         aria-pressed={open}
         aria-disabled={tooSmall || undefined}
+        aria-label={
+          publishedCount > 0
+            ? `${room.name}, ${publishedCount} ${publishedCount === 1 ? "photo" : "photos"}`
+            : `${room.name}, no photos published`
+        }
         className="block w-full text-left disabled:cursor-not-allowed lg:w-auto lg:shrink-0"
       >
         <div className="relative">
@@ -160,12 +200,21 @@ function RoomCard({
               {badge}
             </span>
           ) : null}
+          {publishedCount > 0 ? (
+            <span className="absolute bottom-1 right-1 hidden rounded bg-fg/80 px-1.5 py-0.5 text-[10px] font-medium text-bg lg:block">
+              {publishedCount} {publishedCount === 1 ? "photo" : "photos"}
+            </span>
+          ) : (
+            <span className="absolute inset-x-1 bottom-1 hidden rounded bg-fg/80 px-1.5 py-0.5 text-center text-[10px] font-medium text-bg lg:block">
+              No photos published
+            </span>
+          )}
         </div>
       </button>
       <div className={cn(open ? "grid gap-4 p-4 sm:grid-cols-[1fr_16rem] sm:p-5 lg:grid-cols-1 lg:p-3" : compact ? "p-2.5 sm:p-3" : "p-4", "lg:min-w-0 lg:flex-1")}>
         <button
           type="button"
-          onClick={tooSmall ? undefined : onSelect}
+          onClick={tooSmall ? undefined : choose}
           disabled={tooSmall}
           className="block min-w-0 text-left disabled:cursor-not-allowed"
         >
@@ -188,6 +237,9 @@ function RoomCard({
               <span className="ml-1 text-xs font-normal text-muted">base</span>
             )}
           </span>
+          {publishedCount === 0 ? (
+            <span className="mt-2 hidden text-xs text-muted lg:block">No photos published for this room.</span>
+          ) : null}
         </button>
         {open ? (
           <div className="lg:hidden">
