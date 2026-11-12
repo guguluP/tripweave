@@ -4,6 +4,7 @@ import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { deskApplyActionToken } from "@/lib/server/desk-ops";
 import { pageHead } from "@/lib/page-title";
+import { DeskGate } from "@/components/desk-ui";
 
 export const Route = createFileRoute("/desk/action")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -17,23 +18,32 @@ function DeskActionPage() {
   const { t } = Route.useSearch();
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [busy, setBusy] = useState(false);
-  const looksLikeDecline = t.includes("decline") || /decline/i.test(decodeURIComponent(t).slice(0, 80));
+  const looksLikeDecline =
+    t.includes("decline") || /decline/i.test(decodeURIComponent(t).slice(0, 80));
 
   return (
     <Shell>
-      <div className="mx-auto max-w-md px-4 py-12 text-center">
-        <p className="eyebrow">Hotel desk</p>
-        <h1 className="mt-2 font-display text-3xl">Confirm or decline this stay</h1>
-        <p className="mt-3 text-sm text-muted">
-          This one-time link was emailed when the guest paid. It does not require the desk portal token.
-        </p>
-        {!t ? <p className="mt-4 text-sm text-danger">Missing action token.</p> : null}
+      <DeskGate
+        title="Confirm or decline this stay"
+        body="This one-time link was emailed when the guest paid. It does not require the desk portal token."
+      >
+        {!t ? (
+          <p className="mt-4 text-sm text-danger" role="alert">
+            Missing action token.
+          </p>
+        ) : null}
         {result ? (
-          <p className={`mt-6 text-sm ${result.ok ? "text-ok" : "text-danger"}`}>{result.message}</p>
+          <p
+            className={`mt-6 text-sm ${result.ok ? "text-ok" : "text-danger"}`}
+            role={result.ok ? "status" : "alert"}
+          >
+            {result.message}
+          </p>
         ) : null}
         <div className="mt-8 flex flex-col gap-3">
           <Button
             type="button"
+            className="w-full"
             disabled={!t || busy || Boolean(result?.ok)}
             onClick={() => {
               setBusy(true);
@@ -48,13 +58,19 @@ function DeskActionPage() {
               });
             }}
           >
-            {looksLikeDecline ? "Apply decline link" : "Apply confirm / decline link"}
+            {busy
+              ? "Applying…"
+              : looksLikeDecline
+                ? "Apply decline link"
+                : "Apply confirm / decline link"}
           </Button>
-          <Button asChild variant="outline">
-            <Link to="/desk">Open desk portal</Link>
+          <Button asChild variant="outline" className="w-full">
+            <Link to="/desk" search={{ token: "", packageId: "" }}>
+              Open desk portal
+            </Link>
           </Button>
         </div>
-      </div>
+      </DeskGate>
     </Shell>
   );
 }
