@@ -51,8 +51,8 @@ describe("travel plan", () => {
     assert.match(best!.leg.mode.toLowerCase(), /walk|auto|bus/);
   });
 
-  it("boosts station / auto options for a culture brief on Grand Road", () => {
-    const ranked = rankLastMiles("empires-hotel-puri", coupleCulture);
+  it("boosts station / auto options for a culture brief near the station", () => {
+    const ranked = rankLastMiles("chanakya-bnr-puri", coupleCulture);
     const best = ranked.find((r) => r.recommended);
     assert.ok(best);
     assert.match(best!.leg.mode.toLowerCase(), /auto|walk|train|station/);

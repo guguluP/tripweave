@@ -115,12 +115,17 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: ["Beach access", "Wi-Fi"],
-    videos: [],
+    videos: [
+      { videoId: "0ehsdcqVN84", title: "Best Budget Luxury Hotel In Puri | Puri Budget Hotel Near Sea Beach | Blue Lily Beach Resort l Ep- 2" },
+      { videoId: "i4WJ7o5qjMY", title: "Blue Lily Beach Resort Puri/Best Sea Facing Hotel In Puri/Puri Hotel Near Sea Beach/Puri Hotel Price" },
+      { videoId: "5L8C7oeOtjY", title: "Hotel Blue Lily Beach Resort Puri🌊🏖️ // Puri Hotel // Luxurious Hotel near Sea beach Puri 🏝️" },
+      { videoId: "v-AzymELTS8", title: "Puri Hotel Blue Lily Resort ⛵" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -140,12 +145,17 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Sea Beach Road.",
     neighborhood: "Sea Beach Road",
     includes: ["Wi-Fi"],
-    videos: [],
+    videos: [
+      { videoId: "VJRUHjfJ2HQ", title: "Hotel Camellia Puri/Best Sea Facing Hotels In Puri/Puri Sea Facing hotels/Puri Hotel Near Sea Beach." },
+      { videoId: "ttaumKf9wzY", title: "#puri //Camellia Hotel & Resort’s-near Puri sea beach//sea facing hotels in Puri/hotel review" },
+      { videoId: "7wqn_0p_APU", title: "পুরীতে সমুদ্রের একদম সামনে LUXURY Hotel সুইমিংপুল সহ | CAMELLIA HOTEL & RESORT #puri #purihotel" },
+      { videoId: "P73hovLdAYI", title: "Camellia Hotel & Resort Puri 🏨 | Puri Hotel with Swimming Pool | Sea Facing Hotel Near Swargadwar" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -170,7 +180,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -190,12 +200,17 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "tFmRjkQbui0", title: "Hotel Dreamland Puri Review | Budget Sea Facing Hotel Near Puri Beach I Puri Vlog" },
+      { videoId: "HCRh1ZKCfOI", title: "Hotel Dreamland Puri || Sea Facing Hotels || New Marine Drive || Hotel for unmarried couple & family" },
+      { videoId: "fGg42VGrp1Q", title: "Hotel Dreamland Puri/Best Sea Facing Hotel In Puri/Puri Hotels Near Sea Beach/Puri Sea Facing Hotels" },
+      { videoId: "NPmRiUHiG4Y", title: "Best Sea Facing Hotel in Puri || Hotel Dreamland Puri || Puri Low Budget Hotel near Sea || Puri Tour" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -215,12 +230,16 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: ["Pool", "Breakfast", "Beach access", "Wi-Fi"],
-    videos: [],
+    videos: [
+      { videoId: "l2RM3KkH4Sw", title: "ITC Fortune Beachfront Hotel Puri| Hotel review|Good hotel in Puri| Puri good hotel" },
+      { videoId: "WgWpVZ9CedI", title: "ITC Fortune Beachfront Puri II Sea facing hotel #seafacinghotel #Monsoon2025" },
+      { videoId: "3HFyFng_VxE", title: "Fortune Beachfront, Puri - Member ITC's hotel group | Luxury 5 Star Hotel at Golden Beach in Puri" }
+    ],
     rooms: rooms(1200),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -240,12 +259,15 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "qY99v29Yzvw", title: "Best Hotel Near Puri Beach | Puri Tour 2023 | Hotel Golden Dust Royal Puri | Puri Bengali Vlog" },
+      { videoId: "B7nnI-SroQM", title: "Hotel Golden Dust Royal Puri | Sea facing hotel | Best budget hotel | Marine drive Puri" }
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -265,12 +287,16 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Sea Beach Road.",
     neighborhood: "Sea Beach Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "ccLx-AePqPY", title: "Hotel Golden Tree Puri | Best Sea Facing Hotel | Puri Hotel Near Sea Beach | Nimantran | Saptapadi" },
+      { videoId: "DnED3eBpPHo", title: "Hotel Golden Tree Puri | Puri Sea Facing Hotel | Puri Sea Beach | Petuk Bhoboghure" },
+      { videoId: "81T4s6N3B_c", title: "Hotel Golden Tree Puri/Best Sea Facing Hotel In Puri/Puri Sea Facing Hotel/Puri Hotel Near Sea Beach" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -290,12 +316,15 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on the temple side of Puri.",
     neighborhood: "Grand Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "GzyMWLpukVE", title: "Jagannath Puri Bishnu Bhawan hotel || जगन्नाथ पुरी में कहा रुके || Jagannath Puri series || Ep :- 2" },
+      { videoId: "kRU3GieZ9-4", title: "Puri Bishnu Bhawan Lodge || Puri Hotel Near Jagannath Temple || Puri Hotels 2025 ||" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -315,12 +344,16 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Chakratirtha Road, toward the eastern beach.",
     neighborhood: "Chakratirtha Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "X028p3x6Res", title: "Hotel Golden Palace Puri Stay Review | Day 2 travel Vlog" },
+      { videoId: "u80hpWXlWqs", title: "Hotel Golden Palace Puri || Luxurioys Hotel In Puri With Private Beach And Pool || Hotel Review" },
+      { videoId: "2encoB1ToYc", title: "Hotel Golden Palace Puri Sea View Rooms 🌅 Don't Book before watching this! বারান্দা থেকেই সমুদ্র!" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -340,12 +373,16 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Sea Beach Road.",
     neighborhood: "Sea Beach Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "nW6U0pxT-Ro", title: "Puri Hotel near Swargadwar,Temple Hotel Konark।পুরির স্বর্গদ্বার ও মন্দিরের কাছাকাছি হোটেল কোনার্ক" },
+      { videoId: "HrX2mPN81D0", title: "Hotel Konark Puri| Low budget hotel near puri swargadwar sea beach| Budget hotel in puri | Vlog-43" },
+      { videoId: "Wi_S2_M6Nr8", title: "PURI HOTEL KONARK || BESIDE KAKATUA || BEST BUDGET FRIENDLY HOTEL ROOMS #puri #vlog" }
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -370,7 +407,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -390,12 +427,16 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Sea Beach Road.",
     neighborhood: "Sea Beach Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "0EDhoMqCI50", title: "পুরীতে হোটেল নিউ সি হক | Hotel New Sea Hawk | Puri" },
+      { videoId: "dFq0_9B51XE", title: "Hotel Sea Hawk Puri/Best Sea Facing Hotel In Puri/Puri Hotels Near Sea Beach/Puri Sea Facing Hotels." },
+      { videoId: "JnZ53IC9BbQ", title: "একদম সত্যি বিস্ময়কর 😱রিভিউ হোটেল নিউ সি হক পুরী।genuine review of hotel new sea hawk puri June 2023" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -415,12 +456,16 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "Ede4RjKffjA", title: "Puri Tour 2026 | Hotel Prabhupada Review | Puri Sea Facing Hotels | Puri Jagannath Mandir Darshan" },
+      { videoId: "-2hW3eAAjaQ", title: "Puri Sea facing Hotels||Puri Tour 2026||Hotel Prabhupada Puri Review||Puri Jaganath Mandir Darshan" },
+      { videoId: "peShjA_FycY", title: "Best hotel in Odisha | Hotel Prabhupada | Hotel review | Laid back hotel in New Marine Drive Puri" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -440,12 +485,17 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Sea Beach Road.",
     neighborhood: "Sea Beach Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "J9MnCrFSVzk", title: "Room থেকে সমুদ্র দেখা | Hotel Pulin Puri | Puri Tour 2024 | #puri #viral #trending| @passionofJoy" },
+      { videoId: "4rmsVNl2Fpg", title: "Don't Ruin Your Puri Trip: Hotel Pulin Puri Honest Review || The Black Beauty||ShirshaGuha|| #puri" },
+      { videoId: "jUnGRb0RkFk", title: "Hotel Pulin Puri/Puri Best Hotel Near Sea Beach/Puri Sea Facing Hotel Near Beach/Puri Hotel Booking." },
+      { videoId: "q81YVzs2Jls", title: "Puri 2025 / Pulin Puri Hotel / Puri sightseeing / পুরী ভ্রমণ ২০২৫/ পুলিন পুরী হোটেল" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -465,12 +515,14 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Sea Beach Road.",
     neighborhood: "Sea Beach Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "_pqkl7Sk_og", title: "Hotel Shakuntala Palace Puri l Room Review Of Shakuntala Palace l Sea Beach Hotel l #puri" }
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -490,12 +542,16 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "QJsQhk8fdVg", title: "পুরীর নিউ মেরিন ড্রাইভে প্রিমিয়াম হোটেল | puri hotel | hotel shreehari | রুম ট্যুর ট্যারিফ মেনু" },
+      { videoId: "CuPKtMwszDs", title: "Puri Trip 2025 || Kolkata To Puri By Vande Bharat || Vande Bharat Meal || Hotel Shree Hari Room Tour" },
+      { videoId: "Oh2NxISYJig", title: "Puri Sea Facing Hotels | Hotel Shree Hari Review | Puri Tour 2026 | Puri Hotel near Swargadwar Beach" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -515,12 +571,17 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "skQ1XDp1Lzc", title: "Hotel Sonar Bangla Puri Review 2026 | Room, Food & Price" },
+      { videoId: "pQHcqcxIsug", title: "🌊 Best Sea-Facing Budget Hotel in Puri? | Sonar Bangla Puri Review | Room, Food & Price! Puri EP 2" },
+      { videoId: "T19IEMcssxg", title: "Hotel Sonar Bangla Puri Full Tour 2025 🏖 | Honest Review + Room Tour | The Sunny Days" },
+      { videoId: "qu1Z5DsVS5A", title: "Hotel sonar bangla puri | puri sea facing hotel | Best sea view hotel in puri" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -545,7 +606,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -570,7 +631,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -590,12 +651,17 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Chakratirtha Road, toward the eastern beach.",
     neighborhood: "Chakratirtha Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "16kf8uS-XHM", title: "Vlog-78 | Day-1 | Puri vlog | hotel vijoya international | golden beach | light house | swargadwar |" },
+      { videoId: "h6FFilODPdY", title: "🌊 Puri Beach Vlog | Vijoya International Hotel Stay | Fun Day in Puri Odisha" },
+      { videoId: "T1EmR6jNN18", title: "Budget Freindly Luxurious Hotel At Puri | Niladri Garden and Beach | Hotel Vijaya International Puri" },
+      { videoId: "wA7RQZiRI4o", title: "Hotel Vijoya international |Puri beach -Sun rise" }
+    ],
     rooms: rooms(1200),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -615,12 +681,16 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "Re4CZMllJVY", title: "আবার পুরী চললুম😃Hotel Jeevan Sandhya Room tour। হাওড়া - পুরী superfast express review #BanglaVlog" },
+      { videoId: "bb2HLHG1cNI", title: "পুরী বিচের শেষপ্রান্তে থাকার অভিজ্ঞতা | Puri Hotel | Beach side Hotel | Hotel Jeevan Sandhya" },
+      { videoId: "nZGLETP3a00", title: "Puri Hotel Near Sea Beach||Hotel Jeevan Sandhya Inn Puri P-2||Best Hotel In Puri||Puri Budget Hotel" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -640,12 +710,17 @@ export const RAW_C: RawStay[] = [
     summary: "Stay on the Puri–Konark road, between the beach and the Sun Temple.",
     neighborhood: "Puri–Konark road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "wcorwGb22h4", title: "WE STAYED IN A BEACH COTTAGE IN KONARK || BEST BEACH VIEW RESORT IN KONARK || LOTUS ECO RESORT" },
+      { videoId: "6E62ZEEGcwY", title: "🌊 Konark Beach Resort Tour 2026 | Lotus Eco Beach Resort | Puri Budget Stay | Bengali Vlog" },
+      { videoId: "qZhXCgbJEo8", title: "Lotus ECO Resort Konark : Ultimate Beach Side Cottage Lifestyle" },
+      { videoId: "ai_6xbewxRo", title: "Lotus Eco Resort Konark || Beach view Resort in Odisha || The Best Place to stay in Konark & Puri ||" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },
       { title: "Temple day", base: "Sun Temple, then a quiet afternoon.", options: [{ id: "puri", label: "Puri temple day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -665,12 +740,16 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "wBmAu-K6Oik", title: "Exploring Puri (Golden beach puri,  Baliapada beach, Hotel Lucky India)" },
+      { videoId: "7lB-ZLIspqE", title: "PURI HOTEL LUCKY INDIA | PURI SEA FACING HOTEL |পুরী হোটেল বুকিং | BEST LUXURY HOTEL IN PURI" },
+      { videoId: "UYhD4Yyv23o", title: "Lucky India Hotel Puri | Puri Hotel near Swargadwar Sea beach | Sea view Rooms | Puri Tour | Luxury" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -695,7 +774,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -715,12 +794,16 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: ["Pool", "Wi-Fi"],
-    videos: [],
+    videos: [
+      { videoId: "K9fnbagwvtU", title: "Puri's Best Sea view hotel Niladri Premium honest review 2026 | Best Sea View Hotel in Puri Review" },
+      { videoId: "yHdbPDHo6F8", title: "Expert Traveler Reveals BEST Budget Hotel In Puri | Hotel NILADRI PREMIUM Puri" },
+      { videoId: "VN5k5TuWatI", title: "𝗕𝘂𝗱𝗴𝗲𝘁 𝗵𝗼𝘁𝗲𝗹 𝗶𝗻 𝗣𝘂𝗿𝗶 ||𝗛𝗼𝘁𝗲𝗹 𝗡𝗶𝗹𝗮𝗱𝗿𝗶 𝗣𝗿𝗲𝗺𝗶𝘂𝗺 𝗣𝗿𝗶𝗰𝗲|| 𝗥𝗼𝗼𝗺 𝘁𝗼𝘂𝗿 ||𝗙𝗼𝗼𝗱 ||𝗣𝘂𝗿𝗶 𝗧𝗼𝘂𝗿" }
+    ],
     rooms: rooms(1200),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -740,12 +823,17 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: ["Pool", "Breakfast", "Beach access", "Wi-Fi", "Parking"],
-    videos: [],
+    videos: [
+      { videoId: "xAojoSvffTA", title: "Weekend Trip to Puri ll Best Sea Facing Hotel in Puri ll NRS Royal Palace ll Blue Flag Beach 🌊🏖️" },
+      { videoId: "RttZp0Zbrno", title: "NRS Royal Palace Hotel Puri Orissa #puri #puribeach #purifood #purihotel #puridham#hotelreview#hotel" },
+      { videoId: "RnVr4tnYKjg", title: "PURI VLOG🎉🎊 NRS ROYAL PALACE Hotel Review// New Rules of VANDE BHARAT😳 🚄😳।। অসাধারণ অভিজ্ঞতা ।।🥳🎊🚄" },
+      { videoId: "GTVkclSH9Tw", title: "NRS Royal Palace Puri Hotel Review 🏨 | Room Tour, Stay Experience & More | #chiniminiblog #puri" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -765,12 +853,17 @@ export const RAW_C: RawStay[] = [
     summary: "Stay on the Puri–Konark road, between the beach and the Sun Temple.",
     neighborhood: "Puri–Konark road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "9CojuWXNljM", title: "HIDDEN GEM near Puri 😍 Nuanai Nature Camp | Offbeat Odisha | Kolkata Weekend Trip Kolkata to Puri" },
+      { videoId: "gx1sypAkD5o", title: "Nuanai Nature Camp Part-1......... Look into the Description box for more details." },
+      { videoId: "juiW4dae_bE", title: "পুরীর এক জনমানবহীন স্বপ্ন সৈকত.Nuanai Nature Camp near Puri,Virgin Sea Beach of Puri." },
+      { videoId: "iJNNAuTan1M", title: "BALUKHADA KONARK SANCTUARY //NATURE CAMP NUANAI//ODISHA" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },
       { title: "Temple day", base: "Sun Temple, then a quiet afternoon.", options: [{ id: "puri", label: "Puri temple day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -795,7 +888,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in at Satapada.", options: [] },
       { title: "Chilika", base: "A day on the lake. Boats leave from the Satapada point.", options: [{ id: "puri", label: "Puri temple day", delta: 1800 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -820,7 +913,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in at Satapada.", options: [] },
       { title: "Chilika", base: "A day on the lake. Boats leave from the Satapada point.", options: [{ id: "puri", label: "Puri temple day", delta: 1800 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -845,7 +938,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },
       { title: "Temple day", base: "Sun Temple, then a quiet afternoon.", options: [{ id: "puri", label: "Puri temple day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -865,12 +958,16 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "yKIxELdrjzQ", title: "হোটেলে পৌঁছে অনেক কষ্টে পেলাম একটা রুম😒|Hotel Rivera room tour|সন্ধেবেলা চলে গেলাম shopping করতে|" },
+      { videoId: "CJrXHEU9JqU", title: "Puri Sea Facing Hotel | Hotel Rivera | Puri Hotel Near Lighthouse Beach Budget Hotel" },
+      { videoId: "QrRG9ykYQWk", title: "Reviewing Hotel Room | Direct Booking Hotel Deal | Hotel Rivera | Hotel Rivera Puri | Puri Hotel" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -890,12 +987,15 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Chakratirtha Road, toward the eastern beach.",
     neighborhood: "Chakratirtha Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "3QV84wcExPQ", title: "Puri Hotel | Hotel Samudra | Puri Sea Beach Hotel | Best Sea Facing Hotel In Puri" },
+      { videoId: "-4XKA5WO7DM", title: "Stay in💖 Hotel Samudra  in Puri Vlog02 #dailyvlog #LifestyleVlog#IndianVlogger#TravelVlog" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -915,12 +1015,17 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Chakratirtha Road, toward the eastern beach.",
     neighborhood: "Chakratirtha Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "g3FgSNwW9X8", title: "Hotel New Santana Puri - A Detailed Vlog. AC rooms starting at only 1500 INR. Very reasonable." },
+      { videoId: "AomXZuRlcAM", title: "Puri Hotel Review 2024 || Explore Room || All Details || Best Hotel In Puri || Hotel SANTANA ||" },
+      { videoId: "rLv52L4nj2s", title: "Best with cheapest hotel in puri// hotel santana/ct road/ puri/inside parking available" },
+      { videoId: "tMUQfCR3FVQ", title: "এটা হোটেল না প্রাসাদ চলুন একটু ঘুরে দেখি।।পুরীর হোটেল Santana review .." }
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -940,12 +1045,15 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "yLHW-FlJ1ZI", title: "Family Vacation from Kolkata to Puri by Road | Hyundai Venue | Shakti Horizon" },
+      { videoId: "d4RA4ok6i2k", title: "Hotel Shakti Horizon, Hotel New Horizon | Puri sea facing hotel | Puri hotel near beach | Puri hotel" }
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -970,7 +1078,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -995,7 +1103,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1015,12 +1123,16 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: ["Pool", "Breakfast", "Beach access", "Wi-Fi"],
-    videos: [],
+    videos: [
+      { videoId: "KvcTdIi_xSw", title: "Sterling Puri | 17000 INR WORTH IT OR NOT  | Orrisa Vlogs" },
+      { videoId: "XMPQA9rXTcI", title: "REVIEW OF STERLING PURI | PET FRIENDLY RESORT IN PURI | PET POLICY & ROOM TOUR" },
+      { videoId: "jqaxVg_YjE8", title: "This is The REAL Trurth behind SO CALLED Sterling Puri !! 5 Star or 1 Star?? Honest Experience" }
+    ],
     rooms: rooms(1200),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1040,12 +1152,15 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: ["Wi-Fi"],
-    videos: [],
+    videos: [
+      { videoId: "ytIrKwATgls", title: "The Bay Suites puri | Jagannath puri budget staycation vlog | exploring Jagannath puri 😇" },
+      { videoId: "1Kz7LxyeXjg", title: "The Bay Suites | Puri Hotel | Near Lighthouse | Sea facing & Swimming Pool." }
+    ],
     rooms: rooms(1200),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1070,7 +1185,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1090,12 +1205,15 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: ["Wi-Fi"],
-    videos: [],
+    videos: [
+      { videoId: "BHLEQ77u5CI", title: "Hotel in puri with breakfast!! Hotel review! baliapanda! puri hotel! room tour! hotel vlog! Treebo" },
+      { videoId: "azcZLhaqR8U", title: "#siddharth international hotel puri#travalingvlog #bengalivlogs #banglavlogs#thadeboshree'sworld" }
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1120,7 +1238,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1140,12 +1258,14 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "ERIQo_J6YbE", title: "Hotel Yashasvi Inn, Puri | Puri Hotel | Puri Hotel Near Beach | Puri Hotel in Bengali | Hotel Price" }
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1170,7 +1290,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
       { title: "Temple and beach", base: "Jagannath Temple or a slow beach day.", options: [{ id: "konark", label: "Konark half-day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1190,12 +1310,17 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel in Konark town, by the Sun Temple.",
     neighborhood: "Konark",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "nyquZNOPZiM", title: "Konark Sun Temple // Konark OTDC Yatrinivas // Chandrabhaja sea Beach // Konark Sun Temple history" },
+      { videoId: "fftDwKsgMIU", title: "Konark Yatri Niwas , Konark , Odisha , India" },
+      { videoId: "CMR04tHeyao", title: "OTDC Yatrinivas , Konark , Odisha , India , 2022" },
+      { videoId: "PKoQ41-IqeQ", title: "OTDC Yatrinivas Konark | Premium & Executive Room | Big Area Big Room" }
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },
       { title: "Temple day", base: "Sun Temple, then a quiet afternoon.", options: [{ id: "puri", label: "Puri temple day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1220,7 +1345,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },
       { title: "Temple day", base: "Sun Temple, then a quiet afternoon.", options: [{ id: "puri", label: "Puri temple day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1245,7 +1370,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },
       { title: "Temple day", base: "Sun Temple, then a quiet afternoon.", options: [{ id: "puri", label: "Puri temple day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1270,7 +1395,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },
       { title: "Temple day", base: "Sun Temple, then a quiet afternoon.", options: [{ id: "puri", label: "Puri temple day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1295,7 +1420,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },
       { title: "Temple day", base: "Sun Temple, then a quiet afternoon.", options: [{ id: "puri", label: "Puri temple day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1320,7 +1445,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },
       { title: "Temple day", base: "Sun Temple, then a quiet afternoon.", options: [{ id: "puri", label: "Puri temple day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
   {
@@ -1345,7 +1470,7 @@ export const RAW_C: RawStay[] = [
     days: [
       { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },
       { title: "Temple day", base: "Sun Temple, then a quiet afternoon.", options: [{ id: "puri", label: "Puri temple day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] },
+      { title: "Depart", base: "Breakfast and checkout.", options: [] }
     ],
   },
 ];

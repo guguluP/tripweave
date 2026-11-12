@@ -6,9 +6,36 @@ import { EXTRA_STAYS } from "./packages-data-c.ts";
 import { getOrigin, type ArriveBy, type OriginId } from "./origins.ts";
 
 export type Vibe = "culture" | "beach" | "relax" | "adventure";
-export type StayArea = "konark" | "marine" | "grand-road" | "chilika";
+export type StayArea =
+  | "konark"
+  | "marine"
+  | "grand-road"
+  | "chakratirtha"
+  | "swargadwar"
+  | "marine-drive"
+  | "sipasurubali"
+  | "chilika";
 export type Budget = "value" | "mid" | "premium";
 export type TravelStyle = "solo" | "couple" | "family" | "friends";
+/** Audience tags on a stay. Not part of the plan-form style chips. */
+export type TravellerFit = "pilgrims" | "elderly" | "groups";
+
+/** Beach-facing catalog areas, including the legacy "marine" umbrella. */
+export const BEACH_AREAS: readonly StayArea[] = [
+  "marine",
+  "chakratirtha",
+  "swargadwar",
+  "marine-drive",
+  "sipasurubali",
+];
+
+export function isBeachArea(area: StayArea): boolean {
+  return (BEACH_AREAS as readonly string[]).includes(area);
+}
+
+export function isTempleArea(area: StayArea): boolean {
+  return area === "grand-road";
+}
 
 export type DayOption = {
   id: string;
@@ -75,6 +102,10 @@ export type StayPackage = {
   hasAirportTransfer: boolean;
   includes: string[];
   days: DayPlan[];
+  /** Pilgrims, elderly, or groups — catalog tags only, not plan-form filters. */
+  fit?: TravellerFit[];
+  /** Official booking page. When set, TripWeave does not take payment for this stay. */
+  externalBookingUrl?: string;
 };
 
 export type Brief = {
@@ -162,22 +193,22 @@ const LEISURE_DAY: DayPlan = {
 
 /**
  * Place flags are written here, not guessed from the name.
- * "Waves" is marine because it sits on Chakratirtha, not because of the word.
- * "Regenta" is grand-road because it is beside the temple, not because of the brand.
+ * Area follows the verified pin, not the hotel name: Empires and Regenta are
+ * on New Marine Drive, Mayfair and Holiday Resort are on Chakratirtha Road.
  */
 const STAY_PLACES: Record<string, { area: StayArea; nearStation: boolean; hasAirportTransfer: boolean }> = {
-  "taj-puri-resort-spa": { area: "marine", nearStation: false, hasAirportTransfer: true },
-  "mayfair-heritage-puri": { area: "marine", nearStation: false, hasAirportTransfer: true },
-  "swosti-premium-beach-resort": { area: "marine", nearStation: false, hasAirportTransfer: false },
-  "regenta-central-puri": { area: "grand-road", nearStation: false, hasAirportTransfer: false },
-  "hans-coco-palms": { area: "marine", nearStation: false, hasAirportTransfer: true },
-  "empires-hotel-puri": { area: "grand-road", nearStation: false, hasAirportTransfer: false },
-  "mayfair-waves-puri": { area: "marine", nearStation: false, hasAirportTransfer: false },
+  "taj-puri-resort-spa": { area: "sipasurubali", nearStation: false, hasAirportTransfer: true },
+  "mayfair-heritage-puri": { area: "chakratirtha", nearStation: false, hasAirportTransfer: true },
+  "swosti-premium-beach-resort": { area: "marine-drive", nearStation: false, hasAirportTransfer: false },
+  "regenta-central-puri": { area: "marine-drive", nearStation: false, hasAirportTransfer: false },
+  "hans-coco-palms": { area: "swargadwar", nearStation: false, hasAirportTransfer: true },
+  "empires-hotel-puri": { area: "marine-drive", nearStation: false, hasAirportTransfer: false },
+  "mayfair-waves-puri": { area: "chakratirtha", nearStation: false, hasAirportTransfer: false },
   "toshali-sands-puri": { area: "konark", nearStation: false, hasAirportTransfer: false },
-  "chariot-resort-puri": { area: "marine", nearStation: false, hasAirportTransfer: false },
+  "chariot-resort-puri": { area: "sipasurubali", nearStation: false, hasAirportTransfer: false },
   "chanakya-bnr-puri": { area: "grand-road", nearStation: true, hasAirportTransfer: false },
-  "mahodadhi-palace-puri": { area: "marine", nearStation: false, hasAirportTransfer: false },
-  "holiday-resort-puri": { area: "marine", nearStation: false, hasAirportTransfer: false },
+  "mahodadhi-palace-puri": { area: "swargadwar", nearStation: false, hasAirportTransfer: false },
+  "holiday-resort-puri": { area: "chakratirtha", nearStation: false, hasAirportTransfer: false },
   ...Object.fromEntries(
     EXTRA_STAYS.map((stay) => [
       stay.id,
@@ -185,6 +216,7 @@ const STAY_PLACES: Record<string, { area: StayArea; nearStation: boolean; hasAir
     ]),
   ),
 };
+
 
 const liveTrustScores = new Map<string, number>();
 
@@ -330,8 +362,8 @@ export function stayTotal(
 
 export function originTraits(pkg: StayPackage) {
   return {
-    temple: pkg.area === "grand-road",
-    beach: pkg.area === "marine",
+    temple: isTempleArea(pkg.area),
+    beach: isBeachArea(pkg.area),
     far: pkg.area === "konark" || pkg.area === "chilika",
     airportTransfer: pkg.hasAirportTransfer,
     nearStation: pkg.nearStation,

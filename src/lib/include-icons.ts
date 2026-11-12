@@ -16,7 +16,6 @@ export const INCLUDE_ICON = {
   "Palm garden": { icon: "palm", motion: "palm" },
   "Beach access": { icon: "umbrella", motion: "sway" },
   Parking: { icon: "parking", motion: "lift" },
-  "Walk to temple": { icon: "feet", motion: "step" },
   "24h desk": { icon: "bell", motion: "ring" },
   "Beach club access": { icon: "umbrella", motion: "sway" },
   "Cottage stay": { icon: "house", motion: "lift" },

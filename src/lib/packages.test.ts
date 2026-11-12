@@ -50,8 +50,14 @@ describe("catalog", () => {
       const spec = STAY_MEDIA[pkg.id];
       if (!spec) {
         assert.equal(pkg.images.length, 0, pkg.id);
-        assert.equal(pkg.videos.length, 0, pkg.id);
         assert.equal(pkg.image, "", pkg.id);
+        assert.ok(
+          pkg.videos.length === 0 || (pkg.videos.length >= 1 && pkg.videos.length <= 4),
+          pkg.id,
+        );
+        for (const video of pkg.videos) {
+          assert.match(video.videoId, /^[a-zA-Z0-9_-]{11}$/, video.videoId);
+        }
         continue;
       }
       assert.equal(pkg.image, pkg.images[0]);
@@ -79,7 +85,13 @@ describe("catalog", () => {
         continue;
       }
       assert.ok(pkg.images.length >= 1, pkg.id);
-      assert.equal(pkg.videos.length, 0, pkg.id);
+      assert.ok(
+        pkg.videos.length === 0 || (pkg.videos.length >= 1 && pkg.videos.length <= 4),
+        pkg.id,
+      );
+      for (const video of pkg.videos) {
+        assert.match(video.videoId, /^[a-zA-Z0-9_-]{11}$/, video.videoId);
+      }
       const officialIds = Object.keys(spec.rooms);
       if (officialIds.length === 0) {
         for (const room of pkg.rooms) {
