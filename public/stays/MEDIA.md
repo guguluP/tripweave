@@ -101,12 +101,17 @@ hotel itself supplies photos to, named per stay.
 | `sterling-puri` | trip.com Sterling Puri gallery (sterlingholidays.com publishes only 1–2 usable frames) |
 | `the-eastern-dham` | homestayindia.in Hotel Eastern Dhaam, New Marine Drive (the hotel's booking partner; frames carry its corner logo) |
 | `yashasvi-inn-puri` | hotels.com / trivago Hotel Yashasvi Inn (Larina Building), Marine Drive |
+| `hotel-deluxe-konark` | justdial.com Deluxe Hotel, Konark HO, Ring Road, Junei (listing gallery; no official website exists. Building signage cross-checked in every frame) |
+| `santi-hotel-konark` | wanderlog.com Santi A/C Restaurant, Konark (the property's Google-listing photos served clean; signage reads "Shanti Hotel / Santi Hotel A/C Family Restaurant". Trades mainly as a family restaurant; no room photos exist) |
+| `new-santi-hotel-konark` | Google listing photos, New Santi Hotel, Shop No 81, Arabana Park Front, Konark (signage "New Santi Hotel / Your's First Choice" verified; clean originals of the photos Restaurant Guru serves only as mascot collages) |
 
-Still without photos: the six Konark lodges (`konark-hotel-konark`,
-`hotel-sun-village-konark`, `hotel-deluxe-konark`, `santi-hotel-konark`,
-`santoshi-hotel-konark`, `new-santi-hotel-konark`). No official website or
-trusted listing with clean, verifiable photos of those exact properties
-could be found; the only candidates were a different namesake hotel, a
-permanently closed listing, or watermarked collages.
+Still without photos: three Konark lodges (`konark-hotel-konark`,
+`hotel-sun-village-konark`, `santoshi-hotel-konark`). A second, deeper pass
+(archived pages, regional directories, the properties' own social pages)
+confirmed there is nothing honest to add: Hotel Konark, Konark is a real
+place but has no photo gallery anywhere (its supposed official site,
+hotelkonark.in, is the Hotel Konark in Puri); no business named Sun Village
+can be found in Konark at all (every result is the Puri hotel); and Santoshi
+Hotel is permanently closed with no photos in any listing or archive.
 
 `STAYS_NEEDING_USER_FILES` is empty.
