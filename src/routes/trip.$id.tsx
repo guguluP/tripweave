@@ -152,6 +152,12 @@ function TripDetail() {
   const [openToken, setOpenToken] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [frame, setFrame] = useState({ src: "", position: 1, total: 0 });
+  const [roomGallery, setRoomGallery] = useState<{
+    id: string;
+    name: string;
+    images: string[];
+    token: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!gallery.length) return;
@@ -331,6 +337,7 @@ function TripDetail() {
         onActiveIndex={setPhotoIndex}
         onPhoto={(src, position, total) => setFrame({ src, position, total })}
         openToken={openToken}
+        focusRoom={roomGallery}
       />
       </div>
       </aside>
@@ -500,6 +507,14 @@ function TripDetail() {
           gallery={pkg.images}
           style={brief.style}
           guestCount={party}
+          onViewPhotos={(picked, photos) => {
+            setRoomGallery((current) => ({
+              id: picked.id,
+              name: picked.name,
+              images: photos,
+              token: (current?.token ?? 0) + 1,
+            }));
+          }}
         />
         </div>
 
