@@ -190,6 +190,8 @@ create table if not exists public.profiles (
   display_name text,
   email text,
   phone text,
+  home_city text,
+  whatsapp_opt_in boolean not null default false,
   updated_at timestamptz not null default now()
 );
 alter table public.profiles enable row level security;
@@ -345,18 +347,22 @@ begin
     return rec;
 
   elsif p_op = 'upsert_profile' then
-    insert into public.profiles (user_id, display_name, email, phone, updated_at)
+    insert into public.profiles (user_id, display_name, email, phone, home_city, whatsapp_opt_in, updated_at)
     values (
       uid,
       p_payload->>'display_name',
       nullif(p_payload->>'email', ''),
       p_payload->>'phone',
+      nullif(p_payload->>'home_city', ''),
+      coalesce((p_payload->>'whatsapp_opt_in')::boolean, false),
       now()
     )
     on conflict (user_id) do update set
       display_name = excluded.display_name,
       email = coalesce(excluded.email, public.profiles.email),
       phone = excluded.phone,
+      home_city = excluded.home_city,
+      whatsapp_opt_in = excluded.whatsapp_opt_in,
       updated_at = now()
     returning to_jsonb(profiles.*) into rec;
     return rec;

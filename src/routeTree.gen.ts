@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as PayTestRouteImport } from './routes/pay-test'
 import { Route as PlanRouteImport } from './routes/plan'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RathYatraRouteImport } from './routes/rath-yatra'
 import { Route as TravelersRouteImport } from './routes/travelers'
 import { Route as TripsRouteImport } from './routes/trips'
@@ -72,6 +73,11 @@ const PayTestRoute = PayTestRouteImport.update({
 const PlanRoute = PlanRouteImport.update({
   id: '/plan',
   path: '/plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RathYatraRoute = RathYatraRouteImport.update({
@@ -194,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/matches': typeof MatchesRoute
   '/pay-test': typeof PayTestRoute
   '/plan': typeof PlanRoute
+  '/privacy': typeof PrivacyRoute
   '/rath-yatra': typeof RathYatraRoute
   '/travelers': typeof TravelersRoute
   '/trips': typeof TripsRoute
@@ -225,6 +232,7 @@ export interface FileRoutesByTo {
   '/matches': typeof MatchesRoute
   '/pay-test': typeof PayTestRoute
   '/plan': typeof PlanRoute
+  '/privacy': typeof PrivacyRoute
   '/rath-yatra': typeof RathYatraRoute
   '/travelers': typeof TravelersRoute
   '/trips': typeof TripsRoute
@@ -257,6 +265,7 @@ export interface FileRoutesById {
   '/matches': typeof MatchesRoute
   '/pay-test': typeof PayTestRoute
   '/plan': typeof PlanRoute
+  '/privacy': typeof PrivacyRoute
   '/rath-yatra': typeof RathYatraRoute
   '/travelers': typeof TravelersRoute
   '/trips': typeof TripsRoute
@@ -290,6 +299,7 @@ export interface FileRouteTypes {
     | '/matches'
     | '/pay-test'
     | '/plan'
+    | '/privacy'
     | '/rath-yatra'
     | '/travelers'
     | '/trips'
@@ -321,6 +331,7 @@ export interface FileRouteTypes {
     | '/matches'
     | '/pay-test'
     | '/plan'
+    | '/privacy'
     | '/rath-yatra'
     | '/travelers'
     | '/trips'
@@ -352,6 +363,7 @@ export interface FileRouteTypes {
     | '/matches'
     | '/pay-test'
     | '/plan'
+    | '/privacy'
     | '/rath-yatra'
     | '/travelers'
     | '/trips'
@@ -384,6 +396,7 @@ export interface RootRouteChildren {
   MatchesRoute: typeof MatchesRoute
   PayTestRoute: typeof PayTestRoute
   PlanRoute: typeof PlanRoute
+  PrivacyRoute: typeof PrivacyRoute
   RathYatraRoute: typeof RathYatraRoute
   TravelersRoute: typeof TravelersRoute
   TripsRoute: typeof TripsRoute
@@ -457,6 +470,13 @@ declare module '@tanstack/react-router' {
       path: '/plan'
       fullPath: '/plan'
       preLoaderRoute: typeof PlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rath-yatra': {
@@ -624,6 +644,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatchesRoute: MatchesRoute,
   PayTestRoute: PayTestRoute,
   PlanRoute: PlanRoute,
+  PrivacyRoute: PrivacyRoute,
   RathYatraRoute: RathYatraRoute,
   TravelersRoute: TravelersRoute,
   TripsRoute: TripsRoute,

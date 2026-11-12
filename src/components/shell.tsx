@@ -44,7 +44,7 @@ export function Shell({
             <BrandLockup markClassName="size-10" />
           </Link>
           <nav className="hidden items-center gap-6 md:flex">
-            {LINKS.slice(0, 3).map((l) => (
+            {LINKS.map((l) => (
               <Link
                 key={l.to}
                 to={l.to}
@@ -75,7 +75,9 @@ export function Shell({
               Twelve Puri hotels, ranked to three. The price is for the room.
             </p>
           </div>
-          <p className="text-sm text-subtle">Puri, Odisha</p>
+          <Link to="/privacy" className="text-sm text-subtle hover:text-fg">
+            Privacy
+          </Link>
         </div>
       </footer>
       <nav className="fixed inset-x-0 bottom-0 z-30 grid w-full grid-cols-4 border-t border-border bg-elevated/95 pb-safe backdrop-blur-md md:hidden">

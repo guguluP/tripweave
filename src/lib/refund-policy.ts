@@ -40,6 +40,11 @@ export function isClosedStay(status: string) {
   return status === "cancelled" || status === "refunded";
 }
 
+/** Money still with TripWeave. A refund that has started is not spend. */
+export function countsAsSpend(status: string) {
+  return status !== "cancelled" && status !== "refunded" && status !== "refund_pending" && status !== "failed";
+}
+
 export function stayStatusLabel(status: string) {
   if (status === "refunded") return "Refunded";
   if (status === "refund_pending") return "Refund pending";

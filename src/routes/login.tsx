@@ -129,6 +129,7 @@ function Login() {
   const { user, isPending } = useCurrentUserState();
   const [mode, setMode] = useState<"in" | "up" | "reset">(() => {
     if (search.token) return "reset";
+    if (search.next) return "in";
     if (typeof window === "undefined") return "up";
     return initialMode(window.localStorage.getItem(HAS_ACCOUNT_KEY) === "1");
   });
