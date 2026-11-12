@@ -244,13 +244,16 @@ function JoinForm({
           if (!res.ok) onMessage(res.message);
           else {
             setSent(true);
-            onMessage(
-              res.devCode
-                ? `Development code ${res.devCode}`
-                : res.sent
-                  ? otpChannel === "email" ? "Code sent to your email." : "Code sent."
-                  : "Phone codes are not configured on this server yet.",
-            );
+            if (res.code) {
+              setCode(res.code);
+              onMessage(
+                otpChannel === "email"
+                  ? `We couldn't email the code. Your code is ${res.code}.`
+                  : `Text messages are not on yet. Your code is ${res.code}.`,
+              );
+            } else {
+              onMessage(otpChannel === "email" ? "Code sent to your email." : "Code sent.");
+            }
           }
         });
         return;

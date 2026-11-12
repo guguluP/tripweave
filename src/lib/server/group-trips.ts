@@ -53,10 +53,6 @@ async function shortlistFor(input: z.infer<typeof createSchema>, checkIn: string
   });
 }
 
-function devCodeAllowed() {
-  return !process.env.VERCEL && process.env.NODE_ENV !== "production";
-}
-
 async function present(doc: GroupDoc, role: GroupRole, memberId: string | null): Promise<PublicGroup> {
   const state = projectGroup(doc, role, memberId);
   return { ...state, otpChannel: groupOtpChannel() };
@@ -177,11 +173,10 @@ export const requestMemberOtp = createServerFn({ method: "POST" })
     }
     if (channel === "whatsapp") {
       const sent = await sendWhatsApp(phone!, `TripWeave code ${code}. It expires in 10 minutes.`);
-      return { ok: true as const, sent, devCode: devCodeAllowed() && !sent ? code : undefined };
+      return { ok: true as const, sent, code: sent ? undefined : code };
     }
     if (!bookingMailConfigured()) {
-      if (devCodeAllowed()) return { ok: true as const, sent: false, devCode: code };
-      return { ok: false as const, message: "We couldn't send the join code by email. Try again later." };
+      return { ok: true as const, sent: false, code };
     }
     try {
       const mail = groupOtpMail({
@@ -191,13 +186,10 @@ export const requestMemberOtp = createServerFn({ method: "POST" })
         nights: doc.trip.nights,
       });
       const sent = await sendBookingMail({ to: email!, subject: mail.subject, text: mail.text });
-      if (!sent) {
-        if (devCodeAllowed()) return { ok: true as const, sent: false, devCode: code };
-        return { ok: false as const, message: "We couldn't send the join code by email. Try again later." };
-      }
+      if (!sent) return { ok: true as const, sent: false, code };
       return { ok: true as const, sent: true };
     } catch {
-      return { ok: false as const, message: "We couldn't send the join code by email. Try again later." };
+      return { ok: true as const, sent: false, code };
     }
   });
 
