@@ -697,7 +697,34 @@
         "/stays/golden-tree-puri/gallery-10.jpg",
         "/stays/golden-tree-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "executive": [
+          "/stays/golden-tree-puri/rooms/executive.jpg",
+          "/stays/golden-tree-puri/rooms/executive-2.jpg",
+          "/stays/golden-tree-puri/rooms/executive-3.jpg"
+        ],
+        "super-deluxe": [
+          "/stays/golden-tree-puri/rooms/super-deluxe.jpg",
+          "/stays/golden-tree-puri/rooms/super-deluxe-2.jpg",
+          "/stays/golden-tree-puri/rooms/super-deluxe-3.jpg"
+        ],
+        "premium": [
+          "/stays/golden-tree-puri/rooms/premium.jpg",
+          "/stays/golden-tree-puri/rooms/premium-2.jpg",
+          "/stays/golden-tree-puri/rooms/premium-3.jpg",
+          "/stays/golden-tree-puri/rooms/premium-4.jpg"
+        ],
+        "family": [
+          "/stays/golden-tree-puri/rooms/family.jpg",
+          "/stays/golden-tree-puri/rooms/family-2.jpg",
+          "/stays/golden-tree-puri/rooms/family-3.jpg"
+        ],
+        "golden-blue": [
+          "/stays/golden-tree-puri/rooms/golden-blue.jpg",
+          "/stays/golden-tree-puri/rooms/golden-blue-2.jpg",
+          "/stays/golden-tree-puri/rooms/golden-blue-3.jpg"
+        ]
+      }
     },
     "camellia-puri": {
       "images": [
@@ -710,18 +737,34 @@
         "/stays/camellia-puri/gallery-6.jpg",
         "/stays/camellia-puri/gallery-7.jpg",
         "/stays/camellia-puri/gallery-8.jpg",
-        "/stays/camellia-puri/gallery-9.jpg",
-        "/stays/camellia-puri/gallery-10.jpg",
-        "/stays/camellia-puri/gallery-11.jpg"
+        "/stays/camellia-puri/gallery-9.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "executive": [
+          "/stays/camellia-puri/rooms/executive.jpg",
+          "/stays/camellia-puri/rooms/executive-2.jpg",
+          "/stays/camellia-puri/rooms/executive-3.jpg"
+        ],
+        "premium-sea": [
+          "/stays/camellia-puri/rooms/premium-sea.jpg",
+          "/stays/camellia-puri/rooms/premium-sea-2.jpg"
+        ],
+        "suite": [
+          "/stays/camellia-puri/rooms/suite.jpg",
+          "/stays/camellia-puri/rooms/suite-2.jpg",
+          "/stays/camellia-puri/rooms/suite-3.jpg"
+        ],
+        "presidential": [
+          "/stays/camellia-puri/rooms/presidential.jpg",
+          "/stays/camellia-puri/rooms/presidential-2.jpg"
+        ]
+      }
     },
     "shakti-horizon-puri": {
       "images": [
         "/stays/shakti-horizon-puri/property-1.jpg",
         "/stays/shakti-horizon-puri/gallery-1.jpg",
         "/stays/shakti-horizon-puri/gallery-2.jpg",
-        "/stays/shakti-horizon-puri/gallery-3.jpg",
         "/stays/shakti-horizon-puri/gallery-4.jpg",
         "/stays/shakti-horizon-puri/gallery-5.jpg",
         "/stays/shakti-horizon-puri/gallery-6.jpg",
@@ -730,7 +773,20 @@
         "/stays/shakti-horizon-puri/gallery-9.jpg",
         "/stays/shakti-horizon-puri/gallery-10.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe-balcony": [
+          "/stays/shakti-horizon-puri/rooms/deluxe-balcony.jpg",
+          "/stays/shakti-horizon-puri/rooms/deluxe-balcony-3.jpg",
+          "/stays/shakti-horizon-puri/rooms/deluxe-balcony-4.jpg",
+          "/stays/shakti-horizon-puri/rooms/deluxe-balcony-5.jpg"
+        ],
+        "super-deluxe-sea": [
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-2.jpg",
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-3.jpg",
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-4.jpg",
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-5.jpg"
+        ]
+      }
     },
     "the-bay-suites-puri": {
       "images": [
@@ -747,7 +803,12 @@
         "/stays/the-bay-suites-puri/gallery-10.jpg",
         "/stays/the-bay-suites-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe": "/stays/the-bay-suites-puri/rooms/deluxe.jpg",
+        "super-deluxe": "/stays/the-bay-suites-puri/rooms/super-deluxe.jpg",
+        "premium": "/stays/the-bay-suites-puri/rooms/premium.jpg",
+        "presidential": "/stays/the-bay-suites-puri/rooms/presidential.jpg"
+      }
     },
     "z-hotel-puri": {
       "images": [
@@ -848,7 +909,11 @@
         "/stays/hotel-vijoya-international/gallery-10.jpg",
         "/stays/hotel-vijoya-international/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe-non-sea": "/stays/hotel-vijoya-international/rooms/deluxe-non-sea.jpg",
+        "deluxe-sea": "/stays/hotel-vijoya-international/rooms/deluxe-sea.jpg",
+        "executive-sea": "/stays/hotel-vijoya-international/rooms/executive-sea.jpg"
+      }
     },
     "hotel-pulin-puri": {
       "images": [
@@ -921,7 +986,32 @@
         "/stays/blue-lily-puri/gallery-10.jpg",
         "/stays/blue-lily-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "premium": [
+          "/stays/blue-lily-puri/rooms/premium.jpg",
+          "/stays/blue-lily-puri/rooms/premium-2.jpg",
+          "/stays/blue-lily-puri/rooms/premium-3.jpg",
+          "/stays/blue-lily-puri/rooms/premium-4.jpg",
+          "/stays/blue-lily-puri/rooms/premium-5.jpg",
+          "/stays/blue-lily-puri/rooms/premium-6.jpg"
+        ],
+        "family": [
+          "/stays/blue-lily-puri/rooms/family.jpg",
+          "/stays/blue-lily-puri/rooms/family-2.jpg",
+          "/stays/blue-lily-puri/rooms/family-3.jpg",
+          "/stays/blue-lily-puri/rooms/family-4.jpg"
+        ],
+        "suite": [
+          "/stays/blue-lily-puri/rooms/suite.jpg",
+          "/stays/blue-lily-puri/rooms/suite-2.jpg",
+          "/stays/blue-lily-puri/rooms/suite-3.jpg"
+        ],
+        "standard": [
+          "/stays/blue-lily-puri/rooms/standard.jpg",
+          "/stays/blue-lily-puri/rooms/standard-2.jpg",
+          "/stays/blue-lily-puri/rooms/standard-3.jpg"
+        ]
+      }
     },
     "niladri-premium-puri": {
       "images": [
@@ -932,7 +1022,18 @@
         "/stays/niladri-premium-puri/gallery-4.jpg",
         "/stays/niladri-premium-puri/gallery-5.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe": [
+          "/stays/niladri-premium-puri/rooms/deluxe.jpg",
+          "/stays/niladri-premium-puri/rooms/deluxe-2.jpg",
+          "/stays/niladri-premium-puri/rooms/deluxe-3.jpg"
+        ],
+        "premium": [
+          "/stays/niladri-premium-puri/rooms/premium.jpg",
+          "/stays/niladri-premium-puri/rooms/premium-2.jpg",
+          "/stays/niladri-premium-puri/rooms/premium-3.jpg"
+        ]
+      }
     },
     "lotus-eco-resort": {
       "images": [
@@ -949,7 +1050,14 @@
         "/stays/lotus-eco-resort/gallery-10.jpg",
         "/stays/lotus-eco-resort/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "forest-eco": "/stays/lotus-eco-resort/rooms/forest-eco.jpg",
+        "sea-breeze": "/stays/lotus-eco-resort/rooms/sea-breeze.jpg",
+        "premium-forest-villa": "/stays/lotus-eco-resort/rooms/premium-forest-villa.jpg",
+        "sea-breeze-deluxe": "/stays/lotus-eco-resort/rooms/sea-breeze-deluxe.jpg",
+        "sea-view-villa": "/stays/lotus-eco-resort/rooms/sea-view-villa.jpg",
+        "forest-deluxe": "/stays/lotus-eco-resort/rooms/forest-deluxe.jpg"
+      }
     },
     "nrs-royal-palace-puri": {
       "images": [
@@ -966,7 +1074,16 @@
         "/stays/nrs-royal-palace-puri/gallery-10.jpg",
         "/stays/nrs-royal-palace-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "premium-room": [
+          "/stays/nrs-royal-palace-puri/rooms/premium-room.jpg",
+          "/stays/nrs-royal-palace-puri/rooms/premium-room-2.jpg"
+        ],
+        "super-deluxe": [
+          "/stays/nrs-royal-palace-puri/rooms/super-deluxe.jpg",
+          "/stays/nrs-royal-palace-puri/rooms/super-deluxe-2.jpg"
+        ]
+      }
     },
     "panthanivas-konark": {
       "images": [
@@ -1002,7 +1119,18 @@
         "/stays/hotel-bishnu-bhaban/gallery-1.jpg",
         "/stays/hotel-bishnu-bhaban/gallery-2.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "double-non-ac": "/stays/hotel-bishnu-bhaban/rooms/double-non-ac.jpg",
+        "double-ac": "/stays/hotel-bishnu-bhaban/rooms/double-ac.jpg",
+        "four-non-ac": "/stays/hotel-bishnu-bhaban/rooms/four-non-ac.jpg",
+        "four-ac": "/stays/hotel-bishnu-bhaban/rooms/four-ac.jpg",
+        "deluxe-temple": "/stays/hotel-bishnu-bhaban/rooms/deluxe-temple.jpg",
+        "super-deluxe": "/stays/hotel-bishnu-bhaban/rooms/super-deluxe.jpg",
+        "six-bed": "/stays/hotel-bishnu-bhaban/rooms/six-bed.jpg",
+        "family-suite": "/stays/hotel-bishnu-bhaban/rooms/family-suite.jpg",
+        "deluxe-four": "/stays/hotel-bishnu-bhaban/rooms/deluxe-four.jpg",
+        "maharaja": "/stays/hotel-bishnu-bhaban/rooms/maharaja.jpg"
+      }
     },
     "hotel-konark-puri": {
       "images": [
@@ -1078,7 +1206,11 @@
         "/stays/hotel-shreehari-puri/gallery-5.jpg",
         "/stays/hotel-shreehari-puri/gallery-6.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "front-suite": "/stays/hotel-shreehari-puri/rooms/front-suite.jpg",
+        "family-suite": "/stays/hotel-shreehari-puri/rooms/family-suite.jpg",
+        "super-deluxe": "/stays/hotel-shreehari-puri/rooms/super-deluxe.jpg"
+      }
     },
     "hotel-sonar-bangla-puri": {
       "images": [
@@ -1103,7 +1235,6 @@
     "jeevan-sandhya-puri": {
       "images": [
         "/stays/jeevan-sandhya-puri/property-1.jpg",
-        "/stays/jeevan-sandhya-puri/gallery-1.jpg",
         "/stays/jeevan-sandhya-puri/gallery-2.jpg",
         "/stays/jeevan-sandhya-puri/gallery-3.jpg",
         "/stays/jeevan-sandhya-puri/gallery-4.jpg",
@@ -1111,7 +1242,12 @@
         "/stays/jeevan-sandhya-puri/gallery-6.jpg",
         "/stays/jeevan-sandhya-puri/gallery-7.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe": "/stays/jeevan-sandhya-puri/rooms/deluxe.jpg",
+        "super-deluxe": "/stays/jeevan-sandhya-puri/rooms/super-deluxe.jpg",
+        "premium": "/stays/jeevan-sandhya-puri/rooms/premium.jpg",
+        "executive": "/stays/jeevan-sandhya-puri/rooms/executive.jpg"
+      }
     },
     "lucky-india-puri": {
       "images": [
