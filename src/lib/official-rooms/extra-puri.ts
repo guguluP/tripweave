@@ -415,4 +415,16 @@ export const EXTRA_OFFICIAL_ROOMS: Record<string, RawRoom[]> = {
     { id: "premium", name: "Premium Room", summary: "Premium room.", deltaPerNight: 1400, occupancy: 2 },
     { id: "executive", name: "Executive Room", summary: "Executive room.", deltaPerNight: 2100, occupancy: 2 },
   ],
+  "hotel-pulin-puri": [
+    { id: "double-back", name: "Double Bed Backside Non-Sea Facing", summary: "Double room at the back, for two adults.", deltaPerNight: 0, occupancy: 2 },
+    { id: "double-window", name: "Double Bed Window Sea Facing", summary: "Double room with a sea-facing window, for two adults.", deltaPerNight: 700, occupancy: 2 },
+    { id: "double-ground", name: "Double Bed Ground Floor Side Balcony Sea Facing", summary: "Ground-floor double with a side balcony, for two adults.", deltaPerNight: 1400, occupancy: 2 },
+    { id: "four-back", name: "Four Bed Backside Non-Sea Facing", summary: "Four-bed room at the back, for four adults.", deltaPerNight: 2100, occupancy: 4 },
+    { id: "double-side", name: "Double Bed Luxury Side Balcony Sea Facing", summary: "Luxury double with a side balcony, for two adults.", deltaPerNight: 2800, occupancy: 2 },
+    { id: "four-window", name: "Four Bed Luxury Window Sea Facing", summary: "Four-bed luxury room with a sea-facing window, for four adults.", deltaPerNight: 3500, occupancy: 4 },
+    { id: "double-super", name: "Double Bed Super Luxury Front Balcony Sea Facing", summary: "Super luxury double with a front balcony, for two adults.", deltaPerNight: 4200, occupancy: 2 },
+    { id: "four-balcony", name: "Four Bed Luxury Front Balcony Sea Facing", summary: "Four-bed luxury room with a front balcony, for four adults.", deltaPerNight: 4900, occupancy: 4 },
+    { id: "four-family", name: "Four Bed Luxury Family Front Balcony Sea Facing", summary: "Family four-bed room with a front balcony, for four adults.", deltaPerNight: 5600, occupancy: 4 },
+    { id: "maharaja", name: "Maharaja Luxury (Top Floor) Sea Facing", summary: "Top-floor Maharaja room, sea facing, for five adults.", deltaPerNight: 6300, occupancy: 5 },
+  ],
 };

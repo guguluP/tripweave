@@ -930,7 +930,18 @@
         "/stays/hotel-pulin-puri/gallery-10.jpg",
         "/stays/hotel-pulin-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "double-back": "/stays/hotel-pulin-puri/rooms/double-back.jpg",
+        "double-window": "/stays/hotel-pulin-puri/rooms/double-window.jpg",
+        "double-ground": "/stays/hotel-pulin-puri/rooms/double-ground.jpg",
+        "four-back": "/stays/hotel-pulin-puri/rooms/four-back.jpg",
+        "double-side": "/stays/hotel-pulin-puri/rooms/double-side.jpg",
+        "four-window": "/stays/hotel-pulin-puri/rooms/four-window.jpg",
+        "double-super": "/stays/hotel-pulin-puri/rooms/double-super.jpg",
+        "four-balcony": "/stays/hotel-pulin-puri/rooms/four-balcony.jpg",
+        "four-family": "/stays/hotel-pulin-puri/rooms/four-family.jpg",
+        "maharaja": "/stays/hotel-pulin-puri/rooms/maharaja.jpg"
+      }
     },
     "white-sands-puri": {
       "images": [
