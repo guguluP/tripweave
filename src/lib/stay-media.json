@@ -1353,6 +1353,116 @@
         "/stays/hotel-sukadev-homes/gallery-4.jpg"
       ],
       "rooms": {}
+    },
+    "divine-beach-homestay-puri": {
+      "images": [
+        "/stays/divine-beach-homestay-puri/property-1.jpg",
+        "/stays/divine-beach-homestay-puri/gallery-1.jpg",
+        "/stays/divine-beach-homestay-puri/gallery-2.jpg",
+        "/stays/divine-beach-homestay-puri/gallery-3.jpg",
+        "/stays/divine-beach-homestay-puri/gallery-4.jpg"
+      ],
+      "rooms": {}
+    },
+    "golden-dust-puri": {
+      "images": [
+        "/stays/golden-dust-puri/property-1.jpg",
+        "/stays/golden-dust-puri/gallery-1.jpg",
+        "/stays/golden-dust-puri/gallery-2.jpg",
+        "/stays/golden-dust-puri/gallery-3.jpg"
+      ],
+      "rooms": {}
+    },
+    "hotel-krishna-resorts-puri": {
+      "images": [
+        "/stays/hotel-krishna-resorts-puri/property-1.jpg",
+        "/stays/hotel-krishna-resorts-puri/gallery-1.jpg",
+        "/stays/hotel-krishna-resorts-puri/gallery-2.jpg",
+        "/stays/hotel-krishna-resorts-puri/gallery-3.jpg",
+        "/stays/hotel-krishna-resorts-puri/gallery-4.jpg"
+      ],
+      "rooms": {}
+    },
+    "hotel-shakuntala-palace": {
+      "images": [
+        "/stays/hotel-shakuntala-palace/property-1.jpg",
+        "/stays/hotel-shakuntala-palace/gallery-1.jpg",
+        "/stays/hotel-shakuntala-palace/gallery-2.jpg",
+        "/stays/hotel-shakuntala-palace/gallery-3.jpg",
+        "/stays/hotel-shakuntala-palace/gallery-4.jpg"
+      ],
+      "rooms": {}
+    },
+    "hotel-sweet-home-puri": {
+      "images": [
+        "/stays/hotel-sweet-home-puri/property-1.jpg",
+        "/stays/hotel-sweet-home-puri/gallery-1.jpg",
+        "/stays/hotel-sweet-home-puri/gallery-2.jpg",
+        "/stays/hotel-sweet-home-puri/gallery-3.jpg",
+        "/stays/hotel-sweet-home-puri/gallery-4.jpg"
+      ],
+      "rooms": {}
+    },
+    "panthanivas-satapada": {
+      "images": [
+        "/stays/panthanivas-satapada/property-1.jpg"
+      ],
+      "rooms": {}
+    },
+    "shree-vishnu-darshan": {
+      "images": [
+        "/stays/shree-vishnu-darshan/property-1.jpg",
+        "/stays/shree-vishnu-darshan/gallery-1.jpg",
+        "/stays/shree-vishnu-darshan/gallery-2.jpg",
+        "/stays/shree-vishnu-darshan/gallery-3.jpg",
+        "/stays/shree-vishnu-darshan/gallery-4.jpg",
+        "/stays/shree-vishnu-darshan/gallery-5.jpg",
+        "/stays/shree-vishnu-darshan/gallery-6.jpg",
+        "/stays/shree-vishnu-darshan/gallery-7.jpg"
+      ],
+      "rooms": {}
+    },
+    "sidharth-inn-puri": {
+      "images": [
+        "/stays/sidharth-inn-puri/property-1.jpg",
+        "/stays/sidharth-inn-puri/gallery-1.jpg"
+      ],
+      "rooms": {}
+    },
+    "sterling-puri": {
+      "images": [
+        "/stays/sterling-puri/property-1.jpg",
+        "/stays/sterling-puri/gallery-1.jpg",
+        "/stays/sterling-puri/gallery-2.jpg",
+        "/stays/sterling-puri/gallery-3.jpg",
+        "/stays/sterling-puri/gallery-4.jpg",
+        "/stays/sterling-puri/gallery-5.jpg"
+      ],
+      "rooms": {}
+    },
+    "the-eastern-dham": {
+      "images": [
+        "/stays/the-eastern-dham/property-1.jpg",
+        "/stays/the-eastern-dham/gallery-1.jpg",
+        "/stays/the-eastern-dham/gallery-2.jpg",
+        "/stays/the-eastern-dham/gallery-3.jpg",
+        "/stays/the-eastern-dham/gallery-4.jpg",
+        "/stays/the-eastern-dham/gallery-5.jpg",
+        "/stays/the-eastern-dham/gallery-6.jpg"
+      ],
+      "rooms": {}
+    },
+    "yashasvi-inn-puri": {
+      "images": [
+        "/stays/yashasvi-inn-puri/property-1.jpg",
+        "/stays/yashasvi-inn-puri/gallery-1.jpg",
+        "/stays/yashasvi-inn-puri/gallery-2.jpg",
+        "/stays/yashasvi-inn-puri/gallery-3.jpg",
+        "/stays/yashasvi-inn-puri/gallery-4.jpg",
+        "/stays/yashasvi-inn-puri/gallery-5.jpg",
+        "/stays/yashasvi-inn-puri/gallery-6.jpg"
+      ],
+      "rooms": {}
     }
   }
 }
