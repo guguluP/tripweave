@@ -1066,6 +1066,21 @@
         "/stays/santana-puri/gallery-7.jpg"
       ],
       "rooms": {}
+    },
+    "hotel-golden-palace-puri": {
+      "images": [
+        "/stays/hotel-golden-palace-puri/property-1.jpg",
+        "/stays/hotel-golden-palace-puri/gallery-1.jpg",
+        "/stays/hotel-golden-palace-puri/gallery-2.jpg",
+        "/stays/hotel-golden-palace-puri/gallery-3.jpg",
+        "/stays/hotel-golden-palace-puri/gallery-4.jpg",
+        "/stays/hotel-golden-palace-puri/gallery-5.jpg",
+        "/stays/hotel-golden-palace-puri/gallery-6.jpg",
+        "/stays/hotel-golden-palace-puri/gallery-7.jpg",
+        "/stays/hotel-golden-palace-puri/gallery-8.jpg",
+        "/stays/hotel-golden-palace-puri/gallery-9.jpg"
+      ],
+      "rooms": {}
     }
   }
 }
