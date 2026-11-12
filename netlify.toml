@@ -1,0 +1,12 @@
+# TripWeave on Netlify (TanStack Start + Nitro).
+# Off Netlify, vite.config.ts keeps the Vercel preset so the Vercel project
+# is unchanged. On Netlify, NETLIFY=true and NITRO_PRESET=netlify produce
+# dist/ (static assets) and .netlify/functions-internal (the server).
+# The publish directory must be dist — a Vercel-preset build does not create it.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NITRO_PRESET = "netlify"
