@@ -167,7 +167,7 @@ function RoomCard({
     <article
       className={cn(
         "min-w-0 overflow-hidden rounded-xl border text-left transition-all duration-500 ease-out lg:flex lg:flex-row",
-        open ? "col-span-full border-primary bg-surface shadow-sm lg:col-span-1" : "border-border bg-elevated",
+        open ? "col-span-full border-primary bg-surface shadow-sm lg:col-span-1" : "border-border bg-elevated hover:border-primary/40",
         soldOut && !open && "opacity-70",
         tooSmall && "opacity-60",
       )}
@@ -251,8 +251,8 @@ function RoomCard({
                   type="button"
                   onClick={() => setShot(index)}
                   className={cn(
-                    "h-16 w-20 shrink-0 overflow-hidden rounded-md border transition-[border-color,opacity] duration-300",
-                    index === shot ? "border-primary" : "border-transparent opacity-80",
+                    "h-16 w-20 shrink-0 overflow-hidden rounded-md border transition-[border-color,opacity,transform] duration-300 ease-out",
+                    index === shot ? "scale-100 border-primary" : "scale-95 border-transparent opacity-80",
                   )}
                   aria-label={`Show photo ${index + 1} of ${room.name}`}
                 >

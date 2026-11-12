@@ -65,7 +65,7 @@ export function StayMoreTabs({
               aria-controls={`${baseId}-panel-${tab.id}`}
               tabIndex={on ? 0 : -1}
               className={cn(
-                "border-b-2 px-4 py-2.5 text-sm",
+                "border-b-2 px-4 py-2.5 text-sm transition-[color,border-color] duration-200 ease-out",
                 on ? "border-primary font-medium text-fg" : "border-transparent text-muted hover:text-fg",
               )}
               onClick={() => setActive(tab.id)}

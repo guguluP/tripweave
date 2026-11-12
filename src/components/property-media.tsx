@@ -335,7 +335,7 @@ export function PropertyMedia({
                 }}
                 className={cn(
                   "h-16 w-24 shrink-0 snap-start overflow-hidden rounded-lg border-2 transition-[border-color,opacity,transform] duration-200 sm:h-20 sm:w-28",
-                  i === filmstripIndex ? "border-primary" : "border-transparent opacity-80",
+                  i === filmstripIndex ? "scale-100 border-primary" : "scale-95 border-transparent opacity-80",
                 )}
                 aria-label={`Photo ${i + 1} of ${filmstrip.length}`}
                 aria-selected={i === filmstripIndex}
@@ -410,7 +410,7 @@ export function PropertyMedia({
       >
         <div className="relative min-h-0 flex-1">
           {roomScope && shown.length === 0 ? (
-            <div className="absolute inset-0 grid place-items-center px-6 text-center text-sm text-bg">
+            <div className="room-chrome-in absolute inset-0 grid place-items-center px-6 text-center text-sm text-bg">
               No photos published for {roomScope.name}.
             </div>
           ) : (
@@ -430,13 +430,18 @@ export function PropertyMedia({
                 alt={roomScope ? roomScope.name : name}
                 className="h-full w-full"
                 mediaClassName="object-cover"
+                durationMs={480}
               />
             ) : null}
           </button>
           )}
           <div className="pointer-events-none absolute left-3 top-3 z-10 flex max-w-[75%] flex-col items-start gap-1">
             <span
-              className="rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg"
+              key={roomScope?.id ?? `album-${album}`}
+              className={cn(
+                "inline-block rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg",
+                roomScope && "room-chrome-in",
+              )}
               aria-live="polite"
             >
               {roomScope
@@ -459,7 +464,7 @@ export function PropertyMedia({
             <div className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 justify-between px-3">
               <button
                 type="button"
-                className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-elevated/95 text-fg"
+                className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-elevated/95 text-fg transition-transform duration-150 ease-out active:scale-[0.98]"
                 aria-label="Previous photo"
                 onClick={() => step(-1)}
               >
@@ -467,7 +472,7 @@ export function PropertyMedia({
               </button>
               <button
                 type="button"
-                className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-elevated/95 text-fg"
+                className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-elevated/95 text-fg transition-transform duration-150 ease-out active:scale-[0.98]"
                 aria-label="Next photo"
                 onClick={() => step(1)}
               >
@@ -501,8 +506,8 @@ export function PropertyMedia({
                       setIndex(i);
                     }}
                     className={cn(
-                      "h-12 w-[4.25rem] shrink-0 snap-start overflow-hidden rounded-md border-2",
-                      i === shownIndex ? "border-bg" : "border-transparent opacity-80",
+                      "h-12 w-[4.25rem] shrink-0 snap-start overflow-hidden rounded-md border-2 transition-[border-color,opacity,transform] duration-200 ease-out",
+                      i === shownIndex ? "scale-100 border-bg" : "scale-95 border-transparent opacity-80",
                     )}
                     aria-label={`Photo ${i + 1} of ${shown.length}`}
                     aria-selected={i === shownIndex}
@@ -519,7 +524,7 @@ export function PropertyMedia({
               {shown.length > 0 ? (
               <button
                 type="button"
-                className="rounded-full bg-elevated px-3 py-1.5 text-xs font-semibold text-fg"
+                className="rounded-full bg-elevated px-3 py-1.5 text-xs font-semibold text-fg transition-transform duration-150 ease-out active:scale-[0.98]"
                 onClick={() => openAt(shown, shownIndex)}
               >
                 Show all {shown.length} {shown.length === 1 ? "photo" : "photos"}
@@ -542,7 +547,7 @@ export function PropertyMedia({
               <button
                 type="button"
                 className={cn(
-                  "rounded-full px-3 py-1 text-[11px] font-medium",
+                  "rounded-full px-3 py-1 text-[11px] font-medium transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]",
                   album === "property" && !roomScope ? "bg-elevated text-fg" : "bg-fg/40 text-bg/80",
                 )}
                 onClick={() => {
@@ -557,7 +562,7 @@ export function PropertyMedia({
               <button
                 type="button"
                 className={cn(
-                  "rounded-full px-3 py-1 text-[11px] font-medium",
+                  "rounded-full px-3 py-1 text-[11px] font-medium transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]",
                   album === "rooms" && !roomScope ? "bg-elevated text-fg" : "bg-fg/40 text-bg/80",
                 )}
                 onClick={() => {
@@ -572,7 +577,7 @@ export function PropertyMedia({
               {roomScope ? (
                 <button
                   type="button"
-                  className="rounded-full bg-elevated px-3 py-1 text-[11px] font-medium text-fg"
+                  className="room-chrome-in rounded-full bg-elevated px-3 py-1 text-[11px] font-medium text-fg transition-transform duration-150 ease-out active:scale-[0.98]"
                   onClick={() => {
                     setViewList(null);
                     setRoomScope(null);
