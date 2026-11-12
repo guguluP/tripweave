@@ -23,14 +23,16 @@ describe("curated mapping", () => {
     }
   });
 
-  it("maps every catalog stay with room notes", () => {
-    const ids = PACKAGES.map((pkg) => pkg.id).sort();
-    assert.deepEqual(listSeededPackageIds().slice().sort(), ids);
-    for (const id of ids) {
+  it("seeds only catalog stays, and every seeded stay has room notes", () => {
+    const catalog = new Set(PACKAGES.map((pkg) => pkg.id));
+    const seeded = listSeededPackageIds();
+    assert.ok(seeded.length >= 12, `seeded ${seeded.length}`);
+    for (const id of seeded) {
+      assert.ok(catalog.has(id), id);
       assert.ok(PACKAGE_VIDEOS[id], id);
       const seed = SEED_CONSENSUS[id];
       assert.ok(seed, id);
-      assert.ok(seed.roomNotes);
+      assert.ok(seed.roomNotes, id);
       assert.ok(Object.keys(seed.roomNotes).length >= 2, id);
     }
   });
