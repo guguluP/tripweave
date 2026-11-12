@@ -69,7 +69,7 @@ describe("trust score", () => {
     assert.equal(trustScoreForPackage(pkg), pkg.trustScore);
   });
 
-  it("spreads Taj above thinner Grand Road inventories when inputs differ", () => {
+  it("spreads Taj above thinner inventories when inputs differ", () => {
     const taj = computeTrustScore(getPackage("taj-puri-resort-spa")!);
     const empires = computeTrustScore(getPackage("empires-hotel-puri")!);
     const chanakya = computeTrustScore(getPackage("chanakya-bnr-puri")!);

@@ -232,7 +232,7 @@ export const RAW_B: RawStay[] = [{
     vibe: "beach",
     style: ["family", "friends", "couple"],
     summary: "Long-running beach resort — lawns, a pool, and prices that still make sense.",
-    neighborhood: "Sea Beach Road",
+    neighborhood: "Chakratirtha Road",
     includes: ["Breakfast", "Pool", "Lawn", "Parking"],
     videos: [
       { videoId: "Wfvplc69Yio", title: "Holiday Resort Puri walkthrough" },

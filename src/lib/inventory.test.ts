@@ -205,12 +205,18 @@ describe("origin ranking", () => {
   it("uses explicit place flags instead of the hotel name", () => {
     const waves = getPackage("mayfair-waves-puri")!;
     const regenta = getPackage("regenta-central-puri")!;
+    const empires = getPackage("empires-hotel-puri")!;
+    const holiday = getPackage("holiday-resort-puri")!;
     const toshali = getPackage("toshali-sands-puri")!;
     const chanakya = getPackage("chanakya-bnr-puri")!;
-    assert.equal(waves.area, "marine");
-    assert.equal(regenta.area, "grand-road");
+    assert.equal(waves.area, "chakratirtha");
+    assert.equal(holiday.area, "chakratirtha");
+    assert.equal(holiday.neighborhood, "Chakratirtha Road");
+    assert.equal(regenta.area, "marine-drive");
+    assert.equal(empires.area, "marine-drive");
     assert.equal(regenta.nearStation, false);
     assert.equal(toshali.area, "konark");
+    assert.equal(chanakya.area, "grand-road");
     assert.equal(chanakya.nearStation, true);
     assert.equal(getPackage("taj-puri-resort-spa")!.hasAirportTransfer, true);
   });

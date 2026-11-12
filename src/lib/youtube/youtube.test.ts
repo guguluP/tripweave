@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { getSeededConsensus, listSeededPackageIds, SEED_CONSENSUS } from "./get-seeded.ts";
 import { PACKAGE_VIDEOS, videoHash, videosForPackage } from "./videos.ts";
+import { PACKAGES } from "../packages.ts";
 
 describe("curated mapping", () => {
   it("covers every seeded package with 2–4 videos", () => {
@@ -22,22 +23,9 @@ describe("curated mapping", () => {
     }
   });
 
-  it("maps all twelve stays with room notes", () => {
-    const ids = [
-      "taj-puri-resort-spa",
-      "mayfair-heritage-puri",
-      "swosti-premium-beach-resort",
-      "regenta-central-puri",
-      "hans-coco-palms",
-      "empires-hotel-puri",
-      "mayfair-waves-puri",
-      "toshali-sands-puri",
-      "chariot-resort-puri",
-      "chanakya-bnr-puri",
-      "mahodadhi-palace-puri",
-      "holiday-resort-puri",
-    ];
-    assert.equal(listSeededPackageIds().length, 12);
+  it("maps every catalog stay with room notes", () => {
+    const ids = PACKAGES.map((pkg) => pkg.id).sort();
+    assert.deepEqual(listSeededPackageIds().slice().sort(), ids);
     for (const id of ids) {
       assert.ok(PACKAGE_VIDEOS[id], id);
       const seed = SEED_CONSENSUS[id];

@@ -406,7 +406,7 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
     localNote: "On the sand, close to town. One-night palace stays work if you want the building, not a resort week.",
   },
   "holiday-resort-puri": {
-    neighborhood: "Sea Beach Road",
+    neighborhood: "Chakratirtha Road",
     best: {
       mode: "App cab from BBI",
       duration: "1 hr 15 min – 1 hr 45 min",
@@ -438,36 +438,36 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
     localNote: "Classic Puri beach hotel. Peak weekends fill the lawn — mid-week is calmer.",
   },
   "regenta-central-puri": {
-    neighborhood: "Near Jagannath Temple",
+    neighborhood: "New Marine Drive, Sipasarubali",
     best: {
-      mode: "Train to Puri + auto, or cab from BBI",
-      duration: "10–15 min from the station · 70–100 min from BBI",
-      costHint: "₹120–250 auto · ₹1,400–2,000 cab",
-      why: "Temple-side 4-star. Rail arrivals win; flyers take a cab straight to Grand Road.",
-      luggage: "ok",
+      mode: "App cab or hotel transfer from BBI",
+      duration: "1 hr 15 min – 1 hr 45 min",
+      costHint: "₹1,500–2,200",
+      why: "On New Marine Drive with the other beach-road hotels — cabs pin it without a temple-side detour.",
+      luggage: "easy",
       rank: 1,
     },
     fromAirport: [
       {
-        mode: "App cab",
-        duration: "70–100 min",
-        costHint: "₹1,400–2,000",
-        why: "Drop on the temple side of town — skip the beach loop.",
+        mode: "App cab / hotel transfer",
+        duration: "75–105 min",
+        costHint: "₹1,500–2,200",
+        why: "Straightforward coastal road access, same stretch as Swosti and Empires.",
         luggage: "easy",
         rank: 1,
       },
     ],
     fromStation: [
       {
-        mode: "Auto / walk",
-        duration: "8–15 min",
-        costHint: "₹80–180",
-        why: "Short ride toward Jagannath. Fine with a cabin bag.",
+        mode: "Auto",
+        duration: "10–18 min",
+        costHint: "₹120–280",
+        why: "Short hop to the beach road, not toward Grand Road.",
         luggage: "ok",
         rank: 1,
       },
     ],
-    localNote: "Ask the desk for a quiet darshan window. Festival nights the road closes.",
+    localNote: "Sea-facing rooms on New Marine Drive in Sipasarubali, not beside the temple.",
   },
   "hans-coco-palms": {
     neighborhood: "Sea Beach Road",
@@ -502,21 +502,21 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
     localNote: "Beach-side value stay. Evening walk on the sand is the point.",
   },
   "empires-hotel-puri": {
-    neighborhood: "Grand Road",
+    neighborhood: "New Marine Drive, Baliapanda",
     best: {
-      mode: "Train to Puri + auto",
-      duration: "8–15 min from the station",
-      costHint: "₹80–180",
-      why: "Temple-night hotel on Grand Road. Rail is the natural arrival.",
+      mode: "App cab from BBI, or train plus auto",
+      duration: "1 hr 15 min – 1 hr 45 min from BBI · 10–18 min from the station",
+      costHint: "₹1,500–2,200 cab · ₹120–280 auto",
+      why: "On New Marine Drive in Baliapanda, with the beach-road hotels, not on Grand Road.",
       luggage: "ok",
       rank: 1,
     },
     fromAirport: [
       {
         mode: "App cab",
-        duration: "70–100 min",
-        costHint: "₹1,400–2,000",
-        why: "Ask for Grand Road / temple side, not the marine drive hotels.",
+        duration: "75–105 min",
+        costHint: "₹1,500–2,200",
+        why: "Ask for New Marine Drive / Baliapanda, not Grand Road.",
         luggage: "easy",
         rank: 1,
       },
@@ -524,14 +524,14 @@ const BY_ID: Record<string, Omit<PropertyTransport, "packageId">> = {
     fromStation: [
       {
         mode: "Auto",
-        duration: "8–15 min",
-        costHint: "₹80–180",
-        why: "The walk is possible; an auto is kinder with bags.",
+        duration: "10–18 min",
+        costHint: "₹120–280",
+        why: "Short hop to the beach road.",
         luggage: "ok",
         rank: 1,
       },
     ],
-    localNote: "Built for a darshan night, not a beach week. Grand Road closes on big festival evenings.",
+    localNote: "Beach hotel on New Marine Drive in Baliapanda — not a temple-side walk.",
   },
 };
 
@@ -582,11 +582,8 @@ const DEFAULT: Omit<PropertyTransport, "packageId"> = {
 function inferFromBus(packageId: string, neighborhood: string): TransportLeg[] {
   if (/toshali/i.test(packageId) || /Konark/i.test(neighborhood)) return amaFromBus("konark");
   if (/chanakya/i.test(packageId)) return amaFromBus("station");
-  if (/chariot/i.test(packageId) || /Baliapanda/i.test(neighborhood)) return amaFromBus("baliapanda");
-  if (
-    /empires|regenta/i.test(packageId) ||
-    /Grand Road|Jagannath/i.test(neighborhood)
-  ) {
+  if (/chariot/i.test(packageId) || /Balukhand/i.test(neighborhood)) return amaFromBus("baliapanda");
+  if (/Grand Road|Jagannath/i.test(neighborhood)) {
     return amaFromBus("temple");
   }
   return amaFromBus("beach");
