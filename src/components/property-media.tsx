@@ -99,6 +99,7 @@ export function PropertyMedia({
   const [viewerHold, setViewerHold] = useState(false);
   const [viewerOn, setViewerOn] = useState(false);
   const thumbRail = useRef<HTMLDivElement>(null);
+  const thumbRailSplit = useRef<HTMLDivElement>(null);
   const swipeX = useRef<number | null>(null);
   const listCount = useRef(1);
   const videoRail = useRef<HTMLDivElement>(null);
@@ -146,10 +147,14 @@ export function PropertyMedia({
   }, [open]);
 
   useEffect(() => {
-    const rail = thumbRail.current;
-    if (!rail) return;
-    const active = rail.querySelector<HTMLElement>("[data-active='true']");
-    active?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    const rails = [thumbRail.current, thumbRailSplit.current].filter(Boolean);
+    for (const rail of rails) {
+      const active = rail!.querySelector<HTMLElement>("[data-active='true']");
+      // Skip hidden rails so a display:none desktop strip does not steal scroll.
+      if (rail && rail.offsetParent === null && getComputedStyle(rail).display === "none") continue;
+      if (rail && rail.clientWidth === 0) continue;
+      active?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    }
   }, [index]);
 
   const rooms = useMemo(
@@ -182,7 +187,7 @@ export function PropertyMedia({
   const headerSrc = shown[index] ?? shown[0];
 
   return (
-    <>
+    <div className={cn("contents", hideHero && "lg:block lg:h-full lg:min-h-0")}>
       {hideHero ? null : (
       <div className="relative">
         <button
@@ -214,6 +219,9 @@ export function PropertyMedia({
       </div>
       )}
 
+
+      {/* Mobile and tablet filmstrip. Hidden from lg so the split pane can take over. */}
+      <div className="lg:hidden">
       <div className="mx-auto max-w-6xl px-4 pt-6">
         <div className="flex gap-2">
           <button
@@ -312,6 +320,169 @@ export function PropertyMedia({
         </div>
       ) : null}
 
+      </div>
+
+      {/* Desktop split-screen gallery: fills the sticky left pane below the header. */}
+      <div
+        className="relative hidden h-full min-h-0 flex-col bg-fg lg:flex"
+        role="region"
+        aria-label={`${name} photo gallery`}
+        tabIndex={0}
+        onKeyDown={(event) => {
+          if (shown.length < 2) return;
+          if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            step(-1);
+          } else if (event.key === "ArrowRight") {
+            event.preventDefault();
+            step(1);
+          } else if (event.key === "Home") {
+            event.preventDefault();
+            setIndex(0);
+          } else if (event.key === "End") {
+            event.preventDefault();
+            setIndex(shown.length - 1);
+          }
+        }}
+      >
+        <div className="relative min-h-0 flex-1">
+          <button
+            type="button"
+            onClick={() => openAt(shown, index)}
+            className="absolute inset-0 block"
+            aria-label={`View photos of ${name}. Photo ${index + 1} of ${shown.length}.`}
+          >
+            {headerSrc ? (
+              <Crossfade
+                src={headerSrc}
+                alt={name}
+                className="h-full w-full"
+                mediaClassName="object-cover"
+              />
+            ) : null}
+          </button>
+          <span className="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg">
+            {index + 1} / {shown.length}
+            {shown.length > 0 && shown.length < 4 ? " · hotel-published, limited set" : ""}
+          </span>
+          {arrivalPin ? (
+            <span className="pointer-events-none absolute left-3 top-12 z-10 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-fg">
+              <MapPin className="size-3" />
+              {arrivalPin}
+            </span>
+          ) : null}
+          <div className="absolute right-3 top-3 z-10">
+            <LikeButton id={id} />
+          </div>
+          {shown.length > 1 ? (
+            <div className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 justify-between px-3">
+              <button
+                type="button"
+                className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-elevated/95 text-fg"
+                aria-label="Previous photo"
+                onClick={() => step(-1)}
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+              <button
+                type="button"
+                className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-elevated/95 text-fg"
+                aria-label="Next photo"
+                onClick={() => step(1)}
+              >
+                <ChevronRight className="size-5" />
+              </button>
+            </div>
+          ) : null}
+        </div>
+        <div className="shrink-0 bg-gradient-to-t from-fg/80 to-transparent px-3 pb-3 pt-8">
+          <div className="flex items-end gap-2">
+            {shown.length > 1 ? (
+              <div
+                ref={thumbRailSplit}
+                className="scrollbar-hide flex min-w-0 flex-1 snap-x snap-mandatory gap-1.5 overflow-x-auto overscroll-x-contain"
+                role="listbox"
+                aria-label={album === "rooms" ? `${name} room photos` : `${name} property photos`}
+              >
+                {shown.map((src, i) => (
+                  <button
+                    key={`split-${album}-${src}-${i}`}
+                    type="button"
+                    data-active={i === index ? "true" : "false"}
+                    onClick={() => {
+                      setViewList(null);
+                      setIndex(i);
+                    }}
+                    className={cn(
+                      "h-12 w-[4.25rem] shrink-0 snap-start overflow-hidden rounded-md border-2",
+                      i === index ? "border-bg" : "border-transparent opacity-80",
+                    )}
+                    aria-label={`Photo ${i + 1} of ${shown.length}`}
+                    aria-selected={i === index}
+                    role="option"
+                  >
+                    <img src={src} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex-1" />
+            )}
+            <div className="flex shrink-0 flex-col items-end gap-1.5 pb-0.5">
+              <button
+                type="button"
+                className="rounded-full bg-elevated px-3 py-1.5 text-xs font-semibold text-fg"
+                onClick={() => openAt(shown, index)}
+              >
+                Show all {shown.length || gallery.length} photos
+              </button>
+              {videos.length > 0 ? (
+                <a
+                  href={youtubeUrl(videos[0]!.videoId)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full bg-elevated/90 px-3 py-1.5 text-xs font-semibold text-fg"
+                >
+                  {videos.length} {videos.length === 1 ? "tour" : "tours"}
+                </a>
+              ) : null}
+            </div>
+          </div>
+          {rooms.length > 0 ? (
+            <div className="mt-2 flex gap-2">
+              <button
+                type="button"
+                className={cn(
+                  "rounded-full px-3 py-1 text-[11px] font-medium",
+                  album === "property" ? "bg-elevated text-fg" : "bg-fg/40 text-bg/80",
+                )}
+                onClick={() => {
+                  setViewList(null);
+                  setAlbum("property");
+                  setIndex(0);
+                }}
+              >
+                Property · {gallery.length}
+              </button>
+              <button
+                type="button"
+                className={cn(
+                  "rounded-full px-3 py-1 text-[11px] font-medium",
+                  album === "rooms" ? "bg-elevated text-fg" : "bg-fg/40 text-bg/80",
+                )}
+                onClick={() => {
+                  setViewList(null);
+                  setAlbum("rooms");
+                  setIndex(0);
+                }}
+              >
+                Rooms · {rooms.length}
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
       {viewerHold ? (
         <div
           className={cn(
@@ -383,6 +554,6 @@ export function PropertyMedia({
           ) : null}
         </div>
       ) : null}
-    </>
+    </div>
   );
 }

@@ -66,7 +66,8 @@ export function RoomPicker({
       <div
         className={cn(
           "mt-5 grid gap-3",
-          compact ? "grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-3",
+          // lg: one compact column for the split-screen stay page; tablet keeps the existing grid.
+          compact ? "grid-cols-2 lg:grid-cols-1" : "sm:grid-cols-3 lg:grid-cols-1",
         )}
       >
         {visible.map((room) => (
@@ -130,8 +131,8 @@ function RoomCard({
   return (
     <article
       className={cn(
-        "min-w-0 overflow-hidden rounded-xl border text-left transition-all duration-500 ease-out",
-        open ? "col-span-full border-primary bg-surface shadow-sm" : "border-border bg-elevated",
+        "min-w-0 overflow-hidden rounded-xl border text-left transition-all duration-500 ease-out lg:flex lg:flex-row",
+        open ? "col-span-full border-primary bg-surface shadow-sm lg:col-span-1" : "border-border bg-elevated",
         soldOut && !open && "opacity-70",
         tooSmall && "opacity-60",
       )}
@@ -142,15 +143,15 @@ function RoomCard({
         disabled={tooSmall}
         aria-pressed={open}
         aria-disabled={tooSmall || undefined}
-        className="block w-full text-left disabled:cursor-not-allowed"
+        className="block w-full text-left disabled:cursor-not-allowed lg:w-auto lg:shrink-0"
       >
         <div className="relative">
           <Crossfade
             src={photo}
             alt={shot === 0 ? room.name : `${room.name}, photo ${shot + 1}`}
             className={cn(
-              "w-full transition-all duration-500 ease-out",
-              open ? "h-64 sm:h-80" : compact ? "h-20 sm:h-24" : "h-28",
+              "w-full transition-all duration-500 ease-out lg:h-24 lg:w-28",
+              open ? "h-64 sm:h-80 lg:h-24" : compact ? "h-20 sm:h-24" : "h-28",
             )}
             mediaClassName="object-cover"
           />
@@ -161,7 +162,7 @@ function RoomCard({
           ) : null}
         </div>
       </button>
-      <div className={cn(open ? "grid gap-4 p-4 sm:grid-cols-[1fr_16rem] sm:p-5" : compact ? "p-2.5 sm:p-3" : "p-4")}>
+      <div className={cn(open ? "grid gap-4 p-4 sm:grid-cols-[1fr_16rem] sm:p-5 lg:grid-cols-1 lg:p-3" : compact ? "p-2.5 sm:p-3" : "p-4", "lg:min-w-0 lg:flex-1")}>
         <button
           type="button"
           onClick={tooSmall ? undefined : onSelect}
@@ -189,7 +190,7 @@ function RoomCard({
           </span>
         </button>
         {open ? (
-          <div>
+          <div className="lg:hidden">
             <p className="text-xs font-medium text-muted">Photos</p>
             <div className="mt-2 flex gap-2 overflow-x-auto">
               {photos.map((src, index) => (

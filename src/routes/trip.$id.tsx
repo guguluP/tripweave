@@ -20,6 +20,8 @@ import { refundPolicyFor } from "@/lib/refund-policy";
 import { loadBriefWithDates } from "@/lib/brief-persist";
 import { RoomPicker } from "@/components/room-picker";
 import { formatCheckInLabel, StayQuoteCard } from "@/components/stay-quote";
+import { StayBookingPanel } from "@/components/stay-booking-panel";
+import { StayMoreTabs } from "@/components/stay-more-tabs";
 import { ArrivalChecklist } from "@/components/arrival-checklist";
 import { AskTripWeaveButton } from "@/components/ask-sheet";
 import { DigiYatraPanel, TransportPanel, BusGuidePanel } from "@/components/transport-panel";
@@ -259,8 +261,15 @@ function TripDetail() {
 
   const pin = arrivalPinLabel(brief.arriveBy);
 
+  const partyLabel =
+    `For ${brief.adults} ${brief.adults === 1 ? "adult" : "adults"}` +
+    (brief.children > 0
+      ? ` · ${brief.children} ${brief.children === 1 ? "child" : "children"}`
+      : "");
+
   return (
     <Shell>
+      <div className="lg:hidden">
       <StayCover
         image={frame.src}
         name={pkg.name}
@@ -306,7 +315,10 @@ function TripDetail() {
           </div>
         ) : null}
       </StayCover>
-      <div id="stay-photos">
+      </div>
+      <div className="lg:flex lg:items-start">
+      <aside className="lg:sticky lg:top-14 lg:z-10 lg:h-[calc(100dvh-3.5rem)] lg:w-[55%] lg:shrink-0 lg:self-start">
+      <div id="stay-photos" className="h-full min-h-0">
       <PropertyMedia
         id={pkg.id}
         name={pkg.name}
@@ -314,14 +326,58 @@ function TripDetail() {
         roomImages={pkg.rooms.flatMap((room) => room.images ?? (room.image ? [room.image] : []))}
         videos={pkg.videos}
         hideHero
+        arrivalPin={pin}
         activeIndex={photoIndex}
         onActiveIndex={setPhotoIndex}
         onPhoto={(src, position, total) => setFrame({ src, position, total })}
         openToken={openToken}
       />
       </div>
-      <div className="mx-auto max-w-3xl px-4 pb-64 md:pb-32">
-        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      </aside>
+      <div className="min-w-0 lg:flex-1">
+      <div className="mx-auto max-w-3xl px-4 pb-64 md:pb-32 lg:flex lg:max-w-none lg:flex-col lg:px-6 lg:pb-16">
+        <div className="order-first hidden pt-6 lg:block">
+          <StayBookingPanel
+            pkg={pkg}
+            price={price}
+            rateLine={rateLine}
+            finePrint={finePrint}
+            nights={nights}
+            onNights={(next) => setNights(clampNights(pkg, next))}
+            checkIn={checkIn}
+            onCheckIn={(next) => {
+              setCheckIn(next);
+              setDateMoved(null);
+            }}
+            dateMoved={dateMoved}
+            quote={quote}
+            checking={inventory === "loading"}
+            trustScore={liveTrust ?? trust.total}
+            trustBreakdown={liveBreakdown ?? trust}
+            youtubeSources={youtubeSourceCount(pkg)}
+            roomOccupancy={room.occupancy}
+            party={party}
+            roomFits={roomFits}
+            fitError={fitError}
+            partyLabel={partyLabel}
+            booking={booking}
+            bookDisabled={isPending || !quote?.available || !roomFits}
+            onBook={goBook}
+            arriveBy={brief.arriveBy}
+            includePickup={travel.includePickup}
+            onRequestCar={() =>
+              setTravelAndDraft({
+                ...travel,
+                includePickup: true,
+                arriveBy: brief.arriveBy,
+                origin: brief.origin,
+              })
+            }
+            roomId={room.id}
+          />
+        </div>
+
+        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between lg:order-2">
           <Stagger>
             <p className="eyebrow">{pkg.destination}</p>
             <h1 className="font-display text-4xl text-fg">{pkg.name}</h1>
@@ -330,30 +386,36 @@ function TripDetail() {
               {pkg.neighborhood} · {pkg.nightsMin}–{pkg.nightsMax} nights
             </p>
           </Stagger>
+          <div className="contents lg:hidden">
           <TrustMeter
             score={liveTrust ?? trust.total}
             youtubeSources={youtubeSourceCount(pkg)}
             breakdown={liveBreakdown ?? trust}
           />
+          </div>
         </div>
 
+        <div className="lg:order-4">
         <TrustHonestyStrip
           packageId={pkg.id}
           consensus={liveBreakdown ? undefined : seedConsensus}
           honestyBonus={(liveBreakdown ?? trust).honestyBonus}
         />
+        </div>
 
-        <p className="mt-6 text-muted">{pkg.summary}</p>
-        <StayMap packageId={pkg.id} name={pkg.name} />
+        <p className="mt-6 text-muted lg:order-5">{pkg.summary}</p>
+        <div className="lg:order-7">
+          <StayMap packageId={pkg.id} name={pkg.name} />
+        </div>
 
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-6 flex flex-wrap gap-2 lg:order-3">
           {pkg.includes.map((item) => (
             <IncludeChip key={item} label={item} />
           ))}
         </div>
 
         {amenities.length > 0 ? (
-          <section className="mt-8" aria-labelledby="stay-amenities-title">
+          <section className="mt-8 lg:order-6" aria-labelledby="stay-amenities-title">
             <h2 id="stay-amenities-title" className="font-display text-2xl">
               At a glance
             </h2>
@@ -377,7 +439,7 @@ function TripDetail() {
           </section>
         ) : null}
 
-        <div className="mt-8">
+        <div className="mt-8 lg:hidden">
           <p className="text-sm font-medium">Nights</p>
           <div className="mt-3 flex items-center gap-3">
             <Button
@@ -410,11 +472,12 @@ function TripDetail() {
         </div>
 
         {dateMoved ? (
-          <p className="mt-6 rounded-md border border-border bg-elevated px-3 py-2 text-sm text-muted" role="status">
+          <p className="mt-6 rounded-md border border-border bg-elevated px-3 py-2 text-sm text-muted lg:hidden" role="status">
             Your saved check-in ({formatCheckInLabel(dateMoved)}) has already passed, so we moved it to{" "}
             {formatCheckInLabel(checkIn)}. Pick another date below if you prefer.
           </p>
         ) : null}
+        <div className="lg:hidden">
         <StayQuoteCard
           quote={quote}
           checking={inventory === "loading"}
@@ -425,7 +488,9 @@ function TripDetail() {
             setDateMoved(null);
           }}
         />
+        </div>
 
+        <div className="lg:order-8">
         <RoomPicker
           rooms={pkg.rooms}
           selectedId={room.id}
@@ -436,32 +501,39 @@ function TripDetail() {
           style={brief.style}
           guestCount={party}
         />
-
-        <ReviewerConsensus
-          packageId={pkg.id}
-          roomId={room.id}
-          roomName={room.name}
-          onConsensus={(consensus) => {
-            const next = computeTrustScore(pkg, consensus);
-            rememberLiveTrustScore(pkg.id, next.total);
-            setLiveTrust(next.total);
-            setLiveBreakdown(next);
-          }}
-        />
-
-        <div className="mt-10 grid gap-4">
-          <TransportPanel
-            journey={journey}
-            quote={travelQuote}
-            plan={{ ...travel, arriveBy: brief.arriveBy, origin: brief.origin }}
-            onChange={setTravelAndDraft}
-            interactive
-          />
-          {journey.showBusGuide ? <BusGuidePanel /> : null}
-          {journey.showDigiYatra ? <DigiYatraPanel /> : null}
-          <TripArrival originCity={brief.origin === "other" ? brief.originCity ?? "" : ""} />
         </div>
 
+        <div className="lg:order-9">
+        <StayMoreTabs
+          reviews={
+            <ReviewerConsensus
+              packageId={pkg.id}
+              roomId={room.id}
+              roomName={room.name}
+              onConsensus={(consensus) => {
+                const next = computeTrustScore(pkg, consensus);
+                rememberLiveTrustScore(pkg.id, next.total);
+                setLiveTrust(next.total);
+                setLiveBreakdown(next);
+              }}
+            />
+          }
+          gettingThere={
+            <TransportPanel
+              journey={journey}
+              quote={travelQuote}
+              plan={{ ...travel, arriveBy: brief.arriveBy, origin: brief.origin }}
+              onChange={setTravelAndDraft}
+              interactive
+            />
+          }
+          buses={journey.showBusGuide ? <BusGuidePanel /> : undefined}
+          digiYatra={journey.showDigiYatra ? <DigiYatraPanel /> : undefined}
+          arrival={<TripArrival originCity={brief.origin === "other" ? brief.originCity ?? "" : ""} />}
+        />
+        </div>
+
+        <div className="lg:order-10">
         <h2 className="mt-10 font-display text-2xl">Stay plan</h2>
         <p className="mt-1 text-sm text-muted">
           Swap activities — the room price updates live.
@@ -498,8 +570,11 @@ function TripDetail() {
             </Card>
           ))}
         </div>
+        </div>
       </div>
-      <div className="fixed inset-x-0 bottom-14 z-40 border-t border-border bg-elevated/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-md md:bottom-0 md:pb-3">
+      </div>
+      </div>
+      <div className="fixed inset-x-0 bottom-14 z-40 border-t border-border bg-elevated/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-md md:bottom-0 md:pb-3 lg:hidden">
         <div className="mx-auto flex max-w-3xl items-start justify-between gap-3">
           <div className="min-w-0 flex-1 text-left">
             <p className="font-display text-xl tabular-nums">
@@ -507,10 +582,7 @@ function TripDetail() {
             </p>
             <p className="mt-1 text-left text-xs leading-snug text-muted">{rateLine}</p>
             <p className="mt-0.5 text-left text-xs text-muted">
-              For {brief.adults} {brief.adults === 1 ? "adult" : "adults"}
-              {brief.children > 0
-                ? ` · ${brief.children} ${brief.children === 1 ? "child" : "children"}`
-                : ""}{" "}
+              {partyLabel}{" "}
               · <Link to="/plan" className="underline">change</Link>
             </p>
             {finePrint ? (
