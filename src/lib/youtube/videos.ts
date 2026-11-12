@@ -45,18 +45,18 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
   "swosti-premium-beach-resort": [
     {
       videoId: "R8_m_xkYSzQ",
-      title: "Is Swosti Premium Puri really worth it? Honest review",
+      title: "Is Swosti Premium Puri REALLY Worth New Year 2026? Shocking Truth!",
       channel: "Sanky & Swee Vlogs",
     },
     {
       videoId: "5Gmwnc6B71E",
-      title: "Family vacation at Swosti Premium Beach Resort",
+      title: "Vacation with family at this Luxury Resort In Puri | Swosti Premium Beach Resort",
       channel: "Dipfreeze",
     },
     {
       videoId: "G6R5FNirOcY",
-      title: "Swosti Premium Beach Resort Puri — sea-facing stay",
-      channel: "Travel vlog",
+      title: "পুরীর সেরা রিসোর্ট। Swosti Premium Beach Resort Puri. best sea facing hotel in puri.",
+      channel: "Katus Lifestyle",
     },
   ],
   "regenta-central-puri": [
@@ -96,100 +96,117 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
   "empires-hotel-puri": [
     {
       videoId: "mTgPxwJLB_c",
-      title: "First day in Puri — Empires Hotel review",
+      title: "first day in Puri Empires Hotel Puri Review",
       channel: "richa kishu vlogs",
     },
     {
-      videoId: "CcgItlhsIPc",
-      title: "Hotel Empires Puri — stay footage",
-      channel: "Guest vlog",
+      videoId: "6SvH9Hv32DU",
+      title: "Experience LUXURY at Affordable Prices in Puri's Empires Hotel",
+      channel: "Manoj Hela Vlogs",
+    },
+    {
+      videoId: "k8rcWt78lJc",
+      title: "Hotel Empires Puri My Full review",
+      channel: "Journeys with Dwivid",
     },
   ],
   "mayfair-waves-puri": [
     {
       videoId: "ix-8HWQ8heg",
-      title: "Mayfair Waves Puri — resort walkthrough",
-      channel: "Stay vlog",
+      title: "MAYFAIR Waves | Sea facing Luxury 5-Star Hotels in Puri",
+      channel: "Review Wala",
     },
     {
       videoId: "ov0TpiWVKGg",
-      title: "Mayfair Waves — rooms, pool and buffet",
-      channel: "Puri stay review",
+      title: "Mayfair waves resort, Puri, Odisha : Room tour",
+      channel: "Monica Explains",
     },
   ],
   "toshali-sands-puri": [
     {
       videoId: "6Hl1vtib7GE",
-      title: "Toshali Sands Puri — cottage tour",
-      channel: "Stay vlog",
+      title: "TOSHALI SANDS PURI | Hotel Tour | PURI HOTELS | Odisha | Mustaq Sharif",
+      channel: "MUSTAQ SHARIF",
     },
     {
       videoId: "RahjVg0t6nk",
-      title: "Toshali Sands — campus, pool and beach",
-      channel: "Family travel",
+      title: "Toshali Sands Puri private beach | Short visit to Puri | Day 4",
+      channel: "Travel With TAGS",
     },
     {
       videoId: "ZOCBaU2Ignk",
-      title: "Family stay at Toshali Sands Puri",
-      channel: "Guest vlog",
+      title: "TOSHALI SANDS RESORT// Cottage tour// Resort tour//puri resort",
+      channel: "Create world vlogs",
     },
   ],
   "chariot-resort-puri": [
     {
       videoId: "pjy6OOe03wk",
-      title: "The Chariot Resort & Spa Puri — property tour",
-      channel: "Stay vlog",
+      title: "A day in a Luxurious Hotel Near Sea Beach || The Chariot Resort & Spa",
+      channel: "MOinsideHIT",
     },
     {
       videoId: "6pPT0cJmWuM",
-      title: "Chariot Resort — rooms, spa and beach",
-      channel: "Puri hotels",
+      title: "A day in a Luxurious Hotel Near Sea Beach || The Chariot Resort & Spa Puri",
+      channel: "Model Soumya Odia Vlogs",
     },
   ],
   "chanakya-bnr-puri": [
     {
       videoId: "puMmF_hN0Ic",
-      title: "Chanakya BNR Hotel Puri — heritage stay",
-      channel: "Stay vlog",
+      title: "The Chanakya BNR Hotel Puri: India’s Most Iconic Heritage Luxury Stay!",
+      channel: "Bong Passionate Traveller",
     },
     {
-      videoId: "hNV9aKYwNto",
-      title: "Chanakya BNR — rooms and station-side location",
-      channel: "Puri hotels",
+      videoId: "BZYN7wUZe8w",
+      title: "Relaxing stay in Chanakya BNR Hotel Puri — Best Railway Heritage Hotel",
+      channel: "Aalsee Riders",
+    },
+    {
+      videoId: "zDBoax8k2qU",
+      title: "Chanakya BNR Hotel Puri 2024 | The only Railway Theme Hotel in India",
+      channel: "Embrace D'ordinaire",
     },
   ],
   "mahodadhi-palace-puri": [
     {
       videoId: "PZW2ibNBPv8",
-      title: "Mahodadhi Palace Puri — palace tour",
-      channel: "Heritage stays",
+      title: "Mahodadhi Palace Tour | Best Heritage Hotel In Puri",
+      channel: "Backpacking With My Lens",
     },
     {
-      videoId: "80-nIH3wnUI",
-      title: "Mahodadhi Palace — heritage rooms on the beach",
-      channel: "Stay vlog",
-    },
-    {
-      videoId: "lLhJ_hp3EVQ",
-      title: "Palace stay and sea lawns",
-      channel: "Puri travel",
+      videoId: "cYaF0LtwZ4k",
+      title: "Stay at Mahodadhi Palace and Patrapada Chingudi",
+      channel: "Food Drifter",
     },
   ],
   "holiday-resort-puri": [
     {
       videoId: "Wfvplc69Yio",
-      title: "Holiday Resort Puri — walkthrough",
-      channel: "Stay vlog",
-    },
-    {
-      videoId: "9mjuLwKBDT0",
-      title: "Holiday Resort — rooms, lawn and pool",
-      channel: "Family travel",
+      title: "Budget Friendly Luxury Staycation in Puri | Hotel Holiday Resort Full Tour + Room Review",
+      channel: "Food Travel Camp",
     },
     {
       videoId: "_GCIo7ETCp8",
-      title: "Beach-side stay at Holiday Resort Puri",
-      channel: "Puri hotels",
+      title: "Holiday Resorts, Puri - Room Tour & Review | Beachside Stay in Odisha!",
+      channel: "Monica Explains",
+    },
+  ],
+  "niladri-premium-puri": [
+    {
+      videoId: "K9fnbagwvtU",
+      title: "Puri's Best Sea view hotel Niladri Premium honest review 2026",
+      channel: "AB from Kutch",
+    },
+    {
+      videoId: "yHdbPDHo6F8",
+      title: "Expert Traveler Reveals BEST Budget Hotel In Puri | Hotel NILADRI PREMIUM Puri",
+      channel: "Manoj Hela Vlogs",
+    },
+    {
+      videoId: "VN5k5TuWatI",
+      title: "Budget hotel in Puri || Hotel Niladri Premium Price || Room tour || Food",
+      channel: "Sudipta's World",
     },
   ],
 };

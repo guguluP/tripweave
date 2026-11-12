@@ -291,4 +291,16 @@ export const SEED_ROOM_NOTES: Record<string, Record<string, RoomReviewNotes>> = 
         watchouts: ["Confirm view and rate inclusions when you book"],
       },
     },
+  "niladri-premium-puri": {
+      deluxe: {
+        summary: "Official Deluxe Room — breakfast for two at ₹6,000 (was ₹6,500) on the hotel site.",
+        positives: ["Listed on the official hotel site", "Breakfast for two included in the official tariff"],
+        watchouts: ["Official-site guest notes say some rooms run small", "Confirm sea view and GST when you book"],
+      },
+      premium: {
+        summary: "Official Premium Room — breakfast for two at ₹7,000 (was ₹7,500) on the hotel site.",
+        positives: ["Listed on the official hotel site", "Breakfast for two included in the official tariff"],
+        watchouts: ["Confirm sea view and GST when you book"],
+      },
+    },
 };

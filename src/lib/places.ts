@@ -34,6 +34,7 @@ const STAYS: Record<string, { lat: number; lng: number }> = {
   ...Object.fromEntries(EXTRA_STAYS.map((stay) => [stay.id, { lat: stay.lat, lng: stay.lng }])),
 };
 
+
 export function stayPin(packageId: string, name: string): Pin | null {
   const at = STAYS[packageId];
   if (!at) return null;

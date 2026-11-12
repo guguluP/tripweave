@@ -170,7 +170,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     ],
     consensusSummary:
       "Empires splits reviewers. A few walkthroughs show a decent room and a balcony; longer stay reports flag smell, washrooms, and food. For a one-night temple trip at a value rate it can work. For a beach week, look at the Marine Drive stays instead.",
-    sources: sources("empires-hotel-puri", ["hi", "hi"]),
+    sources: sources("empires-hotel-puri", ["hi", "hi", "en"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
     roomNotes: SEED_ROOM_NOTES["empires-hotel-puri"],
@@ -268,7 +268,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     ],
     consensusSummary:
       "Chanakya BNR is a heritage railway hotel, not a beach resort. Reviewers who want character and a temple-first night are warmer than people who expected a renovated 4-star. One night in a deluxe room, walk to Jagannath, catch the train — that is the use case.",
-    sources: sources("chanakya-bnr-puri", ["hi", "en"]),
+    sources: sources("chanakya-bnr-puri", ["bn", "en", "en"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
     roomNotes: SEED_ROOM_NOTES["chanakya-bnr-puri"],
@@ -293,7 +293,7 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     ],
     consensusSummary:
       "Mahodadhi Palace is the heritage one-night stay on the sand. Vlogs open on the lawns and the period rooms. Book a sea-view palace room, eat on the lawn, and leave before the quirks of an old building become the stay. Reviewers who wanted a modern 5-star send you to Taj instead.",
-    sources: sources("mahodadhi-palace-puri", ["hi", "en", "hi"]),
+    sources: sources("mahodadhi-palace-puri", ["en", "en"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
     roomNotes: SEED_ROOM_NOTES["mahodadhi-palace-puri"],
@@ -318,9 +318,33 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     ],
     consensusSummary:
       "Holiday Resort is the old Puri beach hotel people still book because the lawn, the pool, and the price hold up. Reviewers who land in an unrenovated standard room are cooler than people who paid for sea view. Two nights, swim, walk the sand, eat out.",
-    sources: sources("holiday-resort-puri", ["hi", "hi", "en"]),
+    sources: sources("holiday-resort-puri", ["en", "en"]),
     updatedAt: SEEDED_AT,
     origin: "seed",
     roomNotes: SEED_ROOM_NOTES["holiday-resort-puri"],
   },
+  "niladri-premium-puri": {
+    packageId: "niladri-premium-puri",
+    overallSentiment: "mixed",
+    keyPositives: [
+      "Independent reviews tour the sea-view and deluxe rooms on New Marine Drive in Baliapanda",
+      "Official tariff includes breakfast for two in both Deluxe and Premium rooms",
+      "Beach is immediately across the road; the official site and reviews both flag a swimming pool",
+    ],
+    keyNegatives: [
+      "Guests quoted on the official site say some rooms run small compared with other hotels",
+      "An official-site guest note says the beach side is still being developed and the swimming beach is not highly suitable",
+    ],
+    caveats: [
+      "Official Deluxe is ₹6,000 and Premium ₹7,000, breakfast for two — confirm the view and GST when you book",
+      "The official page itself publishes mixed guest notes on room size and the beach",
+    ],
+    consensusSummary:
+      "Independent 2026 stay reviews treat Hotel Niladri Premium as a sea-facing New Marine Drive hotel, with room tours, breakfast, and a published official tariff. The official site also posts guest notes that some rooms are small and that the beach in front is still being developed. Book a sea-view room if the water is the point, and treat the official Deluxe rate as the catalog base.",
+    sources: sources("niladri-premium-puri", ["hi", "hi", "bn"]),
+    updatedAt: SEEDED_AT,
+    origin: "seed",
+    roomNotes: SEED_ROOM_NOTES["niladri-premium-puri"],
+  },
 };
+

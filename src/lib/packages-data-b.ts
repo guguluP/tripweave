@@ -165,7 +165,8 @@ export const RAW_B: RawStay[] = [{
     includes: ["Breakfast", "Walk to station", "Heritage lobby", "24h desk"],
     videos: [
       { videoId: "puMmF_hN0Ic", title: "Chanakya BNR heritage stay" },
-      { videoId: "hNV9aKYwNto", title: "Rooms and station-side location" },
+      { videoId: "BZYN7wUZe8w", title: "Relaxing stay at Chanakya BNR" },
+      { videoId: "zDBoax8k2qU", title: "Chanakya BNR railway-theme stay 2024" },
     ],
     rooms: CHANAKYA_BNR_PURI_ROOMS,
     days: [
@@ -200,8 +201,7 @@ export const RAW_B: RawStay[] = [{
     includes: ["Breakfast", "Palace lawns", "Heritage rooms", "Temple transfer"],
     videos: [
       { videoId: "PZW2ibNBPv8", title: "Mahodadhi Palace tour" },
-      { videoId: "80-nIH3wnUI", title: "Heritage rooms on the beach" },
-      { videoId: "lLhJ_hp3EVQ", title: "Palace stay and sea lawns" },
+      { videoId: "cYaF0LtwZ4k", title: "Stay at Mahodadhi Palace and Patrapada Chingudi" },
     ],
     rooms: MAHODADHI_PALACE_PURI_ROOMS,
     days: [
@@ -235,9 +235,8 @@ export const RAW_B: RawStay[] = [{
     neighborhood: "Chakratirtha Road",
     includes: ["Breakfast", "Pool", "Lawn", "Parking"],
     videos: [
-      { videoId: "Wfvplc69Yio", title: "Holiday Resort Puri walkthrough" },
-      { videoId: "9mjuLwKBDT0", title: "Rooms, lawn and pool" },
-      { videoId: "_GCIo7ETCp8", title: "Beach-side stay" },
+      { videoId: "Wfvplc69Yio", title: "Holiday Resort Puri full tour and room review" },
+      { videoId: "_GCIo7ETCp8", title: "Holiday Resort room tour and review" },
     ],
     rooms: HOLIDAY_RESORT_PURI_ROOMS,
     days: [
@@ -252,5 +251,5 @@ export const RAW_B: RawStay[] = [{
         options: [{ id: "konark", label: "Konark shared", delta: 900 }],
       },
     ],
-  }
+  },
 ];

@@ -254,8 +254,9 @@ export const RAW_A: RawStay[] = [
     neighborhood: "New Marine Drive, Baliapanda",
     includes: ["Breakfast", "AC rooms", "24h desk"],
     videos: [
-      { videoId: "mTgPxwJLB_c", title: "First day in Puri — Empires" },
-      { videoId: "CcgItlhsIPc", title: "Stay footage" },
+      { videoId: "mTgPxwJLB_c", title: "First day in Puri — Empires review" },
+      { videoId: "6SvH9Hv32DU", title: "Empires Hotel affordable luxury stay" },
+      { videoId: "k8rcWt78lJc", title: "Hotel Empires Puri full review" },
     ],
     rooms: EMPIRES_HOTEL_PURI_ROOMS,
     days: [

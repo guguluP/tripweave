@@ -217,6 +217,7 @@ const STAY_PLACES: Record<string, { area: StayArea; nearStation: boolean; hasAir
   ),
 };
 
+
 const liveTrustScores = new Map<string, number>();
 
 /** After saved reviewer notes load, list and detail meters share this score for the session. */
