@@ -1463,6 +1463,32 @@
         "/stays/yashasvi-inn-puri/gallery-6.jpg"
       ],
       "rooms": {}
+    },
+    "hotel-deluxe-konark": {
+      "images": [
+        "/stays/hotel-deluxe-konark/property-1.jpg",
+        "/stays/hotel-deluxe-konark/gallery-1.jpg",
+        "/stays/hotel-deluxe-konark/gallery-2.jpg",
+        "/stays/hotel-deluxe-konark/gallery-3.jpg",
+        "/stays/hotel-deluxe-konark/gallery-4.jpg"
+      ],
+      "rooms": {}
+    },
+    "santi-hotel-konark": {
+      "images": [
+        "/stays/santi-hotel-konark/property-1.jpg",
+        "/stays/santi-hotel-konark/gallery-1.jpg",
+        "/stays/santi-hotel-konark/gallery-2.jpg",
+        "/stays/santi-hotel-konark/gallery-3.jpg"
+      ],
+      "rooms": {}
+    },
+    "new-santi-hotel-konark": {
+      "images": [
+        "/stays/new-santi-hotel-konark/property-1.jpg",
+        "/stays/new-santi-hotel-konark/gallery-1.jpg"
+      ],
+      "rooms": {}
     }
   }
 }
