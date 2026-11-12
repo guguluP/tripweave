@@ -158,6 +158,11 @@ function TripDetail() {
     images: string[];
     token: number;
   } | null>(null);
+  const [roomGalleryFor, setRoomGalleryFor] = useState(id);
+  if (roomGalleryFor !== id) {
+    setRoomGalleryFor(id);
+    setRoomGallery(null);
+  }
 
   useEffect(() => {
     if (!gallery.length) return;

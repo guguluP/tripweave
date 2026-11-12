@@ -99,6 +99,7 @@ export function PropertyMedia({
   const [open, setOpen] = useState(false);
   const [album, setAlbum] = useState<"property" | "rooms">("property");
   const [roomScope, setRoomScope] = useState<{ id: string; name: string; images: string[] } | null>(null);
+  const [scopedStay, setScopedStay] = useState(id);
   const [viewList, setViewList] = useState<string[] | null>(null);
   const [viewerHold, setViewerHold] = useState(false);
   const [viewerOn, setViewerOn] = useState(false);
@@ -106,6 +107,17 @@ export function PropertyMedia({
   const thumbRailSplit = useRef<HTMLDivElement>(null);
   const splitPane = useRef<HTMLDivElement>(null);
   const lastFocusToken = useRef(0);
+  const roomScopeRef = useRef(roomScope);
+  roomScopeRef.current = roomScope;
+  if (scopedStay !== id) {
+    // A new stay must not keep the previous room's frames in the sticky pane.
+    setScopedStay(id);
+    setRoomScope(null);
+    setAlbum("property");
+    setViewList(null);
+    setOpen(false);
+    lastFocusToken.current = 0;
+  }
   const swipeX = useRef<number | null>(null);
   const listCount = useRef(1);
   const videoRail = useRef<HTMLDivElement>(null);
@@ -128,19 +140,29 @@ export function PropertyMedia({
 
   useEffect(() => {
     if (!focusRoom || focusRoom.token === lastFocusToken.current) return;
+    if (typeof window !== "undefined" && !window.matchMedia("(min-width: 1024px)").matches) return;
     lastFocusToken.current = focusRoom.token;
-    if (typeof window !== "undefined" && !window.matchMedia("(min-width: 1024px)").matches) {
-      return;
-    }
-    if (!focusRoom.images.length) return;
     setViewList(null);
     setRoomScope({ id: focusRoom.id, name: focusRoom.name, images: focusRoom.images });
-    setAlbum("rooms");
     setIndex(0);
+    if (!focusRoom.images.length) setOpen(false);
     requestAnimationFrame(() => {
       splitPane.current?.focus({ preventScroll: true });
     });
   }, [focusRoom]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const leaveDesktop = () => {
+      if (desktop.matches || !roomScopeRef.current) return;
+      setRoomScope(null);
+      setViewList(null);
+      setOpen(false);
+    };
+    desktop.addEventListener("change", leaveDesktop);
+    return () => desktop.removeEventListener("change", leaveDesktop);
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -169,13 +191,15 @@ export function PropertyMedia({
   }, [open]);
 
   useEffect(() => {
-    const rails = [thumbRail.current, thumbRailSplit.current].filter(Boolean);
+    const rails = [thumbRail.current, thumbRailSplit.current].filter((rail): rail is HTMLDivElement => Boolean(rail));
     for (const rail of rails) {
-      const active = rail!.querySelector<HTMLElement>("[data-active='true']");
-      // Skip hidden rails so a display:none desktop strip does not steal scroll.
-      if (rail && rail.offsetParent === null && getComputedStyle(rail).display === "none") continue;
-      if (rail && rail.clientWidth === 0) continue;
-      active?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+      if (rail.clientWidth === 0) continue;
+      const active = rail.querySelector<HTMLElement>("[data-active='true']");
+      if (!active) continue;
+      const railBox = rail.getBoundingClientRect();
+      const activeBox = active.getBoundingClientRect();
+      const delta = activeBox.left - railBox.left - (rail.clientWidth - activeBox.width) / 2;
+      rail.scrollTo({ left: rail.scrollLeft + delta, behavior: "smooth" });
     }
   }, [index]);
 
@@ -183,38 +207,39 @@ export function PropertyMedia({
     () => roomImages.filter((src) => src && !gallery.includes(src)),
     [roomImages, gallery],
   );
-  const scopedRoomPhotos = roomScope?.images?.length ? roomScope.images : null;
-  const shown =
-    album === "rooms"
-      ? scopedRoomPhotos && scopedRoomPhotos.length
-        ? scopedRoomPhotos
-        : rooms.length
-          ? rooms
-          : gallery
-      : gallery;
+  const filmstrip = album === "rooms" && rooms.length ? rooms : gallery;
+  const shown = roomScope ? roomScope.images : filmstrip;
   const activeList = viewList ?? shown;
+  const shownIndex = shown.length ? Math.min(index, shown.length - 1) : 0;
+  const filmstripIndex = filmstrip.length ? Math.min(index, filmstrip.length - 1) : 0;
+  const activeIndexSafe = activeList.length ? Math.min(index, activeList.length - 1) : 0;
   listCount.current = Math.max(1, activeList.length);
-  const current = activeList[index] ?? activeList[0];
+  const current = activeList[activeIndexSafe];
+  const coverIndexRef = useRef(0);
+  if (!roomScope) coverIndexRef.current = filmstripIndex;
 
   useEffect(() => {
-    const src = shown[index] ?? shown[0];
+    const coverAt = roomScope ? coverIndexRef.current : filmstripIndex;
+    const src = filmstrip[coverAt];
     if (!src) return;
-    onPhoto?.(src, Math.min(index, shown.length - 1) + 1, shown.length);
-  }, [shown, index, onPhoto]);
+    onPhoto?.(src, coverAt + 1, filmstrip.length);
+  }, [filmstrip, filmstripIndex, onPhoto, roomScope]);
 
   if (!current && !hideHero) return null;
 
   const step = (dir: -1 | 1) => {
+    if (activeList.length < 2) return;
     setIndex((n) => (n + dir + activeList.length) % activeList.length);
   };
 
   const openAt = (list: string[], i: number) => {
+    if (!list.length) return;
     setViewList(list);
-    setIndex(i);
+    setIndex(Math.min(Math.max(i, 0), list.length - 1));
     setOpen(true);
   };
 
-  const headerSrc = shown[index] ?? shown[0];
+  const headerSrc = shown[shownIndex];
 
   return (
     <div className={cn("contents", hideHero && "lg:block lg:h-full lg:min-h-0")}>
@@ -262,6 +287,7 @@ export function PropertyMedia({
             )}
             onClick={() => {
               setViewList(null);
+              setRoomScope(null);
               setAlbum("property");
               setIndex(0);
               if (hideHero) window.scrollTo({ top: 0, behavior: "smooth" });
@@ -279,6 +305,7 @@ export function PropertyMedia({
               )}
               onClick={() => {
                 setViewList(null);
+                setRoomScope(null);
                 setAlbum("rooms");
                 setIndex(0);
                 if (hideHero) window.scrollTo({ top: 0, behavior: "smooth" });
@@ -288,29 +315,30 @@ export function PropertyMedia({
             </button>
           ) : null}
         </div>
-        {shown.length > 1 ? (
+        {filmstrip.length > 1 ? (
           <div
             ref={thumbRail}
             className="scrollbar-hide mt-4 flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain"
             role="listbox"
             aria-label={album === "rooms" ? `${name} room photos` : `${name} property photos`}
           >
-            {shown.map((src, i) => (
+            {filmstrip.map((src, i) => (
               <button
                 key={`${album}-${src}-${i}`}
                 type="button"
-                data-active={i === index ? "true" : "false"}
+                data-active={i === filmstripIndex ? "true" : "false"}
                 onClick={() => {
                   setViewList(null);
+                  setRoomScope(null);
                   setIndex(i);
                   if (hideHero) window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
                 className={cn(
                   "h-16 w-24 shrink-0 snap-start overflow-hidden rounded-lg border-2 transition-[border-color,opacity,transform] duration-200 sm:h-20 sm:w-28",
-                  i === index ? "border-primary" : "border-transparent opacity-80",
+                  i === filmstripIndex ? "border-primary" : "border-transparent opacity-80",
                 )}
-                aria-label={`Photo ${i + 1} of ${shown.length}`}
-                aria-selected={i === index}
+                aria-label={`Photo ${i + 1} of ${filmstrip.length}`}
+                aria-selected={i === filmstripIndex}
                 role="option"
               >
                 <img src={src} alt="" className="h-full w-full object-cover" />
@@ -381,14 +409,19 @@ export function PropertyMedia({
         }}
       >
         <div className="relative min-h-0 flex-1">
+          {roomScope && shown.length === 0 ? (
+            <div className="absolute inset-0 grid place-items-center px-6 text-center text-sm text-bg">
+              No photos published for {roomScope.name}.
+            </div>
+          ) : (
           <button
             type="button"
-            onClick={() => openAt(shown, index)}
+            onClick={() => openAt(shown, shownIndex)}
             className="absolute inset-0 block"
             aria-label={
               roomScope
-                ? `View photos of ${roomScope.name}. Photo ${index + 1} of ${shown.length}.`
-                : `View photos of ${name}. Photo ${index + 1} of ${shown.length}.`
+                ? `View photos of ${roomScope.name}. Photo ${shownIndex + 1} of ${shown.length}.`
+                : `View photos of ${name}. Photo ${shownIndex + 1} of ${shown.length}.`
             }
           >
             {headerSrc ? (
@@ -400,14 +433,17 @@ export function PropertyMedia({
               />
             ) : null}
           </button>
+          )}
           <div className="pointer-events-none absolute left-3 top-3 z-10 flex max-w-[75%] flex-col items-start gap-1">
             <span
               className="rounded-full bg-elevated/95 px-3 py-1 text-xs font-medium text-fg"
               aria-live="polite"
             >
               {roomScope
-                ? `${roomScope.name} · ${shown.length ? index + 1 : 0}/${shown.length}`
-                : `${index + 1} / ${shown.length}${shown.length > 0 && shown.length < 4 ? " · hotel-published, limited set" : ""}`}
+                ? shown.length
+                  ? `${roomScope.name} · ${shownIndex + 1}/${shown.length}`
+                  : `${roomScope.name} · no photos`
+                : `${shownIndex + 1} / ${shown.length}${shown.length > 0 && shown.length < 4 ? " · hotel-published, limited set" : ""}`}
             </span>
             {arrivalPin && !roomScope ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-fg">
@@ -459,17 +495,17 @@ export function PropertyMedia({
                   <button
                     key={`split-${album}-${src}-${i}`}
                     type="button"
-                    data-active={i === index ? "true" : "false"}
+                    data-active={i === shownIndex ? "true" : "false"}
                     onClick={() => {
                       setViewList(null);
                       setIndex(i);
                     }}
                     className={cn(
                       "h-12 w-[4.25rem] shrink-0 snap-start overflow-hidden rounded-md border-2",
-                      i === index ? "border-bg" : "border-transparent opacity-80",
+                      i === shownIndex ? "border-bg" : "border-transparent opacity-80",
                     )}
                     aria-label={`Photo ${i + 1} of ${shown.length}`}
-                    aria-selected={i === index}
+                    aria-selected={i === shownIndex}
                     role="option"
                   >
                     <img src={src} alt="" className="h-full w-full object-cover" />
@@ -480,13 +516,15 @@ export function PropertyMedia({
               <div className="flex-1" />
             )}
             <div className="flex shrink-0 flex-col items-end gap-1.5 pb-0.5">
+              {shown.length > 0 ? (
               <button
                 type="button"
                 className="rounded-full bg-elevated px-3 py-1.5 text-xs font-semibold text-fg"
-                onClick={() => openAt(shown, index)}
+                onClick={() => openAt(shown, shownIndex)}
               >
-                Show all {shown.length || gallery.length} photos
+                Show all {shown.length} {shown.length === 1 ? "photo" : "photos"}
               </button>
+              ) : null}
               {videos.length > 0 ? (
                 <a
                   href={youtubeUrl(videos[0]!.videoId)}
@@ -505,7 +543,7 @@ export function PropertyMedia({
                 type="button"
                 className={cn(
                   "rounded-full px-3 py-1 text-[11px] font-medium",
-                  album === "property" ? "bg-elevated text-fg" : "bg-fg/40 text-bg/80",
+                  album === "property" && !roomScope ? "bg-elevated text-fg" : "bg-fg/40 text-bg/80",
                 )}
                 onClick={() => {
                   setViewList(null);
@@ -520,9 +558,8 @@ export function PropertyMedia({
                 type="button"
                 className={cn(
                   "rounded-full px-3 py-1 text-[11px] font-medium",
-                  album === "rooms" ? "bg-elevated text-fg" : "bg-fg/40 text-bg/80",
+                  album === "rooms" && !roomScope ? "bg-elevated text-fg" : "bg-fg/40 text-bg/80",
                 )}
-                aria-current={album === "rooms" && roomScope ? "true" : undefined}
                 onClick={() => {
                   setViewList(null);
                   setRoomScope(null);
@@ -587,12 +624,14 @@ export function PropertyMedia({
               else if (delta < -48) step(1);
             }}
           >
+            {current ? (
             <Crossfade
               src={current}
-              alt={`${name} photo ${index + 1}`}
+              alt={`${roomScope ? roomScope.name : name} photo ${activeIndexSafe + 1}`}
               className="h-full w-full"
               mediaClassName="object-contain"
             />
+            ) : null}
           </span>
           {activeList.length > 1 ? (
             <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-3 pb-safe">
@@ -608,7 +647,7 @@ export function PropertyMedia({
                 <ChevronLeft className="size-5" />
               </button>
               <span className="rounded-full bg-elevated px-3 py-1 text-xs text-fg">
-                {index + 1} / {activeList.length}
+                {activeIndexSafe + 1} / {activeList.length}
               </span>
               <button
                 type="button"
