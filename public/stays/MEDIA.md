@@ -81,4 +81,32 @@ Property galleries only. Catalog rooms stay unlabeled. Frames are the hotel or c
 | `new-shankar-international` | hotelnewshankarinternational.com |
 | `santana-puri` | indiasantana.net hotel page |
 
+## Sources (Nov 2026 — gap batch)
+
+Property galleries only. Catalog rooms stay unlabeled. Frames are the hotel's
+own listing photos, saved as JPEG without resizing beyond a 1600px cap.
+Where a stay has no official website, the source is the trusted listing the
+hotel itself supplies photos to, named per stay.
+
+| Stay ID | Source |
+| --- | --- |
+| `divine-beach-homestay-puri` | directhotels.com Divine Beach Homestay, Penthakata (no exterior photo is published; property-1 is the sea view from the homestay) |
+| `golden-dust-puri` | agoda.com Hotel Golden Dust Royal, Marine Drive |
+| `hotel-krishna-resorts-puri` | agoda.com / Klook / weddingz.in Krishna Resorts, Chakratirtha Road (same building cross-checked across all three) |
+| `hotel-shakuntala-palace` | expedia.co.in Shakuntala Palace, Sea Beach (official site is suspended) |
+| `hotel-sweet-home-puri` | hotelspuri.net Sweet Home Lodge, C.T. Road |
+| `panthanivas-satapada` | MouthShut photo of the OTDC Yatrinivas, Satapada entrance (OTDC's Satapada property trades as Yatrinivas; single verified frame) |
+| `shree-vishnu-darshan` | makemytrip.com Shree Vishnu Darshan Holiday Home, Grand Road (rooms via yatradham.org) |
+| `sidharth-inn-puri` | hotelspuri.net Siddharth Inn, Chakratirtha Road |
+| `sterling-puri` | trip.com Sterling Puri gallery (sterlingholidays.com publishes only 1–2 usable frames) |
+| `the-eastern-dham` | homestayindia.in Hotel Eastern Dhaam, New Marine Drive (the hotel's booking partner; frames carry its corner logo) |
+| `yashasvi-inn-puri` | hotels.com / trivago Hotel Yashasvi Inn (Larina Building), Marine Drive |
+
+Still without photos: the six Konark lodges (`konark-hotel-konark`,
+`hotel-sun-village-konark`, `hotel-deluxe-konark`, `santi-hotel-konark`,
+`santoshi-hotel-konark`, `new-santi-hotel-konark`). No official website or
+trusted listing with clean, verifiable photos of those exact properties
+could be found; the only candidates were a different namesake hotel, a
+permanently closed listing, or watermarked collages.
+
 `STAYS_NEEDING_USER_FILES` is empty.
