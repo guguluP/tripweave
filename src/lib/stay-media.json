@@ -825,7 +825,11 @@
         "/stays/z-hotel-puri/gallery-10.jpg",
         "/stays/z-hotel-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "single-ac-room": "/stays/z-hotel-puri/rooms/single-ac-room.jpg",
+        "standard-twin-room": "/stays/z-hotel-puri/rooms/standard-twin-room.jpg",
+        "deluxe-room": "/stays/z-hotel-puri/rooms/deluxe-room.jpg"
+      }
     },
     "treebo-siddharth-puri": {
       "images": [
@@ -859,7 +863,11 @@
         "/stays/om-leisure-satapada/gallery-3.jpg",
         "/stays/om-leisure-satapada/gallery-4.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe-room": "/stays/om-leisure-satapada/rooms/deluxe-room.jpg",
+        "lake-view-suite": "/stays/om-leisure-satapada/rooms/lake-view-suite.jpg",
+        "family-suit": "/stays/om-leisure-satapada/rooms/family-suit.jpg"
+      }
     },
     "samudra-hotel-puri": {
       "images": [
@@ -980,7 +988,12 @@
         "/stays/dreamland-puri/gallery-6.jpg",
         "/stays/dreamland-puri/gallery-7.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe-room": "/stays/dreamland-puri/rooms/deluxe-room.jpg",
+        "super-deluxe-room": "/stays/dreamland-puri/rooms/super-deluxe-room.jpg",
+        "luxury-room": "/stays/dreamland-puri/rooms/luxury-room.jpg",
+        "family-room": "/stays/dreamland-puri/rooms/family-room.jpg"
+      }
     },
     "blue-lily-puri": {
       "images": [
@@ -1101,7 +1114,13 @@
         "/stays/panthanivas-konark/property-1.jpg",
         "/stays/panthanivas-konark/gallery-1.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe": "/stays/panthanivas-konark/rooms/deluxe.jpg",
+        "ac-family-room": "/stays/panthanivas-konark/rooms/ac-family-room.jpg",
+        "executive": "/stays/panthanivas-konark/rooms/executive.jpg",
+        "premier": "/stays/panthanivas-konark/rooms/premier.jpg",
+        "suite": "/stays/panthanivas-konark/rooms/suite.jpg"
+      }
     },
     "yatrinivas-konark": {
       "images": [
@@ -1271,7 +1290,11 @@
         "/stays/lucky-india-puri/gallery-6.jpg",
         "/stays/lucky-india-puri/gallery-7.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe-room": "/stays/lucky-india-puri/rooms/deluxe-room.jpg",
+        "non-sea-view-premium": "/stays/lucky-india-puri/rooms/non-sea-view-premium.jpg",
+        "sea-view-premium": "/stays/lucky-india-puri/rooms/sea-view-premium.jpg"
+      }
     },
     "new-shankar-international": {
       "images": [
@@ -1420,7 +1443,11 @@
         "/stays/shree-vishnu-darshan/gallery-6.jpg",
         "/stays/shree-vishnu-darshan/gallery-7.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "2-bed-deluxe-ac-room": "/stays/shree-vishnu-darshan/rooms/2-bed-deluxe-ac-room.jpg",
+        "2-bed-super-deluxe-ac-room": "/stays/shree-vishnu-darshan/rooms/2-bed-super-deluxe-ac-room.jpg",
+        "4-bed-ac-room": "/stays/shree-vishnu-darshan/rooms/4-bed-ac-room.jpg"
+      }
     },
     "sidharth-inn-puri": {
       "images": [
