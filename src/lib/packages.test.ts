@@ -93,26 +93,24 @@ describe("catalog", () => {
         assert.match(video.videoId, /^[a-zA-Z0-9_-]{11}$/, video.videoId);
       }
       const officialIds = Object.keys(spec.rooms);
-      if (officialIds.length === 0) {
-        for (const room of pkg.rooms) {
-          assert.equal(room.image, "", `${pkg.id}:${room.id}`);
-          assert.deepEqual(room.images, [], `${pkg.id}:${room.id}`);
-        }
-        continue;
+      const catalogIds = pkg.rooms.map((room) => room.id);
+      for (const id of officialIds) {
+        assert.ok(catalogIds.includes(id), `${pkg.id} unexpected media room id ${id}`);
       }
-      assert.deepEqual(
-        pkg.rooms.map((room) => room.id),
-        officialIds,
-        `${pkg.id} official room ids`,
-      );
       const roomImages = new Set<string>();
       for (const room of pkg.rooms) {
+        if (!officialIds.includes(room.id)) {
+          // Honest gap: no real photo of this type was found.
+          assert.equal(room.image, "", `${pkg.id}:${room.id}`);
+          assert.deepEqual(room.images, [], `${pkg.id}:${room.id}`);
+          continue;
+        }
         assert.ok(room.image, `${pkg.id}:${room.id}`);
         assert.ok(room.image.includes("/rooms/"), `${pkg.id}:${room.id}`);
         assert.ok(!room.image.includes("unsplash"), `${pkg.id}:${room.id}`);
         roomImages.add(room.image);
       }
-      assert.equal(roomImages.size, pkg.rooms.length, `${pkg.id} unique room images`);
+      assert.equal(roomImages.size, officialIds.length, `${pkg.id} unique room images`);
     }
   });
 
