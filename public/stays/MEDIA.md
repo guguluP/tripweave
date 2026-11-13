@@ -134,21 +134,19 @@ Room photos (`rooms/{roomId}.jpg`), one per category:
 | `panthanivas-konark` | bookodisha.com (OTDC booking portal) per-type images |
 | `om-leisure-satapada` | omleisureholidays.com "Room Types & Tariff" ("Family Suit" is the site's own spelling) |
 | `z-hotel-puri` | zhotelpuri.com "Our Rooms" (the hotel publishes only 200x100 thumbnails) |
+| `hotel-golden-palace-puri` | hotelgoldenpalacepuri.in room inventory (the site's own booking data; the Presidential Suite's cover frame is a bathroom, so its gallery bedroom frame is used) |
+| `hotel-konark-puri` | hotelkonark.in archived official site, photos page: Double Bed (same file under a different capture suffix), Three Bed, Four Bed, "A.C Suit" [sic] |
 
 Names only: Sterling Puri (sterlingholidays.com publishes per-category
-images for only 3 of its 7 categories, and this repo wires room photos
-all-or-nothing per stay) and Hotel Konark, Puri (hotelkonark.in archived
-official site: the Three Bed, Four Bed and "A.C Suit" [sic] frames survive,
-the Double Bed frame does not). For the rest, no photo is honestly
+images for 6 of its 7 categories, and this repo wires room photos
+all-or-nothing per stay; no source attributes any photo to the Garden
+View Privilege Suite with Balcony). For the rest, no photo is honestly
 attributable to a category: Golden Dust
 (trivago/Via hotel-supplied ladder), Hotel Shakuntala Palace, New Shankar
 International and Hotel Sweet Home's directory (hotelspuri.net), Hotel
 Sukadev Homes (hotelsdhomes.com), The Eastern Dham (homestayindia.in),
 Yashasvi Inn (Booking/Expedia category lists; Expedia shows placeholder
-tiles, no per-room photos), Hotel Golden Palace (hotelgoldenpalacepuri.in —
-its rendered site lists four categories with photo strips, but the image
-host refuses direct downloads; the "Family Room" a mirror site adds is not
-on the hotel's own site), Yatrinivas Konark and Panthanivas Satapada (OTDC
+tiles, no per-room photos), Yatrinivas Konark and Panthanivas Satapada (OTDC
 tariff cards). Note: OTDC's current portal lists a single Konark unit whose
 contact details match the old Yatrinivas page — the two catalog entries may
 be the same physical unit.

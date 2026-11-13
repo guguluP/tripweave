@@ -1166,7 +1166,12 @@
       "images": [
         "/stays/hotel-konark-puri/property-1.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "double-bed": "/stays/hotel-konark-puri/rooms/double-bed.jpg",
+        "three-bed": "/stays/hotel-konark-puri/rooms/three-bed.jpg",
+        "four-bed": "/stays/hotel-konark-puri/rooms/four-bed.jpg",
+        "ac-suit": "/stays/hotel-konark-puri/rooms/ac-suit.jpg"
+      }
     },
     "hotel-new-sea-hawk": {
       "images": [
@@ -1336,7 +1341,12 @@
         "/stays/hotel-golden-palace-puri/gallery-8.jpg",
         "/stays/hotel-golden-palace-puri/gallery-9.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "premium-pool-facing-room": "/stays/hotel-golden-palace-puri/rooms/premium-pool-facing-room.jpg",
+        "deluxe-sea-facing-room": "/stays/hotel-golden-palace-puri/rooms/deluxe-sea-facing-room.jpg",
+        "mini-suite-room": "/stays/hotel-golden-palace-puri/rooms/mini-suite-room.jpg",
+        "presidential-suite": "/stays/hotel-golden-palace-puri/rooms/presidential-suite.jpg"
+      }
     },
     "rivera-puri": {
       "images": [
