@@ -81,4 +81,79 @@ Property galleries only. Catalog rooms stay unlabeled. Frames are the hotel or c
 | `new-shankar-international` | hotelnewshankarinternational.com |
 | `santana-puri` | indiasantana.net hotel page |
 
+## Sources (Nov 2026 — gap batch)
+
+Property galleries only. Catalog rooms stay unlabeled. Frames are the hotel's
+own listing photos, saved as JPEG without resizing beyond a 1600px cap.
+Where a stay has no official website, the source is the trusted listing the
+hotel itself supplies photos to, named per stay.
+
+| Stay ID | Source |
+| --- | --- |
+| `divine-beach-homestay-puri` | directhotels.com Divine Beach Homestay, Penthakata (no exterior photo is published; property-1 is the sea view from the homestay) |
+| `golden-dust-puri` | agoda.com Hotel Golden Dust Royal, Marine Drive |
+| `hotel-krishna-resorts-puri` | agoda.com / Klook / weddingz.in Krishna Resorts, Chakratirtha Road (same building cross-checked across all three) |
+| `hotel-shakuntala-palace` | expedia.co.in Shakuntala Palace, Sea Beach (official site is suspended) |
+| `hotel-sweet-home-puri` | hotelspuri.net Sweet Home Lodge, C.T. Road |
+| `panthanivas-satapada` | MouthShut photo of the OTDC Yatrinivas, Satapada entrance (OTDC's Satapada property trades as Yatrinivas; single verified frame) |
+| `shree-vishnu-darshan` | makemytrip.com Shree Vishnu Darshan Holiday Home, Grand Road (rooms via yatradham.org) |
+| `sidharth-inn-puri` | hotelspuri.net Siddharth Inn, Chakratirtha Road |
+| `sterling-puri` | trip.com Sterling Puri gallery (sterlingholidays.com publishes only 1–2 usable frames) |
+| `the-eastern-dham` | homestayindia.in Hotel Eastern Dhaam, New Marine Drive (the hotel's booking partner; frames carry its corner logo) |
+| `yashasvi-inn-puri` | hotels.com / trivago Hotel Yashasvi Inn (Larina Building), Marine Drive |
+| `hotel-deluxe-konark` | justdial.com Deluxe Hotel, Konark HO, Ring Road, Junei (listing gallery; no official website exists. Building signage cross-checked in every frame) |
+| `santi-hotel-konark` | wanderlog.com Santi A/C Restaurant, Konark (the property's Google-listing photos served clean; signage reads "Shanti Hotel / Santi Hotel A/C Family Restaurant". Trades mainly as a family restaurant; no room photos exist) |
+| `new-santi-hotel-konark` | Google listing photos, New Santi Hotel, Shop No 81, Arabana Park Front, Konark (signage "New Santi Hotel / Your's First Choice" verified; clean originals of the photos Restaurant Guru serves only as mascot collages) |
+
+Still without photos: three Konark lodges (`konark-hotel-konark`,
+`hotel-sun-village-konark`, `santoshi-hotel-konark`). A second, deeper pass
+(archived pages, regional directories, the properties' own social pages)
+confirmed there is nothing honest to add: Hotel Konark, Konark is a real
+place but has no photo gallery anywhere (its supposed official site,
+hotelkonark.in, is the Hotel Konark in Puri); no business named Sun Village
+can be found in Konark at all (every result is the Puri hotel); and Santoshi
+Hotel is permanently closed with no photos in any listing or archive.
+
 `STAYS_NEEDING_USER_FILES` is empty.
+
+## Room types and room photos (Nov 2026)
+
+Official room names were adopted for 17 stays that previously used the
+generic Standard/Larger pair, following the `official-rooms` pattern: names
+are the hotel's own published categories, in published price order; a photo
+is attached only where the source attributes one to that exact category.
+Stays whose hotels publish no categories keep the generic labels.
+
+Room photos (`rooms/{roomId}.jpg`), one per category:
+
+| Stay ID | Room-photo source |
+| --- | --- |
+| `dreamland-puri` | dreamlandhotelpuri.com room pages (the hotel's Suites page shows an "Executive Suite" at the same tariff with the same photo as the Luxury Room — apparently one unit under two labels — so only the four distinct categories are listed) |
+| `lucky-india-puri` | easemytrip.com hotel-supplied room sections, corroborated by Cleartrip |
+| `shree-vishnu-darshan` | yatradham.org per-category galleries |
+| `panthanivas-konark` | bookodisha.com (OTDC booking portal) per-type images |
+| `om-leisure-satapada` | omleisureholidays.com "Room Types & Tariff" ("Family Suit" is the site's own spelling) |
+| `z-hotel-puri` | zhotelpuri.com "Our Rooms" (the hotel publishes only 200x100 thumbnails) |
+| `hotel-golden-palace-puri` | hotelgoldenpalacepuri.in room inventory (the site's own booking data; the Presidential Suite's cover frame is a bathroom, so its gallery bedroom frame is used) |
+| `hotel-konark-puri` | hotelkonark.in archived official site, photos page: Double Bed (same file under a different capture suffix), Three Bed, Four Bed, "A.C Suit" [sic] |
+
+Names only: Sterling Puri (sterlingholidays.com publishes per-category
+images for 6 of its 7 categories, and this repo wires room photos
+all-or-nothing per stay; no source attributes any photo to the Garden
+View Privilege Suite with Balcony). For the rest, no photo is honestly
+attributable to a category: Golden Dust
+(trivago/Via hotel-supplied ladder), Hotel Shakuntala Palace, New Shankar
+International and Hotel Sweet Home's directory (hotelspuri.net), Hotel
+Sukadev Homes (hotelsdhomes.com), The Eastern Dham (homestayindia.in),
+Yashasvi Inn (Booking/Expedia category lists; Expedia shows placeholder
+tiles, no per-room photos), Yatrinivas Konark and Panthanivas Satapada (OTDC
+tariff cards). Note: OTDC's current portal lists a single Konark unit whose
+contact details match the old Yatrinivas page — the two catalog entries may
+be the same physical unit.
+
+No categories published anywhere, generic labels kept: Divine Beach
+Homestay, Hotel Krishna Resorts (the one formal tariff online is a Diu
+namesake's), Hotel Sweet Home (a single generic "Deluxe Room"), Sidharth
+Inn, Santana Puri, Nuanai Nature Camp (a single "AC Cottage"), Hotel
+Deluxe Konark, and the two Konark eateries Santi Hotel and New Santi Hotel,
+which sell no rooms at all.

@@ -5,70 +5,70 @@
         "sourceName": "Standard Room",
         "basis": "Guest-video notes: standard = the hotel's standard (courtyard-facing) room; site category 'Standard Room'."
       },
-      "larger": {
+      "suite": {
         "sourceName": "Suite Room",
         "basis": "Guest-video notes: larger = suites and family suites; site category 'Suite Room'."
       }
     },
     "golden-tree-puri": {
-      "standard": {
+      "super-deluxe": {
         "sourceName": "Super Deluxe Room",
         "basis": "Guest-video notes: standard = Super Deluxe (side sea view). Hotel page title: Super Deluxe Room Side Balcony Sea View."
       },
-      "larger": {
+      "premium": {
         "sourceName": "Premium Room",
         "basis": "Guest-video notes: larger = Premium / luxury (sea view, more space). Hotel page title: Premium Room Side Balcony Sea View."
       }
     },
     "hotel-pulin-puri": {
-      "standard": {
+      "double-back": {
         "sourceName": "Double Bed Backside Non-Sea Facing",
         "basis": "Guest-video notes: standard = backside or side double (small). Hotel category: Double Bed Backside Non-Sea Facing."
       },
-      "larger": {
+      "double-super": {
         "sourceName": "Double Bed Super Luxury Front Balcony Sea Facing",
         "basis": "Guest-video notes: larger = sea-facing double / 4-bed sea-facing. Photos are the hotel's Double Bed Super Luxury Front Balcony Sea Facing."
       }
     },
     "shakti-horizon-puri": {
-      "standard": {
+      "deluxe-balcony": {
         "sourceName": "Deluxe Room",
         "basis": "Guest-video notes: standard = back-view standard room. Hotel's published base category is Deluxe Room."
       },
-      "larger": {
+      "super-deluxe-sea": {
         "sourceName": "Super Deluxe Room",
         "basis": "Guest-video notes: larger = front sea-facing Super Deluxe. Hotel page: Super Deluxe Room."
       }
     },
     "z-hotel-puri": {
-      "standard": {
+      "standard-twin-room": {
         "sourceName": "Standard Twin Room",
         "basis": "Hotel's published 'Standard Twin Room' matches the catalog standard slot."
       },
-      "larger": {
+      "deluxe-room": {
         "sourceName": "Deluxe Room",
         "basis": "Hotel's published 'Deluxe Room' is the larger official category (Single AC is smaller, not used)."
       }
     },
     "camellia-puri": {
-      "standard": {
+      "executive": {
         "sourceName": "Executive Ground Floor",
         "basis": "Hotel site lists Executive Ground Floor as a published room category; it is the base official type.",
         "floors": "Ground floor",
         "floorSource": "https://hotelcamelliapuri.com/#rooms",
         "floorQuote": "Executive Ground Floor — category name on the hotel site."
       },
-      "larger": {
+      "suite": {
         "sourceName": "Suite Room",
         "basis": "Hotel site lists Suite Room (sea facing) as a larger official category. Guest-video prices list suite above the double-room rates."
       }
     },
     "hotel-sukadev-homes": {
-      "standard": {
+      "standard-room": {
         "sourceName": "Standard Room",
         "basis": "Hotel rooms page heading 'Standard Room'; the photo sits in that card (layout position)."
       },
-      "larger": {
+      "deluxe-room": {
         "sourceName": "Deluxe Double Bed Room",
         "basis": "Hotel rooms page heading 'Deluxe Double Bed Room', the next official category above Standard."
       }
@@ -81,7 +81,7 @@
       }
     },
     "golden-dust-puri": {
-      "standard": {
+      "ac-deluxe": {
         "floors": "1st floor",
         "floorSource": "/workspace/tw-videos/notes/golden-dust-puri.md",
         "floorQuote": "standard = 1st-floor AC double (wall or side view)"
@@ -95,21 +95,21 @@
       }
     },
     "niladri-premium-puri": {
-      "standard": {
+      "deluxe": {
         "sourceName": "Deluxe Room",
         "basis": "Hotel site Accommodation section: Deluxe Room is the published base category (36 sea-view rooms)."
       },
-      "larger": {
+      "premium": {
         "sourceName": "Premium Room",
         "basis": "Hotel site Accommodation section: Premium Room, priced above Deluxe, with breakfast for two."
       }
     },
     "nrs-royal-palace-puri": {
-      "larger": {
+      "premium-room": {
         "sourceName": "Premium Sea View",
         "basis": "Hotel filename and rooms section photo: room-premium-sea-view.jpg. Video notes: larger = premium sea-view room."
       },
-      "standard": {
+      "deluxe-non-sea": {
         "sourceName": "Deluxe Room AC (NON SEA VIEW) DOUBLE OR TWIN",
         "basis": "Cleartrip bookable room list groups photos under the named category 'Deluxe Room AC (NON SEA VIEW) DOUBLE OR TWIN'. It is the cheapest bookable double on 15–16 Jan 2027 (₹6,768 vs Premium Sea View ₹8,883 and Royal Suite ₹10,998). Guest-video notes also say standard = non-sea-view. Two of the four category frames were omitted: one clearly shows the open sea, and another is the same staging as that sea-view frame."
       }
@@ -122,21 +122,21 @@
       }
     },
     "jeevan-sandhya-puri": {
-      "standard": {
+      "deluxe": {
         "sourceName": "Deluxe Room",
         "basis": "Guest-video notes: standard = AC deluxe (side/no sea view). Hotel rooms gallery filter and caption: Deluxe Room."
       },
-      "larger": {
+      "super-deluxe": {
         "sourceName": "Super Deluxe Room",
         "basis": "Guest-video notes: larger = sea-facing 1 BHK with balcony. Hotel rooms gallery filter and caption: Super Deluxe Room."
       }
     },
     "the-bay-suites-puri": {
-      "standard": {
+      "deluxe": {
         "sourceName": "Deluxe Room",
         "basis": "Guest-video notes: standard = Deluxe / Super Deluxe side sea view. Hotel's published base category on the rooms page and homepage is Deluxe Room (Super Deluxe is a separate official type, not mixed in)."
       },
-      "larger": {
+      "premium": {
         "sourceName": "Premium Room",
         "basis": "Guest-video notes: larger = Premium front sea-facing. Hotel homepage rooms section caption: Premium Room."
       }

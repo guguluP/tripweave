@@ -6,11 +6,11 @@
         "/stays/taj-puri-resort-spa/property-1.jpg",
         "/stays/taj-puri-resort-spa/property-2.jpg",
         "/stays/taj-puri-resort-spa/property-3.jpg",
-        "/stays/taj-puri-resort-spa/property-4.jpg",
+        "/stays/taj-puri-resort-spa/gallery-26.jpg",
         "/stays/taj-puri-resort-spa/gallery-1.jpg",
         "/stays/taj-puri-resort-spa/gallery-2.jpg",
         "/stays/taj-puri-resort-spa/gallery-9.jpg",
-        "/stays/taj-puri-resort-spa/gallery-10.jpg",
+        "/stays/taj-puri-resort-spa/gallery-72.jpg",
         "/stays/taj-puri-resort-spa/gallery-11.jpg",
         "/stays/taj-puri-resort-spa/gallery-12.jpg",
         "/stays/taj-puri-resort-spa/gallery-13.jpg",
@@ -26,14 +26,11 @@
         "/stays/taj-puri-resort-spa/gallery-23.jpg",
         "/stays/taj-puri-resort-spa/gallery-24.jpg",
         "/stays/taj-puri-resort-spa/gallery-25.jpg",
-        "/stays/taj-puri-resort-spa/gallery-26.jpg",
-        "/stays/taj-puri-resort-spa/gallery-27.jpg",
         "/stays/taj-puri-resort-spa/gallery-28.jpg",
         "/stays/taj-puri-resort-spa/gallery-29.jpg",
         "/stays/taj-puri-resort-spa/gallery-30.jpg",
         "/stays/taj-puri-resort-spa/gallery-31.jpg",
         "/stays/taj-puri-resort-spa/gallery-32.jpg",
-        "/stays/taj-puri-resort-spa/gallery-33.jpg",
         "/stays/taj-puri-resort-spa/gallery-34.jpg",
         "/stays/taj-puri-resort-spa/gallery-35.jpg",
         "/stays/taj-puri-resort-spa/gallery-36.jpg",
@@ -44,7 +41,7 @@
         "/stays/taj-puri-resort-spa/gallery-41.jpg",
         "/stays/taj-puri-resort-spa/gallery-42.jpg",
         "/stays/taj-puri-resort-spa/gallery-43.jpg",
-        "/stays/taj-puri-resort-spa/gallery-44.jpg",
+        "/stays/taj-puri-resort-spa/gallery-68.jpg",
         "/stays/taj-puri-resort-spa/gallery-45.jpg",
         "/stays/taj-puri-resort-spa/gallery-46.jpg",
         "/stays/taj-puri-resort-spa/gallery-47.jpg",
@@ -68,11 +65,9 @@
         "/stays/taj-puri-resort-spa/gallery-65.jpg",
         "/stays/taj-puri-resort-spa/gallery-66.jpg",
         "/stays/taj-puri-resort-spa/gallery-67.jpg",
-        "/stays/taj-puri-resort-spa/gallery-68.jpg",
         "/stays/taj-puri-resort-spa/gallery-69.jpg",
         "/stays/taj-puri-resort-spa/gallery-70.jpg",
-        "/stays/taj-puri-resort-spa/gallery-71.jpg",
-        "/stays/taj-puri-resort-spa/gallery-72.jpg"
+        "/stays/taj-puri-resort-spa/gallery-71.jpg"
       ],
       "rooms": {
         "executive-sea-suite": [
@@ -98,7 +93,6 @@
         ],
         "superior-sea-king": [
           "/stays/taj-puri-resort-spa/rooms/superior-sea-king.jpg",
-          "/stays/taj-puri-resort-spa/rooms/superior-sea-king-2.jpg",
           "/stays/taj-puri-resort-spa/rooms/superior-sea-king-3.jpg"
         ],
         "superior-sea-twin": [
@@ -155,7 +149,6 @@
         "/stays/mayfair-heritage-puri/gallery-31.jpg",
         "/stays/mayfair-heritage-puri/gallery-32.jpg",
         "/stays/mayfair-heritage-puri/gallery-33.jpg",
-        "/stays/mayfair-heritage-puri/gallery-34.jpg",
         "/stays/mayfair-heritage-puri/gallery-35.jpg",
         "/stays/mayfair-heritage-puri/gallery-36.jpg",
         "/stays/mayfair-heritage-puri/gallery-37.jpg"
@@ -226,7 +219,6 @@
         ],
         "imperial-suite": [
           "/stays/swosti-premium-beach-resort/rooms/imperial-suite.jpg",
-          "/stays/swosti-premium-beach-resort/rooms/imperial-suite-2.jpg",
           "/stays/swosti-premium-beach-resort/rooms/imperial-suite-3.jpg",
           "/stays/swosti-premium-beach-resort/rooms/imperial-suite-4.jpg",
           "/stays/swosti-premium-beach-resort/rooms/imperial-suite-5.jpg",
@@ -276,14 +268,12 @@
       "images": [
         "/stays/empires-hotel-puri/property-1.jpg",
         "/stays/empires-hotel-puri/property-2.jpg",
-        "/stays/empires-hotel-puri/property-3.jpg",
-        "/stays/empires-hotel-puri/property-4.jpg",
-        "/stays/empires-hotel-puri/property-5.jpg",
-        "/stays/empires-hotel-puri/gallery-1.jpg",
         "/stays/empires-hotel-puri/gallery-2.jpg",
+        "/stays/empires-hotel-puri/property-4.jpg",
+        "/stays/empires-hotel-puri/gallery-5.jpg",
+        "/stays/empires-hotel-puri/gallery-1.jpg",
         "/stays/empires-hotel-puri/gallery-3.jpg",
         "/stays/empires-hotel-puri/gallery-4.jpg",
-        "/stays/empires-hotel-puri/gallery-5.jpg",
         "/stays/empires-hotel-puri/gallery-6.jpg",
         "/stays/empires-hotel-puri/gallery-7.jpg"
       ],
@@ -314,14 +304,12 @@
         "/stays/mayfair-waves-puri/property-1.jpg",
         "/stays/mayfair-waves-puri/property-2.jpg",
         "/stays/mayfair-waves-puri/property-5.jpg",
-        "/stays/mayfair-waves-puri/property-6.jpg",
+        "/stays/mayfair-waves-puri/gallery-11.jpg",
         "/stays/mayfair-waves-puri/property-7.jpg",
         "/stays/mayfair-waves-puri/gallery-5.jpg",
         "/stays/mayfair-waves-puri/gallery-6.jpg",
         "/stays/mayfair-waves-puri/gallery-8.jpg",
-        "/stays/mayfair-waves-puri/gallery-9.jpg",
-        "/stays/mayfair-waves-puri/gallery-10.jpg",
-        "/stays/mayfair-waves-puri/gallery-11.jpg"
+        "/stays/mayfair-waves-puri/gallery-9.jpg"
       ],
       "rooms": {
         "premium": [
@@ -392,7 +380,6 @@
         "heritage-suite": [
           "/stays/chanakya-bnr-puri/rooms/heritage-suite-2.jpg",
           "/stays/chanakya-bnr-puri/rooms/heritage-suite-3.jpg",
-          "/stays/chanakya-bnr-puri/rooms/heritage-suite-5.jpg",
           "/stays/chanakya-bnr-puri/rooms/heritage-suite-6.jpg"
         ]
       }
@@ -412,7 +399,7 @@
         "/stays/mahodadhi-palace-puri/gallery-9.jpg",
         "/stays/mahodadhi-palace-puri/gallery-10.jpg",
         "/stays/mahodadhi-palace-puri/gallery-11.jpg",
-        "/stays/mahodadhi-palace-puri/gallery-12.jpg",
+        "/stays/mahodadhi-palace-puri/gallery-43.jpg",
         "/stays/mahodadhi-palace-puri/gallery-13.jpg",
         "/stays/mahodadhi-palace-puri/gallery-14.jpg",
         "/stays/mahodadhi-palace-puri/gallery-15.jpg",
@@ -424,7 +411,7 @@
         "/stays/mahodadhi-palace-puri/gallery-21.jpg",
         "/stays/mahodadhi-palace-puri/gallery-22.jpg",
         "/stays/mahodadhi-palace-puri/gallery-23.jpg",
-        "/stays/mahodadhi-palace-puri/gallery-24.jpg",
+        "/stays/mahodadhi-palace-puri/gallery-42.jpg",
         "/stays/mahodadhi-palace-puri/gallery-25.jpg",
         "/stays/mahodadhi-palace-puri/gallery-26.jpg",
         "/stays/mahodadhi-palace-puri/gallery-27.jpg",
@@ -442,8 +429,6 @@
         "/stays/mahodadhi-palace-puri/gallery-39.jpg",
         "/stays/mahodadhi-palace-puri/gallery-40.jpg",
         "/stays/mahodadhi-palace-puri/gallery-41.jpg",
-        "/stays/mahodadhi-palace-puri/gallery-42.jpg",
-        "/stays/mahodadhi-palace-puri/gallery-43.jpg",
         "/stays/mahodadhi-palace-puri/gallery-44.jpg",
         "/stays/mahodadhi-palace-puri/gallery-45.jpg",
         "/stays/mahodadhi-palace-puri/gallery-46.jpg"
@@ -588,10 +573,7 @@
         "/stays/toshali-sands-puri/property-5.jpg",
         "/stays/toshali-sands-puri/property-6.jpg",
         "/stays/toshali-sands-puri/gallery-1.jpg",
-        "/stays/toshali-sands-puri/gallery-2.jpg",
         "/stays/toshali-sands-puri/gallery-3.jpg",
-        "/stays/toshali-sands-puri/gallery-4.jpg",
-        "/stays/toshali-sands-puri/gallery-5.jpg",
         "/stays/toshali-sands-puri/gallery-6.jpg",
         "/stays/toshali-sands-puri/gallery-7.jpg",
         "/stays/toshali-sands-puri/gallery-8.jpg",
@@ -700,22 +682,37 @@
         "/stays/golden-tree-puri/gallery-11.jpg"
       ],
       "rooms": {
-        "standard": [
-          "/stays/golden-tree-puri/rooms/standard.jpg",
-          "/stays/golden-tree-puri/rooms/standard-2.jpg",
-          "/stays/golden-tree-puri/rooms/standard-3.jpg",
-          "/stays/golden-tree-puri/rooms/standard-4.jpg",
-          "/stays/golden-tree-puri/rooms/standard-5.jpg"
+        "executive": [
+          "/stays/golden-tree-puri/rooms/executive.jpg",
+          "/stays/golden-tree-puri/rooms/executive-2.jpg",
+          "/stays/golden-tree-puri/rooms/executive-3.jpg"
         ],
-        "larger": [
-          "/stays/golden-tree-puri/rooms/larger.jpg",
-          "/stays/golden-tree-puri/rooms/larger-2.jpg",
-          "/stays/golden-tree-puri/rooms/larger-3.jpg",
-          "/stays/golden-tree-puri/rooms/larger-4.jpg",
-          "/stays/golden-tree-puri/rooms/larger-5.jpg",
-          "/stays/golden-tree-puri/rooms/larger-6.jpg",
-          "/stays/golden-tree-puri/rooms/larger-7.jpg",
-          "/stays/golden-tree-puri/rooms/larger-8.jpg"
+        "super-deluxe": [
+          "/stays/golden-tree-puri/rooms/super-deluxe.jpg",
+          "/stays/golden-tree-puri/rooms/super-deluxe-2.jpg",
+          "/stays/golden-tree-puri/rooms/super-deluxe-3.jpg",
+          "/stays/golden-tree-puri/rooms/super-deluxe-4.jpg",
+          "/stays/golden-tree-puri/rooms/super-deluxe-5.jpg"
+        ],
+        "premium": [
+          "/stays/golden-tree-puri/rooms/premium.jpg",
+          "/stays/golden-tree-puri/rooms/premium-2.jpg",
+          "/stays/golden-tree-puri/rooms/premium-3.jpg",
+          "/stays/golden-tree-puri/rooms/premium-4.jpg",
+          "/stays/golden-tree-puri/rooms/premium-5.jpg",
+          "/stays/golden-tree-puri/rooms/premium-6.jpg",
+          "/stays/golden-tree-puri/rooms/premium-7.jpg",
+          "/stays/golden-tree-puri/rooms/premium-8.jpg"
+        ],
+        "family": [
+          "/stays/golden-tree-puri/rooms/family.jpg",
+          "/stays/golden-tree-puri/rooms/family-2.jpg",
+          "/stays/golden-tree-puri/rooms/family-3.jpg"
+        ],
+        "golden-blue": [
+          "/stays/golden-tree-puri/rooms/golden-blue.jpg",
+          "/stays/golden-tree-puri/rooms/golden-blue-2.jpg",
+          "/stays/golden-tree-puri/rooms/golden-blue-3.jpg"
         ]
       }
     },
@@ -731,19 +728,26 @@
         "/stays/camellia-puri/gallery-7.jpg",
         "/stays/camellia-puri/gallery-8.jpg",
         "/stays/camellia-puri/gallery-9.jpg",
-        "/stays/camellia-puri/gallery-10.jpg",
         "/stays/camellia-puri/gallery-11.jpg"
       ],
       "rooms": {
-        "standard": [
-          "/stays/camellia-puri/rooms/standard.jpg",
-          "/stays/camellia-puri/rooms/standard-2.jpg",
-          "/stays/camellia-puri/rooms/standard-3.jpg"
+        "executive": [
+          "/stays/camellia-puri/rooms/executive.jpg",
+          "/stays/camellia-puri/rooms/executive-2.jpg",
+          "/stays/camellia-puri/rooms/executive-3.jpg"
         ],
-        "larger": [
-          "/stays/camellia-puri/rooms/larger.jpg",
-          "/stays/camellia-puri/rooms/larger-2.jpg",
-          "/stays/camellia-puri/rooms/larger-3.jpg"
+        "premium-sea": [
+          "/stays/camellia-puri/rooms/premium-sea.jpg",
+          "/stays/camellia-puri/rooms/premium-sea-2.jpg"
+        ],
+        "suite": [
+          "/stays/camellia-puri/rooms/suite.jpg",
+          "/stays/camellia-puri/rooms/suite-2.jpg",
+          "/stays/camellia-puri/rooms/suite-3.jpg"
+        ],
+        "presidential": [
+          "/stays/camellia-puri/rooms/presidential.jpg",
+          "/stays/camellia-puri/rooms/presidential-2.jpg"
         ]
       }
     },
@@ -752,7 +756,6 @@
         "/stays/shakti-horizon-puri/property-1.jpg",
         "/stays/shakti-horizon-puri/gallery-1.jpg",
         "/stays/shakti-horizon-puri/gallery-2.jpg",
-        "/stays/shakti-horizon-puri/gallery-3.jpg",
         "/stays/shakti-horizon-puri/gallery-4.jpg",
         "/stays/shakti-horizon-puri/gallery-5.jpg",
         "/stays/shakti-horizon-puri/gallery-6.jpg",
@@ -762,20 +765,28 @@
         "/stays/shakti-horizon-puri/gallery-10.jpg"
       ],
       "rooms": {
-        "standard": [
-          "/stays/shakti-horizon-puri/rooms/standard.jpg",
-          "/stays/shakti-horizon-puri/rooms/standard-2.jpg",
-          "/stays/shakti-horizon-puri/rooms/standard-3.jpg",
-          "/stays/shakti-horizon-puri/rooms/standard-4.jpg"
+        "deluxe-balcony": [
+          "/stays/shakti-horizon-puri/rooms/deluxe-balcony.jpg",
+          "/stays/shakti-horizon-puri/rooms/deluxe-balcony-3.jpg",
+          "/stays/shakti-horizon-puri/rooms/deluxe-balcony-4.jpg",
+          "/stays/shakti-horizon-puri/rooms/deluxe-balcony-5.jpg",
+          "/stays/shakti-horizon-puri/rooms/deluxe-balcony-2.jpg",
+          "/stays/shakti-horizon-puri/rooms/deluxe-balcony-6.jpg",
+          "/stays/shakti-horizon-puri/rooms/deluxe-balcony-7.jpg",
+          "/stays/shakti-horizon-puri/rooms/deluxe-balcony-8.jpg"
         ],
-        "larger": [
-          "/stays/shakti-horizon-puri/rooms/larger.jpg",
-          "/stays/shakti-horizon-puri/rooms/larger-2.jpg",
-          "/stays/shakti-horizon-puri/rooms/larger-3.jpg",
-          "/stays/shakti-horizon-puri/rooms/larger-4.jpg",
-          "/stays/shakti-horizon-puri/rooms/larger-5.jpg",
-          "/stays/shakti-horizon-puri/rooms/larger-6.jpg",
-          "/stays/shakti-horizon-puri/rooms/larger-7.jpg"
+        "super-deluxe-sea": [
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-2.jpg",
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-3.jpg",
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-4.jpg",
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-5.jpg",
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea.jpg",
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-6.jpg",
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-7.jpg",
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-8.jpg",
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-9.jpg",
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-10.jpg",
+          "/stays/shakti-horizon-puri/rooms/super-deluxe-sea-11.jpg"
         ]
       }
     },
@@ -795,11 +806,18 @@
         "/stays/the-bay-suites-puri/gallery-11.jpg"
       ],
       "rooms": {
-        "standard": [
-          "/stays/the-bay-suites-puri/rooms/standard.jpg"
+        "deluxe": [
+          "/stays/the-bay-suites-puri/rooms/deluxe.jpg"
         ],
-        "larger": [
-          "/stays/the-bay-suites-puri/rooms/larger.jpg"
+        "super-deluxe": [
+          "/stays/the-bay-suites-puri/rooms/super-deluxe.jpg"
+        ],
+        "premium": [
+          "/stays/the-bay-suites-puri/rooms/premium.jpg",
+          "/stays/the-bay-suites-puri/rooms/premium-2.jpg"
+        ],
+        "presidential": [
+          "/stays/the-bay-suites-puri/rooms/presidential.jpg"
         ]
       }
     },
@@ -819,19 +837,23 @@
         "/stays/z-hotel-puri/gallery-11.jpg"
       ],
       "rooms": {
-        "standard": [
-          "/stays/z-hotel-puri/rooms/standard.jpg",
-          "/stays/z-hotel-puri/rooms/standard-2.jpg",
-          "/stays/z-hotel-puri/rooms/standard-3.jpg",
-          "/stays/z-hotel-puri/rooms/standard-4.jpg",
-          "/stays/z-hotel-puri/rooms/standard-5.jpg",
-          "/stays/z-hotel-puri/rooms/standard-6.jpg",
-          "/stays/z-hotel-puri/rooms/standard-7.jpg"
+        "single-ac-room": [
+          "/stays/z-hotel-puri/rooms/single-ac-room.jpg"
         ],
-        "larger": [
-          "/stays/z-hotel-puri/rooms/larger.jpg",
-          "/stays/z-hotel-puri/rooms/larger-2.jpg",
-          "/stays/z-hotel-puri/rooms/larger-3.jpg"
+        "standard-twin-room": [
+          "/stays/z-hotel-puri/rooms/standard-twin-room.jpg",
+          "/stays/z-hotel-puri/rooms/standard-twin-room-2.jpg",
+          "/stays/z-hotel-puri/rooms/standard-twin-room-3.jpg",
+          "/stays/z-hotel-puri/rooms/standard-twin-room-4.jpg",
+          "/stays/z-hotel-puri/rooms/standard-twin-room-5.jpg",
+          "/stays/z-hotel-puri/rooms/standard-twin-room-6.jpg",
+          "/stays/z-hotel-puri/rooms/standard-twin-room-7.jpg"
+        ],
+        "deluxe-room": [
+          "/stays/z-hotel-puri/rooms/deluxe-room.jpg",
+          "/stays/z-hotel-puri/rooms/deluxe-room-2.jpg",
+          "/stays/z-hotel-puri/rooms/deluxe-room-3.jpg",
+          "/stays/z-hotel-puri/rooms/deluxe-room-4.jpg"
         ]
       }
     },
@@ -867,7 +889,17 @@
         "/stays/om-leisure-satapada/gallery-3.jpg",
         "/stays/om-leisure-satapada/gallery-4.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe-room": [
+          "/stays/om-leisure-satapada/rooms/deluxe-room.jpg"
+        ],
+        "lake-view-suite": [
+          "/stays/om-leisure-satapada/rooms/lake-view-suite.jpg"
+        ],
+        "family-suit": [
+          "/stays/om-leisure-satapada/rooms/family-suit.jpg"
+        ]
+      }
     },
     "samudra-hotel-puri": {
       "images": [
@@ -917,7 +949,17 @@
         "/stays/hotel-vijoya-international/gallery-10.jpg",
         "/stays/hotel-vijoya-international/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe-non-sea": [
+          "/stays/hotel-vijoya-international/rooms/deluxe-non-sea.jpg"
+        ],
+        "deluxe-sea": [
+          "/stays/hotel-vijoya-international/rooms/deluxe-sea.jpg"
+        ],
+        "executive-sea": [
+          "/stays/hotel-vijoya-international/rooms/executive-sea.jpg"
+        ]
+      }
     },
     "hotel-pulin-puri": {
       "images": [
@@ -926,7 +968,6 @@
         "/stays/hotel-pulin-puri/gallery-2.jpg",
         "/stays/hotel-pulin-puri/gallery-3.jpg",
         "/stays/hotel-pulin-puri/gallery-4.jpg",
-        "/stays/hotel-pulin-puri/gallery-5.jpg",
         "/stays/hotel-pulin-puri/gallery-6.jpg",
         "/stays/hotel-pulin-puri/gallery-7.jpg",
         "/stays/hotel-pulin-puri/gallery-8.jpg",
@@ -935,13 +976,37 @@
         "/stays/hotel-pulin-puri/gallery-11.jpg"
       ],
       "rooms": {
-        "standard": [
-          "/stays/hotel-pulin-puri/rooms/standard.jpg",
-          "/stays/hotel-pulin-puri/rooms/standard-2.jpg",
-          "/stays/hotel-pulin-puri/rooms/standard-3.jpg"
+        "double-back": [
+          "/stays/hotel-pulin-puri/rooms/double-back.jpg",
+          "/stays/hotel-pulin-puri/rooms/double-back-2.jpg",
+          "/stays/hotel-pulin-puri/rooms/double-back-3.jpg"
         ],
-        "larger": [
-          "/stays/hotel-pulin-puri/rooms/larger.jpg"
+        "double-window": [
+          "/stays/hotel-pulin-puri/rooms/double-window.jpg"
+        ],
+        "double-ground": [
+          "/stays/hotel-pulin-puri/rooms/double-ground.jpg"
+        ],
+        "four-back": [
+          "/stays/hotel-pulin-puri/rooms/four-back.jpg"
+        ],
+        "double-side": [
+          "/stays/hotel-pulin-puri/rooms/double-side.jpg"
+        ],
+        "four-window": [
+          "/stays/hotel-pulin-puri/rooms/four-window.jpg"
+        ],
+        "double-super": [
+          "/stays/hotel-pulin-puri/rooms/double-super.jpg"
+        ],
+        "four-balcony": [
+          "/stays/hotel-pulin-puri/rooms/four-balcony.jpg"
+        ],
+        "four-family": [
+          "/stays/hotel-pulin-puri/rooms/four-family.jpg"
+        ],
+        "maharaja": [
+          "/stays/hotel-pulin-puri/rooms/maharaja.jpg"
         ]
       }
     },
@@ -1001,7 +1066,20 @@
         "/stays/dreamland-puri/gallery-6.jpg",
         "/stays/dreamland-puri/gallery-7.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe-room": [
+          "/stays/dreamland-puri/rooms/deluxe-room.jpg"
+        ],
+        "super-deluxe-room": [
+          "/stays/dreamland-puri/rooms/super-deluxe-room.jpg"
+        ],
+        "luxury-room": [
+          "/stays/dreamland-puri/rooms/luxury-room.jpg"
+        ],
+        "family-room": [
+          "/stays/dreamland-puri/rooms/family-room.jpg"
+        ]
+      }
     },
     "blue-lily-puri": {
       "images": [
@@ -1019,25 +1097,39 @@
         "/stays/blue-lily-puri/gallery-11.jpg"
       ],
       "rooms": {
+        "premium": [
+          "/stays/blue-lily-puri/rooms/premium.jpg",
+          "/stays/blue-lily-puri/rooms/premium-2.jpg",
+          "/stays/blue-lily-puri/rooms/premium-3.jpg",
+          "/stays/blue-lily-puri/rooms/premium-4.jpg",
+          "/stays/blue-lily-puri/rooms/premium-5.jpg",
+          "/stays/blue-lily-puri/rooms/premium-6.jpg"
+        ],
+        "family": [
+          "/stays/blue-lily-puri/rooms/family.jpg",
+          "/stays/blue-lily-puri/rooms/family-2.jpg",
+          "/stays/blue-lily-puri/rooms/family-3.jpg",
+          "/stays/blue-lily-puri/rooms/family-4.jpg"
+        ],
+        "suite": [
+          "/stays/blue-lily-puri/rooms/suite.jpg",
+          "/stays/blue-lily-puri/rooms/suite-3.jpg",
+          "/stays/blue-lily-puri/rooms/suite-2.jpg",
+          "/stays/blue-lily-puri/rooms/suite-4.jpg",
+          "/stays/blue-lily-puri/rooms/suite-5.jpg",
+          "/stays/blue-lily-puri/rooms/suite-6.jpg",
+          "/stays/blue-lily-puri/rooms/suite-7.jpg",
+          "/stays/blue-lily-puri/rooms/suite-8.jpg",
+          "/stays/blue-lily-puri/rooms/suite-9.jpg",
+          "/stays/blue-lily-puri/rooms/suite-10.jpg"
+        ],
         "standard": [
           "/stays/blue-lily-puri/rooms/standard.jpg",
-          "/stays/blue-lily-puri/rooms/standard-2.jpg",
           "/stays/blue-lily-puri/rooms/standard-3.jpg",
+          "/stays/blue-lily-puri/rooms/standard-2.jpg",
           "/stays/blue-lily-puri/rooms/standard-4.jpg",
           "/stays/blue-lily-puri/rooms/standard-5.jpg",
           "/stays/blue-lily-puri/rooms/standard-6.jpg"
-        ],
-        "larger": [
-          "/stays/blue-lily-puri/rooms/larger.jpg",
-          "/stays/blue-lily-puri/rooms/larger-2.jpg",
-          "/stays/blue-lily-puri/rooms/larger-3.jpg",
-          "/stays/blue-lily-puri/rooms/larger-4.jpg",
-          "/stays/blue-lily-puri/rooms/larger-5.jpg",
-          "/stays/blue-lily-puri/rooms/larger-6.jpg",
-          "/stays/blue-lily-puri/rooms/larger-7.jpg",
-          "/stays/blue-lily-puri/rooms/larger-8.jpg",
-          "/stays/blue-lily-puri/rooms/larger-9.jpg",
-          "/stays/blue-lily-puri/rooms/larger-10.jpg"
         ]
       }
     },
@@ -1051,15 +1143,21 @@
         "/stays/niladri-premium-puri/gallery-5.jpg"
       ],
       "rooms": {
-        "standard": [
-          "/stays/niladri-premium-puri/rooms/standard.jpg",
-          "/stays/niladri-premium-puri/rooms/standard-2.jpg",
-          "/stays/niladri-premium-puri/rooms/standard-3.jpg"
+        "deluxe": [
+          "/stays/niladri-premium-puri/rooms/deluxe.jpg",
+          "/stays/niladri-premium-puri/rooms/deluxe-2.jpg",
+          "/stays/niladri-premium-puri/rooms/deluxe-3.jpg",
+          "/stays/niladri-premium-puri/rooms/deluxe-4.jpg",
+          "/stays/niladri-premium-puri/rooms/deluxe-5.jpg",
+          "/stays/niladri-premium-puri/rooms/deluxe-6.jpg"
         ],
-        "larger": [
-          "/stays/niladri-premium-puri/rooms/larger.jpg",
-          "/stays/niladri-premium-puri/rooms/larger-2.jpg",
-          "/stays/niladri-premium-puri/rooms/larger-3.jpg"
+        "premium": [
+          "/stays/niladri-premium-puri/rooms/premium.jpg",
+          "/stays/niladri-premium-puri/rooms/premium-2.jpg",
+          "/stays/niladri-premium-puri/rooms/premium-3.jpg",
+          "/stays/niladri-premium-puri/rooms/premium-4.jpg",
+          "/stays/niladri-premium-puri/rooms/premium-5.jpg",
+          "/stays/niladri-premium-puri/rooms/premium-6.jpg"
         ]
       }
     },
@@ -1078,7 +1176,26 @@
         "/stays/lotus-eco-resort/gallery-10.jpg",
         "/stays/lotus-eco-resort/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "forest-eco": [
+          "/stays/lotus-eco-resort/rooms/forest-eco.jpg"
+        ],
+        "sea-breeze": [
+          "/stays/lotus-eco-resort/rooms/sea-breeze.jpg"
+        ],
+        "premium-forest-villa": [
+          "/stays/lotus-eco-resort/rooms/premium-forest-villa.jpg"
+        ],
+        "sea-breeze-deluxe": [
+          "/stays/lotus-eco-resort/rooms/sea-breeze-deluxe.jpg"
+        ],
+        "sea-view-villa": [
+          "/stays/lotus-eco-resort/rooms/sea-view-villa.jpg"
+        ],
+        "forest-deluxe": [
+          "/stays/lotus-eco-resort/rooms/forest-deluxe.jpg"
+        ]
+      }
     },
     "nrs-royal-palace-puri": {
       "images": [
@@ -1096,12 +1213,17 @@
         "/stays/nrs-royal-palace-puri/gallery-11.jpg"
       ],
       "rooms": {
-        "larger": [
-          "/stays/nrs-royal-palace-puri/rooms/larger.jpg"
+        "deluxe-non-sea": [
+          "/stays/nrs-royal-palace-puri/rooms/deluxe-non-sea.jpg",
+          "/stays/nrs-royal-palace-puri/rooms/deluxe-non-sea-2.jpg"
         ],
-        "standard": [
-          "/stays/nrs-royal-palace-puri/rooms/standard.jpg",
-          "/stays/nrs-royal-palace-puri/rooms/standard-2.jpg"
+        "premium-room": [
+          "/stays/nrs-royal-palace-puri/rooms/premium-room.jpg",
+          "/stays/nrs-royal-palace-puri/rooms/premium-room-2.jpg"
+        ],
+        "super-deluxe": [
+          "/stays/nrs-royal-palace-puri/rooms/super-deluxe.jpg",
+          "/stays/nrs-royal-palace-puri/rooms/super-deluxe-2.jpg"
         ]
       }
     },
@@ -1110,7 +1232,23 @@
         "/stays/panthanivas-konark/property-1.jpg",
         "/stays/panthanivas-konark/gallery-1.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe": [
+          "/stays/panthanivas-konark/rooms/deluxe.jpg"
+        ],
+        "ac-family-room": [
+          "/stays/panthanivas-konark/rooms/ac-family-room.jpg"
+        ],
+        "executive": [
+          "/stays/panthanivas-konark/rooms/executive.jpg"
+        ],
+        "premier": [
+          "/stays/panthanivas-konark/rooms/premier.jpg"
+        ],
+        "suite": [
+          "/stays/panthanivas-konark/rooms/suite.jpg"
+        ]
+      }
     },
     "yatrinivas-konark": {
       "images": [
@@ -1139,13 +1277,57 @@
         "/stays/hotel-bishnu-bhaban/gallery-1.jpg",
         "/stays/hotel-bishnu-bhaban/gallery-2.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "double-non-ac": [
+          "/stays/hotel-bishnu-bhaban/rooms/double-non-ac.jpg"
+        ],
+        "double-ac": [
+          "/stays/hotel-bishnu-bhaban/rooms/double-ac.jpg"
+        ],
+        "four-non-ac": [
+          "/stays/hotel-bishnu-bhaban/rooms/four-non-ac.jpg"
+        ],
+        "four-ac": [
+          "/stays/hotel-bishnu-bhaban/rooms/four-ac.jpg"
+        ],
+        "deluxe-temple": [
+          "/stays/hotel-bishnu-bhaban/rooms/deluxe-temple.jpg"
+        ],
+        "super-deluxe": [
+          "/stays/hotel-bishnu-bhaban/rooms/super-deluxe.jpg"
+        ],
+        "six-bed": [
+          "/stays/hotel-bishnu-bhaban/rooms/six-bed.jpg"
+        ],
+        "family-suite": [
+          "/stays/hotel-bishnu-bhaban/rooms/family-suite.jpg"
+        ],
+        "deluxe-four": [
+          "/stays/hotel-bishnu-bhaban/rooms/deluxe-four.jpg"
+        ],
+        "maharaja": [
+          "/stays/hotel-bishnu-bhaban/rooms/maharaja.jpg"
+        ]
+      }
     },
     "hotel-konark-puri": {
       "images": [
         "/stays/hotel-konark-puri/property-1.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "double-bed": [
+          "/stays/hotel-konark-puri/rooms/double-bed.jpg"
+        ],
+        "three-bed": [
+          "/stays/hotel-konark-puri/rooms/three-bed.jpg"
+        ],
+        "four-bed": [
+          "/stays/hotel-konark-puri/rooms/four-bed.jpg"
+        ],
+        "ac-suit": [
+          "/stays/hotel-konark-puri/rooms/ac-suit.jpg"
+        ]
+      }
     },
     "hotel-new-sea-hawk": {
       "images": [
@@ -1230,7 +1412,17 @@
         "/stays/hotel-shreehari-puri/gallery-5.jpg",
         "/stays/hotel-shreehari-puri/gallery-6.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "front-suite": [
+          "/stays/hotel-shreehari-puri/rooms/front-suite.jpg"
+        ],
+        "family-suite": [
+          "/stays/hotel-shreehari-puri/rooms/family-suite.jpg"
+        ],
+        "super-deluxe": [
+          "/stays/hotel-shreehari-puri/rooms/super-deluxe.jpg"
+        ]
+      }
     },
     "hotel-sonar-bangla-puri": {
       "images": [
@@ -1263,7 +1455,6 @@
     "jeevan-sandhya-puri": {
       "images": [
         "/stays/jeevan-sandhya-puri/property-1.jpg",
-        "/stays/jeevan-sandhya-puri/gallery-1.jpg",
         "/stays/jeevan-sandhya-puri/gallery-2.jpg",
         "/stays/jeevan-sandhya-puri/gallery-3.jpg",
         "/stays/jeevan-sandhya-puri/gallery-4.jpg",
@@ -1272,19 +1463,27 @@
         "/stays/jeevan-sandhya-puri/gallery-7.jpg"
       ],
       "rooms": {
-        "standard": [
-          "/stays/jeevan-sandhya-puri/rooms/standard.jpg",
-          "/stays/jeevan-sandhya-puri/rooms/standard-2.jpg",
-          "/stays/jeevan-sandhya-puri/rooms/standard-3.jpg"
+        "deluxe": [
+          "/stays/jeevan-sandhya-puri/rooms/deluxe.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/deluxe-2.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/deluxe-3.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/deluxe-4.jpg"
         ],
-        "larger": [
-          "/stays/jeevan-sandhya-puri/rooms/larger.jpg",
-          "/stays/jeevan-sandhya-puri/rooms/larger-2.jpg",
-          "/stays/jeevan-sandhya-puri/rooms/larger-3.jpg",
-          "/stays/jeevan-sandhya-puri/rooms/larger-4.jpg",
-          "/stays/jeevan-sandhya-puri/rooms/larger-5.jpg",
-          "/stays/jeevan-sandhya-puri/rooms/larger-6.jpg",
-          "/stays/jeevan-sandhya-puri/rooms/larger-7.jpg"
+        "super-deluxe": [
+          "/stays/jeevan-sandhya-puri/rooms/super-deluxe.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/super-deluxe-2.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/super-deluxe-3.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/super-deluxe-4.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/super-deluxe-5.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/super-deluxe-6.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/super-deluxe-7.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/super-deluxe-8.jpg"
+        ],
+        "premium": [
+          "/stays/jeevan-sandhya-puri/rooms/premium.jpg"
+        ],
+        "executive": [
+          "/stays/jeevan-sandhya-puri/rooms/executive.jpg"
         ]
       }
     },
@@ -1299,7 +1498,17 @@
         "/stays/lucky-india-puri/gallery-6.jpg",
         "/stays/lucky-india-puri/gallery-7.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "deluxe-room": [
+          "/stays/lucky-india-puri/rooms/deluxe-room.jpg"
+        ],
+        "non-sea-view-premium": [
+          "/stays/lucky-india-puri/rooms/non-sea-view-premium.jpg"
+        ],
+        "sea-view-premium": [
+          "/stays/lucky-india-puri/rooms/sea-view-premium.jpg"
+        ]
+      }
     },
     "new-shankar-international": {
       "images": [
@@ -1341,7 +1550,20 @@
         "/stays/hotel-golden-palace-puri/gallery-8.jpg",
         "/stays/hotel-golden-palace-puri/gallery-9.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "premium-pool-facing-room": [
+          "/stays/hotel-golden-palace-puri/rooms/premium-pool-facing-room.jpg"
+        ],
+        "deluxe-sea-facing-room": [
+          "/stays/hotel-golden-palace-puri/rooms/deluxe-sea-facing-room.jpg"
+        ],
+        "mini-suite-room": [
+          "/stays/hotel-golden-palace-puri/rooms/mini-suite-room.jpg"
+        ],
+        "presidential-suite": [
+          "/stays/hotel-golden-palace-puri/rooms/presidential-suite.jpg"
+        ]
+      }
     },
     "rivera-puri": {
       "images": [
@@ -1381,13 +1603,156 @@
         "/stays/hotel-sukadev-homes/gallery-4.jpg"
       ],
       "rooms": {
-        "standard": [
-          "/stays/hotel-sukadev-homes/rooms/standard.jpg"
+        "standard-room": [
+          "/stays/hotel-sukadev-homes/rooms/standard-room.jpg"
         ],
-        "larger": [
-          "/stays/hotel-sukadev-homes/rooms/larger.jpg"
+        "deluxe-room": [
+          "/stays/hotel-sukadev-homes/rooms/deluxe-room.jpg"
         ]
       }
+    },
+    "divine-beach-homestay-puri": {
+      "images": [
+        "/stays/divine-beach-homestay-puri/property-1.jpg",
+        "/stays/divine-beach-homestay-puri/gallery-1.jpg",
+        "/stays/divine-beach-homestay-puri/gallery-2.jpg",
+        "/stays/divine-beach-homestay-puri/gallery-3.jpg",
+        "/stays/divine-beach-homestay-puri/gallery-4.jpg"
+      ],
+      "rooms": {}
+    },
+    "golden-dust-puri": {
+      "images": [
+        "/stays/golden-dust-puri/property-1.jpg",
+        "/stays/golden-dust-puri/gallery-1.jpg",
+        "/stays/golden-dust-puri/gallery-2.jpg",
+        "/stays/golden-dust-puri/gallery-3.jpg"
+      ],
+      "rooms": {}
+    },
+    "hotel-krishna-resorts-puri": {
+      "images": [
+        "/stays/hotel-krishna-resorts-puri/property-1.jpg",
+        "/stays/hotel-krishna-resorts-puri/gallery-1.jpg",
+        "/stays/hotel-krishna-resorts-puri/gallery-2.jpg",
+        "/stays/hotel-krishna-resorts-puri/gallery-3.jpg",
+        "/stays/hotel-krishna-resorts-puri/gallery-4.jpg"
+      ],
+      "rooms": {}
+    },
+    "hotel-shakuntala-palace": {
+      "images": [
+        "/stays/hotel-shakuntala-palace/property-1.jpg",
+        "/stays/hotel-shakuntala-palace/gallery-1.jpg",
+        "/stays/hotel-shakuntala-palace/gallery-2.jpg",
+        "/stays/hotel-shakuntala-palace/gallery-3.jpg",
+        "/stays/hotel-shakuntala-palace/gallery-4.jpg"
+      ],
+      "rooms": {}
+    },
+    "hotel-sweet-home-puri": {
+      "images": [
+        "/stays/hotel-sweet-home-puri/property-1.jpg",
+        "/stays/hotel-sweet-home-puri/gallery-1.jpg",
+        "/stays/hotel-sweet-home-puri/gallery-2.jpg",
+        "/stays/hotel-sweet-home-puri/gallery-3.jpg",
+        "/stays/hotel-sweet-home-puri/gallery-4.jpg"
+      ],
+      "rooms": {}
+    },
+    "panthanivas-satapada": {
+      "images": [
+        "/stays/panthanivas-satapada/property-1.jpg"
+      ],
+      "rooms": {}
+    },
+    "shree-vishnu-darshan": {
+      "images": [
+        "/stays/shree-vishnu-darshan/property-1.jpg",
+        "/stays/shree-vishnu-darshan/gallery-1.jpg",
+        "/stays/shree-vishnu-darshan/gallery-3.jpg",
+        "/stays/shree-vishnu-darshan/gallery-5.jpg",
+        "/stays/shree-vishnu-darshan/gallery-6.jpg"
+      ],
+      "rooms": {
+        "2-bed-deluxe-ac-room": [
+          "/stays/shree-vishnu-darshan/rooms/2-bed-deluxe-ac-room.jpg"
+        ],
+        "2-bed-super-deluxe-ac-room": [
+          "/stays/shree-vishnu-darshan/rooms/2-bed-super-deluxe-ac-room.jpg"
+        ],
+        "4-bed-ac-room": [
+          "/stays/shree-vishnu-darshan/rooms/4-bed-ac-room.jpg"
+        ]
+      }
+    },
+    "sidharth-inn-puri": {
+      "images": [
+        "/stays/sidharth-inn-puri/property-1.jpg",
+        "/stays/sidharth-inn-puri/gallery-1.jpg"
+      ],
+      "rooms": {}
+    },
+    "sterling-puri": {
+      "images": [
+        "/stays/sterling-puri/property-1.jpg",
+        "/stays/sterling-puri/gallery-1.jpg",
+        "/stays/sterling-puri/gallery-2.jpg",
+        "/stays/sterling-puri/gallery-3.jpg",
+        "/stays/sterling-puri/gallery-4.jpg",
+        "/stays/sterling-puri/gallery-5.jpg"
+      ],
+      "rooms": {}
+    },
+    "the-eastern-dham": {
+      "images": [
+        "/stays/the-eastern-dham/property-1.jpg",
+        "/stays/the-eastern-dham/gallery-1.jpg",
+        "/stays/the-eastern-dham/gallery-2.jpg",
+        "/stays/the-eastern-dham/gallery-3.jpg",
+        "/stays/the-eastern-dham/gallery-4.jpg",
+        "/stays/the-eastern-dham/gallery-5.jpg",
+        "/stays/the-eastern-dham/gallery-6.jpg"
+      ],
+      "rooms": {}
+    },
+    "yashasvi-inn-puri": {
+      "images": [
+        "/stays/yashasvi-inn-puri/property-1.jpg",
+        "/stays/yashasvi-inn-puri/gallery-1.jpg",
+        "/stays/yashasvi-inn-puri/gallery-2.jpg",
+        "/stays/yashasvi-inn-puri/gallery-3.jpg",
+        "/stays/yashasvi-inn-puri/gallery-4.jpg",
+        "/stays/yashasvi-inn-puri/gallery-5.jpg",
+        "/stays/yashasvi-inn-puri/gallery-6.jpg"
+      ],
+      "rooms": {}
+    },
+    "hotel-deluxe-konark": {
+      "images": [
+        "/stays/hotel-deluxe-konark/property-1.jpg",
+        "/stays/hotel-deluxe-konark/gallery-1.jpg",
+        "/stays/hotel-deluxe-konark/gallery-2.jpg",
+        "/stays/hotel-deluxe-konark/gallery-3.jpg",
+        "/stays/hotel-deluxe-konark/gallery-4.jpg"
+      ],
+      "rooms": {}
+    },
+    "santi-hotel-konark": {
+      "images": [
+        "/stays/santi-hotel-konark/property-1.jpg",
+        "/stays/santi-hotel-konark/gallery-1.jpg",
+        "/stays/santi-hotel-konark/gallery-2.jpg",
+        "/stays/santi-hotel-konark/gallery-3.jpg"
+      ],
+      "rooms": {}
+    },
+    "new-santi-hotel-konark": {
+      "images": [
+        "/stays/new-santi-hotel-konark/property-1.jpg",
+        "/stays/new-santi-hotel-konark/gallery-1.jpg"
+      ],
+      "rooms": {}
     }
   }
 }

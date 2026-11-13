@@ -2,12 +2,23 @@
  * Per-property desk tokens and signed accept/decline links.
  * Do NOT use PARTNER_EMAILS email:* wildcards for desk access.
  */
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import * as nodeCrypto from "node:crypto";
 
 export type DeskTokenGrant = { packageId: string; token: string };
 
-/** TW_DESK_TOKENS=packageId:secret,other-id:other-secret */
-export function parseDeskTokens(raw = process.env.TW_DESK_TOKENS ?? ""): DeskTokenGrant[] {
+/**
+ * TW_DESK_TOKENS=packageId:secret,other-id:other-secret
+ * Later stays are listed in TW_DESK_TOKENS_MORE. Vercel will not return the
+ * original secret, so new keys are appended there instead of replacing it.
+ */
+export function deskTokenSource(): string {
+  return [process.env.TW_DESK_TOKENS, process.env.TW_DESK_TOKENS_MORE]
+    .map((part) => part?.trim() ?? "")
+    .filter(Boolean)
+    .join(",");
+}
+
+export function parseDeskTokens(raw = deskTokenSource()): DeskTokenGrant[] {
   return raw
     .split(",")
     .map((part) => part.trim())
@@ -37,9 +48,9 @@ export function assertDeskTokenForPackage(token: string, packageId: string): boo
 
 /** Constant-time string compare. Hashing first keeps the compare length-independent. */
 function safeEqual(a: string, b: string): boolean {
-  const left = createHash("sha256").update(a).digest();
-  const right = createHash("sha256").update(b).digest();
-  return timingSafeEqual(left, right);
+  const left = nodeCrypto.createHash("sha256").update(a).digest();
+  const right = nodeCrypto.createHash("sha256").update(b).digest();
+  return nodeCrypto.timingSafeEqual(left, right);
 }
 
 function actionSecret(): string {
@@ -78,7 +89,9 @@ function fromB64url(s: string) {
   return Buffer.from(s.replace(/-/g, "+").replace(/_/g, "/") + pad, "base64");
 }
 
-export function signDeskAction(input: Omit<DeskActionPayload, "exp"> & { ttlSec?: number }): string | null {
+export function signDeskAction(
+  input: Omit<DeskActionPayload, "exp"> & { ttlSec?: number },
+): string | null {
   const secret = actionSecret();
   if (!secret) return null;
   const payload: DeskActionPayload = {
@@ -86,7 +99,7 @@ export function signDeskAction(input: Omit<DeskActionPayload, "exp"> & { ttlSec?
     exp: Math.floor(Date.now() / 1000) + (input.ttlSec ?? 60 * 60 * 48),
   };
   const body = b64url(JSON.stringify(payload));
-  const sig = b64url(createHmac("sha256", secret).update(body).digest());
+  const sig = b64url(nodeCrypto.createHmac("sha256", secret).update(body).digest());
   return `${body}.${sig}`;
 }
 
@@ -95,7 +108,7 @@ export function verifyDeskAction(token: string): DeskActionPayload | null {
   if (!secret || !token.includes(".")) return null;
   const [body, sig] = token.split(".");
   if (!body || !sig) return null;
-  const expected = b64url(createHmac("sha256", secret).update(body).digest());
+  const expected = b64url(nodeCrypto.createHmac("sha256", secret).update(body).digest());
   if (!safeEqual(sig, expected)) return null;
   try {
     const payload = JSON.parse(fromB64url(body).toString("utf8")) as DeskActionPayload;

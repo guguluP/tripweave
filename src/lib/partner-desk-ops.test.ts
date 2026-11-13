@@ -8,7 +8,7 @@ import { getPackage } from "./packages.ts";
 import { quoteStay, tryReserveHold, releaseHoldById } from "./inventory.ts";
 import { setNightUnits, setStopSell, replaceAllotment, replaceStopSell } from "./allotment-store.ts";
 import { packageIdsForPartner } from "./partner-access.ts";
-import { parseDeskTokens, signDeskAction, verifyDeskAction } from "./server/desk-auth.ts";
+import { packageIdsForDeskToken, parseDeskTokens, signDeskAction, verifyDeskAction } from "./server/desk-auth.ts";
 import { nextStatus } from "./booking-status.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -110,6 +110,27 @@ describe("partner desk ops", () => {
     const grants = parseDeskTokens("taj-puri-resort-spa:secret-a,mayfair-heritage-puri:secret-b");
     assert.equal(grants.length, 2);
     assert.equal(grants[0]?.packageId, "taj-puri-resort-spa");
+  });
+
+  it("keeps the original desk list and adds TW_DESK_TOKENS_MORE", () => {
+    const prev = process.env.TW_DESK_TOKENS;
+    const extra = process.env.TW_DESK_TOKENS_MORE;
+    process.env.TW_DESK_TOKENS = "taj-puri-resort-spa:secret-a";
+    process.env.TW_DESK_TOKENS_MORE = "blue-lily-puri:secret-c";
+    try {
+      const grants = parseDeskTokens();
+      assert.deepEqual(
+        grants.map((grant) => grant.packageId),
+        ["taj-puri-resort-spa", "blue-lily-puri"],
+      );
+      assert.deepEqual(packageIdsForDeskToken("secret-c"), ["blue-lily-puri"]);
+      assert.deepEqual(packageIdsForDeskToken("secret-a"), ["taj-puri-resort-spa"]);
+    } finally {
+      if (prev === undefined) delete process.env.TW_DESK_TOKENS;
+      else process.env.TW_DESK_TOKENS = prev;
+      if (extra === undefined) delete process.env.TW_DESK_TOKENS_MORE;
+      else process.env.TW_DESK_TOKENS_MORE = extra;
+    }
   });
 
   it("SQL: allotment, stop-sell, and desk_confirmed transition", async () => {

@@ -39,8 +39,8 @@ const SEEDED_STAYS = [
 ];
 
 describe("catalog", () => {
-  it("lists sixty-two stays in and near Puri, with rooms and 1-night stays", () => {
-    assert.equal(PACKAGES.length, 62);
+  it("lists fifty-nine stays in and near Puri, with rooms and 1-night stays", () => {
+    assert.equal(PACKAGES.length, 59);
     for (const pkg of PACKAGES) {
       assert.equal(pkg.nightsMin, 1, pkg.id);
       assert.ok(pkg.nightsMax >= pkg.nightsMin, pkg.id);
@@ -158,9 +158,9 @@ describe("catalog", () => {
     assert.equal(stayNeedsUserFiles("taj-puri-resort-spa"), false);
   });
 
-  it("pins every stay, including the fifty added around Puri", () => {
+  it("pins every stay, including the forty-seven added around Puri", () => {
     const added = PACKAGES.filter((pkg) => !SEEDED_STAYS.includes(pkg.id));
-    assert.equal(added.length, 50);
+    assert.equal(added.length, 47);
     for (const pkg of PACKAGES) {
       assert.ok(stayPin(pkg.id, pkg.name), pkg.id);
     }
