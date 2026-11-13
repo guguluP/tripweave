@@ -59,6 +59,10 @@ export type RoomType = {
   image: string;
   /** Extra frames for the open room card. The first photo stays `image`. */
   images?: string[];
+  /** The category name the photos carry at their source, when it differs from `name`. */
+  photoLabel?: string;
+  /** Floor(s) this room type is on, only when a recorded source states it (e.g. "Top floor"). */
+  floors?: string;
 };
 
 export type PropertyVideo = {
