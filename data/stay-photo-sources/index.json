@@ -18,7 +18,9 @@
     "www.hotelprabhupada.com": "https://hotelprabhupada.com/",
     "zhotelpuri.com": "https://zhotelpuri.com/",
     "pub-f7b2dca3fdfd484b97dd04ed13e2054f.r2.dev": "https://hotelcamelliapuri.com/",
-    "assets.zyrosite.com": "https://hotelsdhomes.com/"
+    "assets.zyrosite.com": "https://hotelsdhomes.com/",
+    "hotelniladripremium.com": "https://hotelniladripremium.com/",
+    "nrsroyalpalace.com": "https://nrsroyalpalace.com/"
   },
   "proxy_hosts": [
     "www.toshaliresort.com",
@@ -46,6 +48,8 @@
     "z-hotel-puri",
     "camellia-puri",
     "hotel-sukadev-homes",
-    "hotel-sonar-bangla-puri"
+    "hotel-sonar-bangla-puri",
+    "niladri-premium-puri",
+    "nrs-royal-palace-puri"
   ]
 }

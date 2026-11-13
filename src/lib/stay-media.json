@@ -1043,7 +1043,18 @@
         "/stays/niladri-premium-puri/gallery-4.jpg",
         "/stays/niladri-premium-puri/gallery-5.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "standard": [
+          "/stays/niladri-premium-puri/rooms/standard.jpg",
+          "/stays/niladri-premium-puri/rooms/standard-2.jpg",
+          "/stays/niladri-premium-puri/rooms/standard-3.jpg"
+        ],
+        "larger": [
+          "/stays/niladri-premium-puri/rooms/larger.jpg",
+          "/stays/niladri-premium-puri/rooms/larger-2.jpg",
+          "/stays/niladri-premium-puri/rooms/larger-3.jpg"
+        ]
+      }
     },
     "lotus-eco-resort": {
       "images": [
@@ -1077,7 +1088,11 @@
         "/stays/nrs-royal-palace-puri/gallery-10.jpg",
         "/stays/nrs-royal-palace-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "larger": [
+          "/stays/nrs-royal-palace-puri/rooms/larger.jpg"
+        ]
+      }
     },
     "panthanivas-konark": {
       "images": [

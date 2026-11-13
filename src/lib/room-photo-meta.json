@@ -93,6 +93,29 @@
         "floorSource": "/workspace/tw-videos/notes/santana-puri.md",
         "floorQuote": "standard = non-AC / standard AC room (ground floor, no view)"
       }
+    },
+    "niladri-premium-puri": {
+      "standard": {
+        "sourceName": "Deluxe Room",
+        "basis": "Hotel site Accommodation section: Deluxe Room is the published base category (36 sea-view rooms)."
+      },
+      "larger": {
+        "sourceName": "Premium Room",
+        "basis": "Hotel site Accommodation section: Premium Room, priced above Deluxe, with breakfast for two."
+      }
+    },
+    "nrs-royal-palace-puri": {
+      "larger": {
+        "sourceName": "Premium Sea View",
+        "basis": "Hotel filename and rooms section photo: room-premium-sea-view.jpg. Video notes: larger = premium sea-view room."
+      }
+    },
+    "hans-coco-palms": {
+      "pool-garden": {
+        "floors": "First floor",
+        "floorSource": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-first-floor-twin-beds_2d99404b.jpg",
+        "floorQuote": "Official Simplotel files for this category are named deluxe-first-floor-*"
+      }
     }
   }
 }

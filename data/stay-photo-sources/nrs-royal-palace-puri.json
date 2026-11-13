@@ -1,0 +1,11 @@
+{
+  "images": [],
+  "rooms": {
+    "larger": {
+      "url": "https://nrsroyalpalace.com/images/nrs/room-premium-sea-view.jpg",
+      "path": "stays/nrs-royal-palace-puri/rooms/larger.jpg",
+      "page": "https://nrsroyalpalace.com/services#rooms-suites",
+      "label": "Premium Sea View"
+    }
+  }
+}
