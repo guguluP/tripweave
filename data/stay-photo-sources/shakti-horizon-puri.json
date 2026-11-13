@@ -1,0 +1,71 @@
+{
+  "images": [],
+  "rooms": {
+    "standard": {
+      "url": "https://shaktihorizon.in/wp-content/uploads/2024/09/IMG_6850-1.jpg",
+      "path": "stays/shakti-horizon-puri/rooms/standard.jpg",
+      "page": "https://shaktihorizon.in/deluxe-room/",
+      "label": "Deluxe Room"
+    },
+    "standard-2": {
+      "url": "https://shaktihorizon.in/wp-content/uploads/2024/09/IMG_6847-1.jpg",
+      "path": "stays/shakti-horizon-puri/rooms/standard-2.jpg",
+      "page": "https://shaktihorizon.in/deluxe-room/",
+      "label": "Deluxe Room"
+    },
+    "standard-3": {
+      "url": "https://shaktihorizon.in/wp-content/uploads/2024/09/IMG_6851-1.jpg",
+      "path": "stays/shakti-horizon-puri/rooms/standard-3.jpg",
+      "page": "https://shaktihorizon.in/deluxe-room/",
+      "label": "Deluxe Room"
+    },
+    "standard-4": {
+      "url": "https://shaktihorizon.in/wp-content/uploads/2024/09/IMG_6852-1.jpg",
+      "path": "stays/shakti-horizon-puri/rooms/standard-4.jpg",
+      "page": "https://shaktihorizon.in/deluxe-room/",
+      "label": "Deluxe Room"
+    },
+    "larger": {
+      "url": "https://shaktihorizon.in/wp-content/uploads/2024/09/IMG_6839-1.jpg",
+      "path": "stays/shakti-horizon-puri/rooms/larger.jpg",
+      "page": "https://shaktihorizon.in/super-deluxe-room/",
+      "label": "Super Deluxe Room"
+    },
+    "larger-2": {
+      "url": "https://shaktihorizon.in/wp-content/uploads/2024/09/IMG_6840-1.jpg",
+      "path": "stays/shakti-horizon-puri/rooms/larger-2.jpg",
+      "page": "https://shaktihorizon.in/super-deluxe-room/",
+      "label": "Super Deluxe Room"
+    },
+    "larger-3": {
+      "url": "https://shaktihorizon.in/wp-content/uploads/2024/09/IMG_6841-1.jpg",
+      "path": "stays/shakti-horizon-puri/rooms/larger-3.jpg",
+      "page": "https://shaktihorizon.in/super-deluxe-room/",
+      "label": "Super Deluxe Room"
+    },
+    "larger-4": {
+      "url": "https://shaktihorizon.in/wp-content/uploads/2024/09/IMG_6842-1.jpg",
+      "path": "stays/shakti-horizon-puri/rooms/larger-4.jpg",
+      "page": "https://shaktihorizon.in/super-deluxe-room/",
+      "label": "Super Deluxe Room"
+    },
+    "larger-5": {
+      "url": "https://shaktihorizon.in/wp-content/uploads/2024/09/IMG_6844-1.jpg",
+      "path": "stays/shakti-horizon-puri/rooms/larger-5.jpg",
+      "page": "https://shaktihorizon.in/super-deluxe-room/",
+      "label": "Super Deluxe Room"
+    },
+    "larger-6": {
+      "url": "https://shaktihorizon.in/wp-content/uploads/2024/09/IMG_6845-1.jpg",
+      "path": "stays/shakti-horizon-puri/rooms/larger-6.jpg",
+      "page": "https://shaktihorizon.in/super-deluxe-room/",
+      "label": "Super Deluxe Room"
+    },
+    "larger-7": {
+      "url": "https://shaktihorizon.in/wp-content/uploads/2024/09/IMG_6846-1.jpg",
+      "path": "stays/shakti-horizon-puri/rooms/larger-7.jpg",
+      "page": "https://shaktihorizon.in/super-deluxe-room/",
+      "label": "Super Deluxe Room"
+    }
+  }
+}

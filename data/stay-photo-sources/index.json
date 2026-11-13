@@ -13,7 +13,8 @@
     "www.bluelilybeachresort.com": "https://www.bluelilybeachresort.com/",
     "hotelgoldentree.in": "https://hotelgoldentree.in/",
     "hotelwhitesands.co.in": "https://hotelwhitesands.co.in/",
-    "hotelpulinpuri.com": "https://hotelpulinpuri.com/"
+    "hotelpulinpuri.com": "https://hotelpulinpuri.com/",
+    "shaktihorizon.in": "https://shaktihorizon.in/"
   },
   "proxy_hosts": [
     "www.toshaliresort.com",
@@ -35,6 +36,7 @@
     "blue-lily-puri",
     "golden-tree-puri",
     "white-sands-puri",
-    "hotel-pulin-puri"
+    "hotel-pulin-puri",
+    "shakti-horizon-puri"
   ]
 }

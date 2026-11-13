@@ -748,7 +748,23 @@
         "/stays/shakti-horizon-puri/gallery-9.jpg",
         "/stays/shakti-horizon-puri/gallery-10.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "standard": [
+          "/stays/shakti-horizon-puri/rooms/standard.jpg",
+          "/stays/shakti-horizon-puri/rooms/standard-2.jpg",
+          "/stays/shakti-horizon-puri/rooms/standard-3.jpg",
+          "/stays/shakti-horizon-puri/rooms/standard-4.jpg"
+        ],
+        "larger": [
+          "/stays/shakti-horizon-puri/rooms/larger.jpg",
+          "/stays/shakti-horizon-puri/rooms/larger-2.jpg",
+          "/stays/shakti-horizon-puri/rooms/larger-3.jpg",
+          "/stays/shakti-horizon-puri/rooms/larger-4.jpg",
+          "/stays/shakti-horizon-puri/rooms/larger-5.jpg",
+          "/stays/shakti-horizon-puri/rooms/larger-6.jpg",
+          "/stays/shakti-horizon-puri/rooms/larger-7.jpg"
+        ]
+      }
     },
     "the-bay-suites-puri": {
       "images": [

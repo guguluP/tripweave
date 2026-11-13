@@ -29,6 +29,16 @@
         "sourceName": "Double Bed Super Luxury Front Balcony Sea Facing",
         "basis": "Guest-video notes: larger = sea-facing double / 4-bed sea-facing. Photos are the hotel's Double Bed Super Luxury Front Balcony Sea Facing."
       }
+    },
+    "shakti-horizon-puri": {
+      "standard": {
+        "sourceName": "Deluxe Room",
+        "basis": "Guest-video notes: standard = back-view standard room. Hotel's published base category is Deluxe Room."
+      },
+      "larger": {
+        "sourceName": "Super Deluxe Room",
+        "basis": "Guest-video notes: larger = front sea-facing Super Deluxe. Hotel page: Super Deluxe Room."
+      }
     }
   }
 }
