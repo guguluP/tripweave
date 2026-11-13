@@ -1084,7 +1084,9 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on the temple side of Puri.",
     neighborhood: "Grand Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "dyUbodTvnOA", title: "Guest clip of the holiday home" },
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
@@ -1357,7 +1359,9 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel in Konark town, by the Sun Temple.",
     neighborhood: "Konark",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "7MrrxLTpYVs", title: "Hotel hunt — Deluxe room tour" },
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },

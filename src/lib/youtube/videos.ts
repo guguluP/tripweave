@@ -350,6 +350,13 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       channel: "Explore with Ishita",
     }
   ],
+  "hotel-deluxe-konark": [
+    {
+      videoId: "7MrrxLTpYVs",
+      title: "How Costly is Konark | Hotel Hunt Near Konark Sun Temple |",
+      channel: "Lone Ranger Traveler",
+    },
+  ],
   "hotel-golden-palace-puri": [
     {
       videoId: "X028p3x6Res",
@@ -716,6 +723,13 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       title: "Hotel Shakti Horizon, Hotel New Horizon | Puri sea facing hotel | Puri hotel near beach | Puri hotel",
       channel: "Explorer Bhowmik",
     }
+  ],
+  "shree-vishnu-darshan": [
+    {
+      videoId: "dyUbodTvnOA",
+      title: "SHREE VISHNU DARSHAN HOLIDAY HOME",
+      channel: "susanta dash",
+    },
   ],
   "sidharth-inn-puri": [
     {
