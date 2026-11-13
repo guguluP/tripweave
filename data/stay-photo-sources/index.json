@@ -16,7 +16,8 @@
     "hotelpulinpuri.com": "https://hotelpulinpuri.com/",
     "shaktihorizon.in": "https://shaktihorizon.in/",
     "www.hotelprabhupada.com": "https://hotelprabhupada.com/",
-    "zhotelpuri.com": "https://zhotelpuri.com/"
+    "zhotelpuri.com": "https://zhotelpuri.com/",
+    "pub-f7b2dca3fdfd484b97dd04ed13e2054f.r2.dev": "https://hotelcamelliapuri.com/"
   },
   "proxy_hosts": [
     "www.toshaliresort.com",
@@ -41,6 +42,7 @@
     "hotel-pulin-puri",
     "shakti-horizon-puri",
     "hotel-prabhupada-puri",
-    "z-hotel-puri"
+    "z-hotel-puri",
+    "camellia-puri"
   ]
 }

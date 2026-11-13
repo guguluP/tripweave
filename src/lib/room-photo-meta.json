@@ -49,6 +49,19 @@
         "sourceName": "Deluxe Room",
         "basis": "Hotel's published 'Deluxe Room' is the larger official category (Single AC is smaller, not used)."
       }
+    },
+    "camellia-puri": {
+      "standard": {
+        "sourceName": "Executive Ground Floor",
+        "basis": "Hotel site lists Executive Ground Floor as a published room category; it is the base official type.",
+        "floors": "Ground floor",
+        "floorSource": "https://hotelcamelliapuri.com/#rooms",
+        "floorQuote": "Executive Ground Floor — category name on the hotel site."
+      },
+      "larger": {
+        "sourceName": "Suite Room",
+        "basis": "Hotel site lists Suite Room (sea facing) as a larger official category. Guest-video prices list suite above the double-room rates."
+      }
     }
   }
 }

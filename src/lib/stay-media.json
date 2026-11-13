@@ -732,7 +732,18 @@
         "/stays/camellia-puri/gallery-10.jpg",
         "/stays/camellia-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "standard": [
+          "/stays/camellia-puri/rooms/standard.jpg",
+          "/stays/camellia-puri/rooms/standard-2.jpg",
+          "/stays/camellia-puri/rooms/standard-3.jpg"
+        ],
+        "larger": [
+          "/stays/camellia-puri/rooms/larger.jpg",
+          "/stays/camellia-puri/rooms/larger-2.jpg",
+          "/stays/camellia-puri/rooms/larger-3.jpg"
+        ]
+      }
     },
     "shakti-horizon-puri": {
       "images": [
