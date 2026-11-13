@@ -117,12 +117,6 @@
         "floorQuote": "Official Simplotel files for this category are named deluxe-first-floor-*"
       }
     },
-    "hotel-shreehari-puri": {
-      "larger": {
-        "sourceName": "Super Deluxe",
-        "basis": "Guest-video notes: larger = Super Deluxe front sea view. Hotel Accommodation section heading SUPER DELUXE."
-      }
-    },
     "jeevan-sandhya-puri": {
       "standard": {
         "sourceName": "Deluxe Room",
