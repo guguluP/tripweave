@@ -1329,6 +1329,17 @@
         "/stays/hotel-sukadev-homes/gallery-3.jpg",
         "/stays/hotel-sukadev-homes/gallery-4.jpg"
       ],
+      "rooms": {
+        "standard": [
+          "/stays/hotel-sukadev-homes/rooms/standard.jpg"
+        ],
+        "larger": [
+          "/stays/hotel-sukadev-homes/rooms/larger.jpg"
+        ]
+      }
+    },
+    "golden-dust-puri": {
+      "images": [],
       "rooms": {}
     }
   }

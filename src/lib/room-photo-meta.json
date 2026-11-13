@@ -62,6 +62,37 @@
         "sourceName": "Suite Room",
         "basis": "Hotel site lists Suite Room (sea facing) as a larger official category. Guest-video prices list suite above the double-room rates."
       }
+    },
+    "hotel-sukadev-homes": {
+      "standard": {
+        "sourceName": "Standard Room",
+        "basis": "Hotel rooms page heading 'Standard Room'; the photo sits in that card (layout position)."
+      },
+      "larger": {
+        "sourceName": "Deluxe Double Bed Room",
+        "basis": "Hotel rooms page heading 'Deluxe Double Bed Room', the next official category above Standard."
+      }
+    },
+    "hotel-new-sea-hawk": {
+      "ac-luxury-ground": {
+        "floors": "Ground floor",
+        "floorSource": "https://hotelnewseahawk.com/",
+        "floorQuote": "Ac Luxury Double Bed (Ground Floor) — category name on the hotel site."
+      }
+    },
+    "golden-dust-puri": {
+      "standard": {
+        "floors": "1st floor",
+        "floorSource": "/workspace/tw-videos/notes/golden-dust-puri.md",
+        "floorQuote": "standard = 1st-floor AC double (wall or side view)"
+      }
+    },
+    "santana-puri": {
+      "standard": {
+        "floors": "Ground floor",
+        "floorSource": "/workspace/tw-videos/notes/santana-puri.md",
+        "floorQuote": "standard = non-AC / standard AC room (ground floor, no view)"
+      }
     }
   }
 }
