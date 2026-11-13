@@ -1702,7 +1702,48 @@
         "/stays/sterling-puri/gallery-4.jpg",
         "/stays/sterling-puri/gallery-5.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "garden-view-classic-room": [
+          "/stays/sterling-puri/rooms/garden-view-classic-room.jpg",
+          "/stays/sterling-puri/rooms/garden-view-classic-room-2.jpg",
+          "/stays/sterling-puri/rooms/garden-view-classic-room-3.jpg",
+          "/stays/sterling-puri/rooms/garden-view-classic-room-4.jpg"
+        ],
+        "classic-room-with-balcony": [
+          "/stays/sterling-puri/rooms/classic-room-with-balcony.jpg",
+          "/stays/sterling-puri/rooms/classic-room-with-balcony-2.jpg",
+          "/stays/sterling-puri/rooms/classic-room-with-balcony-3.jpg"
+        ],
+        "garden-view-premier-room": [
+          "/stays/sterling-puri/rooms/garden-view-premier-room.jpg",
+          "/stays/sterling-puri/rooms/garden-view-premier-room-2.jpg",
+          "/stays/sterling-puri/rooms/garden-view-premier-room-3.jpg",
+          "/stays/sterling-puri/rooms/garden-view-premier-room-4.jpg",
+          "/stays/sterling-puri/rooms/garden-view-premier-room-5.jpg",
+          "/stays/sterling-puri/rooms/garden-view-premier-room-6.jpg",
+          "/stays/sterling-puri/rooms/garden-view-premier-room-7.jpg"
+        ],
+        "garden-view-privilege-suite": [
+          "/stays/sterling-puri/rooms/garden-view-privilege-suite.jpg",
+          "/stays/sterling-puri/rooms/garden-view-privilege-suite-2.jpg",
+          "/stays/sterling-puri/rooms/garden-view-privilege-suite-3.jpg",
+          "/stays/sterling-puri/rooms/garden-view-privilege-suite-4.jpg",
+          "/stays/sterling-puri/rooms/garden-view-privilege-suite-5.jpg",
+          "/stays/sterling-puri/rooms/garden-view-privilege-suite-6.jpg",
+          "/stays/sterling-puri/rooms/garden-view-privilege-suite-7.jpg",
+          "/stays/sterling-puri/rooms/garden-view-privilege-suite-8.jpg",
+          "/stays/sterling-puri/rooms/garden-view-privilege-suite-9.jpg",
+          "/stays/sterling-puri/rooms/garden-view-privilege-suite-10.jpg"
+        ],
+        "sea-view-deluxe-room-with-balcony": [
+          "/stays/sterling-puri/rooms/sea-view-deluxe-room-with-balcony.jpg",
+          "/stays/sterling-puri/rooms/sea-view-deluxe-room-with-balcony-2.jpg",
+          "/stays/sterling-puri/rooms/sea-view-deluxe-room-with-balcony-3.jpg",
+          "/stays/sterling-puri/rooms/sea-view-deluxe-room-with-balcony-4.jpg",
+          "/stays/sterling-puri/rooms/sea-view-deluxe-room-with-balcony-5.jpg",
+          "/stays/sterling-puri/rooms/sea-view-deluxe-room-with-balcony-6.jpg"
+        ]
+      }
     },
     "the-eastern-dham": {
       "images": [
