@@ -798,7 +798,22 @@
         "/stays/z-hotel-puri/gallery-10.jpg",
         "/stays/z-hotel-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "standard": [
+          "/stays/z-hotel-puri/rooms/standard.jpg",
+          "/stays/z-hotel-puri/rooms/standard-2.jpg",
+          "/stays/z-hotel-puri/rooms/standard-3.jpg",
+          "/stays/z-hotel-puri/rooms/standard-4.jpg",
+          "/stays/z-hotel-puri/rooms/standard-5.jpg",
+          "/stays/z-hotel-puri/rooms/standard-6.jpg",
+          "/stays/z-hotel-puri/rooms/standard-7.jpg"
+        ],
+        "larger": [
+          "/stays/z-hotel-puri/rooms/larger.jpg",
+          "/stays/z-hotel-puri/rooms/larger-2.jpg",
+          "/stays/z-hotel-puri/rooms/larger-3.jpg"
+        ]
+      }
     },
     "treebo-siddharth-puri": {
       "images": [

@@ -39,6 +39,16 @@
         "sourceName": "Super Deluxe Room",
         "basis": "Guest-video notes: larger = front sea-facing Super Deluxe. Hotel page: Super Deluxe Room."
       }
+    },
+    "z-hotel-puri": {
+      "standard": {
+        "sourceName": "Standard Twin Room",
+        "basis": "Hotel's published 'Standard Twin Room' matches the catalog standard slot."
+      },
+      "larger": {
+        "sourceName": "Deluxe Room",
+        "basis": "Hotel's published 'Deluxe Room' is the larger official category (Single AC is smaller, not used)."
+      }
     }
   }
 }

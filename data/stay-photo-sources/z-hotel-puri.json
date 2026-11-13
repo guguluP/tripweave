@@ -1,0 +1,65 @@
+{
+  "images": [],
+  "rooms": {
+    "standard": {
+      "url": "https://zhotelpuri.com/assets/img/rooms/standard-slide1.jpg",
+      "path": "stays/z-hotel-puri/rooms/standard.jpg",
+      "page": "https://zhotelpuri.com/standard-twin.php",
+      "label": "Standard Twin Room"
+    },
+    "standard-2": {
+      "url": "https://zhotelpuri.com/assets/img/rooms/standard-slide2.jpg",
+      "path": "stays/z-hotel-puri/rooms/standard-2.jpg",
+      "page": "https://zhotelpuri.com/standard-twin.php",
+      "label": "Standard Twin Room"
+    },
+    "standard-3": {
+      "url": "https://zhotelpuri.com/assets/img/rooms/standard-slide3.jpg",
+      "path": "stays/z-hotel-puri/rooms/standard-3.jpg",
+      "page": "https://zhotelpuri.com/standard-twin.php",
+      "label": "Standard Twin Room"
+    },
+    "standard-4": {
+      "url": "https://zhotelpuri.com/assets/img/rooms/standard-slide4.jpg",
+      "path": "stays/z-hotel-puri/rooms/standard-4.jpg",
+      "page": "https://zhotelpuri.com/standard-twin.php",
+      "label": "Standard Twin Room"
+    },
+    "standard-5": {
+      "url": "https://zhotelpuri.com/assets/img/rooms/standard-slide5.jpg",
+      "path": "stays/z-hotel-puri/rooms/standard-5.jpg",
+      "page": "https://zhotelpuri.com/standard-twin.php",
+      "label": "Standard Twin Room"
+    },
+    "standard-6": {
+      "url": "https://zhotelpuri.com/assets/img/rooms/standard-slide6.jpg",
+      "path": "stays/z-hotel-puri/rooms/standard-6.jpg",
+      "page": "https://zhotelpuri.com/standard-twin.php",
+      "label": "Standard Twin Room"
+    },
+    "standard-7": {
+      "url": "https://zhotelpuri.com/assets/img/rooms/standard-slide7.jpg",
+      "path": "stays/z-hotel-puri/rooms/standard-7.jpg",
+      "page": "https://zhotelpuri.com/standard-twin.php",
+      "label": "Standard Twin Room"
+    },
+    "larger": {
+      "url": "https://zhotelpuri.com/assets/img/rooms/deluxe-slide1.jpg",
+      "path": "stays/z-hotel-puri/rooms/larger.jpg",
+      "page": "https://zhotelpuri.com/deluxe.php",
+      "label": "Deluxe Room"
+    },
+    "larger-2": {
+      "url": "https://zhotelpuri.com/assets/img/rooms/deluxe-slide2.jpg",
+      "path": "stays/z-hotel-puri/rooms/larger-2.jpg",
+      "page": "https://zhotelpuri.com/deluxe.php",
+      "label": "Deluxe Room"
+    },
+    "larger-3": {
+      "url": "https://zhotelpuri.com/assets/img/rooms/deluxe-slide3.jpg",
+      "path": "stays/z-hotel-puri/rooms/larger-3.jpg",
+      "page": "https://zhotelpuri.com/deluxe.php",
+      "label": "Deluxe Room"
+    }
+  }
+}
