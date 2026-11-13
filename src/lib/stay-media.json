@@ -450,10 +450,12 @@
       ],
       "rooms": {
         "heritage-deluxe-sea": [
-          "/stays/mahodadhi-palace-puri/rooms/heritage-deluxe-sea-2.jpg"
+          "/stays/mahodadhi-palace-puri/rooms/heritage-deluxe-sea-2.jpg",
+          "/stays/mahodadhi-palace-puri/rooms/heritage-deluxe-sea-3.jpg"
         ],
         "day-use": [
-          "/stays/mahodadhi-palace-puri/rooms/day-use-2.jpg"
+          "/stays/mahodadhi-palace-puri/rooms/day-use-2.jpg",
+          "/stays/mahodadhi-palace-puri/rooms/day-use-3.jpg"
         ]
       }
     },
