@@ -116,6 +116,12 @@
         "floorSource": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-first-floor-twin-beds_2d99404b.jpg",
         "floorQuote": "Official Simplotel files for this category are named deluxe-first-floor-*"
       }
+    },
+    "hotel-shreehari-puri": {
+      "larger": {
+        "sourceName": "Super Deluxe",
+        "basis": "Guest-video notes: larger = Super Deluxe front sea view. Hotel Accommodation section heading SUPER DELUXE."
+      }
     }
   }
 }

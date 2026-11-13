@@ -1,0 +1,11 @@
+{
+  "images": [],
+  "rooms": {
+    "larger": {
+      "url": "https://hotelshreehari.com/hsh_hotel/photo/Pic_12092025104152114.png",
+      "path": "stays/hotel-shreehari-puri/rooms/larger.jpg",
+      "page": "https://hotelshreehari.com/",
+      "label": "Super Deluxe"
+    }
+  }
+}

@@ -1219,7 +1219,11 @@
         "/stays/hotel-shreehari-puri/gallery-5.jpg",
         "/stays/hotel-shreehari-puri/gallery-6.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "larger": [
+          "/stays/hotel-shreehari-puri/rooms/larger.jpg"
+        ]
+      }
     },
     "hotel-sonar-bangla-puri": {
       "images": [
