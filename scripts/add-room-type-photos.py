@@ -77,7 +77,11 @@ def main(spec_path: str):
     stay = spec["stay"]
     media = load_json(MEDIA_PATH, {})
     meta = load_json(META_PATH, {"ROOMS": {}})
-    stay_media = media["STAY_MEDIA"].setdefault(stay, {"images": [], "rooms": {}})
+    stay_media = media["STAY_MEDIA"].get(stay)
+    created_empty = False
+    if stay_media is None:
+        stay_media = {"images": [], "rooms": {}}
+        created_empty = True
     src_path = SOURCES / f"{stay}.json"
     sources = load_json(src_path, {"images": [], "rooms": {}})
     sources.setdefault("rooms", {})
@@ -160,6 +164,12 @@ def main(spec_path: str):
         index["stays"].append(stay)
     src_path.write_text(json.dumps(sources, indent=2, ensure_ascii=False) + "\n")
     (SOURCES / "index.json").write_text(json.dumps(index, indent=2) + "\n")
+    if created_empty and (stay_media.get("rooms") or stay_media.get("images")):
+        media["STAY_MEDIA"][stay] = stay_media
+    elif not created_empty:
+        # Drop a previously written empty stub (e.g. floors-only apply).
+        if stay in media["STAY_MEDIA"] and not stay_media.get("rooms") and not stay_media.get("images"):
+            del media["STAY_MEDIA"][stay]
     MEDIA_PATH.write_text(json.dumps(media, indent=2, ensure_ascii=False) + "\n")
     META_PATH.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n")
     print(stay, {k: f"+{a} -> {t}" for k, (a, t) in summary.items()})
