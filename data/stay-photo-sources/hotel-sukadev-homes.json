@@ -1,0 +1,17 @@
+{
+  "images": [],
+  "rooms": {
+    "standard": {
+      "url": "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1440,h=1080,fit=crop/C5jIYL0vodHGONTC/1-iUj8D5zdr274Esx1.jpeg",
+      "path": "stays/hotel-sukadev-homes/rooms/standard.jpg",
+      "page": "https://hotelsdhomes.com/rooms",
+      "label": "Standard Room"
+    },
+    "larger": {
+      "url": "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1440,h=1080,fit=crop/C5jIYL0vodHGONTC/2-TDy3w7a5fP6wl7UE.jpeg",
+      "path": "stays/hotel-sukadev-homes/rooms/larger.jpg",
+      "page": "https://hotelsdhomes.com/rooms",
+      "label": "Deluxe Double Bed Room"
+    }
+  }
+}

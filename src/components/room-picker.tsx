@@ -242,6 +242,11 @@ function RoomCard({
               ? `Sleeps ${room.occupancy} · too small for ${guestCount}`
               : `Sleeps ${room.occupancy}${left ? (soldOut ? " · sold out" : left.released === false ? " · on request" : ` · ${left.remaining} left`) : ""}`}
           </span>
+          {room.floors ? (
+            <span className="mt-0.5 block truncate text-xs text-muted" data-testid="room-floors">
+              {room.floors}
+            </span>
+          ) : null}
           <span className={cn("mt-2 block text-muted", open ? "text-sm" : compact ? "line-clamp-2 text-[11px] leading-snug sm:text-xs" : "text-sm")}>
             {room.summary}
           </span>
@@ -255,6 +260,10 @@ function RoomCard({
           </span>
           {publishedCount === 0 ? (
             <span className="mt-2 hidden text-xs text-muted lg:block">No photos published for this room.</span>
+          ) : open && room.photoLabel ? (
+            <span className="mt-2 hidden text-xs text-muted lg:block">
+              Hotel photos of its “{room.photoLabel}” category.
+            </span>
           ) : null}
         </button>
         {open ? (
@@ -278,10 +287,11 @@ function RoomCard({
             </div>
             <p className="mt-2 text-xs text-muted">
               {photos.length > 1
-                ? `Photo ${shot + 1} of ${photos.length}`
+                ? `Photo ${shot + 1} of ${photos.length} · hotel photo`
                 : photos.length === 1
                   ? "Hotel-published, limited set"
                   : "This room."}
+              {photos.length > 0 && room.photoLabel ? ` · the hotel’s “${room.photoLabel}” category` : ""}
             </p>
           </div>
         ) : null}

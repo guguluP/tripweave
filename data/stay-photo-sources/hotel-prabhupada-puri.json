@@ -1,0 +1,95 @@
+{
+  "images": [],
+  "rooms": {
+    "superior-deluxe-balcony-2": {
+      "url": "https://www.hotelprabhupada.com/images/superior-deluxe-balcony-view.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/superior-deluxe-balcony-2.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Superior Deluxe Balcony (Side Sea View)"
+    },
+    "superior-deluxe-balcony-3": {
+      "url": "https://www.hotelprabhupada.com/rooms/superior-deluxe-balcony_3.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/superior-deluxe-balcony-3.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Superior Deluxe Balcony (Side Sea View)"
+    },
+    "superior-deluxe-balcony-4": {
+      "url": "https://www.hotelprabhupada.com/rooms/superior-deluxe-balcony.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/superior-deluxe-balcony-4.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Superior Deluxe Balcony (Side Sea View)"
+    },
+    "superior-deluxe-balcony-5": {
+      "url": "https://www.hotelprabhupada.com/rooms/room-seating-area.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/superior-deluxe-balcony-5.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Superior Deluxe Balcony (Side Sea View)"
+    },
+    "superior-deluxe-balcony-6": {
+      "url": "https://www.hotelprabhupada.com/rooms/room-kettle-amenities.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/superior-deluxe-balcony-6.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Superior Deluxe Balcony (Side Sea View)"
+    },
+    "family-quad-2": {
+      "url": "https://www.hotelprabhupada.com/rooms/family-quad.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/family-quad-2.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Family Quad (Non Sea View)"
+    },
+    "family-quad-3": {
+      "url": "https://www.hotelprabhupada.com/rooms/family-four-bed.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/family-quad-3.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Family Quad (Non Sea View)"
+    },
+    "executive-front-sea-2": {
+      "url": "https://www.hotelprabhupada.com/rooms/executive/exec1.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/executive-front-sea-2.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Executive (Front Sea View)"
+    },
+    "executive-front-sea-3": {
+      "url": "https://www.hotelprabhupada.com/rooms/executive/exec2.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/executive-front-sea-3.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Executive (Front Sea View)"
+    },
+    "executive-front-sea-4": {
+      "url": "https://www.hotelprabhupada.com/rooms/executive/exec3.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/executive-front-sea-4.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Executive (Front Sea View)"
+    },
+    "suite-front-sea-2": {
+      "url": "https://www.hotelprabhupada.com/rooms/suite-front-sea-view_2.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/suite-front-sea-2.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Suite (Front Sea View)"
+    },
+    "suite-front-sea-3": {
+      "url": "https://www.hotelprabhupada.com/rooms/suite-entrance.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/suite-front-sea-3.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Suite (Front Sea View)"
+    },
+    "suite-front-sea-4": {
+      "url": "https://www.hotelprabhupada.com/rooms/suite-washroom.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/suite-front-sea-4.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Suite (Front Sea View)"
+    },
+    "suite-front-sea-5": {
+      "url": "https://www.hotelprabhupada.com/rooms/bathroom.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/suite-front-sea-5.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Suite (Front Sea View)"
+    },
+    "suite-front-sea-6": {
+      "url": "https://www.hotelprabhupada.com/rooms/handwash.webp",
+      "path": "stays/hotel-prabhupada-puri/rooms/suite-front-sea-6.jpg",
+      "page": "https://hotelprabhupada.com/rooms",
+      "label": "Suite (Front Sea View)"
+    }
+  }
+}

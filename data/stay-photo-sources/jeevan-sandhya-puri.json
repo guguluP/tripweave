@@ -1,0 +1,65 @@
+{
+  "images": [],
+  "rooms": {
+    "standard": {
+      "url": "https://hoteljeevansandhya.com/wp-content/uploads/2024/06/NPP_7386-1.jpg",
+      "path": "stays/jeevan-sandhya-puri/rooms/standard.jpg",
+      "page": "https://hoteljeevansandhya.com/rooms/",
+      "label": "Deluxe Room"
+    },
+    "standard-2": {
+      "url": "https://hoteljeevansandhya.com/wp-content/uploads/2024/06/NPP_7433-copy.jpg",
+      "path": "stays/jeevan-sandhya-puri/rooms/standard-2.jpg",
+      "page": "https://hoteljeevansandhya.com/rooms/",
+      "label": "Deluxe Room"
+    },
+    "standard-3": {
+      "url": "https://hoteljeevansandhya.com/wp-content/uploads/2024/06/NPP_7391-copy.jpg",
+      "path": "stays/jeevan-sandhya-puri/rooms/standard-3.jpg",
+      "page": "https://hoteljeevansandhya.com/rooms/",
+      "label": "Deluxe Room"
+    },
+    "larger": {
+      "url": "https://hoteljeevansandhya.com/wp-content/uploads/2025/09/cafeimg5-scaled.jpg",
+      "path": "stays/jeevan-sandhya-puri/rooms/larger.jpg",
+      "page": "https://hoteljeevansandhya.com/rooms/",
+      "label": "Super Deluxe Room"
+    },
+    "larger-2": {
+      "url": "https://hoteljeevansandhya.com/wp-content/uploads/2025/09/cafeimg7-scaled.jpg",
+      "path": "stays/jeevan-sandhya-puri/rooms/larger-2.jpg",
+      "page": "https://hoteljeevansandhya.com/rooms/",
+      "label": "Super Deluxe Room"
+    },
+    "larger-3": {
+      "url": "https://hoteljeevansandhya.com/wp-content/uploads/2025/09/cafeimg6-scaled.jpg",
+      "path": "stays/jeevan-sandhya-puri/rooms/larger-3.jpg",
+      "page": "https://hoteljeevansandhya.com/rooms/",
+      "label": "Super Deluxe Room"
+    },
+    "larger-4": {
+      "url": "https://hoteljeevansandhya.com/wp-content/uploads/2024/06/NPP_7306-copy.jpg",
+      "path": "stays/jeevan-sandhya-puri/rooms/larger-4.jpg",
+      "page": "https://hoteljeevansandhya.com/rooms/",
+      "label": "Super Deluxe Room"
+    },
+    "larger-5": {
+      "url": "https://hoteljeevansandhya.com/wp-content/uploads/2025/09/cafeimg3-scaled.jpg",
+      "path": "stays/jeevan-sandhya-puri/rooms/larger-5.jpg",
+      "page": "https://hoteljeevansandhya.com/rooms/",
+      "label": "Super Deluxe Room"
+    },
+    "larger-6": {
+      "url": "https://hoteljeevansandhya.com/wp-content/uploads/2024/06/NPP_7302-copy.jpg",
+      "path": "stays/jeevan-sandhya-puri/rooms/larger-6.jpg",
+      "page": "https://hoteljeevansandhya.com/rooms/",
+      "label": "Super Deluxe Room"
+    },
+    "larger-7": {
+      "url": "https://hoteljeevansandhya.com/wp-content/uploads/2024/06/NPP_7294.jpg",
+      "path": "stays/jeevan-sandhya-puri/rooms/larger-7.jpg",
+      "page": "https://hoteljeevansandhya.com/rooms/",
+      "label": "Super Deluxe Room"
+    }
+  }
+}

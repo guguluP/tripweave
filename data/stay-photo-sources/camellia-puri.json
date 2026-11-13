@@ -1,0 +1,41 @@
+{
+  "images": [],
+  "rooms": {
+    "standard": {
+      "url": "https://pub-f7b2dca3fdfd484b97dd04ed13e2054f.r2.dev/public/rooms/executive/1.jpg",
+      "path": "stays/camellia-puri/rooms/standard.jpg",
+      "page": "https://hotelcamelliapuri.com/#rooms",
+      "label": "Executive Ground Floor"
+    },
+    "standard-2": {
+      "url": "https://pub-f7b2dca3fdfd484b97dd04ed13e2054f.r2.dev/public/rooms/executive/2.jpg",
+      "path": "stays/camellia-puri/rooms/standard-2.jpg",
+      "page": "https://hotelcamelliapuri.com/#rooms",
+      "label": "Executive Ground Floor"
+    },
+    "standard-3": {
+      "url": "https://pub-f7b2dca3fdfd484b97dd04ed13e2054f.r2.dev/public/rooms/executive/3.jpg",
+      "path": "stays/camellia-puri/rooms/standard-3.jpg",
+      "page": "https://hotelcamelliapuri.com/#rooms",
+      "label": "Executive Ground Floor"
+    },
+    "larger": {
+      "url": "https://pub-f7b2dca3fdfd484b97dd04ed13e2054f.r2.dev/public/rooms/suiteroomseafacing/1.jpg",
+      "path": "stays/camellia-puri/rooms/larger.jpg",
+      "page": "https://hotelcamelliapuri.com/#rooms",
+      "label": "Suite Room"
+    },
+    "larger-2": {
+      "url": "https://pub-f7b2dca3fdfd484b97dd04ed13e2054f.r2.dev/public/rooms/suiteroomseafacing/2.jpg",
+      "path": "stays/camellia-puri/rooms/larger-2.jpg",
+      "page": "https://hotelcamelliapuri.com/#rooms",
+      "label": "Suite Room"
+    },
+    "larger-3": {
+      "url": "https://pub-f7b2dca3fdfd484b97dd04ed13e2054f.r2.dev/public/rooms/suiteroomseafacing/3.jpg",
+      "path": "stays/camellia-puri/rooms/larger-3.jpg",
+      "page": "https://hotelcamelliapuri.com/#rooms",
+      "label": "Suite Room"
+    }
+  }
+}

@@ -300,17 +300,24 @@ export const EXTRA_OFFICIAL_ROOMS: Record<string, RawRoom[]> = {
   ],
   "nrs-royal-palace-puri": [
     {
+      id: "deluxe-non-sea",
+      name: "Deluxe Room AC (Non Sea View)",
+      summary: "Deluxe AC double or twin, non-sea-view. The cheapest bookable double on Cleartrip.",
+      deltaPerNight: 0,
+      occupancy: 2,
+    },
+    {
       id: "premium-room",
       name: "Premium Room",
       summary: "Premium room. One frame looks over the Bay of Bengal.",
-      deltaPerNight: 0,
+      deltaPerNight: 700,
       occupancy: 2,
     },
     {
       id: "super-deluxe",
       name: "Super Deluxe Room",
       summary: "Super deluxe room with a king bed.",
-      deltaPerNight: 700,
+      deltaPerNight: 1400,
       occupancy: 2,
     },
   ],
@@ -492,8 +499,9 @@ export const EXTRA_OFFICIAL_ROOMS: Record<string, RawRoom[]> = {
     { id: "super-deluxe-ac", name: "Super Deluxe A/C", summary: "Super deluxe AC room.", deltaPerNight: 1200, occupancy: 2 },
   ],
   "hotel-sukadev-homes": [
-    { id: "deluxe-room", name: "Deluxe Room", summary: "Deluxe room for two guests.", deltaPerNight: 0, occupancy: 2 },
-    { id: "maharaja-suite", name: "Maharaja Suite", summary: "Maharaja suite for families.", deltaPerNight: 600, occupancy: 4 },
+    { id: "standard-room", name: "Standard Room", summary: "Standard room for two guests, the hotel's published base category.", deltaPerNight: 0, occupancy: 2 },
+    { id: "deluxe-room", name: "Deluxe Room", summary: "Deluxe room for two guests.", deltaPerNight: 600, occupancy: 2 },
+    { id: "maharaja-suite", name: "Maharaja Suite", summary: "Maharaja suite for families.", deltaPerNight: 1200, occupancy: 4 },
   ],
   "the-eastern-dham": [
     { id: "standard-non-sea-view-room", name: "Standard Non Sea View Room", summary: "Standard room without a sea view.", deltaPerNight: 0, occupancy: 2 },

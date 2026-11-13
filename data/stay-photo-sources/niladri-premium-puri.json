@@ -1,0 +1,41 @@
+{
+  "images": [],
+  "rooms": {
+    "standard": {
+      "url": "https://hotelniladripremium.com/niladri_panel/photo/Pic_27062024132446801.jpg",
+      "path": "stays/niladri-premium-puri/rooms/standard.jpg",
+      "page": "https://hotelniladripremium.com/",
+      "label": "Deluxe Room"
+    },
+    "standard-2": {
+      "url": "https://hotelniladripremium.com/niladri_panel/photo/Pic_27062024132447703.jpg",
+      "path": "stays/niladri-premium-puri/rooms/standard-2.jpg",
+      "page": "https://hotelniladripremium.com/",
+      "label": "Deluxe Room"
+    },
+    "standard-3": {
+      "url": "https://hotelniladripremium.com/niladri_panel/photo/Pic_27062024132447818.jpg",
+      "path": "stays/niladri-premium-puri/rooms/standard-3.jpg",
+      "page": "https://hotelniladripremium.com/",
+      "label": "Deluxe Room"
+    },
+    "larger": {
+      "url": "https://hotelniladripremium.com/niladri_panel/photo/Pic_27062024132504853.jpg",
+      "path": "stays/niladri-premium-puri/rooms/larger.jpg",
+      "page": "https://hotelniladripremium.com/",
+      "label": "Premium Room"
+    },
+    "larger-2": {
+      "url": "https://hotelniladripremium.com/niladri_panel/photo/Pic_27062024132505919.jpg",
+      "path": "stays/niladri-premium-puri/rooms/larger-2.jpg",
+      "page": "https://hotelniladripremium.com/",
+      "label": "Premium Room"
+    },
+    "larger-3": {
+      "url": "https://hotelniladripremium.com/niladri_panel/photo/Pic_27062024132506529.jpg",
+      "path": "stays/niladri-premium-puri/rooms/larger-3.jpg",
+      "page": "https://hotelniladripremium.com/",
+      "label": "Premium Room"
+    }
+  }
+}

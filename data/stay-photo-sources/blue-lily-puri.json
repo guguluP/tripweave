@@ -1,0 +1,101 @@
+{
+  "images": [],
+  "rooms": {
+    "standard": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/standard-gallery-img1.webp",
+      "path": "stays/blue-lily-puri/rooms/standard.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/standard-room/",
+      "label": "Standard Room"
+    },
+    "standard-2": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/standard-gallery-img6.webp",
+      "path": "stays/blue-lily-puri/rooms/standard-2.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/standard-room/",
+      "label": "Standard Room"
+    },
+    "standard-3": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/standard-gallery-img2.webp",
+      "path": "stays/blue-lily-puri/rooms/standard-3.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/standard-room/",
+      "label": "Standard Room"
+    },
+    "standard-4": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/standard-gallery-img3.webp",
+      "path": "stays/blue-lily-puri/rooms/standard-4.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/standard-room/",
+      "label": "Standard Room"
+    },
+    "standard-5": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/standard-gallery-img4.webp",
+      "path": "stays/blue-lily-puri/rooms/standard-5.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/standard-room/",
+      "label": "Standard Room"
+    },
+    "standard-6": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/standard-gallery-img5.webp",
+      "path": "stays/blue-lily-puri/rooms/standard-6.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/standard-room/",
+      "label": "Standard Room"
+    },
+    "larger": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/suite-gallery-img6.webp",
+      "path": "stays/blue-lily-puri/rooms/larger.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/suite-room/",
+      "label": "Suite Room"
+    },
+    "larger-2": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/suite-gallery-img3.webp",
+      "path": "stays/blue-lily-puri/rooms/larger-2.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/suite-room/",
+      "label": "Suite Room"
+    },
+    "larger-3": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/suite-gallery-img4.webp",
+      "path": "stays/blue-lily-puri/rooms/larger-3.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/suite-room/",
+      "label": "Suite Room"
+    },
+    "larger-4": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/suite-gallery-img5.webp",
+      "path": "stays/blue-lily-puri/rooms/larger-4.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/suite-room/",
+      "label": "Suite Room"
+    },
+    "larger-5": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/suite-gallery-img7.webp",
+      "path": "stays/blue-lily-puri/rooms/larger-5.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/suite-room/",
+      "label": "Suite Room"
+    },
+    "larger-6": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/suite-gallery-img8.webp",
+      "path": "stays/blue-lily-puri/rooms/larger-6.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/suite-room/",
+      "label": "Suite Room"
+    },
+    "larger-7": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/suite-gallery-img9.webp",
+      "path": "stays/blue-lily-puri/rooms/larger-7.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/suite-room/",
+      "label": "Suite Room"
+    },
+    "larger-8": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/suite-gallery-img10.webp",
+      "path": "stays/blue-lily-puri/rooms/larger-8.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/suite-room/",
+      "label": "Suite Room"
+    },
+    "larger-9": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/suite-gallery-img1.webp",
+      "path": "stays/blue-lily-puri/rooms/larger-9.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/suite-room/",
+      "label": "Suite Room"
+    },
+    "larger-10": {
+      "url": "https://www.bluelilybeachresort.com/wp-content/uploads/2026/01/suite-gallery-img2.webp",
+      "path": "stays/blue-lily-puri/rooms/larger-10.jpg",
+      "page": "https://www.bluelilybeachresort.com/rooms/suite-room/",
+      "label": "Suite Room"
+    }
+  }
+}

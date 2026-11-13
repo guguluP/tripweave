@@ -516,7 +516,10 @@ function TripDetail() {
           gallery={pkg.images}
           style={brief.style}
           guestCount={party}
-          publishedRooms={Object.keys(STAY_MEDIA[pkg.id]?.rooms ?? {}).length > 0}
+          publishedRooms={
+            Object.keys(STAY_MEDIA[pkg.id]?.rooms ?? {}).length > 0 &&
+            !pkg.rooms.every((r) => r.id === "standard" || r.id === "larger")
+          }
           onViewPhotos={(picked, photos) => {
             setRoomGallery((current) => ({
               id: picked.id,
