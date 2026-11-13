@@ -1792,22 +1792,6 @@
         "/stays/hotel-deluxe-konark/gallery-4.jpg"
       ],
       "rooms": {}
-    },
-    "santi-hotel-konark": {
-      "images": [
-        "/stays/santi-hotel-konark/property-1.jpg",
-        "/stays/santi-hotel-konark/gallery-1.jpg",
-        "/stays/santi-hotel-konark/gallery-2.jpg",
-        "/stays/santi-hotel-konark/gallery-3.jpg"
-      ],
-      "rooms": {}
-    },
-    "new-santi-hotel-konark": {
-      "images": [
-        "/stays/new-santi-hotel-konark/property-1.jpg",
-        "/stays/new-santi-hotel-konark/gallery-1.jpg"
-      ],
-      "rooms": {}
     }
   }
 }
