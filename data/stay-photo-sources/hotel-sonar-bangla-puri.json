@@ -1,0 +1,53 @@
+{
+  "images": [],
+  "rooms": {
+    "platinum-double-3": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/hotel-sonar-bangla-puri/Platinum_Double_(Front_Sea_Facing)_4",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/platinum-double-3.jpg",
+      "page": "https://hotelsonarbangla.com/puri/rooms/platinum-double",
+      "label": "Platinum Double"
+    },
+    "platinum-double-4": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/hotel-sonar-bangla-puri/AC_Platinum_Double_(Front_Sea_Facing)_2_7bca4e29.JPG",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/platinum-double-4.jpg",
+      "page": "https://hotelsonarbangla.com/puri/rooms/platinum-double",
+      "label": "Platinum Double"
+    },
+    "platinum-double-5": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/hotel-sonar-bangla-puri/AC_Platinum_Double_(Front_Sea_Facing)_6_2d42d553",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/platinum-double-5.jpg",
+      "page": "https://hotelsonarbangla.com/puri/rooms/platinum-double",
+      "label": "Platinum Double"
+    },
+    "platinum-twin-2": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/hotel-sonar-bangla-puri/Platinum_Twin_Bed_(Front_Sea_Facing)_8",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/platinum-twin-2.jpg",
+      "page": "https://hotelsonarbangla.com/puri/rooms/platinum-twin-bed",
+      "label": "Platinum Twin Bed"
+    },
+    "platinum-twin-3": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/hotel-sonar-bangla-puri/Platinum_Twin_Bed_(Front_Sea_Facing)_2",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/platinum-twin-3.jpg",
+      "page": "https://hotelsonarbangla.com/puri/rooms/platinum-twin-bed",
+      "label": "Platinum Twin Bed"
+    },
+    "premium-4-bed-2": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/hotel-sonar-bangla-puri/Premium_4_Bed_(Side_Sea_Facing)_1",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/premium-4-bed-2.jpg",
+      "page": "https://hotelsonarbangla.com/puri/rooms/premium-4-bed",
+      "label": "Premium 4 Bed"
+    },
+    "premium-4-bed-3": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/hotel-sonar-bangla-puri/Premium_4_Bed_(Side_Sea_Facing)_2",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/premium-4-bed-3.jpg",
+      "page": "https://hotelsonarbangla.com/puri/rooms/premium-4-bed",
+      "label": "Premium 4 Bed"
+    },
+    "premium-4-bed-4": {
+      "url": "https://assets.simplotel.com/simplotel/image/upload/hotel-sonar-bangla-puri/Premium_4_Bed_(Side_Sea_Facing)_11",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/premium-4-bed-4.jpg",
+      "page": "https://hotelsonarbangla.com/puri/rooms/premium-4-bed",
+      "label": "Premium 4 Bed"
+    }
+  }
+}

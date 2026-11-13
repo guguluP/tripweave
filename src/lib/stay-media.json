@@ -1214,13 +1214,21 @@
       "rooms": {
         "platinum-double": [
           "/stays/hotel-sonar-bangla-puri/rooms/platinum-double.jpg",
-          "/stays/hotel-sonar-bangla-puri/rooms/platinum-double-2.jpg"
+          "/stays/hotel-sonar-bangla-puri/rooms/platinum-double-2.jpg",
+          "/stays/hotel-sonar-bangla-puri/rooms/platinum-double-3.jpg",
+          "/stays/hotel-sonar-bangla-puri/rooms/platinum-double-4.jpg",
+          "/stays/hotel-sonar-bangla-puri/rooms/platinum-double-5.jpg"
         ],
         "platinum-twin": [
-          "/stays/hotel-sonar-bangla-puri/rooms/platinum-twin.jpg"
+          "/stays/hotel-sonar-bangla-puri/rooms/platinum-twin.jpg",
+          "/stays/hotel-sonar-bangla-puri/rooms/platinum-twin-2.jpg",
+          "/stays/hotel-sonar-bangla-puri/rooms/platinum-twin-3.jpg"
         ],
         "premium-4-bed": [
-          "/stays/hotel-sonar-bangla-puri/rooms/premium-4-bed.jpg"
+          "/stays/hotel-sonar-bangla-puri/rooms/premium-4-bed.jpg",
+          "/stays/hotel-sonar-bangla-puri/rooms/premium-4-bed-2.jpg",
+          "/stays/hotel-sonar-bangla-puri/rooms/premium-4-bed-3.jpg",
+          "/stays/hotel-sonar-bangla-puri/rooms/premium-4-bed-4.jpg"
         ]
       }
     },
