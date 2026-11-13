@@ -1,0 +1,59 @@
+{
+  "images": [],
+  "rooms": {
+    "super-deluxe-ac": {
+      "url": "https://hotelnewshankarinternational.com/images/rooms/1.jpg",
+      "path": "stays/new-shankar-international/rooms/super-deluxe-ac.jpg",
+      "page": "https://hotelnewshankarinternational.com/rooms.php",
+      "label": "Super Deluxe AC with WiFI (2ND FLR)"
+    },
+    "super-deluxe-ac-2": {
+      "url": "https://hotelnewshankarinternational.com/images/rooms/1-1.jpg",
+      "path": "stays/new-shankar-international/rooms/super-deluxe-ac-2.jpg",
+      "page": "https://hotelnewshankarinternational.com/rooms.php",
+      "label": "Super Deluxe AC with WiFI (2ND FLR)"
+    },
+    "super-deluxe-ac-3": {
+      "url": "https://hotelnewshankarinternational.com/images/rooms/1-2.jpg",
+      "path": "stays/new-shankar-international/rooms/super-deluxe-ac-3.jpg",
+      "page": "https://hotelnewshankarinternational.com/rooms.php",
+      "label": "Super Deluxe AC with WiFI (2ND FLR)"
+    },
+    "deluxe-ac": {
+      "url": "https://hotelnewshankarinternational.com/images/rooms/3.jpg",
+      "path": "stays/new-shankar-international/rooms/deluxe-ac.jpg",
+      "page": "https://hotelnewshankarinternational.com/rooms.php",
+      "label": "Deluxe AC with Wifi"
+    },
+    "deluxe-ac-2": {
+      "url": "https://hotelnewshankarinternational.com/images/rooms/3-1.jpg",
+      "path": "stays/new-shankar-international/rooms/deluxe-ac-2.jpg",
+      "page": "https://hotelnewshankarinternational.com/rooms.php",
+      "label": "Deluxe AC with Wifi"
+    },
+    "deluxe-ac-3": {
+      "url": "https://hotelnewshankarinternational.com/images/rooms/3-2.jpg",
+      "path": "stays/new-shankar-international/rooms/deluxe-ac-3.jpg",
+      "page": "https://hotelnewshankarinternational.com/rooms.php",
+      "label": "Deluxe AC with Wifi"
+    },
+    "deluxe-ac-4": {
+      "url": "https://hotelnewshankarinternational.com/images/rooms/5.jpg",
+      "path": "stays/new-shankar-international/rooms/deluxe-ac-4.jpg",
+      "page": "https://hotelnewshankarinternational.com/rooms.php",
+      "label": "Deluxe AC with Wifi"
+    },
+    "deluxe-ac-5": {
+      "url": "https://hotelnewshankarinternational.com/images/rooms/5-1.jpg",
+      "path": "stays/new-shankar-international/rooms/deluxe-ac-5.jpg",
+      "page": "https://hotelnewshankarinternational.com/rooms.php",
+      "label": "Deluxe AC with Wifi"
+    },
+    "deluxe-ac-6": {
+      "url": "https://hotelnewshankarinternational.com/images/rooms/5-2.jpg",
+      "path": "stays/new-shankar-international/rooms/deluxe-ac-6.jpg",
+      "page": "https://hotelnewshankarinternational.com/rooms.php",
+      "label": "Deluxe AC with Wifi"
+    }
+  }
+}

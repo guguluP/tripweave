@@ -1522,7 +1522,21 @@
         "/stays/new-shankar-international/gallery-7.jpg",
         "/stays/new-shankar-international/gallery-8.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "super-deluxe-ac": [
+          "/stays/new-shankar-international/rooms/super-deluxe-ac.jpg",
+          "/stays/new-shankar-international/rooms/super-deluxe-ac-2.jpg",
+          "/stays/new-shankar-international/rooms/super-deluxe-ac-3.jpg"
+        ],
+        "deluxe-ac": [
+          "/stays/new-shankar-international/rooms/deluxe-ac.jpg",
+          "/stays/new-shankar-international/rooms/deluxe-ac-2.jpg",
+          "/stays/new-shankar-international/rooms/deluxe-ac-3.jpg",
+          "/stays/new-shankar-international/rooms/deluxe-ac-4.jpg",
+          "/stays/new-shankar-international/rooms/deluxe-ac-5.jpg",
+          "/stays/new-shankar-international/rooms/deluxe-ac-6.jpg"
+        ]
+      }
     },
     "santana-puri": {
       "images": [

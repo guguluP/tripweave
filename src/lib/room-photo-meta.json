@@ -140,6 +140,18 @@
         "sourceName": "Premium Room",
         "basis": "Guest-video notes: larger = Premium front sea-facing. Hotel homepage rooms section caption: Premium Room."
       }
+    },
+    "new-shankar-international": {
+      "super-deluxe-ac": {
+        "floors": "2nd floor",
+        "floorSource": "https://hotelnewshankarinternational.com/rooms.php",
+        "floorQuote": "Super Deluxe AC with WiFI (2ND FLR)"
+      },
+      "deluxe-ac": {
+        "floors": "Ground floor and 3rd floor",
+        "floorSource": "https://hotelnewshankarinternational.com/rooms.php",
+        "floorQuote": "Deluxe AC with Wifi (Ground Flr); Deluxe AC with Wifi (3RD FLR)"
+      }
     }
   }
 }
