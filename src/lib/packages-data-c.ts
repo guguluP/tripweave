@@ -765,7 +765,11 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Chakratirtha Road, toward the eastern beach.",
     neighborhood: "Chakratirtha Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "i8an5CM6pFY", title: "Hotel review — honest pros and cons" },
+      { videoId: "li8xU2aZy6E", title: "Guest honeymoon stay" },
+      { videoId: "mb_CbblYs6o", title: "Guest clip — near the sea beach" },
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
@@ -879,7 +883,9 @@ export const RAW_C: RawStay[] = [
     summary: "Stay at Satapada, on Chilika, southwest of Puri.",
     neighborhood: "Satapada",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "unMtoR2-gJM", title: "Room tour" },
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in at Satapada.", options: [] },
@@ -904,7 +910,12 @@ export const RAW_C: RawStay[] = [
     summary: "Stay at Satapada, on Chilika, southwest of Puri.",
     neighborhood: "Satapada",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "1Io9LYGHKgY", title: "Room tour" },
+      { videoId: "nfNSLSoYlvM", title: "Drive and stay vlog" },
+      { videoId: "ss8OnRQcr8c", title: "Bike-trip stay and Chilika day" },
+      { videoId: "e9xHsmXYuQ0", title: "Property tour" },
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in at Satapada.", options: [] },
@@ -929,7 +940,11 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel in Konark town, by the Sun Temple.",
     neighborhood: "Konark",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "J2r8iqn1pwA", title: "Hotel review and tour" },
+      { videoId: "smjqwxLsy-4", title: "Guest stay in the government hotel" },
+      { videoId: "727LRMcVVdI", title: "Road-trip stay at Panthanivas" },
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },
@@ -1094,7 +1109,9 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Chakratirtha Road, close to the station.",
     neighborhood: "Chakratirtha Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "SpLm5pnmNKA", title: "Guest room video" },
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
@@ -1176,7 +1193,9 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "S_Divjhn7N0", title: "Sea-view room clip" },
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
@@ -1229,7 +1248,9 @@ export const RAW_C: RawStay[] = [
     summary: "Hotel on Marine Drive.",
     neighborhood: "Marine Drive",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "Ot08eoGB2pc", title: "Guest hotel review" },
+    ],
     rooms: rooms(700),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
