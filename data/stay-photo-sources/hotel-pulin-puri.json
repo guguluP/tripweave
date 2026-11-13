@@ -1,0 +1,29 @@
+{
+  "images": [],
+  "rooms": {
+    "standard": {
+      "url": "https://hotelpulinpuri.com/wp-content/uploads/2026/01/double-bed-backside-non-sea-view1.webp",
+      "path": "stays/hotel-pulin-puri/rooms/standard.jpg",
+      "page": "https://hotelpulinpuri.com/rooms/double-bed-backside-non-sea-facing/",
+      "label": "Double Bed Backside Non-Sea Facing"
+    },
+    "standard-2": {
+      "url": "https://hotelpulinpuri.com/wp-content/uploads/2026/01/double-bed-backside-non-sea-view2.webp",
+      "path": "stays/hotel-pulin-puri/rooms/standard-2.jpg",
+      "page": "https://hotelpulinpuri.com/rooms/double-bed-backside-non-sea-facing/",
+      "label": "Double Bed Backside Non-Sea Facing"
+    },
+    "standard-3": {
+      "url": "https://hotelpulinpuri.com/wp-content/uploads/2026/01/double-bed-backside-non-sea-view-bathroom.webp",
+      "path": "stays/hotel-pulin-puri/rooms/standard-3.jpg",
+      "page": "https://hotelpulinpuri.com/rooms/double-bed-backside-non-sea-facing/",
+      "label": "Double Bed Backside Non-Sea Facing"
+    },
+    "larger": {
+      "url": "https://hotelpulinpuri.com/wp-content/uploads/2026/01/double-bed-super-luxury-sea-facing1.webp",
+      "path": "stays/hotel-pulin-puri/rooms/larger.jpg",
+      "page": "https://hotelpulinpuri.com/rooms/double-bed-super-luxury-front-balcony-sea-facing/",
+      "label": "Double Bed Super Luxury Front Balcony Sea Facing"
+    }
+  }
+}

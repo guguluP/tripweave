@@ -1,0 +1,83 @@
+{
+  "images": [],
+  "rooms": {
+    "standard": {
+      "url": "https://hotelgoldentree.in/assets/images/super-deluxe/3.jpg",
+      "path": "stays/golden-tree-puri/rooms/standard.jpg",
+      "page": "https://hotelgoldentree.in/super-deluxe-room.html",
+      "label": "Super Deluxe Room"
+    },
+    "standard-2": {
+      "url": "https://hotelgoldentree.in/assets/images/super-deluxe/2.jpg",
+      "path": "stays/golden-tree-puri/rooms/standard-2.jpg",
+      "page": "https://hotelgoldentree.in/super-deluxe-room.html",
+      "label": "Super Deluxe Room"
+    },
+    "standard-3": {
+      "url": "https://hotelgoldentree.in/assets/images/super-deluxe/1.jpg",
+      "path": "stays/golden-tree-puri/rooms/standard-3.jpg",
+      "page": "https://hotelgoldentree.in/super-deluxe-room.html",
+      "label": "Super Deluxe Room"
+    },
+    "standard-4": {
+      "url": "https://hotelgoldentree.in/assets/images/super-deluxe/4.jpg",
+      "path": "stays/golden-tree-puri/rooms/standard-4.jpg",
+      "page": "https://hotelgoldentree.in/super-deluxe-room.html",
+      "label": "Super Deluxe Room"
+    },
+    "standard-5": {
+      "url": "https://hotelgoldentree.in/assets/images/super-deluxe/super-deluxe-5.jpeg",
+      "path": "stays/golden-tree-puri/rooms/standard-5.jpg",
+      "page": "https://hotelgoldentree.in/super-deluxe-room.html",
+      "label": "Super Deluxe Room"
+    },
+    "larger": {
+      "url": "https://hotelgoldentree.in/assets/images/premium/1.jpg",
+      "path": "stays/golden-tree-puri/rooms/larger.jpg",
+      "page": "https://hotelgoldentree.in/premium-room.html",
+      "label": "Premium Room"
+    },
+    "larger-2": {
+      "url": "https://hotelgoldentree.in/assets/images/premium/2.jpg",
+      "path": "stays/golden-tree-puri/rooms/larger-2.jpg",
+      "page": "https://hotelgoldentree.in/premium-room.html",
+      "label": "Premium Room"
+    },
+    "larger-3": {
+      "url": "https://hotelgoldentree.in/assets/images/premium/3.jpg",
+      "path": "stays/golden-tree-puri/rooms/larger-3.jpg",
+      "page": "https://hotelgoldentree.in/premium-room.html",
+      "label": "Premium Room"
+    },
+    "larger-4": {
+      "url": "https://hotelgoldentree.in/assets/images/premium/4.jpg",
+      "path": "stays/golden-tree-puri/rooms/larger-4.jpg",
+      "page": "https://hotelgoldentree.in/premium-room.html",
+      "label": "Premium Room"
+    },
+    "larger-5": {
+      "url": "https://hotelgoldentree.in/assets/images/premium/5.jpg",
+      "path": "stays/golden-tree-puri/rooms/larger-5.jpg",
+      "page": "https://hotelgoldentree.in/premium-room.html",
+      "label": "Premium Room"
+    },
+    "larger-6": {
+      "url": "https://hotelgoldentree.in/assets/images/premium/6.jpg",
+      "path": "stays/golden-tree-puri/rooms/larger-6.jpg",
+      "page": "https://hotelgoldentree.in/premium-room.html",
+      "label": "Premium Room"
+    },
+    "larger-7": {
+      "url": "https://hotelgoldentree.in/assets/images/premium/7.jpg",
+      "path": "stays/golden-tree-puri/rooms/larger-7.jpg",
+      "page": "https://hotelgoldentree.in/premium-room.html",
+      "label": "Premium Room"
+    },
+    "larger-8": {
+      "url": "https://hotelgoldentree.in/assets/images/premium/8.jpg",
+      "path": "stays/golden-tree-puri/rooms/larger-8.jpg",
+      "page": "https://hotelgoldentree.in/premium-room.html",
+      "label": "Premium Room"
+    }
+  }
+}

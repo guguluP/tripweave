@@ -1,0 +1,119 @@
+{
+  "images": [],
+  "rooms": {
+    "side-sea-2": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/deluxe-room-image2.jpeg",
+      "path": "stays/white-sands-puri/rooms/side-sea-2.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/deluxe-room-window-side-sea-facing/",
+      "label": "Deluxe Room (Window Side Sea Facing)"
+    },
+    "superior-deluxe-balcony-2": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/superior-deluxe-side-sea-view-room-with-balcony-img1.webp",
+      "path": "stays/white-sands-puri/rooms/superior-deluxe-balcony-2.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/super-deluxe-room-side-sea-facing-with-balcony/",
+      "label": "Super Deluxe Room (Side Sea Facing With Balcony)"
+    },
+    "superior-deluxe-balcony-3": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/superior-deluxe-side-sea-view-room-with-balcony-img2.webp",
+      "path": "stays/white-sands-puri/rooms/superior-deluxe-balcony-3.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/super-deluxe-room-side-sea-facing-with-balcony/",
+      "label": "Super Deluxe Room (Side Sea Facing With Balcony)"
+    },
+    "superior-deluxe-balcony-4": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/superior-deluxe-side-sea-view-room-with-balcony-img3.webp",
+      "path": "stays/white-sands-puri/rooms/superior-deluxe-balcony-4.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/super-deluxe-room-side-sea-facing-with-balcony/",
+      "label": "Super Deluxe Room (Side Sea Facing With Balcony)"
+    },
+    "superior-deluxe-balcony-5": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/superior-deluxe-side-sea-view-room-with-balcony-img4.webp",
+      "path": "stays/white-sands-puri/rooms/superior-deluxe-balcony-5.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/super-deluxe-room-side-sea-facing-with-balcony/",
+      "label": "Super Deluxe Room (Side Sea Facing With Balcony)"
+    },
+    "superior-deluxe-balcony-6": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/superior-deluxe-side-sea-view-room-with-balcony-img5.webp",
+      "path": "stays/white-sands-puri/rooms/superior-deluxe-balcony-6.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/super-deluxe-room-side-sea-facing-with-balcony/",
+      "label": "Super Deluxe Room (Side Sea Facing With Balcony)"
+    },
+    "superior-deluxe-balcony-7": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/superior-deluxe-side-sea-view-room-with-balcony-img6.webp",
+      "path": "stays/white-sands-puri/rooms/superior-deluxe-balcony-7.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/super-deluxe-room-side-sea-facing-with-balcony/",
+      "label": "Super Deluxe Room (Side Sea Facing With Balcony)"
+    },
+    "superior-deluxe-balcony-8": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/superior-deluxe-side-sea-view-room-with-balcony-img7.webp",
+      "path": "stays/white-sands-puri/rooms/superior-deluxe-balcony-8.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/super-deluxe-room-side-sea-facing-with-balcony/",
+      "label": "Super Deluxe Room (Side Sea Facing With Balcony)"
+    },
+    "superior-deluxe-balcony-9": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/superior-deluxe-side-sea-view-room-with-balcony-img8.webp",
+      "path": "stays/white-sands-puri/rooms/superior-deluxe-balcony-9.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/super-deluxe-room-side-sea-facing-with-balcony/",
+      "label": "Super Deluxe Room (Side Sea Facing With Balcony)"
+    },
+    "family-2": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/family-room-img2.webp",
+      "path": "stays/white-sands-puri/rooms/family-2.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/family-room-side-sea-facing-with-balcony/",
+      "label": "Family Room (Side Sea Facing With Balcony)"
+    },
+    "family-3": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/family-room-img4.webp",
+      "path": "stays/white-sands-puri/rooms/family-3.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/family-room-side-sea-facing-with-balcony/",
+      "label": "Family Room (Side Sea Facing With Balcony)"
+    },
+    "family-4": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/family-room-img1.webp",
+      "path": "stays/white-sands-puri/rooms/family-4.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/family-room-side-sea-facing-with-balcony/",
+      "label": "Family Room (Side Sea Facing With Balcony)"
+    },
+    "family-5": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/family-room-img3.webp",
+      "path": "stays/white-sands-puri/rooms/family-5.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/family-room-side-sea-facing-with-balcony/",
+      "label": "Family Room (Side Sea Facing With Balcony)"
+    },
+    "family-6": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/family-room-img6.webp",
+      "path": "stays/white-sands-puri/rooms/family-6.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/family-room-side-sea-facing-with-balcony/",
+      "label": "Family Room (Side Sea Facing With Balcony)"
+    },
+    "executive-sea-suite-2": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/executive-sea-facing-suite-room-img2.webp",
+      "path": "stays/white-sands-puri/rooms/executive-sea-suite-2.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/executive-suite-room-front-sea-facing-with-balcony/",
+      "label": "Executive Suite Room (Front Sea Facing With Balcony)"
+    },
+    "executive-sea-suite-3": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/executive-sea-facing-suite-room-img3.webp",
+      "path": "stays/white-sands-puri/rooms/executive-sea-suite-3.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/executive-suite-room-front-sea-facing-with-balcony/",
+      "label": "Executive Suite Room (Front Sea Facing With Balcony)"
+    },
+    "executive-sea-suite-4": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/executive-sea-facing-suite-room-img1.webp",
+      "path": "stays/white-sands-puri/rooms/executive-sea-suite-4.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/executive-suite-room-front-sea-facing-with-balcony/",
+      "label": "Executive Suite Room (Front Sea Facing With Balcony)"
+    },
+    "executive-sea-suite-5": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/executive-sea-facing-suite-room-img8.webp",
+      "path": "stays/white-sands-puri/rooms/executive-sea-suite-5.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/executive-suite-room-front-sea-facing-with-balcony/",
+      "label": "Executive Suite Room (Front Sea Facing With Balcony)"
+    },
+    "executive-sea-suite-6": {
+      "url": "https://hotelwhitesands.co.in/wp-content/uploads/2026/08/executive-sea-facing-suite-room-img7.webp",
+      "path": "stays/white-sands-puri/rooms/executive-sea-suite-6.jpg",
+      "page": "https://hotelwhitesands.co.in/rooms/executive-suite-room-front-sea-facing-with-balcony/",
+      "label": "Executive Suite Room (Front Sea Facing With Balcony)"
+    }
+  }
+}

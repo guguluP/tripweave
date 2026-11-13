@@ -9,7 +9,11 @@
     "chanakyahotels.com": "https://chanakyahotels.com/",
     "www.orchidhotel.com": "https://www.orchidhotel.com/",
     "puriholidayresort.com": "https://puriholidayresort.com/",
-    "www.toshaliresort.com": "https://www.toshaliresort.com/"
+    "www.toshaliresort.com": "https://www.toshaliresort.com/",
+    "www.bluelilybeachresort.com": "https://www.bluelilybeachresort.com/",
+    "hotelgoldentree.in": "https://hotelgoldentree.in/",
+    "hotelwhitesands.co.in": "https://hotelwhitesands.co.in/",
+    "hotelpulinpuri.com": "https://hotelpulinpuri.com/"
   },
   "proxy_hosts": [
     "www.toshaliresort.com",
@@ -27,6 +31,10 @@
     "mahodadhi-palace-puri",
     "holiday-resort-puri",
     "hans-coco-palms",
-    "toshali-sands-puri"
+    "toshali-sands-puri",
+    "blue-lily-puri",
+    "golden-tree-puri",
+    "white-sands-puri",
+    "hotel-pulin-puri"
   ]
 }

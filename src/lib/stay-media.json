@@ -697,7 +697,25 @@
         "/stays/golden-tree-puri/gallery-10.jpg",
         "/stays/golden-tree-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "standard": [
+          "/stays/golden-tree-puri/rooms/standard.jpg",
+          "/stays/golden-tree-puri/rooms/standard-2.jpg",
+          "/stays/golden-tree-puri/rooms/standard-3.jpg",
+          "/stays/golden-tree-puri/rooms/standard-4.jpg",
+          "/stays/golden-tree-puri/rooms/standard-5.jpg"
+        ],
+        "larger": [
+          "/stays/golden-tree-puri/rooms/larger.jpg",
+          "/stays/golden-tree-puri/rooms/larger-2.jpg",
+          "/stays/golden-tree-puri/rooms/larger-3.jpg",
+          "/stays/golden-tree-puri/rooms/larger-4.jpg",
+          "/stays/golden-tree-puri/rooms/larger-5.jpg",
+          "/stays/golden-tree-puri/rooms/larger-6.jpg",
+          "/stays/golden-tree-puri/rooms/larger-7.jpg",
+          "/stays/golden-tree-puri/rooms/larger-8.jpg"
+        ]
+      }
     },
     "camellia-puri": {
       "images": [
@@ -865,7 +883,16 @@
         "/stays/hotel-pulin-puri/gallery-10.jpg",
         "/stays/hotel-pulin-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "standard": [
+          "/stays/hotel-pulin-puri/rooms/standard.jpg",
+          "/stays/hotel-pulin-puri/rooms/standard-2.jpg",
+          "/stays/hotel-pulin-puri/rooms/standard-3.jpg"
+        ],
+        "larger": [
+          "/stays/hotel-pulin-puri/rooms/larger.jpg"
+        ]
+      }
     },
     "white-sands-puri": {
       "images": [
@@ -880,16 +907,35 @@
       ],
       "rooms": {
         "side-sea": [
-          "/stays/white-sands-puri/rooms/side-sea.jpg"
+          "/stays/white-sands-puri/rooms/side-sea.jpg",
+          "/stays/white-sands-puri/rooms/side-sea-2.jpg"
         ],
         "superior-deluxe-balcony": [
-          "/stays/white-sands-puri/rooms/superior-deluxe-balcony.jpg"
+          "/stays/white-sands-puri/rooms/superior-deluxe-balcony.jpg",
+          "/stays/white-sands-puri/rooms/superior-deluxe-balcony-2.jpg",
+          "/stays/white-sands-puri/rooms/superior-deluxe-balcony-3.jpg",
+          "/stays/white-sands-puri/rooms/superior-deluxe-balcony-4.jpg",
+          "/stays/white-sands-puri/rooms/superior-deluxe-balcony-5.jpg",
+          "/stays/white-sands-puri/rooms/superior-deluxe-balcony-6.jpg",
+          "/stays/white-sands-puri/rooms/superior-deluxe-balcony-7.jpg",
+          "/stays/white-sands-puri/rooms/superior-deluxe-balcony-8.jpg",
+          "/stays/white-sands-puri/rooms/superior-deluxe-balcony-9.jpg"
         ],
         "family": [
-          "/stays/white-sands-puri/rooms/family.jpg"
+          "/stays/white-sands-puri/rooms/family.jpg",
+          "/stays/white-sands-puri/rooms/family-2.jpg",
+          "/stays/white-sands-puri/rooms/family-3.jpg",
+          "/stays/white-sands-puri/rooms/family-4.jpg",
+          "/stays/white-sands-puri/rooms/family-5.jpg",
+          "/stays/white-sands-puri/rooms/family-6.jpg"
         ],
         "executive-sea-suite": [
-          "/stays/white-sands-puri/rooms/executive-sea-suite.jpg"
+          "/stays/white-sands-puri/rooms/executive-sea-suite.jpg",
+          "/stays/white-sands-puri/rooms/executive-sea-suite-2.jpg",
+          "/stays/white-sands-puri/rooms/executive-sea-suite-3.jpg",
+          "/stays/white-sands-puri/rooms/executive-sea-suite-4.jpg",
+          "/stays/white-sands-puri/rooms/executive-sea-suite-5.jpg",
+          "/stays/white-sands-puri/rooms/executive-sea-suite-6.jpg"
         ]
       }
     },
@@ -921,7 +967,28 @@
         "/stays/blue-lily-puri/gallery-10.jpg",
         "/stays/blue-lily-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "standard": [
+          "/stays/blue-lily-puri/rooms/standard.jpg",
+          "/stays/blue-lily-puri/rooms/standard-2.jpg",
+          "/stays/blue-lily-puri/rooms/standard-3.jpg",
+          "/stays/blue-lily-puri/rooms/standard-4.jpg",
+          "/stays/blue-lily-puri/rooms/standard-5.jpg",
+          "/stays/blue-lily-puri/rooms/standard-6.jpg"
+        ],
+        "larger": [
+          "/stays/blue-lily-puri/rooms/larger.jpg",
+          "/stays/blue-lily-puri/rooms/larger-2.jpg",
+          "/stays/blue-lily-puri/rooms/larger-3.jpg",
+          "/stays/blue-lily-puri/rooms/larger-4.jpg",
+          "/stays/blue-lily-puri/rooms/larger-5.jpg",
+          "/stays/blue-lily-puri/rooms/larger-6.jpg",
+          "/stays/blue-lily-puri/rooms/larger-7.jpg",
+          "/stays/blue-lily-puri/rooms/larger-8.jpg",
+          "/stays/blue-lily-puri/rooms/larger-9.jpg",
+          "/stays/blue-lily-puri/rooms/larger-10.jpg"
+        ]
+      }
     },
     "niladri-premium-puri": {
       "images": [

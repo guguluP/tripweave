@@ -1,3 +1,34 @@
 {
-  "ROOMS": {}
+  "ROOMS": {
+    "blue-lily-puri": {
+      "standard": {
+        "sourceName": "Standard Room",
+        "basis": "Guest-video notes: standard = the hotel's standard (courtyard-facing) room; site category 'Standard Room'."
+      },
+      "larger": {
+        "sourceName": "Suite Room",
+        "basis": "Guest-video notes: larger = suites and family suites; site category 'Suite Room'."
+      }
+    },
+    "golden-tree-puri": {
+      "standard": {
+        "sourceName": "Super Deluxe Room",
+        "basis": "Guest-video notes: standard = Super Deluxe (side sea view). Hotel page title: Super Deluxe Room Side Balcony Sea View."
+      },
+      "larger": {
+        "sourceName": "Premium Room",
+        "basis": "Guest-video notes: larger = Premium / luxury (sea view, more space). Hotel page title: Premium Room Side Balcony Sea View."
+      }
+    },
+    "hotel-pulin-puri": {
+      "standard": {
+        "sourceName": "Double Bed Backside Non-Sea Facing",
+        "basis": "Guest-video notes: standard = backside or side double (small). Hotel category: Double Bed Backside Non-Sea Facing."
+      },
+      "larger": {
+        "sourceName": "Double Bed Super Luxury Front Balcony Sea Facing",
+        "basis": "Guest-video notes: larger = sea-facing double / 4-bed sea-facing. Photos are the hotel's Double Bed Super Luxury Front Balcony Sea Facing."
+      }
+    }
+  }
 }
