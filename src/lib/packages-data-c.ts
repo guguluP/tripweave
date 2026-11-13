@@ -14,10 +14,11 @@ export type ExtraStayFact = {
 };
 
 /**
- * Fifty stays added from OpenStreetMap hotel nodes on 12 Nov 2026.
+ * Stays added from OpenStreetMap hotel nodes on 12 Nov 2026.
  * Pins are those node centres. Nightly figures are TripWeave starting rates
  * by class, before the seasonal multiplier, not a live hotel tariff.
- * No gallery is attached: these properties do not have hotel-owned photos in the repo.
+ * Santi Hotel and New Santi Hotel in Konark were on that OSM list but are
+ * restaurants that do not sell rooms, so they are not in the catalog.
  */
 export const EXTRA_STAYS: ExtraStayFact[] = [
   { id: "blue-lily-puri", lat: 19.78843, lng: 85.7956998, area: "marine", nearStation: false, neighborhood: "Marine Drive", destination: "Puri" },
@@ -65,8 +66,6 @@ export const EXTRA_STAYS: ExtraStayFact[] = [
   { id: "z-hotel-puri", lat: 19.8029143, lng: 85.8450582, area: "marine", nearStation: false, neighborhood: "Chakratirtha Road", destination: "Puri" },
   { id: "yatrinivas-konark", lat: 19.8911345, lng: 86.0958934, area: "konark", nearStation: false, neighborhood: "Konark", destination: "Konark" },
   { id: "hotel-deluxe-konark", lat: 19.8893975, lng: 86.100556, area: "konark", nearStation: false, neighborhood: "Konark", destination: "Konark" },
-  { id: "santi-hotel-konark", lat: 19.8891105, lng: 86.0978388, area: "konark", nearStation: false, neighborhood: "Konark", destination: "Konark" },
-  { id: "new-santi-hotel-konark", lat: 19.8896405, lng: 86.100512, area: "konark", nearStation: false, neighborhood: "Konark", destination: "Konark" },
 ];
 
 const BY_ID = new Map(EXTRA_STAYS.map((stay) => [stay.id, stay]));
@@ -1329,56 +1328,6 @@ export const RAW_C: RawStay[] = [
     nightsMin: 1,
     nightsMax: 7,
     pricePerNight: 1300,
-    trust: 70,
-    reviews: 0,
-    budget: "value",
-    vibe: "culture",
-    style: ["couple", "family", "solo"],
-    summary: "Hotel in Konark town, by the Sun Temple.",
-    neighborhood: "Konark",
-    includes: [],
-    videos: [],
-    rooms: rooms(400),
-    days: [
-      { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },
-      { title: "Temple day", base: "Sun Temple, then a quiet afternoon.", options: [{ id: "puri", label: "Puri temple day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] }
-    ],
-  },
-  {
-    id: "santi-hotel-konark",
-    name: "Santi Hotel, Konark",
-    destination: "Konark",
-    country: "India",
-    nights: 2,
-    nightsMin: 1,
-    nightsMax: 7,
-    pricePerNight: 1200,
-    trust: 70,
-    reviews: 0,
-    budget: "value",
-    vibe: "culture",
-    style: ["couple", "family", "solo"],
-    summary: "Hotel in Konark town, by the Sun Temple.",
-    neighborhood: "Konark",
-    includes: [],
-    videos: [],
-    rooms: rooms(400),
-    days: [
-      { title: "Arrive", base: "Check in. The Sun Temple is the outing from here.", options: [] },
-      { title: "Temple day", base: "Sun Temple, then a quiet afternoon.", options: [{ id: "puri", label: "Puri temple day", delta: 1600 }] },
-      { title: "Depart", base: "Breakfast and checkout.", options: [] }
-    ],
-  },
-  {
-    id: "new-santi-hotel-konark",
-    name: "New Santi Hotel, Konark",
-    destination: "Konark",
-    country: "India",
-    nights: 2,
-    nightsMin: 1,
-    nightsMax: 7,
-    pricePerNight: 1200,
     trust: 70,
     reviews: 0,
     budget: "value",

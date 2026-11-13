@@ -102,8 +102,6 @@ hotel itself supplies photos to, named per stay.
 | `the-eastern-dham` | homestayindia.in Hotel Eastern Dhaam, New Marine Drive (the hotel's booking partner; frames carry its corner logo) |
 | `yashasvi-inn-puri` | hotels.com / trivago Hotel Yashasvi Inn (Larina Building), Marine Drive |
 | `hotel-deluxe-konark` | justdial.com Deluxe Hotel, Konark HO, Ring Road, Junei (listing gallery; no official website exists. Building signage cross-checked in every frame) |
-| `santi-hotel-konark` | wanderlog.com Santi A/C Restaurant, Konark (the property's Google-listing photos served clean; signage reads "Shanti Hotel / Santi Hotel A/C Family Restaurant". Trades mainly as a family restaurant; no room photos exist) |
-| `new-santi-hotel-konark` | Google listing photos, New Santi Hotel, Shop No 81, Arabana Park Front, Konark (signage "New Santi Hotel / Your's First Choice" verified; clean originals of the photos Restaurant Guru serves only as mascot collages) |
 
 Still without photos: three Konark lodges (`konark-hotel-konark`,
 `hotel-sun-village-konark`, `santoshi-hotel-konark`). A second, deeper pass
@@ -154,6 +152,14 @@ be the same physical unit.
 No categories published anywhere, generic labels kept: Divine Beach
 Homestay, Hotel Krishna Resorts (the one formal tariff online is a Diu
 namesake's), Hotel Sweet Home (a single generic "Deluxe Room"), Sidharth
-Inn, Santana Puri, Nuanai Nature Camp (a single "AC Cottage"), Hotel
-Deluxe Konark, and the two Konark eateries Santi Hotel and New Santi Hotel,
-which sell no rooms at all.
+Inn, Santana Puri, Nuanai Nature Camp (a single "AC Cottage"), and Hotel
+Deluxe Konark.
+
+Removed from the catalog (Nov 2026): `santi-hotel-konark` and
+`new-santi-hotel-konark`. Both are restaurants that do not sell rooms.
+Santi Hotel's signage reads "Shanti Hotel A/C Family Restaurant"; Google
+lists it as a restaurant, and every review is about meals, not a stay.
+New Santi Hotel is Google-listed as a fast-food restaurant at Shop No 81,
+Arabana Park Front; its board advertises Odisha and Marwadi thalis, and no
+OTA lists bookable rooms. Their photos and vendored chunks were removed
+with the catalog entries.
