@@ -14,7 +14,8 @@
     "hotelgoldentree.in": "https://hotelgoldentree.in/",
     "hotelwhitesands.co.in": "https://hotelwhitesands.co.in/",
     "hotelpulinpuri.com": "https://hotelpulinpuri.com/",
-    "shaktihorizon.in": "https://shaktihorizon.in/"
+    "shaktihorizon.in": "https://shaktihorizon.in/",
+    "www.hotelprabhupada.com": "https://hotelprabhupada.com/"
   },
   "proxy_hosts": [
     "www.toshaliresort.com",
@@ -37,6 +38,7 @@
     "golden-tree-puri",
     "white-sands-puri",
     "hotel-pulin-puri",
-    "shakti-horizon-puri"
+    "shakti-horizon-puri",
+    "hotel-prabhupada-puri"
   ]
 }
