@@ -1,0 +1,17 @@
+{
+  "images": [],
+  "rooms": {
+    "standard": {
+      "url": "https://thebaysuites.in/assets/img/40.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/standard.jpg",
+      "page": "https://thebaysuites.in/room.html",
+      "label": "Deluxe Room"
+    },
+    "larger": {
+      "url": "https://thebaysuites.in/assets/img/22.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/larger.jpg",
+      "page": "https://thebaysuites.in/",
+      "label": "Premium Room"
+    }
+  }
+}

@@ -126,6 +126,16 @@
         "sourceName": "Super Deluxe Room",
         "basis": "Guest-video notes: larger = sea-facing 1 BHK with balcony. Hotel rooms gallery filter and caption: Super Deluxe Room."
       }
+    },
+    "the-bay-suites-puri": {
+      "standard": {
+        "sourceName": "Deluxe Room",
+        "basis": "Guest-video notes: standard = Deluxe / Super Deluxe side sea view. Hotel's published base category on the rooms page and homepage is Deluxe Room (Super Deluxe is a separate official type, not mixed in)."
+      },
+      "larger": {
+        "sourceName": "Premium Room",
+        "basis": "Guest-video notes: larger = Premium front sea-facing. Hotel homepage rooms section caption: Premium Room."
+      }
     }
   }
 }

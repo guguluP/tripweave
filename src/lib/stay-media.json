@@ -794,7 +794,14 @@
         "/stays/the-bay-suites-puri/gallery-10.jpg",
         "/stays/the-bay-suites-puri/gallery-11.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "standard": [
+          "/stays/the-bay-suites-puri/rooms/standard.jpg"
+        ],
+        "larger": [
+          "/stays/the-bay-suites-puri/rooms/larger.jpg"
+        ]
+      }
     },
     "z-hotel-puri": {
       "images": [

@@ -22,7 +22,8 @@
     "hotelniladripremium.com": "https://hotelniladripremium.com/",
     "nrsroyalpalace.com": "https://nrsroyalpalace.com/",
     "hotelshreehari.com": "https://hotelshreehari.com/",
-    "hoteljeevansandhya.com": "https://hoteljeevansandhya.com/"
+    "hoteljeevansandhya.com": "https://hoteljeevansandhya.com/",
+    "thebaysuites.in": "https://thebaysuites.in/"
   },
   "proxy_hosts": [
     "www.toshaliresort.com",
@@ -54,6 +55,7 @@
     "niladri-premium-puri",
     "nrs-royal-palace-puri",
     "hotel-shreehari-puri",
-    "jeevan-sandhya-puri"
+    "jeevan-sandhya-puri",
+    "the-bay-suites-puri"
   ]
 }
