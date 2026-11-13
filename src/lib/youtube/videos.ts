@@ -192,6 +192,23 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       channel: "Monica Explains",
     }
   ],
+  "new-shankar-international": [
+    {
+      videoId: "i8an5CM6pFY",
+      title: "Hotel New Sankar International PURI, Odisha India. Hotel Review.",
+      channel: "TourFlyer",
+    },
+    {
+      videoId: "li8xU2aZy6E",
+      title: "Hotel New Shankar International | Puri , Odisha | Honeymoon ❤️ | DeTo Vlogs |",
+      channel: "DeTo Vlogs",
+    },
+    {
+      videoId: "mb_CbblYs6o",
+      title: "Hotel New Shankar International, Puri, Odisha , India. #puri #nearseabeach #hotelnearseabeach",
+      channel: "Babita Mishra",
+    },
+  ],
   "niladri-premium-puri": [
     {
       videoId: "K9fnbagwvtU",
@@ -591,6 +608,52 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       channel: "Biswaranjan Das Odia Vlog",
     }
   ],
+  "om-leisure-satapada": [
+    {
+      videoId: "unMtoR2-gJM",
+      title: "Om leisure Resort (Chilika), satapada hotel Room tour. #odiavlog #youtuvlogs #youtube",
+      channel: "Debasmita vlogs",
+    },
+  ],
+  "panthanivas-konark": [
+    {
+      videoId: "J2r8iqn1pwA",
+      title: "One of the Luxurious Hotel of Konark | Budget Hotel in Konark | OTDC Yatrinivas, Konark, Odisha",
+      channel: "TimeTravelExpress",
+    },
+    {
+      videoId: "smjqwxLsy-4",
+      title: "My Stay in Indian Govt. Hotel  भारत के सरकारी होटल ऐसे होते हैं",
+      channel: "Aayansh Aryaman",
+    },
+    {
+      videoId: "727LRMcVVdI",
+      title: "Road Trip to Konark By Car // Konark OTDC Panthanivas // Konark Sun Temple // Chandrabhaga Beach",
+      channel: "𝙀𝙭𝙥𝙡𝙤𝙧𝙚𝙧𝙆𝙪𝙢𝙖𝙧𝙟𝙞𝙩",
+    },
+  ],
+  "panthanivas-satapada": [
+    {
+      videoId: "1Io9LYGHKgY",
+      title: "Yatri Nivas Satapada Room Tour : OTDC : Perfect Destination For Nature Lover",
+      channel: "Off Route Traveller",
+    },
+    {
+      videoId: "nfNSLSoYlvM",
+      title: "Kolkata to Satapada Drive | Yatri Nivas Satapada | OTDC",
+      channel: "Travel With TAGS",
+    },
+    {
+      videoId: "ss8OnRQcr8c",
+      title: "Chilika Lake Odisha | OTDC Panthanivas Satapada | Kolkata to Puri bike ride Day 2 @explorerpals",
+      channel: "Explorer Pals",
+    },
+    {
+      videoId: "e9xHsmXYuQ0",
+      title: "Yatri Nivas Satpada, Puri, Odisha (OTDC) | Dream Destination Tour | Satya Bhanja",
+      channel: "Satya Bhanja",
+    },
+  ],
   "rivera-puri": [
     {
       videoId: "yKIxELdrjzQ",
@@ -654,6 +717,13 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       channel: "Explorer Bhowmik",
     }
   ],
+  "sidharth-inn-puri": [
+    {
+      videoId: "SpLm5pnmNKA",
+      title: "Treebo Trend Sidhartha Inn Baliapanda, Puri, Odisha",
+      channel: "Mayukh Sen",
+    },
+  ],
   "sterling-puri": [
     {
       videoId: "KvcTdIi_xSw",
@@ -683,6 +753,13 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       channel: "Travel with Appy { Avik & Aparna }",
     }
   ],
+  "the-eastern-dham": [
+    {
+      videoId: "S_Divjhn7N0",
+      title: "Puri Hotel With Sea View | Budget Hotel In Puri | Puri Sea View Room | Couple Room In Puri Sea View",
+      channel: "Asansol Vibes",
+    },
+  ],
   "treebo-siddharth-puri": [
     {
       videoId: "BHLEQ77u5CI",
@@ -694,6 +771,13 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       title: "#siddharth international hotel puri#travalingvlog #bengalivlogs #banglavlogs#thadeboshree'sworld",
       channel: "Debashree world",
     }
+  ],
+  "white-sands-puri": [
+    {
+      videoId: "Ot08eoGB2pc",
+      title: "Hotel White Sands Puri || Hotel Review || Bangla Vlog || Payel Bhattacharjee ||",
+      channel: "A drop of HAPPY-ness",
+    },
   ],
   "yashasvi-inn-puri": [
     {
