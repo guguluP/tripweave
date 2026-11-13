@@ -1098,6 +1098,10 @@
       "rooms": {
         "larger": [
           "/stays/nrs-royal-palace-puri/rooms/larger.jpg"
+        ],
+        "standard": [
+          "/stays/nrs-royal-palace-puri/rooms/standard.jpg",
+          "/stays/nrs-royal-palace-puri/rooms/standard-2.jpg"
         ]
       }
     },

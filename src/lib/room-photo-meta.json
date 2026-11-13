@@ -108,6 +108,10 @@
       "larger": {
         "sourceName": "Premium Sea View",
         "basis": "Hotel filename and rooms section photo: room-premium-sea-view.jpg. Video notes: larger = premium sea-view room."
+      },
+      "standard": {
+        "sourceName": "Deluxe Room AC (NON SEA VIEW) DOUBLE OR TWIN",
+        "basis": "Cleartrip bookable room list groups photos under the named category 'Deluxe Room AC (NON SEA VIEW) DOUBLE OR TWIN'. It is the cheapest bookable double on 15–16 Jan 2027 (₹6,768 vs Premium Sea View ₹8,883 and Royal Suite ₹10,998). Guest-video notes also say standard = non-sea-view. Two of the four category frames were omitted: one clearly shows the open sea, and another is the same staging as that sea-view frame."
       }
     },
     "hans-coco-palms": {
