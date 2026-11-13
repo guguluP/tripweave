@@ -115,3 +115,47 @@ can be found in Konark at all (every result is the Puri hotel); and Santoshi
 Hotel is permanently closed with no photos in any listing or archive.
 
 `STAYS_NEEDING_USER_FILES` is empty.
+
+## Room types and room photos (Nov 2026)
+
+Official room names were adopted for 17 stays that previously used the
+generic Standard/Larger pair, following the `official-rooms` pattern: names
+are the hotel's own published categories, in published price order; a photo
+is attached only where the source attributes one to that exact category.
+Stays whose hotels publish no categories keep the generic labels.
+
+Room photos (`rooms/{roomId}.jpg`), one per category:
+
+| Stay ID | Room-photo source |
+| --- | --- |
+| `dreamland-puri` | dreamlandhotelpuri.com room pages (the hotel's Suites page shows an "Executive Suite" at the same tariff with the same photo as the Luxury Room — apparently one unit under two labels — so only the four distinct categories are listed) |
+| `lucky-india-puri` | easemytrip.com hotel-supplied room sections, corroborated by Cleartrip |
+| `shree-vishnu-darshan` | yatradham.org per-category galleries |
+| `panthanivas-konark` | bookodisha.com (OTDC booking portal) per-type images |
+| `om-leisure-satapada` | omleisureholidays.com "Room Types & Tariff" ("Family Suit" is the site's own spelling) |
+| `z-hotel-puri` | zhotelpuri.com "Our Rooms" (the hotel publishes only 200x100 thumbnails) |
+
+Names only: Sterling Puri (sterlingholidays.com publishes per-category
+images for only 3 of its 7 categories, and this repo wires room photos
+all-or-nothing per stay) and Hotel Konark, Puri (hotelkonark.in archived
+official site: the Three Bed, Four Bed and "A.C Suit" [sic] frames survive,
+the Double Bed frame does not). For the rest, no photo is honestly
+attributable to a category: Golden Dust
+(trivago/Via hotel-supplied ladder), Hotel Shakuntala Palace, New Shankar
+International and Hotel Sweet Home's directory (hotelspuri.net), Hotel
+Sukadev Homes (hotelsdhomes.com), The Eastern Dham (homestayindia.in),
+Yashasvi Inn (Booking/Expedia category lists; Expedia shows placeholder
+tiles, no per-room photos), Hotel Golden Palace (hotelgoldenpalacepuri.in —
+its rendered site lists four categories with photo strips, but the image
+host refuses direct downloads; the "Family Room" a mirror site adds is not
+on the hotel's own site), Yatrinivas Konark and Panthanivas Satapada (OTDC
+tariff cards). Note: OTDC's current portal lists a single Konark unit whose
+contact details match the old Yatrinivas page — the two catalog entries may
+be the same physical unit.
+
+No categories published anywhere, generic labels kept: Divine Beach
+Homestay, Hotel Krishna Resorts (the one formal tariff online is a Diu
+namesake's), Hotel Sweet Home (a single generic "Deluxe Room"), Sidharth
+Inn, Santana Puri, Nuanai Nature Camp (a single "AC Cottage"), Hotel
+Deluxe Konark, and the two Konark eateries Santi Hotel and New Santi Hotel,
+which sell no rooms at all.
