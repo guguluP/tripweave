@@ -21,7 +21,8 @@
     "assets.zyrosite.com": "https://hotelsdhomes.com/",
     "hotelniladripremium.com": "https://hotelniladripremium.com/",
     "nrsroyalpalace.com": "https://nrsroyalpalace.com/",
-    "hotelshreehari.com": "https://hotelshreehari.com/"
+    "hotelshreehari.com": "https://hotelshreehari.com/",
+    "hoteljeevansandhya.com": "https://hoteljeevansandhya.com/"
   },
   "proxy_hosts": [
     "www.toshaliresort.com",
@@ -52,6 +53,7 @@
     "hotel-sonar-bangla-puri",
     "niladri-premium-puri",
     "nrs-royal-palace-puri",
-    "hotel-shreehari-puri"
+    "hotel-shreehari-puri",
+    "jeevan-sandhya-puri"
   ]
 }

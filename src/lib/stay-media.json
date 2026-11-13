@@ -1264,7 +1264,22 @@
         "/stays/jeevan-sandhya-puri/gallery-6.jpg",
         "/stays/jeevan-sandhya-puri/gallery-7.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "standard": [
+          "/stays/jeevan-sandhya-puri/rooms/standard.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/standard-2.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/standard-3.jpg"
+        ],
+        "larger": [
+          "/stays/jeevan-sandhya-puri/rooms/larger.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/larger-2.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/larger-3.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/larger-4.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/larger-5.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/larger-6.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/larger-7.jpg"
+        ]
+      }
     },
     "lucky-india-puri": {
       "images": [

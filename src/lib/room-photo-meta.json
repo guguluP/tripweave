@@ -122,6 +122,16 @@
         "sourceName": "Super Deluxe",
         "basis": "Guest-video notes: larger = Super Deluxe front sea view. Hotel Accommodation section heading SUPER DELUXE."
       }
+    },
+    "jeevan-sandhya-puri": {
+      "standard": {
+        "sourceName": "Deluxe Room",
+        "basis": "Guest-video notes: standard = AC deluxe (side/no sea view). Hotel rooms gallery filter and caption: Deluxe Room."
+      },
+      "larger": {
+        "sourceName": "Super Deluxe Room",
+        "basis": "Guest-video notes: larger = sea-facing 1 BHK with balcony. Hotel rooms gallery filter and caption: Super Deluxe Room."
+      }
     }
   }
 }
