@@ -308,18 +308,21 @@
       "rooms": {
         "executive": [
           "/stays/empires-hotel-puri/rooms/executive.jpg",
-          "/stays/empires-hotel-puri/rooms/executive-2.jpg"
+          "/stays/empires-hotel-puri/rooms/executive-2.jpg",
+          "/stays/empires-hotel-puri/rooms/executive-3.jpg"
         ],
         "deluxe": [
           "/stays/empires-hotel-puri/rooms/deluxe.jpg",
           "/stays/empires-hotel-puri/rooms/deluxe-2.jpg",
           "/stays/empires-hotel-puri/rooms/deluxe-3.jpg",
           "/stays/empires-hotel-puri/rooms/deluxe-4.jpg",
-          "/stays/empires-hotel-puri/rooms/deluxe-5.jpg"
+          "/stays/empires-hotel-puri/rooms/deluxe-5.jpg",
+          "/stays/empires-hotel-puri/rooms/deluxe-6.jpg"
         ],
         "corporate": [
           "/stays/empires-hotel-puri/rooms/corporate.jpg",
-          "/stays/empires-hotel-puri/rooms/corporate-2.jpg"
+          "/stays/empires-hotel-puri/rooms/corporate-2.jpg",
+          "/stays/empires-hotel-puri/rooms/corporate-3.jpg"
         ],
         "premium": [
           "/stays/empires-hotel-puri/rooms/premium.jpg",

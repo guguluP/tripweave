@@ -53,6 +53,24 @@
     "deluxe-5": {
       "url": "https://www.empireshotel.com/wp-content/uploads/2022/06/EMPIRES-PURI-DLX-ROOM-BATH-ROOM.jpg",
       "path": "stays/empires-hotel-puri/rooms/deluxe-5.jpg"
+    },
+    "executive-3": {
+      "url": "https://pix8.agoda.net/hotelImages/1258046/7863806/88193075fb874eb9c3d6031ceb7f56ac.png",
+      "path": "stays/empires-hotel-puri/rooms/executive-3.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=1258046",
+      "label": "Executive Room"
+    },
+    "deluxe-6": {
+      "url": "https://pix8.agoda.net/hotelImages/1258046/33543874/49037b2b11fc09a952dd88a7fec94918.jpeg",
+      "path": "stays/empires-hotel-puri/rooms/deluxe-6.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=1258046",
+      "label": "Deluxe Room Balcony / Deluxe Room Balcony - Guestroom"
+    },
+    "corporate-3": {
+      "url": "https://pix8.agoda.net/hotelImages/1258046/7864301/983b5a167139e1847291f5b7b85f1efa.jpeg",
+      "path": "stays/empires-hotel-puri/rooms/corporate-3.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=1258046",
+      "label": "Corporate Room"
     }
   }
 }
