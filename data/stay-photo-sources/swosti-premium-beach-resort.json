@@ -221,6 +221,24 @@
       "path": "stays/swosti-premium-beach-resort/rooms/royal-ambassador-suite-7.jpg",
       "page": "https://www.cleartrip.com/hotels/details/4531223",
       "label": "Royal Ambassador"
+    },
+    "oasis-suite-7": {
+      "url": "https://pix8.agoda.net/hotelImages/60581052/1273286539/804573e98016a6c09e5e545e5bf23d2d.jpg",
+      "path": "stays/swosti-premium-beach-resort/rooms/oasis-suite-7.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=60581052",
+      "label": "Oasis Suite - Bedroom"
+    },
+    "sea-view-side-4": {
+      "url": "https://pix8.agoda.net/hotelImages/60581052/-1/25872403c1bf9b230324735c0a65b48f.jpg",
+      "path": "stays/swosti-premium-beach-resort/rooms/sea-view-side-4.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=60581052",
+      "label": "Side Sea View Room - Room plan"
+    },
+    "premium-7": {
+      "url": "https://pix8.agoda.net/hotelImages/60581052/-1/2808b38c2cc3d014a6a993cdd0378d4a.jpg",
+      "path": "stays/swosti-premium-beach-resort/rooms/premium-7.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=60581052",
+      "label": "Premium Sea Facing Room with Balcony - Bed"
     }
   }
 }
