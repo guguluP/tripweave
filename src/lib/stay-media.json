@@ -1972,7 +1972,16 @@
         "/stays/yashasvi-inn-puri/gallery-5.jpg",
         "/stays/yashasvi-inn-puri/gallery-6.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "superior-double-room": [
+          "/stays/yashasvi-inn-puri/rooms/superior-double-room.jpg",
+          "/stays/yashasvi-inn-puri/rooms/superior-double-room-2.jpg"
+        ],
+        "triple-room": [
+          "/stays/yashasvi-inn-puri/rooms/triple-room.jpg",
+          "/stays/yashasvi-inn-puri/rooms/triple-room-2.jpg"
+        ]
+      }
     },
     "hotel-deluxe-konark": {
       "images": [
