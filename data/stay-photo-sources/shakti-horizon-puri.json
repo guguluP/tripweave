@@ -66,6 +66,18 @@
       "path": "stays/shakti-horizon-puri/rooms/larger-7.jpg",
       "page": "https://shaktihorizon.in/super-deluxe-room/",
       "label": "Super Deluxe Room"
+    },
+    "super-deluxe-sea-12": {
+      "url": "https://pix8.agoda.net/property/56097269/1286191418/04d048905551561eb2275115fd9dae8b.jpeg",
+      "path": "stays/shakti-horizon-puri/rooms/super-deluxe-sea-12.jpg",
+      "page": "https://www.agoda.com/shakti-horizon/hotel/puri-in.html",
+      "label": "Super Deluxe Sea View Room"
+    },
+    "super-deluxe-sea-13": {
+      "url": "https://pix8.agoda.net/property/56097269/1286191418/3704aca9c298dd58acc418ef0acc29a2.jpeg",
+      "path": "stays/shakti-horizon-puri/rooms/super-deluxe-sea-13.jpg",
+      "page": "https://www.agoda.com/shakti-horizon/hotel/puri-in.html",
+      "label": "Super Deluxe Sea View Room"
     }
   }
 }
