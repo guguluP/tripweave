@@ -37,6 +37,9 @@ export function scorePackages(brief: Brief): MatchedStay[] {
       }
     }
     score += originFitScore(p, brief);
+    // Sums of 0.1-steps drift (0.9 vs 0.8999999999999999). Without rounding, equal fits
+    // skipped the Trust Score tie-break and a lower-trust stay could rank first.
+    score = Math.round(score * 100) / 100;
     return { ...p, matchScore: score, weakMatch: score < WEAK_MATCH_BELOW };
   });
   return scored.sort((a, b) => b.matchScore - a.matchScore || b.trustScore - a.trustScore);

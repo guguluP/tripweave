@@ -242,7 +242,14 @@ function JoinForm({
       if (!sent) {
         void requestMemberOtp({ data: { token, email, phone } }).then((res) => {
           if (!res.ok) onMessage(res.message);
-          else {
+          else if (!res.sent && !res.code) {
+            // Nothing was delivered and no code is shown in production. Let them ask again.
+            onMessage(
+              otpChannel === "email"
+                ? "We couldn't email the code just now. Check the address and try again in a few minutes."
+                : "We couldn't send the code just now. Try again in a few minutes.",
+            );
+          } else {
             setSent(true);
             if (res.code) {
               setCode(res.code);

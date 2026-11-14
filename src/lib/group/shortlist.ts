@@ -6,7 +6,6 @@ import {
   quoteStay,
 } from "../inventory.ts";
 import { recommendRooms } from "../recommend-rooms.ts";
-import { trustScoreForPackage } from "../trust-score.ts";
 import { stayWalkTimes } from "../walk-estimate.ts";
 import type { GroupInterest, GroupNeed, LockedRoom, ShortlistStay } from "./types.ts";
 
@@ -54,7 +53,9 @@ export function shortlistForGroup(brief: ShortlistBrief): ShortlistStay[] {
   const rows = listPackages().map((pkg) => {
     const mix = roomMix(pkg, party, brief);
     const fit = fitScore(pkg, matchBrief);
-    const trustScore = trustScoreForPackage(pkg);
+    // listPackages() already applied guest notes; recomputing here showed a different
+    // number from the stay page whenever a stay had reviews.
+    const trustScore = pkg.trustScore;
     const walk = stayWalkTimes(pkg.id, pkg.name);
     return {
       packageId: pkg.id,
@@ -113,7 +114,8 @@ function fitScore(pkg: StayPackage, brief: Brief): number {
   const inRange = brief.nights >= pkg.nightsMin && brief.nights <= pkg.nightsMax;
   if (inRange) score += Math.max(0, 2 - Math.abs(pkg.nights - brief.nights) / 2);
   score += originFitScore(pkg, brief);
-  return score;
+  // Same rounding as scorePackages, so equal fits reach the Trust Score tie-break.
+  return Math.round(score * 100) / 100;
 }
 
 function roomMix(
