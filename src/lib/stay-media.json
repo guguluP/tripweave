@@ -1775,13 +1775,15 @@
           "/stays/hotel-golden-palace-puri/rooms/premium-pool-facing-room.jpg"
         ],
         "deluxe-sea-facing-room": [
-          "/stays/hotel-golden-palace-puri/rooms/deluxe-sea-facing-room.jpg"
+          "/stays/hotel-golden-palace-puri/rooms/deluxe-sea-facing-room.jpg",
+          "/stays/hotel-golden-palace-puri/rooms/deluxe-sea-facing-room-2.jpg"
         ],
         "mini-suite-room": [
           "/stays/hotel-golden-palace-puri/rooms/mini-suite-room.jpg"
         ],
         "presidential-suite": [
-          "/stays/hotel-golden-palace-puri/rooms/presidential-suite.jpg"
+          "/stays/hotel-golden-palace-puri/rooms/presidential-suite.jpg",
+          "/stays/hotel-golden-palace-puri/rooms/presidential-suite-2.jpg"
         ]
       }
     },
