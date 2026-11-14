@@ -1818,7 +1818,12 @@
         "/stays/hotel-krishna-resorts-puri/gallery-3.jpg",
         "/stays/hotel-krishna-resorts-puri/gallery-4.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "standard": [
+          "/stays/hotel-krishna-resorts-puri/rooms/standard.jpg",
+          "/stays/hotel-krishna-resorts-puri/rooms/standard-2.jpg"
+        ]
+      }
     },
     "hotel-shakuntala-palace": {
       "images": [

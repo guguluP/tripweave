@@ -171,6 +171,12 @@
         "floorSource": "https://www.cleartrip.com/hotels/details/4269812",
         "floorQuote": "Deluxe (Ground Floor)"
       }
+    },
+    "hotel-krishna-resorts-puri": {
+      "standard": {
+        "sourceName": "Standard Room - Bedroom",
+        "basis": "Agoda lists one room category for Krishna Resorts (Chakratirtha Road, same coordinates): 'Standard Room'. Mapped to the base slot."
+      }
     }
   }
 }
