@@ -157,20 +157,24 @@
       ],
       "rooms": {
         "deluxe": [
-          "/stays/mayfair-heritage-puri/rooms/deluxe.jpg"
+          "/stays/mayfair-heritage-puri/rooms/deluxe.jpg",
+          "/stays/mayfair-heritage-puri/rooms/deluxe-2.jpg"
         ],
         "heritage-premium": [
           "/stays/mayfair-heritage-puri/rooms/heritage-premium.jpg"
         ],
         "deluxe-cottage": [
           "/stays/mayfair-heritage-puri/rooms/deluxe-cottage.jpg",
-          "/stays/mayfair-heritage-puri/rooms/deluxe-cottage-2.jpg"
+          "/stays/mayfair-heritage-puri/rooms/deluxe-cottage-2.jpg",
+          "/stays/mayfair-heritage-puri/rooms/deluxe-cottage-3.jpg"
         ],
         "sea-view-cottage": [
-          "/stays/mayfair-heritage-puri/rooms/sea-view-cottage.jpg"
+          "/stays/mayfair-heritage-puri/rooms/sea-view-cottage.jpg",
+          "/stays/mayfair-heritage-puri/rooms/sea-view-cottage-2.jpg"
         ],
         "deluxe-suite": [
-          "/stays/mayfair-heritage-puri/rooms/deluxe-suite.jpg"
+          "/stays/mayfair-heritage-puri/rooms/deluxe-suite.jpg",
+          "/stays/mayfair-heritage-puri/rooms/deluxe-suite-2.jpg"
         ],
         "family-suite": [
           "/stays/mayfair-heritage-puri/rooms/family-suite.jpg"

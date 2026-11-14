@@ -145,6 +145,30 @@
     "deluxe-cottage-2": {
       "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/mayfair-heritage-puri/Deluxe_Cottage_1-_MAYFAIR_Heritage_Puri_d9c5e6cd",
       "path": "stays/mayfair-heritage-puri/rooms/deluxe-cottage-2.jpg"
+    },
+    "deluxe-2": {
+      "url": "https://pix8.agoda.net/hotelImages/303/303562/303562_18120814350070176091.jpg",
+      "path": "stays/mayfair-heritage-puri/rooms/deluxe-2.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=303562",
+      "label": "Deluxe Room King - Bedroom"
+    },
+    "deluxe-suite-2": {
+      "url": "https://pix8.agoda.net/hotelImages/303562/59732384/a8cf27a9d8bb2396fa7be942f632032e.jpeg",
+      "path": "stays/mayfair-heritage-puri/rooms/deluxe-suite-2.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=303562",
+      "label": "Deluxe Suite"
+    },
+    "sea-view-cottage-2": {
+      "url": "https://pix8.agoda.net/hotelImages/303562/3490832/9cb83f60d43dbc2a6e935107dcbc6c86.jpeg",
+      "path": "stays/mayfair-heritage-puri/rooms/sea-view-cottage-2.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=303562",
+      "label": "Sea View Cottage - Bed"
+    },
+    "deluxe-cottage-3": {
+      "url": "https://pix8.agoda.net/hotelImages/303562/637348529/5523bf4e365506bcaf0f620426aa38fc.jpg",
+      "path": "stays/mayfair-heritage-puri/rooms/deluxe-cottage-3.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=303562",
+      "label": "Deluxe Cottage King - Bedroom"
     }
   }
 }
