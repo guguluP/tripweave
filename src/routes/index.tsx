@@ -1,3 +1,4 @@
+import { compareByTrust } from "@/lib/trust-tiebreak";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Landmark, ShieldCheck, Wallet } from "lucide-react";
@@ -104,7 +105,7 @@ function Cover() {
 }
 
 function Home() {
-  const featured = [...listPackages()].sort((a, b) => b.trustScore - a.trustScore).slice(0, 3);
+  const featured = [...listPackages()].sort(compareByTrust).slice(0, 3);
 
   return (
     <Shell>
