@@ -218,12 +218,18 @@ export function PropertyMedia({
   const coverIndexRef = useRef(0);
   if (!roomScope) coverIndexRef.current = filmstripIndex;
 
+  // Report the cover only when it really changes. Parents pass a new `onPhoto` and new
+  // image arrays on every render; depending on those made the stay page and this
+  // component re-render each other until React stopped them ("Maximum update depth").
+  const onPhotoRef = useRef(onPhoto);
+  onPhotoRef.current = onPhoto;
+  const coverAt = roomScope ? coverIndexRef.current : filmstripIndex;
+  const coverSrc = filmstrip[coverAt] ?? "";
+  const coverTotal = filmstrip.length;
   useEffect(() => {
-    const coverAt = roomScope ? coverIndexRef.current : filmstripIndex;
-    const src = filmstrip[coverAt];
-    if (!src) return;
-    onPhoto?.(src, coverAt + 1, filmstrip.length);
-  }, [filmstrip, filmstripIndex, onPhoto, roomScope]);
+    if (!coverSrc) return;
+    onPhotoRef.current?.(coverSrc, coverAt + 1, coverTotal);
+  }, [coverSrc, coverAt, coverTotal]);
 
   if (!current && !hideHero) return null;
 

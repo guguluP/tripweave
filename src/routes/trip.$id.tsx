@@ -34,6 +34,7 @@ import {
   formatMoney,
   getPackage,
   getRoom,
+  DEFAULT_BRIEF,
   loadPending,
   nightsPhrase,
   rememberLiveTrustScore,
@@ -69,7 +70,14 @@ export const Route = createFileRoute("/trip/$id")({
 
 function TripDetail() {
   const { id } = Route.useParams();
-  const pkg = getPackage(id);
+  // getPackage() returns a new object on every call once a catalog overlay or a live Trust
+  // Score applies. Effects and memos below key on `pkg`, so an unstable object made them set
+  // state, re-render and run again ("Maximum update depth exceeded"). Keep the same object
+  // until the stay's data really changes.
+  const freshPkg = getPackage(id);
+  const pkgKey = freshPkg ? JSON.stringify(freshPkg) : "";
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on content, see above
+  const pkg = useMemo(() => freshPkg, [pkgKey]);
   const nav = useNavigate();
   const { user, isPending } = useCurrentUserState();
   const [swaps, setSwaps] = useState<Record<string, string>>({});
@@ -172,6 +180,10 @@ function TripDetail() {
     );
   }, [gallery]);
 
+  // Server render has no localStorage; the saved brief is read after mount (see below).
+  const [briefReady, setBriefReady] = useState(false);
+  useEffect(() => setBriefReady(true), []);
+
   if (!pkg) {
     return (
       <Shell>
@@ -196,7 +208,8 @@ function TripDetail() {
     inventoryKnown,
   });
   const price = quote?.perPerson ?? 0;
-  const brief = loadBriefWithDates();
+  // Reading the saved brief during the first client render caused a hydration mismatch.
+  const brief = briefReady ? loadBriefWithDates() : DEFAULT_BRIEF;
   const amenities = stayAmenityFacts(pkg);
   const journey = getJourney(pkg.id, brief.origin, brief.arriveBy);
   const travelQuote = quoteTravel(pkg.id, { ...brief, checkIn, nights }, travel);

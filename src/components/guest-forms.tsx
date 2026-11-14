@@ -93,6 +93,18 @@ export function useGuestForms(
     );
   }, [user?.displayName, user?.primaryEmail]);
 
+  // Keep a draft while typing, so a reload, a back-and-forth to the stay, or a second tab
+  // does not lose the guests. Same store and masking as on Pay (Aadhaar keeps last 4 only),
+  // cleared on sign-out. Guests beyond this cart's count stay saved for a bigger room.
+  useEffect(() => {
+    if (!ready || list.length === 0) return;
+    const timer = window.setTimeout(() => {
+      const saved = loadTravelers();
+      saveTravelers([...list, ...saved.slice(list.length)]);
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [list, ready]);
+
   const update = (index: number, patch: Partial<Traveler>) => {
     setList((prev) =>
       prev.map((t, i) => {
