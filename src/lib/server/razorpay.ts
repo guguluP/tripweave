@@ -188,7 +188,13 @@ export async function settleRazorpayWebhook(rawBody: string, signature: string |
   if (a.length !== b.length || !timingSafeEqual(a, b)) {
     return Response.json({ error: "Bad signature." }, { status: 401 });
   }
-  const event = JSON.parse(rawBody) as {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(rawBody);
+  } catch {
+    return Response.json({ error: "Body is not JSON." }, { status: 400 });
+  }
+  const event = parsed as {
     event?: string;
     payload?: {
       payment?: { entity?: { id?: string; order_id?: string; email?: string; status?: string; amount?: number; method?: string; notes?: Record<string, string> } };

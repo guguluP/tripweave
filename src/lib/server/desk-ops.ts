@@ -19,6 +19,8 @@ import {
   type StopSellRow,
 } from "@/lib/allotment-store";
 import { bookedOnNight, todayIso } from "@/lib/inventory";
+import { isRealIsoDate } from "@/lib/check-in";
+import { getPackage } from "@/lib/packages";
 import { refreshStayInventory } from "@/lib/server/occupancy";
 import { getSql } from "@/lib/db";
 import { readMeta } from "@/lib/booking-meta";
@@ -145,6 +147,17 @@ export const deskListStopSell = createServerFn({ method: "POST" })
     );
   });
 
+/** A desk edit must name a real calendar night and, when given, a room this stay sells. */
+function deskEditRefusal(packageId: string, night: string, roomId?: string): string | null {
+  if (!isRealIsoDate(night)) return "That date doesn't exist.";
+  if (night < todayIso()) return "That night has already passed.";
+  if (roomId) {
+    const pkg = getPackage(packageId);
+    if (!pkg?.rooms.some((room) => room.id === roomId)) return "That room is not on this stay.";
+  }
+  return null;
+}
+
 const allotmentSchema = z.object({
   packageId: z.string().min(1).max(80),
   roomId: z.string().min(1).max(80),
@@ -157,7 +170,8 @@ export const deskSetAllotment = createServerFn({ method: "POST" })
   .validator((data: unknown) => allotmentSchema.parse(data))
   .handler(async ({ data }) => {
     await assertDeskAccess(data.packageId, data.deskToken);
-    if (data.night < todayIso()) return { ok: false as const, message: "That night has already passed." };
+    const refused = deskEditRefusal(data.packageId, data.night, data.roomId);
+    if (refused) return { ok: false as const, message: refused };
     const loaded = await refreshStayInventory(data.packageId, data.night, data.night).catch(() => ({
       ok: false as const,
       holds: [],
@@ -229,7 +243,8 @@ export const deskSetStopSell = createServerFn({ method: "POST" })
   .validator((data: unknown) => stopSellSchema.parse(data))
   .handler(async ({ data }) => {
     await assertDeskAccess(data.packageId, data.deskToken);
-    if (data.night < todayIso()) return { ok: false as const, message: "That night has already passed." };
+    const refused = deskEditRefusal(data.packageId, data.night, data.roomId || undefined);
+    if (refused) return { ok: false as const, message: refused };
     const payload = {
       package_id: data.packageId,
       room_id: data.roomId ?? "",

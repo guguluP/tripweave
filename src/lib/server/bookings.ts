@@ -213,7 +213,7 @@ const createSchema = z.object({
   checkIn: z.string(),
   nights: z.number().int().min(1).max(14).optional(),
   roomId: z.string().max(40).optional(),
-  payerName: z.string().min(2),
+  payerName: z.string().trim().min(2).max(120),
   method: z.enum(["card", "upi", "netbanking", "razorpay"]),
   cardNumber: z.string().optional(),
   expiry: z.string().optional(),
