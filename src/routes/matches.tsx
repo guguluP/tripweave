@@ -49,6 +49,30 @@ export const Route = createFileRoute("/matches")({
 
 type Tab = "matches" | "saved" | "all";
 
+/** This tab's Matches view (tab + search box). Per browser tab, so it never outlives the visit. */
+const VIEW_KEY = "tw-matches-view";
+
+function loadMatchesView(): { tab: Tab; query: string } | null {
+  try {
+    const raw = window.sessionStorage.getItem(VIEW_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { tab?: unknown; query?: unknown };
+    const tab = parsed.tab === "saved" || parsed.tab === "all" ? parsed.tab : "matches";
+    const query = typeof parsed.query === "string" ? parsed.query.slice(0, 80) : "";
+    return { tab, query };
+  } catch {
+    return null;
+  }
+}
+
+function saveMatchesView(view: { tab: Tab; query: string }) {
+  try {
+    window.sessionStorage.setItem(VIEW_KEY, JSON.stringify({ tab: view.tab, query: view.query.slice(0, 80) }));
+  } catch {
+    /* private mode */
+  }
+}
+
 function headingFor(tab: Tab, count: number) {
   if (tab === "matches") return "Your three matches";
   if (tab === "all") return `All Puri stays (${count})`;
@@ -101,6 +125,12 @@ function Matches() {
     setRest(fitting.slice(3));
     setCheckIn(next.checkIn ?? loadPending()?.checkIn);
     setLastMileByPackage(loadTravelDraft().lastMileByPackage);
+    // Back from a stay (or a reload) returns to the tab and search the guest left.
+    const view = loadMatchesView();
+    if (view) {
+      setTab(view.tab);
+      setQuery(view.query);
+    }
     setReady(true);
     // Persist into the URL so a shared matches link is reproducible.
     if (!fromUrl || (linked && linked !== next.checkIn)) {
@@ -108,6 +138,10 @@ function Matches() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- hydrate once from URL + storage
   }, []);
+
+  useEffect(() => {
+    if (ready) saveMatchesView({ tab, query });
+  }, [ready, tab, query]);
 
   const list = useMemo(() => {
     let src: StayPackage[] =

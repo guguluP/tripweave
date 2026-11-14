@@ -7,8 +7,17 @@ import type { PublicGroup } from "@/lib/group/view";
 
 const ORIGIN = "https://tripweave-web.vercel.app";
 
+/** Same bounds as the server validator (16–80 characters). */
+function looksLikeGroupToken(token: string): boolean {
+  return token.length >= 16 && token.length <= 80;
+}
+
 export const Route = createFileRoute("/g/$token")({
-  loader: async ({ params }) => getGroupState({ data: { token: params.token } }),
+  // A mistyped or truncated link must show "not a group", not a 500 with the validator's JSON.
+  loader: async ({ params }) =>
+    looksLikeGroupToken(params.token)
+      ? getGroupState({ data: { token: params.token } })
+      : ({ ok: false as const, message: "This link is not a TripWeave group." }),
   head: ({ loaderData }) => {
     const state = loaderData?.ok ? loaderData.state : null;
     const people = state ? state.adults + state.children : 0;

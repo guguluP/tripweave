@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AskTripWeaveButton } from "@/components/ask-sheet";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
@@ -144,8 +144,12 @@ function shownCheckIn(
 function Plan() {
   const nav = useNavigate();
   const search = Route.useSearch();
-  const [brief, setBrief] = useState<BriefDates>(() => {
-    if (typeof window === "undefined") return DEFAULT_BRIEF;
+  // The server has no localStorage, so the first client render must match it
+  // (DEFAULT_BRIEF); the saved brief, URL and home city are applied after mount.
+  // Reading them during render caused a hydration mismatch (React #418).
+  const [brief, setBrief] = useState<BriefDates>(DEFAULT_BRIEF);
+  const [homeCity, setHomeCity] = useState("");
+  useEffect(() => {
     const saved = window.localStorage.getItem("tripweave-brief");
     let loaded = loadBriefWithDates();
     if (!saved) {
@@ -158,9 +162,11 @@ function Plan() {
       ...loaded,
       checkIn: linked ?? checkInOnOrAfterToday(loaded.checkIn),
     };
-    return loaded;
-  });
-  const homeCity = typeof window === "undefined" ? "" : loadLocalProfile()?.homeCity?.trim() ?? "";
+    setBrief(loaded);
+    setHomeCity(loadLocalProfile()?.homeCity?.trim() ?? "");
+    // Run once on mount, like the old lazy initialiser.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [busy, setBusy] = useState(false);
   const [cityError, setCityError] = useState<string | null>(null);
   const [dateTouched, setDateTouched] = useState(false);
