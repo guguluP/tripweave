@@ -1438,10 +1438,13 @@
       ],
       "rooms": {
         "double-non-ac": [
-          "/stays/hotel-bishnu-bhaban/rooms/double-non-ac.jpg"
+          "/stays/hotel-bishnu-bhaban/rooms/double-non-ac.jpg",
+          "/stays/hotel-bishnu-bhaban/rooms/double-non-ac-2.jpg"
         ],
         "double-ac": [
-          "/stays/hotel-bishnu-bhaban/rooms/double-ac.jpg"
+          "/stays/hotel-bishnu-bhaban/rooms/double-ac.jpg",
+          "/stays/hotel-bishnu-bhaban/rooms/double-ac-2.jpg",
+          "/stays/hotel-bishnu-bhaban/rooms/double-ac-3.jpg"
         ],
         "four-non-ac": [
           "/stays/hotel-bishnu-bhaban/rooms/four-non-ac.jpg"
@@ -1453,7 +1456,9 @@
           "/stays/hotel-bishnu-bhaban/rooms/deluxe-temple.jpg"
         ],
         "super-deluxe": [
-          "/stays/hotel-bishnu-bhaban/rooms/super-deluxe.jpg"
+          "/stays/hotel-bishnu-bhaban/rooms/super-deluxe.jpg",
+          "/stays/hotel-bishnu-bhaban/rooms/super-deluxe-2.jpg",
+          "/stays/hotel-bishnu-bhaban/rooms/super-deluxe-3.jpg"
         ],
         "six-bed": [
           "/stays/hotel-bishnu-bhaban/rooms/six-bed.jpg"
