@@ -1623,7 +1623,8 @@
           "/stays/jeevan-sandhya-puri/rooms/super-deluxe-10.jpg",
           "/stays/jeevan-sandhya-puri/rooms/super-deluxe-11.jpg",
           "/stays/jeevan-sandhya-puri/rooms/super-deluxe-12.jpg",
-          "/stays/jeevan-sandhya-puri/rooms/super-deluxe-13.jpg"
+          "/stays/jeevan-sandhya-puri/rooms/super-deluxe-13.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/super-deluxe-14.jpg"
         ],
         "premium": [
           "/stays/jeevan-sandhya-puri/rooms/premium.jpg",
@@ -1631,10 +1632,13 @@
           "/stays/jeevan-sandhya-puri/rooms/premium-3.jpg",
           "/stays/jeevan-sandhya-puri/rooms/premium-4.jpg",
           "/stays/jeevan-sandhya-puri/rooms/premium-5.jpg",
-          "/stays/jeevan-sandhya-puri/rooms/premium-6.jpg"
+          "/stays/jeevan-sandhya-puri/rooms/premium-6.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/premium-7.jpg"
         ],
         "executive": [
-          "/stays/jeevan-sandhya-puri/rooms/executive.jpg"
+          "/stays/jeevan-sandhya-puri/rooms/executive.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/executive-2.jpg",
+          "/stays/jeevan-sandhya-puri/rooms/executive-3.jpg"
         ]
       }
     },

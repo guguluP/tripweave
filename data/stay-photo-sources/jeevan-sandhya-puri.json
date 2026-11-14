@@ -120,6 +120,30 @@
       "path": "stays/jeevan-sandhya-puri/rooms/premium-6.jpg",
       "page": "https://www.cleartrip.com/hotels/details/778352",
       "label": "Premium Room with side Sea View"
+    },
+    "super-deluxe-14": {
+      "url": "https://pix8.agoda.net/hotelImages/1265248/976592540/b371c0b6db1bb5b042896af3f5d0cc06.jpg",
+      "path": "stays/jeevan-sandhya-puri/rooms/super-deluxe-14.jpg",
+      "page": "https://www.agoda.com/jeevan-sandhya-inn-h24111099/hotel/puri-in.html",
+      "label": "Super Deluxe Room / Super Deluxe - Bed"
+    },
+    "premium-7": {
+      "url": "https://pix8.agoda.net/hotelImages/1265248/993145961/f7a136ed14feffdea5240efb77fa2595.jpeg",
+      "path": "stays/jeevan-sandhya-puri/rooms/premium-7.jpg",
+      "page": "https://www.agoda.com/jeevan-sandhya-inn-h24111099/hotel/puri-in.html",
+      "label": "Premium Side Sea View Room / Premium - Bedroom"
+    },
+    "executive-2": {
+      "url": "https://pix8.agoda.net/hotelImages/1265248/18126724/b57bfd0921819de3f3f69ade8cf192a3.jpg",
+      "path": "stays/jeevan-sandhya-puri/rooms/executive-2.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=1265248",
+      "label": "Executive - Bedroom / Executive - Room plan"
+    },
+    "executive-3": {
+      "url": "https://pix8.agoda.net/hotelImages/1265248/18126724/e4a075a84ddcf0279852b0bd81125ab4.jpeg",
+      "path": "stays/jeevan-sandhya-puri/rooms/executive-3.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=1265248",
+      "label": "Executive - Bedroom / Executive - Room plan"
     }
   }
 }
