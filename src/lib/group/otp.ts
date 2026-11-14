@@ -6,6 +6,15 @@ export function groupOtpChannel(env: NodeJS.ProcessEnv = process.env): GroupOtpC
   return env.TW_GROUP_OTP_CHANNEL?.trim().toLowerCase() === "whatsapp" ? "whatsapp" : "email";
 }
 
+/**
+ * A join code may be shown on screen only on a local dev server. On Vercel (or any
+ * production build) a code that failed to send must never reach the requester:
+ * whoever holds the link could otherwise join as any member's email or phone.
+ */
+export function devCodeAllowed(env: NodeJS.ProcessEnv = process.env): boolean {
+  return !env.VERCEL && env.NODE_ENV !== "production";
+}
+
 export function normalizeGroupEmail(raw: string): string | null {
   const email = raw.trim().toLowerCase();
   if (email.length < 5 || email.length > 254) return null;

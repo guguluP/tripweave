@@ -10,6 +10,7 @@ import { loadBriefWithDates, PLAN_EVENT, PLAN_STAMP_KEY, saveBriefWithDates } fr
 import { checkInOnOrAfterToday } from "@/lib/inventory";
 import { clearPending, loadPending, saveNext, savePending, type PendingBooking } from "@/lib/packages";
 import { readSaved, replaceSaved } from "@/lib/saved";
+import { claimDeviceData } from "@/lib/device-data";
 import { loadGuestPlan, saveGuestPlan } from "@/lib/supabase/plan";
 import { listSavedStays, syncSavedStay } from "@/lib/supabase/saved";
 
@@ -47,6 +48,8 @@ export function AuthSlot() {
 
   useEffect(() => {
     if (!isRealUser(user) || isDemoMode()) return;
+    // Another account's guests or cart left on this browser are wiped before the plan syncs.
+    claimDeviceData(user.id);
     let cancelled = false;
     let timer = 0;
     const applying = { current: false };

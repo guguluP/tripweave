@@ -8,7 +8,7 @@ import { GROUP_INTERESTS, GROUP_NEEDS } from "@/lib/group/types";
 import { nextRathStay } from "@/lib/group/parse-brief";
 import { newOtpCode, newShareToken, sha256Hex } from "@/lib/group/privacy";
 import { shortlistForGroup } from "@/lib/group/shortlist";
-import { groupOtpChannel, groupOtpMail, normalizeGroupEmail } from "@/lib/group/otp";
+import { devCodeAllowed, groupOtpChannel, groupOtpMail, normalizeGroupEmail } from "@/lib/group/otp";
 import { projectGroup, type GroupRole, type PublicGroup } from "@/lib/group/view";
 import { bookingMailConfigured, sendBookingMail } from "@/lib/mail/send";
 import { refreshStayInventory } from "@/lib/server/occupancy";
@@ -173,10 +173,12 @@ export const requestMemberOtp = createServerFn({ method: "POST" })
     }
     if (channel === "whatsapp") {
       const sent = await sendWhatsApp(phone!, `TripWeave code ${code}. It expires in 10 minutes.`);
-      return { ok: true as const, sent, code: sent ? undefined : code };
+      return { ok: true as const, sent, code: !sent && devCodeAllowed() ? code : undefined };
     }
+    // Only a local dev server may show an unsent code. See devCodeAllowed.
+    const fallback = devCodeAllowed() ? code : undefined;
     if (!bookingMailConfigured()) {
-      return { ok: true as const, sent: false, code };
+      return { ok: true as const, sent: false, code: fallback };
     }
     try {
       const mail = groupOtpMail({
@@ -186,10 +188,10 @@ export const requestMemberOtp = createServerFn({ method: "POST" })
         nights: doc.trip.nights,
       });
       const sent = await sendBookingMail({ to: email!, subject: mail.subject, text: mail.text });
-      if (!sent) return { ok: true as const, sent: false, code };
+      if (!sent) return { ok: true as const, sent: false, code: fallback };
       return { ok: true as const, sent: true };
     } catch {
-      return { ok: true as const, sent: false, code };
+      return { ok: true as const, sent: false, code: fallback };
     }
   });
 

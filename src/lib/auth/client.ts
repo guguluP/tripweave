@@ -1,6 +1,7 @@
 import { genericOAuthClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import { runPreSignInSignOut, runSignOut } from "../../../scripts/sign-out-plan.mjs";
+import { clearPersonalDeviceData } from "../device-data";
 import { GROK_PROVIDERS } from "./providers";
 
 /**
@@ -247,7 +248,11 @@ export async function signOut(redirectTo = "/"): Promise<void> {
       const { error } = await authClient.signOut();
       if (error) throw new Error(error.message ?? "Sign-out failed");
     },
-    clearToken: () => setBearerToken(null),
+    clearToken: () => {
+      setBearerToken(null);
+      // Shared devices: the next person must not see this account's guests, cart or codes.
+      clearPersonalDeviceData();
+    },
     redirect: () => {
       window.location.href = redirectTo;
     },
