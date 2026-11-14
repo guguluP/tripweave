@@ -138,6 +138,18 @@
       "path": "stays/hotel-prabhupada-puri/rooms/suite-front-sea-9.jpg",
       "page": "https://www.cleartrip.com/hotels/details/4561801",
       "label": "Beachfront Suite with Double Bed"
+    },
+    "executive-front-sea-7": {
+      "url": "https://pix8.agoda.net/hotelImages/852844/637492310/bc4b043e2bfbf369d40caddbe5b9dc39.jpeg",
+      "path": "stays/hotel-prabhupada-puri/rooms/executive-front-sea-7.jpg",
+      "page": "https://www.agoda.com/prabhupada-hotel/hotel/puri-in.html",
+      "label": "Executive Sea View - Bedroom / Executive Sea View - Bed"
+    },
+    "family-quad-4": {
+      "url": "https://pix8.agoda.net/hotelImages/852844/637492148/08d23b42c50c05bb1ad7342b1da7bd7d.jpeg",
+      "path": "stays/hotel-prabhupada-puri/rooms/family-quad-4.jpg",
+      "page": "https://www.agoda.com/prabhupada-hotel/hotel/puri-in.html",
+      "label": "Family Room - Family room / Family Room - Guestroom"
     }
   }
 }
