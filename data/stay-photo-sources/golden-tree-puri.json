@@ -78,6 +78,30 @@
       "path": "stays/golden-tree-puri/rooms/larger-8.jpg",
       "page": "https://hotelgoldentree.in/premium-room.html",
       "label": "Premium Room"
+    },
+    "premium-9": {
+      "url": "https://pix8.agoda.net/hotelImages/1763723/-1/a1e768d80ff7304b98c7036175a2a95d.jpg",
+      "path": "stays/golden-tree-puri/rooms/premium-9.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=1763723",
+      "label": "Premium Room - Bathroom / Premium Room - Bedroom"
+    },
+    "premium-10": {
+      "url": "https://pix8.agoda.net/hotelImages/1763723/11157119/4dea54961a4f7cf60af7bb4478095f41.jpeg",
+      "path": "stays/golden-tree-puri/rooms/premium-10.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=1763723",
+      "label": "Premium Room - Bathroom / Premium Room - Bedroom"
+    },
+    "super-deluxe-6": {
+      "url": "https://pix8.agoda.net/hotelImages/176/1763723/1763723_17030811460051424858.jpg",
+      "path": "stays/golden-tree-puri/rooms/super-deluxe-6.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=1763723",
+      "label": "Super Deluxe - Bedroom"
+    },
+    "super-deluxe-7": {
+      "url": "https://pix8.agoda.net/hotelImages/176/1763723/1763723_17030811460051424864.jpg",
+      "path": "stays/golden-tree-puri/rooms/super-deluxe-7.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=1763723",
+      "label": "Super Deluxe - Bedroom"
     }
   }
 }
