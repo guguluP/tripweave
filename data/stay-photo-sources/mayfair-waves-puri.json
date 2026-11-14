@@ -37,6 +37,42 @@
     "premium-suite": {
       "url": "https://assets.simplotel.com/simplotel/image/upload/x_0,y_218,w_2281,h_1283,r_0,c_crop/q_80,w_1600,dpr_1,f_auto,fl_progressive,c_limit/mayfair-waves-puri/Premium_Suite_-_MAYFAIR_Waves_37020a10",
       "path": "stays/mayfair-waves-puri/rooms/premium-suite.jpg"
+    },
+    "premium-sea-view-2": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7181/718192/images/image_718192_d7878f4b-4e3f-4e2d-b5a4-592ef45bc9e2.jpeg",
+      "path": "stays/mayfair-waves-puri/rooms/premium-sea-view-2.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/718192",
+      "label": "Premium Room Sea View King"
+    },
+    "premium-sea-view-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7181/718192/images/image_718192_087a79e5-36b9-4bf4-ac18-7d7259a08ff7.jpeg",
+      "path": "stays/mayfair-waves-puri/rooms/premium-sea-view-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/718192",
+      "label": "Premium Room Sea View King"
+    },
+    "premium-sea-view-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7181/718192/images/6386353576729e4fbd036a5a183f2a7e_yvW9yA.jpg",
+      "path": "stays/mayfair-waves-puri/rooms/premium-sea-view-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/718192",
+      "label": "Premium Room Sea View King"
+    },
+    "premium-sea-view-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7181/718192/images/image_718192_b5bdcf48-84fc-4080-8fbd-771a3599d8d4.jpeg",
+      "path": "stays/mayfair-waves-puri/rooms/premium-sea-view-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/718192",
+      "label": "Premium Room Sea View King"
+    },
+    "premium-sea-view-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7181/718192/images/image_718192_49e7d986-cc1d-44b7-a702-42aebd760798.jpeg",
+      "path": "stays/mayfair-waves-puri/rooms/premium-sea-view-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/718192",
+      "label": "Premium Room Sea View King"
+    },
+    "premium-sea-view-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7181/718192/images/1a778a2945a29499f300b5a4634f05f0_s3dEPz.jpg",
+      "path": "stays/mayfair-waves-puri/rooms/premium-sea-view-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/718192",
+      "label": "Premium Room Sea View King"
     }
   }
 }

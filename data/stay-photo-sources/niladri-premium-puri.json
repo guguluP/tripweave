@@ -36,6 +36,66 @@
       "path": "stays/niladri-premium-puri/rooms/larger-3.jpg",
       "page": "https://hotelniladripremium.com/",
       "label": "Premium Room"
+    },
+    "deluxe-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4039/4039492/images/image_4039492_7d3f366c-3a3a-4def-bdfb-91beb5183777.jpeg",
+      "path": "stays/niladri-premium-puri/rooms/deluxe-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4039492",
+      "label": "Deluxe Room with Balcony Side Sea View"
+    },
+    "deluxe-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4039/4039492/images/image_4039492_77da5928-1ce2-4575-8113-ff34d7279ec3.jpeg",
+      "path": "stays/niladri-premium-puri/rooms/deluxe-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4039492",
+      "label": "Deluxe Room with Balcony Side Sea View"
+    },
+    "deluxe-9": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4039/4039492/images/image_4039492_f5adec86-6010-4c7c-b73e-59429186719b.jpeg",
+      "path": "stays/niladri-premium-puri/rooms/deluxe-9.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4039492",
+      "label": "Deluxe Room with Balcony Side Sea View"
+    },
+    "deluxe-10": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4039/4039492/images/image_4039492_66c7814b-6db4-47ea-843f-44997d1e6046.jpeg",
+      "path": "stays/niladri-premium-puri/rooms/deluxe-10.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4039492",
+      "label": "Deluxe Room with Balcony Side Sea View"
+    },
+    "deluxe-11": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4039/4039492/images/image_4039492_fca3dbe2-7f59-477b-9ccd-d4cdca87e790.jpeg",
+      "path": "stays/niladri-premium-puri/rooms/deluxe-11.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4039492",
+      "label": "Deluxe Room with Balcony Side Sea View"
+    },
+    "premium-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4039/4039492/images/image_4039492_b4e5793a-38af-497c-9cfd-0b791a2e67f8.jpeg",
+      "path": "stays/niladri-premium-puri/rooms/premium-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4039492",
+      "label": "Premium Room"
+    },
+    "premium-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4039/4039492/images/image_4039492_86f8ffe5-46f8-4d68-a26c-c224c25cf5c0.jpeg",
+      "path": "stays/niladri-premium-puri/rooms/premium-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4039492",
+      "label": "Premium Room"
+    },
+    "premium-9": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4039/4039492/images/image_4039492_f14d97e7-1e57-42c6-9284-1ec785f97368.jpeg",
+      "path": "stays/niladri-premium-puri/rooms/premium-9.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4039492",
+      "label": "Premium Room"
+    },
+    "premium-10": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4039/4039492/images/image_4039492_f4209e2e-4890-401b-bab5-7865f0a4105d.jpeg",
+      "path": "stays/niladri-premium-puri/rooms/premium-10.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4039492",
+      "label": "Premium Room"
+    },
+    "premium-11": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4039/4039492/images/image_4039492_78e8d8a0-cd41-43b4-b1d5-dcb9444902c9.jpeg",
+      "path": "stays/niladri-premium-puri/rooms/premium-11.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4039492",
+      "label": "Premium Room"
     }
   }
 }

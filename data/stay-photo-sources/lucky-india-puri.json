@@ -1,0 +1,53 @@
+{
+  "images": [],
+  "rooms": {
+    "deluxe-room-2": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4269/4269812/images/image_4269812_8a994378-dac7-48c1-86a9-0e21455c92c0.jpeg",
+      "path": "stays/lucky-india-puri/rooms/deluxe-room-2.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4269812",
+      "label": "Deluxe (Ground Floor)"
+    },
+    "deluxe-room-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4269/4269812/images/image_4269812_5edc1848-089b-47ed-9cb1-0c5cbb37cd63.jpg",
+      "path": "stays/lucky-india-puri/rooms/deluxe-room-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4269812",
+      "label": "Deluxe (Ground Floor)"
+    },
+    "deluxe-room-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4269/4269812/images/image_4269812_e8df0254-0bfe-4fda-a343-795c42ba98a9.jpg",
+      "path": "stays/lucky-india-puri/rooms/deluxe-room-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4269812",
+      "label": "Deluxe (Ground Floor)"
+    },
+    "non-sea-view-premium-2": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4269/4269812/images/image_4269812_7b1cb28d-0dde-4f11-8741-3437c02d0060.jpeg",
+      "path": "stays/lucky-india-puri/rooms/non-sea-view-premium-2.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4269812",
+      "label": "Non - Sea View Premium"
+    },
+    "non-sea-view-premium-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4269/4269812/images/image_4269812_e5e17c7c-8775-4275-9ef9-7c4b03bfa42c.jpeg",
+      "path": "stays/lucky-india-puri/rooms/non-sea-view-premium-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4269812",
+      "label": "Non - Sea View Premium"
+    },
+    "non-sea-view-premium-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4269/4269812/images/image_4269812_bc33ea61-b1d7-4556-97cd-ea029f115ebf.jpeg",
+      "path": "stays/lucky-india-puri/rooms/non-sea-view-premium-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4269812",
+      "label": "Non - Sea View Premium"
+    },
+    "sea-view-premium-2": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4269/4269812/images/image_4269812_49c07fd2-8a86-4f6f-9b64-1ac564cba06b.jpeg",
+      "path": "stays/lucky-india-puri/rooms/sea-view-premium-2.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4269812",
+      "label": "Sea - View Premium"
+    },
+    "sea-view-premium-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4269/4269812/images/image_4269812_24bdf031-2922-4448-a638-4688cfa1d225.jpeg",
+      "path": "stays/lucky-india-puri/rooms/sea-view-premium-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4269812",
+      "label": "Sea - View Premium"
+    }
+  }
+}

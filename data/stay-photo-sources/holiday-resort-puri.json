@@ -141,6 +141,174 @@
     "presidential-suite-4": {
       "url": "https://puriholidayresort.com/uploads/gallery/presidentialsuite/4.jpg",
       "path": "stays/holiday-resort-puri/rooms/presidential-suite-4.jpg"
+    },
+    "standard-double-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_b2cbbfcd-4989-4fc9-a9eb-e684eb50509c.png",
+      "path": "stays/holiday-resort-puri/rooms/standard-double-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Standard Double Bed Room (Ground Floor)"
+    },
+    "deluxe-double-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_00601595-6fca-4fc0-bb74-294c0e4f05bc.png",
+      "path": "stays/holiday-resort-puri/rooms/deluxe-double-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Deluxe Double Bed Room (1st Floor)"
+    },
+    "deluxe-double-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_d116556b-d368-4bfc-a6ef-88ae8b6b565d.png",
+      "path": "stays/holiday-resort-puri/rooms/deluxe-double-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Deluxe Double Bed Room (1st Floor)"
+    },
+    "deluxe-double-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_77d522e3-6d0d-4aed-adfd-c8b9776ba393.png",
+      "path": "stays/holiday-resort-puri/rooms/deluxe-double-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Deluxe Double Bed Room (1st Floor)"
+    },
+    "deluxe-double-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_ced44aee-bc58-4bfc-8429-45a593e6ab14.png",
+      "path": "stays/holiday-resort-puri/rooms/deluxe-double-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Deluxe Double Bed Room (1st Floor)"
+    },
+    "deluxe-double-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_da7824cf-afc4-449c-86ad-ff5e36862f73.png",
+      "path": "stays/holiday-resort-puri/rooms/deluxe-double-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Deluxe Double Bed Room (1st Floor)"
+    },
+    "family-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_84db2bab-95fb-4705-a8b0-11c118b37f3a.png",
+      "path": "stays/holiday-resort-puri/rooms/family-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Family Room"
+    },
+    "family-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_9a220c84-e165-465c-8282-0151548c9cbe.png",
+      "path": "stays/holiday-resort-puri/rooms/family-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Family Room"
+    },
+    "family-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_1d1ff975-7733-48c2-a5fb-a2ce49a6b729.png",
+      "path": "stays/holiday-resort-puri/rooms/family-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Family Room"
+    },
+    "family-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_baadd338-a1fa-4cc9-9b5b-716593a63a06.png",
+      "path": "stays/holiday-resort-puri/rooms/family-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Family Room"
+    },
+    "cottage-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_c3cce693-8d04-46bf-9066-75d1a041b847.png",
+      "path": "stays/holiday-resort-puri/rooms/cottage-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Cottage"
+    },
+    "cottage-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_fb1e4e39-789b-42e3-b3de-a36a15d284fe.png",
+      "path": "stays/holiday-resort-puri/rooms/cottage-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Cottage"
+    },
+    "cottage-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_12e0b652-0d42-43d9-812d-8f5a0d8db0db.png",
+      "path": "stays/holiday-resort-puri/rooms/cottage-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Cottage"
+    },
+    "cottage-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_2e686e20-e869-4ae8-abb6-37f30d0271a2.png",
+      "path": "stays/holiday-resort-puri/rooms/cottage-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Cottage"
+    },
+    "cottage-9": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_6f3ab1bf-6396-4099-90ec-ca4ced57cb31.png",
+      "path": "stays/holiday-resort-puri/rooms/cottage-9.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Cottage"
+    },
+    "cottage-10": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_3c2c5040-ed3d-4f3c-8c50-4417f088f30a.png",
+      "path": "stays/holiday-resort-puri/rooms/cottage-10.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Cottage"
+    },
+    "cottage-11": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_0c5cbe59-1dc4-4de0-8206-994e63731323.png",
+      "path": "stays/holiday-resort-puri/rooms/cottage-11.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Cottage"
+    },
+    "royal-suite-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_db6116e6-9b2f-4b30-b527-f891d76ef6eb.png",
+      "path": "stays/holiday-resort-puri/rooms/royal-suite-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Royal Suite"
+    },
+    "royal-suite-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_70515f96-8198-4530-8384-9fb7c03e64f5.png",
+      "path": "stays/holiday-resort-puri/rooms/royal-suite-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Royal Suite"
+    },
+    "royal-suite-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_4b59399b-2d4f-41e3-9138-31d77a25cce7.png",
+      "path": "stays/holiday-resort-puri/rooms/royal-suite-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Royal Suite"
+    },
+    "royal-suite-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_9932ee19-0a9f-4e80-a6ce-57d18aa87a40.png",
+      "path": "stays/holiday-resort-puri/rooms/royal-suite-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Royal Suite"
+    },
+    "presidential-suite-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_c0577e0e-0451-4f8c-862d-75f2051b8fc1.png",
+      "path": "stays/holiday-resort-puri/rooms/presidential-suite-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Presidential Suite"
+    },
+    "presidential-suite-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_d7384c9a-3d94-444f-be65-c4130ca9ac55.png",
+      "path": "stays/holiday-resort-puri/rooms/presidential-suite-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Presidential Suite"
+    },
+    "presidential-suite-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_f2786f01-46f5-47ab-a979-44136ff51bd8.png",
+      "path": "stays/holiday-resort-puri/rooms/presidential-suite-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Presidential Suite"
+    },
+    "presidential-suite-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_a3545108-2663-4c7c-9e3e-e65ca6e7d4dd.png",
+      "path": "stays/holiday-resort-puri/rooms/presidential-suite-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Presidential Suite"
+    },
+    "presidential-suite-9": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_d80eda0b-c27c-492d-a31c-dc255a21548d.png",
+      "path": "stays/holiday-resort-puri/rooms/presidential-suite-9.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Presidential Suite"
+    },
+    "presidential-suite-10": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_b05ec223-faff-493c-893a-6ba0053009bd.png",
+      "path": "stays/holiday-resort-puri/rooms/presidential-suite-10.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Presidential Suite"
+    },
+    "presidential-suite-11": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4283/42838/images/image_42838_4c023b42-da58-4106-a984-acffddad383c.png",
+      "path": "stays/holiday-resort-puri/rooms/presidential-suite-11.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/42838",
+      "label": "Presidential Suite"
     }
   }
 }

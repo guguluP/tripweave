@@ -113,6 +113,114 @@
     "imperial-suite-6": {
       "url": "https://assets.simplotel.com/simplotel/image/upload/q_80,w_1600,f_auto,fl_progressive,c_limit/swosti-premium-beach-resorts-puri/imperial-suite-wardrobe",
       "path": "stays/swosti-premium-beach-resort/rooms/imperial-suite-6.jpg"
+    },
+    "sea-view-side-2": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_df86189f-30da-44bc-bdc7-c7345a0ef549.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/sea-view-side-2.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Sea View Rooms (Side Facing)"
+    },
+    "sea-view-side-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_06a932ae-1eaa-4b0e-ba3c-fc27f6fa87fe.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/sea-view-side-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Sea View Rooms (Side Facing)"
+    },
+    "premium-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_3223d592-992a-4854-95f0-194da44f8b54.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/premium-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Premium Room Sea View"
+    },
+    "premium-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_52930a6c-1bd6-40bc-9ff6-32cc61969a35.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/premium-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Premium Room Sea View"
+    },
+    "oasis-suite-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_762901fa-4949-4228-9ad7-2f2b120f4810.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/oasis-suite-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Oasis Suite"
+    },
+    "oasis-suite-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_1a1051c7-9be6-4471-bcf1-fb4d5f01323d.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/oasis-suite-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Oasis Suite"
+    },
+    "intimate-escape-suite-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_afd8d3dc-2a7d-43d2-8e94-1d54fa88d042.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/intimate-escape-suite-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Intimate Escape"
+    },
+    "intimate-escape-suite-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_c6aabf3f-c142-451a-bc89-c3a1b9bbd50a.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/intimate-escape-suite-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Intimate Escape"
+    },
+    "intimate-escape-suite-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_5358cca4-04aa-43f7-8e03-d6472ae98c53.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/intimate-escape-suite-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Intimate Escape"
+    },
+    "imperial-suite-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_48dcff70-2a7a-4536-9aeb-5cd9faba94a2.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/imperial-suite-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Imperial Suite"
+    },
+    "imperial-suite-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_cf7d1d7a-236f-4825-865e-b83d9974ceaa.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/imperial-suite-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Imperial Suite"
+    },
+    "imperial-suite-9": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_f85aff1d-1462-4c3e-90b6-b1e44037da4f.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/imperial-suite-9.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Imperial Suite"
+    },
+    "royal-ambassador-suite-2": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_a9bb68b1-e742-4b31-8dfa-ca7c8542b278.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/royal-ambassador-suite-2.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Royal Ambassador"
+    },
+    "royal-ambassador-suite-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_05c9f2b9-9fdf-41a1-a7b4-e4da13cc58b3.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/royal-ambassador-suite-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Royal Ambassador"
+    },
+    "royal-ambassador-suite-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_605eb385-5ef7-4176-8839-73dcf0822ca0.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/royal-ambassador-suite-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Royal Ambassador"
+    },
+    "royal-ambassador-suite-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_b262caed-829b-4ca2-8a5d-35d114b5bebb.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/royal-ambassador-suite-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Royal Ambassador"
+    },
+    "royal-ambassador-suite-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_23e10bbf-e0d6-4a38-8c93-1a3a1a7dbfb4.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/royal-ambassador-suite-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Royal Ambassador"
+    },
+    "royal-ambassador-suite-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4531/4531223/images/image_4531223_3adc9ed5-bbc5-49f7-a303-277cc6c97351.jpeg",
+      "path": "stays/swosti-premium-beach-resort/rooms/royal-ambassador-suite-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4531223",
+      "label": "Royal Ambassador"
     }
   }
 }

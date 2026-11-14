@@ -12,6 +12,42 @@
       "path": "stays/the-bay-suites-puri/rooms/larger.jpg",
       "page": "https://thebaysuites.in/",
       "label": "Premium Room"
+    },
+    "deluxe-2": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3980/3980948/images/image_3980948_aa4ac905-5d22-412b-bf3d-602f71322e06.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/deluxe-2.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3980948",
+      "label": "Deluxe Room with Balcony"
+    },
+    "deluxe-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3980/3980948/images/image_3980948_83a0e7b2-5487-4c41-80e9-b1fd756317d5.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/deluxe-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3980948",
+      "label": "Deluxe Room with Balcony"
+    },
+    "deluxe-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3980/3980948/images/image_3980948_fc22c699-a625-4503-abd7-0592d301e066.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/deluxe-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3980948",
+      "label": "Deluxe Room with Balcony"
+    },
+    "deluxe-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3980/3980948/images/image_3980948_d5bd821d-9e83-4d5f-814e-9ea357ab2196.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/deluxe-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3980948",
+      "label": "Deluxe Room with Balcony"
+    },
+    "super-deluxe-2": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3980/3980948/images/image_3980948_aa2faef3-8ddc-4907-9bab-12c25dfccf5f.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/super-deluxe-2.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3980948",
+      "label": "Super Deluxe(Side Sea view with Balcony)"
+    },
+    "super-deluxe-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3980/3980948/images/image_3980948_9ecc6e62-8617-408c-8b84-94ef59eb8d88.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/super-deluxe-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3980948",
+      "label": "Super Deluxe(Side Sea view with Balcony)"
     }
   }
 }

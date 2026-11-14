@@ -361,6 +361,18 @@
     "grand-plunge-twin": {
       "url": "https://cdn.sanity.io/images/ocl5w36p/ihcl_prod/a095645082215b22a7eef130d8f0933e749041a2-1400x1120.jpg?w=1280&auto=format&dpr=2",
       "path": "stays/taj-puri-resort-spa/rooms/grand-plunge-twin.jpg"
+    },
+    "deluxe-sea-king-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4687/4687648/images/757149502_HpDU2P.jpg",
+      "path": "stays/taj-puri-resort-spa/rooms/deluxe-sea-king-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4687648",
+      "label": "Deluxe Sea View Room King Bed with Balcony"
+    },
+    "presidential-sea-pool-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4687/4687648/images/image_4687648_0c82cbd7-2a9e-470a-97d2-1eaf33feb411.png",
+      "path": "stays/taj-puri-resort-spa/rooms/presidential-sea-pool-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4687648",
+      "label": "Presidential Suite Sea View King Bed with Private Pool"
     }
   }
 }

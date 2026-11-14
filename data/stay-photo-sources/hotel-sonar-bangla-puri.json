@@ -48,6 +48,66 @@
       "path": "stays/hotel-sonar-bangla-puri/rooms/premium-4-bed-4.jpg",
       "page": "https://hotelsonarbangla.com/puri/rooms/premium-4-bed",
       "label": "Premium 4 Bed"
+    },
+    "platinum-double-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/1662/166255/images/image_166255_4fc624cd-5d93-4a32-bf58-cf47d59e7b52.jpeg",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/platinum-double-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/166255",
+      "label": "AC Platinum (FRONT SEA FACING)"
+    },
+    "platinum-double-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/1662/166255/images/image_166255_98e48a37-93ba-4a6f-9803-29f4458c51b3.jpeg",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/platinum-double-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/166255",
+      "label": "AC Platinum (FRONT SEA FACING)"
+    },
+    "platinum-double-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/1662/166255/images/image_166255_a1404f7b-01eb-42e8-a5af-eba8ed795308.jpeg",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/platinum-double-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/166255",
+      "label": "AC Platinum (FRONT SEA FACING)"
+    },
+    "platinum-twin-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/1662/166255/images/image_166255_ae4de37f-6975-4194-9647-a9d8e717d354.png",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/platinum-twin-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/166255",
+      "label": "AC Platinum TWIN BED"
+    },
+    "platinum-twin-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/1662/166255/images/image_166255_ed3c38a8-08be-4e5f-9b62-f0fdb29e6d62.png",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/platinum-twin-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/166255",
+      "label": "AC Platinum TWIN BED"
+    },
+    "platinum-twin-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/1662/166255/images/image_166255_95759760-e655-4e73-8db3-27866f939349.png",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/platinum-twin-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/166255",
+      "label": "AC Platinum TWIN BED"
+    },
+    "premium-4-bed-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/1662/166255/images/image_166255_3b3f5e4f-ec9a-471a-87b7-a63a0c397d9e.jpeg",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/premium-4-bed-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/166255",
+      "label": "Premium Four Beded (SIDE SEA VIEW)"
+    },
+    "premium-4-bed-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/1662/166255/images/image_166255_63ae525d-a575-4b7e-b66c-bf6a9f996aab.jpeg",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/premium-4-bed-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/166255",
+      "label": "Premium Four Beded (SIDE SEA VIEW)"
+    },
+    "premium-4-bed-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/1662/166255/images/image_166255_dffdcbcc-ab16-42fe-8327-1429ec17bdbd.jpeg",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/premium-4-bed-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/166255",
+      "label": "Premium Four Beded (SIDE SEA VIEW)"
+    },
+    "premium-4-bed-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/1662/166255/images/image_166255_44bc653e-233a-4981-84cf-4b8f7d867f55.jpeg",
+      "path": "stays/hotel-sonar-bangla-puri/rooms/premium-4-bed-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/166255",
+      "label": "Premium Four Beded (SIDE SEA VIEW)"
     }
   }
 }

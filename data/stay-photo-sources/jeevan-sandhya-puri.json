@@ -60,6 +60,66 @@
       "path": "stays/jeevan-sandhya-puri/rooms/larger-7.jpg",
       "page": "https://hoteljeevansandhya.com/rooms/",
       "label": "Super Deluxe Room"
+    },
+    "super-deluxe-9": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7783/778352/images/image_778352_87a0a6fe-2714-41c9-9a7d-83bb3685fd5a.jpeg",
+      "path": "stays/jeevan-sandhya-puri/rooms/super-deluxe-9.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/778352",
+      "label": "Super Deluxe Room"
+    },
+    "super-deluxe-10": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7783/778352/images/image_778352_c051dc5a-2f44-4bb3-accc-0940a1fcb7a4.jpeg",
+      "path": "stays/jeevan-sandhya-puri/rooms/super-deluxe-10.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/778352",
+      "label": "Super Deluxe Room"
+    },
+    "super-deluxe-11": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7783/778352/images/image_778352_5bec3707-8109-41be-90ec-3d2e6317c020.jpeg",
+      "path": "stays/jeevan-sandhya-puri/rooms/super-deluxe-11.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/778352",
+      "label": "Super Deluxe Room"
+    },
+    "super-deluxe-12": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7783/778352/images/image_778352_21b9892f-9cb7-4b8b-8d79-c22baf10914f.jpeg",
+      "path": "stays/jeevan-sandhya-puri/rooms/super-deluxe-12.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/778352",
+      "label": "Super Deluxe Room"
+    },
+    "super-deluxe-13": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7783/778352/images/image_778352_1b784e16-c315-43e2-9a9b-1e6612e3fdb9.jpeg",
+      "path": "stays/jeevan-sandhya-puri/rooms/super-deluxe-13.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/778352",
+      "label": "Super Deluxe Room"
+    },
+    "premium-2": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7783/778352/images/image_778352_2cab8a06-b977-4954-b847-06fe9fb16740.jpeg",
+      "path": "stays/jeevan-sandhya-puri/rooms/premium-2.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/778352",
+      "label": "Premium Room with side Sea View"
+    },
+    "premium-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7783/778352/images/image_778352_f089ec5c-7104-40dc-bd92-cec522d48322.jpeg",
+      "path": "stays/jeevan-sandhya-puri/rooms/premium-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/778352",
+      "label": "Premium Room with side Sea View"
+    },
+    "premium-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7783/778352/images/image_778352_5691e8e6-bd66-45d0-853a-8e74f77ba5d0.jpeg",
+      "path": "stays/jeevan-sandhya-puri/rooms/premium-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/778352",
+      "label": "Premium Room with side Sea View"
+    },
+    "premium-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7783/778352/images/image_778352_daffdf98-b4d7-4a06-a59a-5a7f60404172.jpeg",
+      "path": "stays/jeevan-sandhya-puri/rooms/premium-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/778352",
+      "label": "Premium Room with side Sea View"
+    },
+    "premium-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7783/778352/images/image_778352_b0b4b42c-e6e3-479e-b1d0-9eb97b19baf5.jpeg",
+      "path": "stays/jeevan-sandhya-puri/rooms/premium-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/778352",
+      "label": "Premium Room with side Sea View"
     }
   }
 }

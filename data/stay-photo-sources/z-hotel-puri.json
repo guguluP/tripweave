@@ -60,6 +60,24 @@
       "path": "stays/z-hotel-puri/rooms/larger-3.jpg",
       "page": "https://zhotelpuri.com/deluxe.php",
       "label": "Deluxe Room"
+    },
+    "deluxe-room-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4940/4940936/images/image_4940936_e84cb5b8-595e-4c69-aea3-c5f69d99c1b0.jpeg",
+      "path": "stays/z-hotel-puri/rooms/deluxe-room-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4940936",
+      "label": "Deluxe Room Ac"
+    },
+    "deluxe-room-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4940/4940936/images/image_4940936_9a68ec5e-7a5e-4a5c-a7fc-4033b5ec7fc3.jpeg",
+      "path": "stays/z-hotel-puri/rooms/deluxe-room-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4940936",
+      "label": "Deluxe Room Ac"
+    },
+    "deluxe-room-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4940/4940936/images/image_4940936_c350f6eb-2dc8-4e7f-a050-1c91dbd81c18.jpeg",
+      "path": "stays/z-hotel-puri/rooms/deluxe-room-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4940936",
+      "label": "Deluxe Room Ac"
     }
   }
 }
