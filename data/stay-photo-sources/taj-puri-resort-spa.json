@@ -373,6 +373,12 @@
       "path": "stays/taj-puri-resort-spa/rooms/presidential-sea-pool-3.jpg",
       "page": "https://www.cleartrip.com/hotels/details/4687648",
       "label": "Presidential Suite Sea View King Bed with Private Pool"
+    },
+    "superior-sea-king-4": {
+      "url": "https://pix8.agoda.net/hotelImages/64197785/996529904/0eb13d159f428345c2fb5a88b610608e.jpg",
+      "path": "stays/taj-puri-resort-spa/rooms/superior-sea-king-4.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=64197785",
+      "label": "Superior Sea View Room King Bed with Balcony - Bedroom / Superior Sea View Room King Bed with Balcony - Bed"
     }
   }
 }
