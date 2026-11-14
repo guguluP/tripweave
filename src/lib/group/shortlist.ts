@@ -84,7 +84,11 @@ export function shortlistForGroup(brief: ShortlistBrief): ShortlistStay[] {
     if (a.lockable !== b.lockable) return a.lockable ? -1 : 1;
     if (b.fit !== a.fit) return b.fit - a.fit;
     if (b.trustScore !== a.trustScore) return b.trustScore - a.trustScore;
-    return a.walkPenalty - b.walkPenalty;
+    if (a.walkPenalty !== b.walkPenalty) return a.walkPenalty - b.walkPenalty;
+    // Equal on everything above: cheaper per head first, then stay id, so ties never
+    // depend on catalog file order.
+    if (a.perHeadInr !== b.perHeadInr) return a.perHeadInr - b.perHeadInr;
+    return a.packageId < b.packageId ? -1 : a.packageId > b.packageId ? 1 : 0;
   });
   return pool.slice(0, 5).map((row, index) => {
     const { walkPenalty: _walk, ...stay } = row;

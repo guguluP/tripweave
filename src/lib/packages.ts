@@ -1,3 +1,4 @@
+import { compareByTrust } from "./trust-tiebreak.ts";
 import { trustScoreForPackage } from "./trust-score.ts";
 import { overlayFor } from "./catalog-store.ts";
 import { attachPropertyMedia } from "./property-media.ts";
@@ -490,7 +491,7 @@ export function matchPackages(brief: Brief): MatchedStay[] {
     return { ...p, matchScore: score, weakMatch: score < WEAK_MATCH_BELOW };
   });
   return scored
-    .sort((a, b) => b.matchScore - a.matchScore || b.trustScore - a.trustScore)
+    .sort((a, b) => b.matchScore - a.matchScore || compareByTrust(a, b))
     .slice(0, 3);
 }
 

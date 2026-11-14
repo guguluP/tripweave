@@ -1,3 +1,4 @@
+import { compareByTrust } from "./trust-tiebreak.ts";
 import {
   listPackages,
   originFitReason,
@@ -42,7 +43,7 @@ export function scorePackages(brief: Brief): MatchedStay[] {
     score = Math.round(score * 100) / 100;
     return { ...p, matchScore: score, weakMatch: score < WEAK_MATCH_BELOW };
   });
-  return scored.sort((a, b) => b.matchScore - a.matchScore || b.trustScore - a.trustScore);
+  return scored.sort((a, b) => b.matchScore - a.matchScore || compareByTrust(a, b));
 }
 
 /**
