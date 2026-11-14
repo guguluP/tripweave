@@ -48,6 +48,36 @@
       "path": "stays/the-bay-suites-puri/rooms/super-deluxe-3.jpg",
       "page": "https://www.cleartrip.com/hotels/details/3980948",
       "label": "Super Deluxe(Side Sea view with Balcony)"
+    },
+    "presidential-2": {
+      "url": "https://pix8.agoda.net/hotelImages/31660663/526899651/efd967b4e9cfeb2d5ff145c605d258a1.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/presidential-2.jpg",
+      "page": "https://www.agoda.com/the-bay-suites/hotel/puri-in.html",
+      "label": "Presidental Suite - Bedroom"
+    },
+    "premium-3": {
+      "url": "https://pix8.agoda.net/hotelImages/31660663/526899457/76620ff3c437b3dbce0c5a92d6ee8b26.jpg",
+      "path": "stays/the-bay-suites-puri/rooms/premium-3.jpg",
+      "page": "https://www.agoda.com/the-bay-suites/hotel/puri-in.html",
+      "label": "Premium Room with Sea View - Bedroom"
+    },
+    "premium-4": {
+      "url": "https://pix8.agoda.net/hotelImages/31660663/526899457/d5f84925b1a6bb7b597d9c2e35777e53.jpg",
+      "path": "stays/the-bay-suites-puri/rooms/premium-4.jpg",
+      "page": "https://www.agoda.com/the-bay-suites/hotel/puri-in.html",
+      "label": "Premium Room with Sea View - Bedroom"
+    },
+    "deluxe-6": {
+      "url": "https://pix8.agoda.net/hotelImages/31660663/526899167/0e4a74749ffacebf07fb390b07445826.jpg",
+      "path": "stays/the-bay-suites-puri/rooms/deluxe-6.jpg",
+      "page": "https://www.agoda.com/the-bay-suites/hotel/puri-in.html",
+      "label": "Deluxe Partial Sea View - Bedroom"
+    },
+    "deluxe-7": {
+      "url": "https://pix8.agoda.net/hotelImages/31660663/526899167/d088c0e2bb0c9b11ab4bdf384662e43e.jpg",
+      "path": "stays/the-bay-suites-puri/rooms/deluxe-7.jpg",
+      "page": "https://www.agoda.com/the-bay-suites/hotel/puri-in.html",
+      "label": "Deluxe Partial Sea View - Bedroom"
     }
   }
 }

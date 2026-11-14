@@ -902,7 +902,9 @@
           "/stays/the-bay-suites-puri/rooms/deluxe-2.jpg",
           "/stays/the-bay-suites-puri/rooms/deluxe-3.jpg",
           "/stays/the-bay-suites-puri/rooms/deluxe-4.jpg",
-          "/stays/the-bay-suites-puri/rooms/deluxe-5.jpg"
+          "/stays/the-bay-suites-puri/rooms/deluxe-5.jpg",
+          "/stays/the-bay-suites-puri/rooms/deluxe-6.jpg",
+          "/stays/the-bay-suites-puri/rooms/deluxe-7.jpg"
         ],
         "super-deluxe": [
           "/stays/the-bay-suites-puri/rooms/super-deluxe.jpg",
@@ -911,10 +913,13 @@
         ],
         "premium": [
           "/stays/the-bay-suites-puri/rooms/premium.jpg",
-          "/stays/the-bay-suites-puri/rooms/premium-2.jpg"
+          "/stays/the-bay-suites-puri/rooms/premium-2.jpg",
+          "/stays/the-bay-suites-puri/rooms/premium-3.jpg",
+          "/stays/the-bay-suites-puri/rooms/premium-4.jpg"
         ],
         "presidential": [
-          "/stays/the-bay-suites-puri/rooms/presidential.jpg"
+          "/stays/the-bay-suites-puri/rooms/presidential.jpg",
+          "/stays/the-bay-suites-puri/rooms/presidential-2.jpg"
         ]
       }
     },
