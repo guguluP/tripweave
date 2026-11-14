@@ -381,7 +381,8 @@
         "executive": [
           "/stays/chariot-resort-puri/rooms/executive.jpg",
           "/stays/chariot-resort-puri/rooms/executive-2.jpg",
-          "/stays/chariot-resort-puri/rooms/executive-3.jpg"
+          "/stays/chariot-resort-puri/rooms/executive-3.jpg",
+          "/stays/chariot-resort-puri/rooms/executive-4.jpg"
         ],
         "premium": [
           "/stays/chariot-resort-puri/rooms/premium.jpg",
@@ -394,7 +395,8 @@
           "/stays/chariot-resort-puri/rooms/platinum-suite-2.jpg",
           "/stays/chariot-resort-puri/rooms/platinum-suite-3.jpg",
           "/stays/chariot-resort-puri/rooms/platinum-suite-4.jpg",
-          "/stays/chariot-resort-puri/rooms/platinum-suite-5.jpg"
+          "/stays/chariot-resort-puri/rooms/platinum-suite-5.jpg",
+          "/stays/chariot-resort-puri/rooms/platinum-suite-6.jpg"
         ]
       }
     },
