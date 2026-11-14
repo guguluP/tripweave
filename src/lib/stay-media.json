@@ -1010,13 +1010,16 @@
           "/stays/samudra-hotel-puri/rooms/non-ac-standard.jpg"
         ],
         "ac-standard": [
-          "/stays/samudra-hotel-puri/rooms/ac-standard.jpg"
+          "/stays/samudra-hotel-puri/rooms/ac-standard.jpg",
+          "/stays/samudra-hotel-puri/rooms/ac-standard-2.jpg",
+          "/stays/samudra-hotel-puri/rooms/ac-standard-3.jpg"
         ],
         "ac-deluxe": [
           "/stays/samudra-hotel-puri/rooms/ac-deluxe.jpg"
         ],
         "ac-superior": [
-          "/stays/samudra-hotel-puri/rooms/ac-superior.jpg"
+          "/stays/samudra-hotel-puri/rooms/ac-superior.jpg",
+          "/stays/samudra-hotel-puri/rooms/ac-superior-2.jpg"
         ],
         "ac-suite": [
           "/stays/samudra-hotel-puri/rooms/ac-suite.jpg"

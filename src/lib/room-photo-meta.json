@@ -177,6 +177,13 @@
         "sourceName": "Standard Room - Bedroom",
         "basis": "Agoda lists one room category for Krishna Resorts (Chakratirtha Road, same coordinates): 'Standard Room'. Mapped to the base slot."
       }
+    },
+    "samudra-hotel-puri": {
+      "ac-standard": {
+        "floors": "Ground floor and 1st floor",
+        "floorSource": "https://www.agoda.com/hotel-samudra-puri/hotel/puri-in.html",
+        "floorQuote": "Standard Air-Conditioning - Ground Floor; Standard Air Conditioning Room Double Bed ( 1 Floor)"
+      }
     }
   }
 }
