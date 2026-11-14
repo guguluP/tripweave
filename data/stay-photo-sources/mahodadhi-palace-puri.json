@@ -181,6 +181,12 @@
       "path": "stays/mahodadhi-palace-puri/rooms/day-use-3.jpg",
       "page": "https://www.orchidhotel.com/",
       "label": "Day Use Room"
+    },
+    "heritage-deluxe-sea-4": {
+      "url": "https://pix8.agoda.net/hotelImages/463/463089/463089_16102514060048101734.jpg",
+      "path": "stays/mahodadhi-palace-puri/rooms/heritage-deluxe-sea-4.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=463089",
+      "label": "Heritage Deluxe Room"
     }
   }
 }
