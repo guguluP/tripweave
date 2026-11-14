@@ -391,6 +391,13 @@ export const PACKAGE_VIDEOS: Record<string, CuratedVideo[]> = {
       channel: "Hrit Explorer",
     }
   ],
+  "hotel-krishna-resorts-puri": [
+    {
+      videoId: "HLv3oZ8mkv8",
+      title: "Puri Budget Hotels in Chakra Tirtha Road | Puri Hotels near Golden Beach | Puri Cheap Hotels | Puri",
+      channel: "The Exploration",
+    },
+  ],
   "hotel-new-sea-hawk": [
     {
       videoId: "0EDhoMqCI50",

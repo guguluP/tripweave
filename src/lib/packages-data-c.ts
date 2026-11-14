@@ -398,7 +398,9 @@ export const RAW_C: RawStay[] = [
     summary: "Pure-veg hotel on the Chakratirtha side of Puri.",
     neighborhood: "Chakratirtha Road",
     includes: [],
-    videos: [],
+    videos: [
+      { videoId: "HLv3oZ8mkv8", title: "Chakratirtha Road drive-by" },
+    ],
     rooms: rooms(400),
     days: [
       { title: "Arrive", base: "Check in and settle.", options: [] },
