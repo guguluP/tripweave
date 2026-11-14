@@ -44,7 +44,6 @@ export function useCurrentUserState(): CurrentUserState {
     clearDemoMode();
   }, []);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const session = authEnabled ? authClient.useSession() : { data: null, isPending: false };
 
   // Same AppUser object until the id, name, email or picture really change. useSession()

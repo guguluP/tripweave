@@ -153,7 +153,7 @@ export const supabaseAuthAdapter = () =>
         return (rows[0] as Record<string, unknown> | undefined) ?? null;
       },
       async findMany({ model, where, limit, sortBy, offset, join }) {
-        let rows = (await attachJoins(model, await load(model), join)).filter((row) =>
+        const rows = (await attachJoins(model, await load(model), join)).filter((row) =>
           matchesWhere(row, where),
         );
         if (sortBy) {

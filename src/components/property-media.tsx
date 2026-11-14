@@ -7,27 +7,6 @@ import { cn } from "@/lib/utils";
 
 type Video = { videoId: string; title: string };
 
-/** Gallery img — local /stays assets (or stable official URLs). */
-function PropertyImg({
-  src,
-  alt,
-  className,
-}: {
-  src: string;
-  alt: string;
-  className?: string;
-}) {
-  return (
-    <img
-      src={src}
-      alt={alt}
-      className={className}
-      loading="lazy"
-      decoding="async"
-    />
-  );
-}
-
 function YoutubeThumb({ videoId, title }: { videoId: string; title: string }) {
   const [src, setSrc] = useState(youtubeThumb(videoId));
   return (

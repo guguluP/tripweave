@@ -26,7 +26,7 @@ export function DigilockerFlow({
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [hint, setHint] = useState("123456");
+  const [hint] = useState("123456");
 
   const toggleDoc = (id: DigilockerDocId) => {
     setDocs((prev) => (prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]));

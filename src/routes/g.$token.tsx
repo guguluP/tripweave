@@ -33,7 +33,7 @@ function GroupPage() {
   const { token } = Route.useParams();
   const initial = Route.useLoaderData();
   const [state, setState] = useState<PublicGroup | null>(initial.ok ? initial.state : null);
-  const [message, setMessage] = useState(initial.ok ? "" : initial.message);
+  const [message] = useState(initial.ok ? "" : initial.message);
   if (!state) {
     return (
       <Shell>
