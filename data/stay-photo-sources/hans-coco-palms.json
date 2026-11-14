@@ -121,6 +121,132 @@
     "ocean-suite-6": {
       "url": "https://assets.simplotel.com/simplotel/image/upload/f_auto,q_auto,w_1600/the-hans-coco-palms/deluxe-suite-bathtub-vanity_6f61d11d.jpg",
       "path": "stays/hans-coco-palms/rooms/ocean-suite-6.jpg"
+    },
+    "pool-garden-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_33000358-2496-4c9b-95b8-9e650641ecbc.jpeg",
+      "path": "stays/hans-coco-palms/rooms/pool-garden-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Pool and Garden View Room (Ground Floor)"
+    },
+    "pool-garden-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_cd8c32b4-3c5e-42b0-82dc-3f3f920fad2e.jpeg",
+      "path": "stays/hans-coco-palms/rooms/pool-garden-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Pool and Garden View Room (Ground Floor)"
+    },
+    "pool-garden-9": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_82368c57-7565-454a-ba44-c5333fde4fd7.jpeg",
+      "path": "stays/hans-coco-palms/rooms/pool-garden-9.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Pool and Garden View Room (Ground Floor)"
+    },
+    "partial-ocean-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_1fb1395b-b541-42ac-a7bb-f3992c4c0bef.jpeg",
+      "path": "stays/hans-coco-palms/rooms/partial-ocean-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe room with Partial Ocean view ( First Floor )"
+    },
+    "partial-ocean-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_f8d3f798-c7f1-4761-a6ce-e20e8e4b2aaa.jpeg",
+      "path": "stays/hans-coco-palms/rooms/partial-ocean-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe room with Partial Ocean view ( First Floor )"
+    },
+    "partial-ocean-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_563258ae-7466-4981-a85e-29069cb1d4f0.jpeg",
+      "path": "stays/hans-coco-palms/rooms/partial-ocean-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe room with Partial Ocean view ( First Floor )"
+    },
+    "partial-ocean-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_eb12dc81-8a95-41ed-a43f-4c8a0ecffc53.jpeg",
+      "path": "stays/hans-coco-palms/rooms/partial-ocean-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe room with Partial Ocean view ( First Floor )"
+    },
+    "partial-ocean-9": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_be1c8ced-8e98-410a-bbeb-41c44c52e49a.jpeg",
+      "path": "stays/hans-coco-palms/rooms/partial-ocean-9.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe room with Partial Ocean view ( First Floor )"
+    },
+    "partial-ocean-10": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_5a0151ed-51db-421d-808e-ae1e6ece80ae.jpeg",
+      "path": "stays/hans-coco-palms/rooms/partial-ocean-10.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe room with Partial Ocean view ( First Floor )"
+    },
+    "ocean-suite-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_3a7617a6-4069-4ed6-a850-612fdbd459bd.jpeg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Suite with Sea View"
+    },
+    "ocean-suite-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_c5e7bcfe-3ad9-4586-ba1f-d9f36eb7b8b4.jpeg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Suite with Sea View"
+    },
+    "ocean-suite-9": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_5b2068e2-ca08-4953-b19f-f05f9816b671.jpeg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-9.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Suite with Sea View"
+    },
+    "ocean-suite-10": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_8f79fd45-bf48-4d76-aa49-a58b8fc5cf15.jpeg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-10.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Suite with Sea View"
+    },
+    "ocean-suite-11": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_45445d57-5107-42c8-90e3-7a80a67f87ee.jpeg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-11.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Suite with Sea View"
+    },
+    "ocean-suite-12": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_33e6cc38-ac6d-4547-a37b-94127df624c0.jpeg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-12.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Suite with Sea View"
+    },
+    "ocean-suite-13": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_0216756d-ae9c-456f-9325-2a2bd4fbb613.jpeg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-13.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Suite with Sea View"
+    },
+    "ocean-suite-14": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_02bb3ce8-04f3-4646-bf7a-469c63729444.jpeg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-14.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Suite with Sea View"
+    },
+    "ocean-suite-15": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_0b681b36-7bb6-4a60-8bb2-022dfcd5a6e9.jpeg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-15.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Suite with Sea View"
+    },
+    "ocean-suite-16": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_36e1d973-6d8d-4106-85ad-f6f86e8df7ed.jpeg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-16.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Suite with Sea View"
+    },
+    "ocean-suite-17": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_912a6f91-3dd1-4db1-a26a-df4f487b806b.jpeg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-17.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Suite with Sea View"
+    },
+    "ocean-suite-18": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/7877/787776/images/image_787776_d67f01f3-22e0-4d08-afd3-d20aac6eb47d.jpeg",
+      "path": "stays/hans-coco-palms/rooms/ocean-suite-18.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/787776",
+      "label": "Deluxe Suite with Sea View"
     }
   }
 }

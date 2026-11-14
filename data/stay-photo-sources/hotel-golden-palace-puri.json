@@ -1,0 +1,17 @@
+{
+  "images": [],
+  "rooms": {
+    "presidential-suite-2": {
+      "url": "https://pix8.agoda.net/hotelImages/78313951/1210130829/a32a6faa88cf583e3370688f714ef9e6.png",
+      "path": "stays/hotel-golden-palace-puri/rooms/presidential-suite-2.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=78313951",
+      "label": "Presidential Suite Room - Room plan"
+    },
+    "deluxe-sea-facing-room-2": {
+      "url": "https://pix8.agoda.net/hotelImages/78313951/1210130342/743e4e9562eba6a14aed4ad71277feab.png",
+      "path": "stays/hotel-golden-palace-puri/rooms/deluxe-sea-facing-room-2.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=78313951",
+      "label": "Deluxe Double Room with Seaview Balcony - Room plan"
+    }
+  }
+}

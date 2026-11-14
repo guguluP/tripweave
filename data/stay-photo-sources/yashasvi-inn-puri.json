@@ -1,0 +1,29 @@
+{
+  "images": [],
+  "rooms": {
+    "superior-double-room": {
+      "url": "https://pix8.agoda.net/hotelImages/72049063/1136001773/5ec694c97f89d2c18cdb5ad321bcede3.png",
+      "path": "stays/yashasvi-inn-puri/rooms/superior-double-room.jpg",
+      "page": "https://www.agoda.com/yashasvi-inn/hotel/puri-in.html",
+      "label": "Superior Double Room"
+    },
+    "superior-double-room-2": {
+      "url": "https://pix8.agoda.net/hotelImages/72049063/1136001773/84772b10a7ddf1a56356172ac3484838.png",
+      "path": "stays/yashasvi-inn-puri/rooms/superior-double-room-2.jpg",
+      "page": "https://www.agoda.com/yashasvi-inn/hotel/puri-in.html",
+      "label": "Superior Double Room"
+    },
+    "triple-room": {
+      "url": "https://pix8.agoda.net/hotelImages/72049063/1136003349/2014764b299a088945e5bbb690525dae.png",
+      "path": "stays/yashasvi-inn-puri/rooms/triple-room.jpg",
+      "page": "https://www.agoda.com/yashasvi-inn/hotel/puri-in.html",
+      "label": "Deluxe Triple Room"
+    },
+    "triple-room-2": {
+      "url": "https://pix8.agoda.net/hotelImages/72049063/1136003349/5d73f1c965fca5b87bd4195b77420d64.png",
+      "path": "stays/yashasvi-inn-puri/rooms/triple-room-2.jpg",
+      "page": "https://www.agoda.com/yashasvi-inn/hotel/puri-in.html",
+      "label": "Deluxe Triple Room"
+    }
+  }
+}

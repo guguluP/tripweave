@@ -152,6 +152,38 @@
         "floorSource": "https://hotelnewshankarinternational.com/rooms.php",
         "floorQuote": "Deluxe AC with Wifi (Ground Flr); Deluxe AC with Wifi (3RD FLR)"
       }
+    },
+    "holiday-resort-puri": {
+      "standard-double": {
+        "floors": "Ground floor",
+        "floorSource": "https://www.cleartrip.com/hotels/details/42838",
+        "floorQuote": "Standard Double Bed Room (Ground Floor)"
+      },
+      "deluxe-double": {
+        "floors": "1st floor",
+        "floorSource": "https://www.cleartrip.com/hotels/details/42838",
+        "floorQuote": "Deluxe Double Bed Room (1st Floor)"
+      }
+    },
+    "lucky-india-puri": {
+      "deluxe-room": {
+        "floors": "Ground floor",
+        "floorSource": "https://www.cleartrip.com/hotels/details/4269812",
+        "floorQuote": "Deluxe (Ground Floor)"
+      }
+    },
+    "hotel-krishna-resorts-puri": {
+      "standard": {
+        "sourceName": "Standard Room - Bedroom",
+        "basis": "Agoda lists one room category for Krishna Resorts (Chakratirtha Road, same coordinates): 'Standard Room'. Mapped to the base slot."
+      }
+    },
+    "samudra-hotel-puri": {
+      "ac-standard": {
+        "floors": "Ground floor and 1st floor",
+        "floorSource": "https://www.agoda.com/hotel-samudra-puri/hotel/puri-in.html",
+        "floorQuote": "Standard Air-Conditioning - Ground Floor; Standard Air Conditioning Room Double Bed ( 1 Floor)"
+      }
     }
   }
 }

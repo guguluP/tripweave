@@ -180,6 +180,18 @@
       "path": "stays/sterling-puri/rooms/sea-view-deluxe-room-with-balcony-6.jpg",
       "page": "https://www.cleartrip.com/hotels/details/sterling-puri-780972",
       "label": "Sea View Deluxe Room with Balcony"
+    },
+    "sea-view-privilege-suite-with-balcony": {
+      "url": "https://pix8.agoda.net/hotelImages/271668/971453801/0a147df6777697cc42244eb00d8b1cc8.jpg",
+      "path": "stays/sterling-puri/rooms/sea-view-privilege-suite-with-balcony.jpg",
+      "page": "https://www.agoda.com/partners/partnersearch.aspx?hid=271668",
+      "label": "Sea View Privilege suite with Balcony - Bedroom"
+    },
+    "sea-view-privilege-suite-with-balcony-2": {
+      "url": "https://pix8.agoda.net/hotelImages/271668/971453801/739c5352ad42e8cb9ed67920956020a7.jpg",
+      "path": "stays/sterling-puri/rooms/sea-view-privilege-suite-with-balcony-2.jpg",
+      "page": "https://www.agoda.com/partners/partnersearch.aspx?hid=271668",
+      "label": "Sea View Privilege suite with Balcony - Bedroom"
     }
   }
 }

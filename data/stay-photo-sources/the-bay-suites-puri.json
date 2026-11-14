@@ -12,6 +12,72 @@
       "path": "stays/the-bay-suites-puri/rooms/larger.jpg",
       "page": "https://thebaysuites.in/",
       "label": "Premium Room"
+    },
+    "deluxe-2": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3980/3980948/images/image_3980948_aa4ac905-5d22-412b-bf3d-602f71322e06.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/deluxe-2.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3980948",
+      "label": "Deluxe Room with Balcony"
+    },
+    "deluxe-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3980/3980948/images/image_3980948_83a0e7b2-5487-4c41-80e9-b1fd756317d5.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/deluxe-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3980948",
+      "label": "Deluxe Room with Balcony"
+    },
+    "deluxe-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3980/3980948/images/image_3980948_fc22c699-a625-4503-abd7-0592d301e066.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/deluxe-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3980948",
+      "label": "Deluxe Room with Balcony"
+    },
+    "deluxe-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3980/3980948/images/image_3980948_d5bd821d-9e83-4d5f-814e-9ea357ab2196.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/deluxe-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3980948",
+      "label": "Deluxe Room with Balcony"
+    },
+    "super-deluxe-2": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3980/3980948/images/image_3980948_aa2faef3-8ddc-4907-9bab-12c25dfccf5f.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/super-deluxe-2.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3980948",
+      "label": "Super Deluxe(Side Sea view with Balcony)"
+    },
+    "super-deluxe-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3980/3980948/images/image_3980948_9ecc6e62-8617-408c-8b84-94ef59eb8d88.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/super-deluxe-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3980948",
+      "label": "Super Deluxe(Side Sea view with Balcony)"
+    },
+    "presidential-2": {
+      "url": "https://pix8.agoda.net/hotelImages/31660663/526899651/efd967b4e9cfeb2d5ff145c605d258a1.jpeg",
+      "path": "stays/the-bay-suites-puri/rooms/presidential-2.jpg",
+      "page": "https://www.agoda.com/the-bay-suites/hotel/puri-in.html",
+      "label": "Presidental Suite - Bedroom"
+    },
+    "premium-3": {
+      "url": "https://pix8.agoda.net/hotelImages/31660663/526899457/76620ff3c437b3dbce0c5a92d6ee8b26.jpg",
+      "path": "stays/the-bay-suites-puri/rooms/premium-3.jpg",
+      "page": "https://www.agoda.com/the-bay-suites/hotel/puri-in.html",
+      "label": "Premium Room with Sea View - Bedroom"
+    },
+    "premium-4": {
+      "url": "https://pix8.agoda.net/hotelImages/31660663/526899457/d5f84925b1a6bb7b597d9c2e35777e53.jpg",
+      "path": "stays/the-bay-suites-puri/rooms/premium-4.jpg",
+      "page": "https://www.agoda.com/the-bay-suites/hotel/puri-in.html",
+      "label": "Premium Room with Sea View - Bedroom"
+    },
+    "deluxe-6": {
+      "url": "https://pix8.agoda.net/hotelImages/31660663/526899167/0e4a74749ffacebf07fb390b07445826.jpg",
+      "path": "stays/the-bay-suites-puri/rooms/deluxe-6.jpg",
+      "page": "https://www.agoda.com/the-bay-suites/hotel/puri-in.html",
+      "label": "Deluxe Partial Sea View - Bedroom"
+    },
+    "deluxe-7": {
+      "url": "https://pix8.agoda.net/hotelImages/31660663/526899167/d088c0e2bb0c9b11ab4bdf384662e43e.jpg",
+      "path": "stays/the-bay-suites-puri/rooms/deluxe-7.jpg",
+      "page": "https://www.agoda.com/the-bay-suites/hotel/puri-in.html",
+      "label": "Deluxe Partial Sea View - Bedroom"
     }
   }
 }

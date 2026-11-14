@@ -1,4 +1,17 @@
 {
   "images": [],
-  "rooms": {}
+  "rooms": {
+    "ac-deluxe": {
+      "url": "https://pix8.agoda.net/hotelImages/1258101/7903121/64c26b7f625ec65751d3520793023313.jpg",
+      "path": "stays/golden-dust-puri/rooms/ac-deluxe.jpg",
+      "page": "https://www.agoda.com/hotel-golden-dust-puri/hotel/puri-in.html",
+      "label": "AC Deluxe Double Room - Bed / AC Deluxe Double Room"
+    },
+    "ac-deluxe-2": {
+      "url": "https://pix8.agoda.net/hotelImages/1258101/7903121/4a2697c037f2c7cd9fb59b8fca9ce09c.jpg",
+      "path": "stays/golden-dust-puri/rooms/ac-deluxe-2.jpg",
+      "page": "https://www.agoda.com/hotel-golden-dust-puri/hotel/puri-in.html",
+      "label": "AC Deluxe Double Room - Bed / AC Deluxe Double Room"
+    }
+  }
 }

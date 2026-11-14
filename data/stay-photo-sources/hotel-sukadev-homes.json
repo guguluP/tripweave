@@ -12,6 +12,30 @@
       "path": "stays/hotel-sukadev-homes/rooms/larger.jpg",
       "page": "https://hotelsdhomes.com/rooms",
       "label": "Deluxe Double Bed Room"
+    },
+    "deluxe-room-2": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4671/4671833/images/image_4671833_7a007b40-a280-4c8b-9253-5285a27955b6.png",
+      "path": "stays/hotel-sukadev-homes/rooms/deluxe-room-2.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4671833",
+      "label": "Deluxe Room"
+    },
+    "deluxe-room-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4671/4671833/images/image_4671833_3c1b12b5-3405-408c-9250-8d809ad93e7e.png",
+      "path": "stays/hotel-sukadev-homes/rooms/deluxe-room-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4671833",
+      "label": "Deluxe Room"
+    },
+    "deluxe-room-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4671/4671833/images/image_4671833_6f0eac21-60ab-4dde-a60d-467875769b11.png",
+      "path": "stays/hotel-sukadev-homes/rooms/deluxe-room-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4671833",
+      "label": "Deluxe Room"
+    },
+    "deluxe-room-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4671/4671833/images/image_4671833_618b9e2a-c8ac-4e78-a822-c50f2eb09193.png",
+      "path": "stays/hotel-sukadev-homes/rooms/deluxe-room-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4671833",
+      "label": "Deluxe Room"
     }
   }
 }

@@ -1,4 +1,11 @@
 {
   "images": [],
-  "rooms": {}
+  "rooms": {
+    "deluxe-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/5063/5063326/images/5afd959c_z_1pTc7G.jpg",
+      "path": "stays/fortune-beachfront-puri/rooms/deluxe-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/5063326",
+      "label": "Deluxe Room, 2 Twin Beds / Deluxe Room, 1 King Bed"
+    }
+  }
 }

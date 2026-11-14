@@ -1,0 +1,23 @@
+{
+  "images": [],
+  "rooms": {
+    "ac-superior-2": {
+      "url": "https://pix8.agoda.net/hotelImages/303182/-1/917c696eee7e7f930a03ff723cfb1511.jpg",
+      "path": "stays/samudra-hotel-puri/rooms/ac-superior-2.jpg",
+      "page": "https://www.agoda.com/hotel-samudra-puri/hotel/puri-in.html",
+      "label": "Superior Air Conditioning Double Bed - Bed"
+    },
+    "ac-standard-2": {
+      "url": "https://pix8.agoda.net/hotelImages/303182/-1/d24f29b0a23df41531d833f9671340b1.jpg",
+      "path": "stays/samudra-hotel-puri/rooms/ac-standard-2.jpg",
+      "page": "https://www.agoda.com/hotel-samudra-puri/hotel/puri-in.html",
+      "label": "Standard Air Conditioning Room Double Bed ( 1 Floor) - Bed / Standard Air-Conditioning - Ground Floor - Bed"
+    },
+    "ac-standard-3": {
+      "url": "https://pix8.agoda.net/hotelImages/303182/-1/efd7063ec5729e533d8ffee92dc5293f.jpg",
+      "path": "stays/samudra-hotel-puri/rooms/ac-standard-3.jpg",
+      "page": "https://www.agoda.com/hotel-samudra-puri/hotel/puri-in.html",
+      "label": "Standard Air Conditioning Room Double Bed ( 1 Floor) - Bed / Standard Air-Conditioning - Ground Floor - Bed"
+    }
+  }
+}

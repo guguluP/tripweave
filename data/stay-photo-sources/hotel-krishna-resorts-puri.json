@@ -1,0 +1,17 @@
+{
+  "images": [],
+  "rooms": {
+    "standard": {
+      "url": "https://pix8.agoda.net/hotelImages/36912441/0/e54eab583a6ebcb1769bc42b7ef44251.jpg",
+      "path": "stays/hotel-krishna-resorts-puri/rooms/standard.jpg",
+      "page": "https://www.agoda.com/oyo-68323-krishna-resorts-h12489101/hotel/puri-in.html",
+      "label": "Standard Room - Bedroom"
+    },
+    "standard-2": {
+      "url": "https://pix8.agoda.net/hotelImages/36912441/0/9dacaa96428691771a80fd7febdca84f.jpg",
+      "path": "stays/hotel-krishna-resorts-puri/rooms/standard-2.jpg",
+      "page": "https://www.agoda.com/oyo-68323-krishna-resorts-h12489101/hotel/puri-in.html",
+      "label": "Standard Room - Bedroom"
+    }
+  }
+}

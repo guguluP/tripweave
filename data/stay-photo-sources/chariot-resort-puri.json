@@ -73,6 +73,18 @@
     "platinum-suite-5": {
       "url": "https://thechariotpuri.com/wp-content/uploads/2025/03/platinum_suite6.jpg",
       "path": "stays/chariot-resort-puri/rooms/platinum-suite-5.jpg"
+    },
+    "platinum-suite-6": {
+      "url": "https://pix8.agoda.net/hotelImages/284621/3490809/9cd6a48f83cb4c16c2c45abc99873ebf.jpeg",
+      "path": "stays/chariot-resort-puri/rooms/platinum-suite-6.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=284621",
+      "label": "Platinum Suite - Room plan"
+    },
+    "executive-4": {
+      "url": "https://pix8.agoda.net/hotelImages/284621/3490807/bc3c6243efde9d89e6011a62358cd8b6.jpeg",
+      "path": "stays/chariot-resort-puri/rooms/executive-4.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=284621",
+      "label": "Executive Room"
     }
   }
 }

@@ -1,0 +1,35 @@
+{
+  "images": [],
+  "rooms": {
+    "super-deluxe-2": {
+      "url": "https://pix8.agoda.net/property/56105190/1312415597/f71b61d395f678f750379e66d4e208b1.jpeg",
+      "path": "stays/hotel-bishnu-bhaban/rooms/super-deluxe-2.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=56105190",
+      "label": "Super Deluxe Room"
+    },
+    "super-deluxe-3": {
+      "url": "https://pix8.agoda.net/property/56105190/1312415597/5fff01c454a546cad8a27b7cee0ee552.jpeg",
+      "path": "stays/hotel-bishnu-bhaban/rooms/super-deluxe-3.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=56105190",
+      "label": "Super Deluxe Room"
+    },
+    "double-ac-2": {
+      "url": "https://pix8.agoda.net/property/56105190/1312415599/b92c0bf557caca4eb830001a5b4ec635.jpeg",
+      "path": "stays/hotel-bishnu-bhaban/rooms/double-ac-2.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=56105190",
+      "label": "Ac Double Bed Room"
+    },
+    "double-ac-3": {
+      "url": "https://pix8.agoda.net/property/56105190/1312415599/7c68d01d2dbebc1e567126cf50f107ad.jpeg",
+      "path": "stays/hotel-bishnu-bhaban/rooms/double-ac-3.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=56105190",
+      "label": "Ac Double Bed Room"
+    },
+    "double-non-ac-2": {
+      "url": "https://pix8.agoda.net/property/56105190/1286192838/a4a8fbb874864ab2cbe7c5a3441a1e69.jpeg",
+      "path": "stays/hotel-bishnu-bhaban/rooms/double-non-ac-2.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=56105190",
+      "label": "Non Ac Double Bed Room"
+    }
+  }
+}

@@ -18,6 +18,18 @@
       "path": "stays/nrs-royal-palace-puri/rooms/standard-2.jpg",
       "page": "https://www.cleartrip.com/hotels/details/nrs-royal-palace-3973950",
       "label": "Deluxe Room AC (NON SEA VIEW) DOUBLE OR TWIN"
+    },
+    "premium-room-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3973/3973950/images/image_3973950_5f5ec1db-820f-4e5d-a076-a308a5505122.jpeg",
+      "path": "stays/nrs-royal-palace-puri/rooms/premium-room-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3973950",
+      "label": "Premium Room AC ( SEA VIEW) DOUBLE OR TWIN"
+    },
+    "premium-room-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3973/3973950/images/image_3973950_d320d7e6-d9fb-4e23-bebf-7d7313757ac3.jpeg",
+      "path": "stays/nrs-royal-palace-puri/rooms/premium-room-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/3973950",
+      "label": "Premium Room AC ( SEA VIEW) DOUBLE OR TWIN"
     }
   }
 }

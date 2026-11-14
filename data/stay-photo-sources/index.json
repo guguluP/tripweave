@@ -25,7 +25,8 @@
     "hoteljeevansandhya.com": "https://hoteljeevansandhya.com/",
     "thebaysuites.in": "https://thebaysuites.in/",
     "rukmini-ct.flixcart.com": "https://www.cleartrip.com/",
-    "hotelnewshankarinternational.com": "https://hotelnewshankarinternational.com/"
+    "hotelnewshankarinternational.com": "https://hotelnewshankarinternational.com/",
+    "pix8.agoda.net": "https://www.agoda.com/"
   },
   "proxy_hosts": [
     "www.toshaliresort.com",
@@ -60,6 +61,15 @@
     "jeevan-sandhya-puri",
     "the-bay-suites-puri",
     "sterling-puri",
-    "new-shankar-international"
+    "new-shankar-international",
+    "fortune-beachfront-puri",
+    "lucky-india-puri",
+    "golden-dust-puri",
+    "hotel-krishna-resorts-puri",
+    "samudra-hotel-puri",
+    "yashasvi-inn-puri",
+    "hotel-bishnu-bhaban",
+    "hotel-golden-palace-puri",
+    "om-leisure-satapada"
   ]
 }

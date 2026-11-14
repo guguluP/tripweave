@@ -90,6 +90,66 @@
       "path": "stays/hotel-prabhupada-puri/rooms/suite-front-sea-6.jpg",
       "page": "https://hotelprabhupada.com/rooms",
       "label": "Suite (Front Sea View)"
+    },
+    "superior-deluxe-balcony-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4561/4561801/images/image_4561801_3d74b76d-564f-4ab8-ae60-62a6c83c5be9.png",
+      "path": "stays/hotel-prabhupada-puri/rooms/superior-deluxe-balcony-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4561801",
+      "label": "Superior Deluxe Balcony Side Sea view"
+    },
+    "superior-deluxe-balcony-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4561/4561801/images/image_4561801_8f9957e0-ceea-4ec9-aacf-55b7f2548252.png",
+      "path": "stays/hotel-prabhupada-puri/rooms/superior-deluxe-balcony-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4561801",
+      "label": "Superior Deluxe Balcony Side Sea view"
+    },
+    "superior-deluxe-balcony-9": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4561/4561801/images/image_4561801_0900c13b-e150-4ab0-825c-9ef243f65fd0.png",
+      "path": "stays/hotel-prabhupada-puri/rooms/superior-deluxe-balcony-9.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4561801",
+      "label": "Superior Deluxe Balcony Side Sea view"
+    },
+    "superior-deluxe-balcony-11": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4561/4561801/images/image_4561801_cdbfb8c0-891c-454b-adde-950899af376f.jpeg",
+      "path": "stays/hotel-prabhupada-puri/rooms/superior-deluxe-balcony-11.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4561801",
+      "label": "Superior Deluxe Balcony Side Sea view"
+    },
+    "executive-front-sea-5": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4561/4561801/images/image_4561801_63090e91-723e-4453-b4e4-b67e2a9718cc.png",
+      "path": "stays/hotel-prabhupada-puri/rooms/executive-front-sea-5.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4561801",
+      "label": "Executive Front Sea Facing Room"
+    },
+    "executive-front-sea-6": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4561/4561801/images/image_4561801_e7ef7fca-d993-4d0d-b2a2-30249c4b98a4.png",
+      "path": "stays/hotel-prabhupada-puri/rooms/executive-front-sea-6.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4561801",
+      "label": "Executive Front Sea Facing Room"
+    },
+    "suite-front-sea-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4561/4561801/images/image_4561801_640362b2-5705-45e7-a349-69d4b5339d60.png",
+      "path": "stays/hotel-prabhupada-puri/rooms/suite-front-sea-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4561801",
+      "label": "Beachfront Suite with Double Bed"
+    },
+    "suite-front-sea-9": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4561/4561801/images/image_4561801_da65cd05-bda5-435c-947e-e894bff0453a.png",
+      "path": "stays/hotel-prabhupada-puri/rooms/suite-front-sea-9.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4561801",
+      "label": "Beachfront Suite with Double Bed"
+    },
+    "executive-front-sea-7": {
+      "url": "https://pix8.agoda.net/hotelImages/852844/637492310/bc4b043e2bfbf369d40caddbe5b9dc39.jpeg",
+      "path": "stays/hotel-prabhupada-puri/rooms/executive-front-sea-7.jpg",
+      "page": "https://www.agoda.com/prabhupada-hotel/hotel/puri-in.html",
+      "label": "Executive Sea View - Bedroom / Executive Sea View - Bed"
+    },
+    "family-quad-4": {
+      "url": "https://pix8.agoda.net/hotelImages/852844/637492148/08d23b42c50c05bb1ad7342b1da7bd7d.jpeg",
+      "path": "stays/hotel-prabhupada-puri/rooms/family-quad-4.jpg",
+      "page": "https://www.agoda.com/prabhupada-hotel/hotel/puri-in.html",
+      "label": "Family Room - Family room / Family Room - Guestroom"
     }
   }
 }

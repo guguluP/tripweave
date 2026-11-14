@@ -96,6 +96,90 @@
       "path": "stays/blue-lily-puri/rooms/larger-10.jpg",
       "page": "https://www.bluelilybeachresort.com/rooms/suite-room/",
       "label": "Suite Room"
+    },
+    "standard-7": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3321/332174/images/image_332174_9d5b2229-dc5f-4c5f-b9b8-c1fc8642f594.jpeg",
+      "path": "stays/blue-lily-puri/rooms/standard-7.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/332174",
+      "label": "Blue Lily Standard Room"
+    },
+    "standard-8": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3321/332174/images/image_332174_a80fd844-2fed-465b-b2f6-5ebda9fd2bfc.jpeg",
+      "path": "stays/blue-lily-puri/rooms/standard-8.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/332174",
+      "label": "Blue Lily Standard Room"
+    },
+    "standard-9": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3321/332174/images/image_332174_048d9804-518e-447f-a7ff-cd3380f64c3b.jpeg",
+      "path": "stays/blue-lily-puri/rooms/standard-9.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/332174",
+      "label": "Blue Lily Standard Room"
+    },
+    "standard-10": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3321/332174/images/image_332174_c00870bd-96dd-4792-bc5e-2d1e8f6b4d3d.jpeg",
+      "path": "stays/blue-lily-puri/rooms/standard-10.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/332174",
+      "label": "Blue Lily Standard Room"
+    },
+    "standard-11": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3321/332174/images/image_332174_ca357bd1-e658-4234-a835-45258e264013.jpeg",
+      "path": "stays/blue-lily-puri/rooms/standard-11.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/332174",
+      "label": "Blue Lily Standard Room"
+    },
+    "standard-12": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3321/332174/images/image_332174_542c9428-617d-420b-b254-223bf73a90a0.jpeg",
+      "path": "stays/blue-lily-puri/rooms/standard-12.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/332174",
+      "label": "Blue Lily Standard Room"
+    },
+    "standard-13": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3321/332174/images/image_332174_c15b3233-0766-4de6-913e-cf494d2b6e04.jpeg",
+      "path": "stays/blue-lily-puri/rooms/standard-13.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/332174",
+      "label": "Blue Lily Standard Room"
+    },
+    "standard-14": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/3321/332174/images/image_332174_9fcc4e32-dc1e-432a-8209-d24c7002a3c2.jpeg",
+      "path": "stays/blue-lily-puri/rooms/standard-14.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/332174",
+      "label": "Blue Lily Standard Room"
+    },
+    "premium-7": {
+      "url": "https://pix8.agoda.net/hotelImages/84903227/1322226240/6773fd386568ac48f434b3fe460cc2ef.jpg",
+      "path": "stays/blue-lily-puri/rooms/premium-7.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=84903227",
+      "label": "Premium Double Room - Bedroom"
+    },
+    "premium-8": {
+      "url": "https://pix8.agoda.net/hotelImages/84903227/1322226240/31001fa8d67236cb0459eccf88aebc1d.jpg",
+      "path": "stays/blue-lily-puri/rooms/premium-8.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=84903227",
+      "label": "Premium Double Room - Bedroom"
+    },
+    "standard-15": {
+      "url": "https://pix8.agoda.net/hotelImages/84903227/1321746371/9ce677f312ab1c1f8899e29e4b9fa3bf.jpg",
+      "path": "stays/blue-lily-puri/rooms/standard-15.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=84903227",
+      "label": "Standard Double Room - Room plan"
+    },
+    "standard-16": {
+      "url": "https://pix8.agoda.net/hotelImages/84903227/1321746371/1f94b570d447bf940855947c34ba49f3.jpg",
+      "path": "stays/blue-lily-puri/rooms/standard-16.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=84903227",
+      "label": "Standard Double Room - Room plan"
+    },
+    "family-5": {
+      "url": "https://pix8.agoda.net/hotelImages/84903227/1322226534/53a7d28848cd697c29262ae997618098.jpg",
+      "path": "stays/blue-lily-puri/rooms/family-5.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=84903227",
+      "label": "Family Quadruple Room - Bedroom"
+    },
+    "family-6": {
+      "url": "https://pix8.agoda.net/hotelImages/84903227/1322226534/2d42d8944ce2cc6bad130c5f7f3e9e92.jpg",
+      "path": "stays/blue-lily-puri/rooms/family-6.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=84903227",
+      "label": "Family Quadruple Room - Bedroom"
     }
   }
 }

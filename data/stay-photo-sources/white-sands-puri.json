@@ -114,6 +114,24 @@
       "path": "stays/white-sands-puri/rooms/executive-sea-suite-6.jpg",
       "page": "https://hotelwhitesands.co.in/rooms/executive-suite-room-front-sea-facing-with-balcony/",
       "label": "Executive Suite Room (Front Sea Facing With Balcony)"
+    },
+    "side-sea-3": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4694/4694693/images/image_4694693_db9935a7-9912-4686-9898-6dee52871484.jpeg",
+      "path": "stays/white-sands-puri/rooms/side-sea-3.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4694693",
+      "label": "Deluxe Room with Window Side Sea View"
+    },
+    "side-sea-4": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4694/4694693/images/image_4694693_b69550b6-07b2-431d-a7a4-5586c0305185.jpeg",
+      "path": "stays/white-sands-puri/rooms/side-sea-4.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4694693",
+      "label": "Deluxe Room with Window Side Sea View"
+    },
+    "superior-deluxe-balcony-10": {
+      "url": "https://rukmini-ct.flixcart.com/w_1600,f_auto/ct-hotel-images/places/hotels/cms/4694/4694693/images/image_4694693_71f4f245-cc8e-46b2-8ce7-4bf133844a5d.png",
+      "path": "stays/white-sands-puri/rooms/superior-deluxe-balcony-10.jpg",
+      "page": "https://www.cleartrip.com/hotels/details/4694693",
+      "label": "Superior Deluxe Sea View Room With Balcony"
     }
   }
 }

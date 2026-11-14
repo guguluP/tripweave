@@ -56,7 +56,7 @@ def fetch(url: str, page: str):
 
 def dhash(im: Image.Image) -> int:
     g = im.convert("L").resize((9, 8), Image.LANCZOS)
-    px = list(g.getdata())
+    px = list(g.get_flattened_data()) if hasattr(g, "get_flattened_data") else list(g.getdata())
     bits = 0
     for row in range(8):
         for col in range(8):
@@ -65,7 +65,8 @@ def dhash(im: Image.Image) -> int:
 
 
 def near(a: int, b: int) -> bool:
-    return bin(a ^ b).count("1") <= 5
+    # 10 of 64 bits: catches re-crops and re-encodes of one shot (seen at 8–10 on OTA copies).
+    return bin(a ^ b).count("1") <= 10
 
 
 def load_json(path: Path, default):
@@ -88,6 +89,23 @@ def main(spec_path: str):
     index = load_json(SOURCES / "index.json", {"referers": {}, "proxy_hosts": [], "stays": []})
     summary = {}
 
+    def stay_hashes(skip_rid):
+        """Hashes of every other frame this stay already shows (other room types and the
+        property gallery), so one shot is never filed under two room types."""
+        out = []
+        for other, frames in stay_media.get("rooms", {}).items():
+            if other == skip_rid:
+                continue
+            for rel in frames if isinstance(frames, list) else [frames]:
+                p = PUBLIC / rel.lstrip("/")
+                if p.exists():
+                    out.append(dhash(Image.open(p)))
+        for rel in stay_media.get("images", []):
+            p = PUBLIC / str(rel).lstrip("/")
+            if p.exists():
+                out.append(dhash(Image.open(p)))
+        return out
+
     for rid, room in spec.get("rooms", {}).items():
         if room.get("generic") and not room.get("basis"):
             raise SystemExit(f"{stay}/{rid}: generic slot needs a basis")
@@ -98,6 +116,7 @@ def main(spec_path: str):
             p = PUBLIC / rel.lstrip("/")
             if p.exists():
                 hashes.append(dhash(Image.open(p)))
+        elsewhere = stay_hashes(rid)
         recorded = {v["url"] for v in sources["rooms"].values() if isinstance(v, dict)}
         added = 0
         for url in room.get("urls", []):
@@ -120,6 +139,9 @@ def main(spec_path: str):
             h = dhash(im)
             if any(near(h, o) for o in hashes):
                 print(f"DUP {stay}/{rid} {url}")
+                continue
+            if any(near(h, o) for o in elsewhere):
+                print(f"XDUP {stay}/{rid} {url} (already shown under another room type or the property gallery)")
                 continue
             n = len(current) + 1
             name = f"{rid}.jpg" if n == 1 else f"{rid}-{n}.jpg"
