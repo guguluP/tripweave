@@ -411,7 +411,8 @@
       "rooms": {
         "deluxe": [
           "/stays/chanakya-bnr-puri/rooms/deluxe.jpg",
-          "/stays/chanakya-bnr-puri/rooms/deluxe-2.jpg"
+          "/stays/chanakya-bnr-puri/rooms/deluxe-2.jpg",
+          "/stays/chanakya-bnr-puri/rooms/deluxe-3.jpg"
         ],
         "superior": [
           "/stays/chanakya-bnr-puri/rooms/superior.jpg",
@@ -429,7 +430,8 @@
           "/stays/chanakya-bnr-puri/rooms/superior-13.jpg",
           "/stays/chanakya-bnr-puri/rooms/superior-14.jpg",
           "/stays/chanakya-bnr-puri/rooms/superior-15.jpg",
-          "/stays/chanakya-bnr-puri/rooms/superior-16.jpg"
+          "/stays/chanakya-bnr-puri/rooms/superior-16.jpg",
+          "/stays/chanakya-bnr-puri/rooms/superior-17.jpg"
         ],
         "heritage-suite": [
           "/stays/chanakya-bnr-puri/rooms/heritage-suite-2.jpg",

@@ -98,6 +98,18 @@
       "path": "stays/chanakya-bnr-puri/rooms/superior-16.jpg",
       "page": "https://www.cleartrip.com/hotels/details/732123",
       "label": "Superior Room, 1 King Bed / Superior Room with Work Desk"
+    },
+    "superior-17": {
+      "url": "https://pix8.agoda.net/hotelImages/22631070/1027471707/1073accc4858c4af5f193a8e22ab8b55.jpg",
+      "path": "stays/chanakya-bnr-puri/rooms/superior-17.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=22631070",
+      "label": "Superior Room / Superior Room With Work Desk"
+    },
+    "deluxe-3": {
+      "url": "https://pix8.agoda.net/hotelImages/22631070/313852468/b72ac743d2ab37accfe569b38f3a561b.jpg",
+      "path": "stays/chanakya-bnr-puri/rooms/deluxe-3.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=22631070",
+      "label": "Deluxe Room Double / Deluxe Room with Work Desk"
     }
   }
 }
