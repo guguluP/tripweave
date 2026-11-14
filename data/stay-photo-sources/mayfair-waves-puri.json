@@ -73,6 +73,18 @@
       "path": "stays/mayfair-waves-puri/rooms/premium-sea-view-7.jpg",
       "page": "https://www.cleartrip.com/hotels/details/718192",
       "label": "Premium Room Sea View King"
+    },
+    "premium-2": {
+      "url": "https://pix8.agoda.net/hotelImages/568503/1288098857/33cba9ba56203b9c1e818f0b07dec814.jpeg",
+      "path": "stays/mayfair-waves-puri/rooms/premium-2.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=568503",
+      "label": "Premium Room King - Bedroom / Premium Room Twin - Room plan / Premium Room Twin - Bed"
+    },
+    "premium-3": {
+      "url": "https://pix8.agoda.net/hotelImages/568503/1288098857/67ae43282fc54bdb85b6e623fd8bda51.jpeg",
+      "path": "stays/mayfair-waves-puri/rooms/premium-3.jpg",
+      "page": "https://www.agoda.com/search?selectedproperty=568503",
+      "label": "Premium Room King - Bedroom / Premium Room Twin - Room plan / Premium Room Twin - Bed"
     }
   }
 }

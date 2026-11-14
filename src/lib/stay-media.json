@@ -344,7 +344,9 @@
       ],
       "rooms": {
         "premium": [
-          "/stays/mayfair-waves-puri/rooms/premium.jpg"
+          "/stays/mayfair-waves-puri/rooms/premium.jpg",
+          "/stays/mayfair-waves-puri/rooms/premium-2.jpg",
+          "/stays/mayfair-waves-puri/rooms/premium-3.jpg"
         ],
         "premium-sea-view": [
           "/stays/mayfair-waves-puri/rooms/premium-sea-view.jpg",
