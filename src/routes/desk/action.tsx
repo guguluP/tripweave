@@ -14,12 +14,30 @@ export const Route = createFileRoute("/desk/action")({
   head: () => pageHead("Hotel desk"),
 });
 
+/**
+ * The link's body is signed, not secret: read it only to label the button, so the
+ * desk can see "Confirm" or "Decline" before pressing. The server still verifies it.
+ */
+function previewDeskLink(token: string): { action: "accept" | "decline"; code: string } | null {
+  try {
+    const body = token.split(".")[0] ?? "";
+    if (!body) return null;
+    const padded = body.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (body.length % 4)) % 4);
+    const parsed = JSON.parse(atob(padded)) as { action?: unknown; confirmationCode?: unknown };
+    if (parsed.action !== "accept" && parsed.action !== "decline") return null;
+    const code = typeof parsed.confirmationCode === "string" ? parsed.confirmationCode.slice(0, 24) : "";
+    return { action: parsed.action, code };
+  } catch {
+    return null;
+  }
+}
+
 function DeskActionPage() {
   const { t } = Route.useSearch();
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [busy, setBusy] = useState(false);
-  const looksLikeDecline =
-    t.includes("decline") || /decline/i.test(decodeURIComponent(t).slice(0, 80));
+  const preview = previewDeskLink(t);
+  const looksLikeDecline = preview?.action === "decline";
 
   return (
     <Shell>
@@ -61,8 +79,10 @@ function DeskActionPage() {
             {busy
               ? "Applying…"
               : looksLikeDecline
-                ? "Apply decline link"
-                : "Apply confirm / decline link"}
+                ? `Decline${preview?.code ? ` ${preview.code}` : " this stay"}`
+                : preview?.action === "accept"
+                  ? `Confirm${preview.code ? ` ${preview.code}` : " this stay"}`
+                  : "Apply confirm / decline link"}
           </Button>
           <Button asChild variant="outline" className="w-full">
             <Link to="/desk" search={{ token: "", packageId: "" }}>

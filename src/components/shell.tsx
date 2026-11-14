@@ -72,7 +72,7 @@ export function Shell({
           <div>
             <BrandLockup markClassName="size-9" />
             <p className="mt-3 max-w-sm text-sm text-muted">
-              Sixty-two stays in and near Puri, ranked to three. The price is for the room.
+              Fifty-seven stays in and near Puri, ranked to three. The price is for the room.
             </p>
           </div>
           <Link to="/privacy" className="text-sm text-subtle hover:text-fg">

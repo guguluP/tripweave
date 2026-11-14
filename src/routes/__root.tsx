@@ -22,7 +22,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "TripWeave — sixty-two stays in and near Puri, ranked to three. You book one.",
+          "TripWeave — fifty-seven stays in and near Puri, ranked to three. You book one.",
       },
       { name: "theme-color", content: "#1e5853" },
     ],
