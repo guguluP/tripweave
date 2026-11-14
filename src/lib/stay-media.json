@@ -1232,13 +1232,17 @@
           "/stays/blue-lily-puri/rooms/premium-3.jpg",
           "/stays/blue-lily-puri/rooms/premium-4.jpg",
           "/stays/blue-lily-puri/rooms/premium-5.jpg",
-          "/stays/blue-lily-puri/rooms/premium-6.jpg"
+          "/stays/blue-lily-puri/rooms/premium-6.jpg",
+          "/stays/blue-lily-puri/rooms/premium-7.jpg",
+          "/stays/blue-lily-puri/rooms/premium-8.jpg"
         ],
         "family": [
           "/stays/blue-lily-puri/rooms/family.jpg",
           "/stays/blue-lily-puri/rooms/family-2.jpg",
           "/stays/blue-lily-puri/rooms/family-3.jpg",
-          "/stays/blue-lily-puri/rooms/family-4.jpg"
+          "/stays/blue-lily-puri/rooms/family-4.jpg",
+          "/stays/blue-lily-puri/rooms/family-5.jpg",
+          "/stays/blue-lily-puri/rooms/family-6.jpg"
         ],
         "suite": [
           "/stays/blue-lily-puri/rooms/suite.jpg",
@@ -1266,7 +1270,9 @@
           "/stays/blue-lily-puri/rooms/standard-11.jpg",
           "/stays/blue-lily-puri/rooms/standard-12.jpg",
           "/stays/blue-lily-puri/rooms/standard-13.jpg",
-          "/stays/blue-lily-puri/rooms/standard-14.jpg"
+          "/stays/blue-lily-puri/rooms/standard-14.jpg",
+          "/stays/blue-lily-puri/rooms/standard-15.jpg",
+          "/stays/blue-lily-puri/rooms/standard-16.jpg"
         ]
       }
     },
