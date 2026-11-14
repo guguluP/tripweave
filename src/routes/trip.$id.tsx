@@ -152,7 +152,15 @@ function TripDetail() {
   }, [pkg]);
   const [openToken, setOpenToken] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
-  const [frame, setFrame] = useState({ src: "", position: 1, total: 0 });
+  // Seed the cover badge from the media data so SSR (and the first paint on phones) shows the
+  // real "1 / N" instead of flashing "No photos yet" until PropertyMedia reports its first frame.
+  // Mirrors PropertyMedia's property filmstrip (pkg.images), falling back to the cover gallery.
+  const initialFrame = () => {
+    const filmstrip = pkg ? pkg.images.filter(Boolean) : [];
+    const list = filmstrip.length ? filmstrip : gallery;
+    return { src: list[0] ?? "", position: 1, total: list.length };
+  };
+  const [frame, setFrame] = useState(initialFrame);
   const [roomGallery, setRoomGallery] = useState<{
     id: string;
     name: string;
@@ -163,6 +171,7 @@ function TripDetail() {
   if (roomGalleryFor !== id) {
     setRoomGalleryFor(id);
     setRoomGallery(null);
+    setFrame(initialFrame());
   }
 
   useEffect(() => {
