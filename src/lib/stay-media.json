@@ -1803,7 +1803,12 @@
         "/stays/golden-dust-puri/gallery-2.jpg",
         "/stays/golden-dust-puri/gallery-3.jpg"
       ],
-      "rooms": {}
+      "rooms": {
+        "ac-deluxe": [
+          "/stays/golden-dust-puri/rooms/ac-deluxe.jpg",
+          "/stays/golden-dust-puri/rooms/ac-deluxe-2.jpg"
+        ]
+      }
     },
     "hotel-krishna-resorts-puri": {
       "images": [
