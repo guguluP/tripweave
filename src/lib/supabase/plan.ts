@@ -10,6 +10,12 @@ const documentSchema = z.object({
   updatedAt: z.string().min(10).max(40),
 });
 
+/** JSON-safe value, so the server-function return type passes TanStack's serializability check. */
+export type PlanJson = string | number | boolean | null | PlanJson[] | { [key: string]: PlanJson };
+export type PlanDocument = { [key: string]: PlanJson };
+
+type SavePlanResult = { ok?: boolean; stale?: boolean; document?: PlanDocument; updatedAt?: string };
+
 async function guestPlan(op: string, payload: Record<string, unknown>) {
   const sb = getSupabaseAdmin();
   if (!sb) throw new Error("Supabase is not configured");
@@ -29,7 +35,7 @@ export const loadGuestPlan = createServerFn({ method: "GET" })
     if (!data || typeof data !== "object") return null;
     const row = data as { document?: unknown; updatedAt?: string };
     if (!row.document || typeof row.document !== "object") return null;
-    return { document: row.document as Record<string, unknown>, updatedAt: String(row.updatedAt ?? "") };
+    return { document: row.document as PlanDocument, updatedAt: String(row.updatedAt ?? "") };
   });
 
 export const saveGuestPlan = createServerFn({ method: "POST" })
@@ -41,5 +47,5 @@ export const saveGuestPlan = createServerFn({ method: "POST" })
       updated_at: data.updatedAt,
       document: { brief: data.brief, pending: data.pending ?? null },
     });
-    return result as { ok?: boolean; stale?: boolean; document?: Record<string, unknown>; updatedAt?: string } | null;
+    return (result ?? null) as SavePlanResult | null;
   });

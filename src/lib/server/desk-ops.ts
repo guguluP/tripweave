@@ -424,9 +424,10 @@ async function runTransition(input: {
       status = saved.status;
     }
 
-    if (input.action === "desk_confirm" || input.action === "check_in") {
-      await mailGuestAfterDesk(input);
-      return { ok: true as const, status: status ?? (input.action === "check_in" ? "checked_in" : "desk_confirmed") };
+    const { action } = input;
+    if (action === "desk_confirm" || action === "check_in") {
+      await mailGuestAfterDesk({ id: input.id, packageId: input.packageId, action });
+      return { ok: true as const, status: status ?? (action === "check_in" ? "checked_in" : "desk_confirmed") };
     }
 
     // desk_decline: row is cancelled (or refund_pending). Refund next; never leave paid+refunded.
