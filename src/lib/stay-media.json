@@ -1938,6 +1938,10 @@
           "/stays/sterling-puri/rooms/sea-view-deluxe-room-with-balcony-4.jpg",
           "/stays/sterling-puri/rooms/sea-view-deluxe-room-with-balcony-5.jpg",
           "/stays/sterling-puri/rooms/sea-view-deluxe-room-with-balcony-6.jpg"
+        ],
+        "sea-view-privilege-suite-with-balcony": [
+          "/stays/sterling-puri/rooms/sea-view-privilege-suite-with-balcony.jpg",
+          "/stays/sterling-puri/rooms/sea-view-privilege-suite-with-balcony-2.jpg"
         ]
       }
     },
