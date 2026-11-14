@@ -1119,5 +1119,175 @@ export const SEED_CONSENSUS: Record<string, PackageReviewConsensus> = {
     origin: "seed",
     roomNotes: SEED_ROOM_NOTES["yatrinivas-konark"],
   },
+  "new-shankar-international": {
+    packageId: "new-shankar-international",
+    overallSentiment: "mixed",
+    keyPositives: [
+      "Sea is visible from the flower-filled terrace in the guest clips",
+      "Open lawn and courtyard where guests sit out in the evening",
+      "The one room corner glimpsed looks plain but uncluttered",
+    ],
+    keyNegatives: [
+      "None of the three linked videos shows a full room, bed or bathroom",
+      "No reviewer in any linked video states a verdict, price or rating",
+    ],
+    caveats: [
+      "All three linked videos are silent music montages — this consensus rests on visual evidence only",
+    ],
+    consensusSummary:
+      "The three guest clips linked here are silent montages, not spoken reviews: they show the courtyard, a terrace with a sea view, and a glimpse of one plain room corner. They prove the hotel is near the beach and has outdoor space, but no reviewer verdict exists in them, so this consensus stays deliberately cautious.",
+    sources: sources("new-shankar-international", ["hi", "hi", "hi"]),
+    updatedAt: SEEDED_AT,
+    origin: "seed",
+  },
+  "panthanivas-satapada": {
+    packageId: "panthanivas-satapada",
+    overallSentiment: "positive",
+    keyPositives: [
+      "Balcony view over Chilika Lake is the highlight in every stay vlog",
+      "Reviewers call the room very comfortable and spacious",
+      "On-site restaurant under the rooms; breakfast gets a healthy thumbs-up",
+      "The natural base for Satapada boat trips to the sea mouth and Rajhans Island",
+    ],
+    keyNegatives: [
+      "Room entrance and fittings look worn — peeling paint at the door in one vlog",
+      "Two of the four linked videos barely show the room at all",
+    ],
+    caveats: [
+      "No linked video states a price or shows the bathroom — judge it as a view-led stay",
+    ],
+    consensusSummary:
+      "Guests who actually stayed here are happy: the Yatri Nivas sells itself on the balcony over Chilika, and reviewers call the rooms comfortable and spacious, with an easy restaurant downstairs. The evidence is view-led — bathrooms and tariffs go unshown — and the building's edges look worn.",
+    sources: sources("panthanivas-satapada", ["bn", "bn", "bn", "en"]),
+    updatedAt: SEEDED_AT,
+    origin: "seed",
+  },
+  "panthanivas-konark": {
+    packageId: "panthanivas-konark",
+    overallSentiment: "mixed",
+    keyPositives: [
+      "Reviewers put the tariff at about ₹1,600 a night and call it the best budget option in Konark",
+      "Furnished rooms: big beds, TV, wardrobe, dressing table; one bathroom praised as neat and clean",
+      "Helpful staff and generous food portions in the longest stay vlog",
+      "Large grounds with parking, minutes from the Sun Temple and Chandrabhaga Beach",
+    ],
+    keyNegatives: [
+      "One reviewer says renovation is terribly needed — peeling paint and damp at the wall bases",
+      "Rooms are basic and dated: old window AC, exposed wiring in places",
+      "Wi-Fi works in the lobby, not in the rooms; the main gate closes at 11 pm",
+    ],
+    caveats: [
+      "Book for value and location, not polish — this is a tired government property",
+    ],
+    consensusSummary:
+      "Konark's Yatri Nivas is the value pick reviewers keep returning to: roughly ₹1,600 a night for a big, furnished room, willing staff and a temple-side location. The same vlogs are blunt about upkeep — peeling paint, damp patches and a renovation long overdue — so the praise is for price and place, not condition.",
+    sources: sources("panthanivas-konark", ["hi", "hi", "bn"]),
+    updatedAt: SEEDED_AT,
+    origin: "seed",
+  },
+  "om-leisure-satapada": {
+    packageId: "om-leisure-satapada",
+    overallSentiment: "mixed",
+    keyPositives: [
+      "Spacious room in the linked tour, with a TV unit, desk and kettle",
+      "Attached bathroom with blue tiling glimpsed from the room",
+      "Distinctive, well-kept entrance and garden on the Satapada jetty side",
+    ],
+    keyNegatives: [
+      "The single linked vlog states no price, rating or recommendation",
+      "No bed, food or boat-access detail is shown",
+    ],
+    caveats: [
+      "One casual Odia room tour is the whole evidence base — comfort and value are unproven",
+    ],
+    consensusSummary:
+      "The only linked video is a friendly Odia room tour: a big, plainly furnished room, a kettle on the desk, and a smart entrance with a boat sculpture. The reviewer sounds pleased with the room's size, but with no price, food or comfort detail on record, this consensus stays middle-of-the-road.",
+    sources: sources("om-leisure-satapada", ["or"]),
+    updatedAt: SEEDED_AT,
+    origin: "seed",
+  },
+  "white-sands-puri": {
+    packageId: "white-sands-puri",
+    overallSentiment: "positive",
+    keyPositives: [
+      "Rooftop pool and terrace overlooking the sea and Marine Drive",
+      "Spacious, well-designed room with generous storage and a mini-fridge",
+      "Reviewer praises the staff as very helpful; welcome drink at check-in",
+      "Large first-floor restaurant; marble bathroom with hair dryer and toiletries",
+    ],
+    keyNegatives: [
+      "Shower-area floor is gappy, so water spreads while bathing",
+      "Hot water failed once during the stay (staff fixed it when asked)",
+    ],
+    caveats: [
+      "New rooms and floors were still being built during the review",
+    ],
+    consensusSummary:
+      "A modern sea-facing stay the reviewer clearly enjoyed: rooftop pool, a big restaurant, and a room she calls well designed, with staff who sort problems out. Her two complaints are specific — a shower floor that lets water spread, and one hot-water failure — in an otherwise complaint-free stay.",
+    sources: sources("white-sands-puri", ["bn"]),
+    updatedAt: SEEDED_AT,
+    origin: "seed",
+  },
+  "the-eastern-dham": {
+    packageId: "the-eastern-dham",
+    overallSentiment: "positive",
+    keyPositives: [
+      "Full-width sea view straight over the beach road from the fourth-floor room",
+      "Modern, bright room: central AC, large TV, seating and wardrobe all shown",
+      "Reviewer calls the room very beautiful and the view the best",
+    ],
+    keyNegatives: [
+      "The single linked video is under three minutes and shows no food, lobby or beach access",
+      "No price or booking detail is stated anywhere in it",
+    ],
+    caveats: [
+      "Judge it on the room and the view — everything else is unproven by video",
+    ],
+    consensusSummary:
+      "One short, glowing walk-through is the whole case: a tidy, modern sea-view room the reviewer loves, with the beach spread out below the window. It is an enthusiastic three minutes, but it prices nothing and tests nothing beyond the room, so the score leans on that single impression.",
+    sources: sources("the-eastern-dham", ["hi"]),
+    updatedAt: SEEDED_AT,
+    origin: "seed",
+  },
+  "sidharth-inn-puri": {
+    packageId: "sidharth-inn-puri",
+    overallSentiment: "mixed",
+    keyPositives: [
+      "The linked room walk-through shows AC, a wardrobe and a bright window",
+      "Bathroom looks clean, with marble-pattern tiles, shower and exhaust fan",
+    ],
+    keyNegatives: [
+      "Furnishings are very basic, and the bed is shown unmade in the only linked video",
+      "The video is silent — no verdict, price or word on food, service or location",
+    ],
+    caveats: [
+      "A single silent phone tour is the whole evidence base",
+    ],
+    consensusSummary:
+      "The only linked video is a silent phone walk-through of Room 401: a plain, bright room with AC and a clean, basic tiled bathroom. It shows the room honestly but says nothing — literally — about value, food or service, so this consensus stays cautious.",
+    sources: sources("sidharth-inn-puri", ["hi"]),
+    updatedAt: SEEDED_AT,
+    origin: "seed",
+  },
+  "hotel-deluxe-konark": {
+    packageId: "hotel-deluxe-konark",
+    overallSentiment: "mixed",
+    keyPositives: [
+      "About ₹600 a night in the linked hotel-hunt video — among the cheapest rooms in Konark",
+      "AC and TV fitted in the room shown",
+    ],
+    keyNegatives: [
+      "Visibly dated: peeling paint in the corridor and worn, basic finishings",
+      "Bathroom is barely shown; nothing on food or service",
+    ],
+    caveats: [
+      "The assessment rests on a three-minute segment (about 3:03–6:00) of a budget hotel hunt, not a dedicated review",
+    ],
+    consensusSummary:
+      "The Deluxe appears for three minutes inside a budget hotel hunt: a plain double room with AC and TV at roughly ₹600 a night, in a building with peeling corridor paint and old finishings. Fine for a cheap night near the Sun Temple, says the footage — nothing more is claimed, and nothing more is proven.",
+    sources: sources("hotel-deluxe-konark", ["hi"]),
+    updatedAt: SEEDED_AT,
+    origin: "seed",
+  },
 };
 
